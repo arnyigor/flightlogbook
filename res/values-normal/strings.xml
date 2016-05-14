@@ -1,0 +1,88 @@
+<resources>
+    <string name="app_name">Pilot Logbook</string>
+    <string name="action_settings">Настройки</string>
+    <string name="str_add">Добавить</string>
+    <string name="str_edt">Редактировать</string>
+    <string name="str_delete">Удалить</string>
+    <string name="str_clearall">Очистить все</string>
+    <string name="str_exit">Выход?</string>
+    <string name="str_ok">OK</string>
+    <string name="str_cancel">Отмена</string>
+    <string name="str_empty_title">Нет описания</string>
+    <string name="str_desc">Описание</string>
+    <string name="str_date">Дата</string>
+    <string name="str_logtime">00:00</string>
+    <string name="str_itemlogtime">Налет</string>
+    <string name="str_hours">ч.</string>
+    <string name="str_minutes">мин.</string>
+    <string name="str_enter_logtime">Введите время полета</string>
+    <string name="str_totaltime">Общее время:</string>
+    <string name="str_about">О программе</string>
+    <string name="str_regnum">Рег.№</string>
+    <string name="str_type_null">Тип ВС</string>
+    <string name="str_day_night">День/Ночь</string>
+    <string name="str_vfr_ifr">визуально/по приборам</string>
+    <string name="str_flight_type">круги/зона/маршрут</string>
+    <string name="str_type">Тип ВС:</string>
+    <string name="str_type_empty">Тип ВС: нет</string>
+    <string name="str_add_airplane_types">Добавить тип ВС</string>
+    <string name="str_airplane_types">Типы ВС</string>
+    <string name="str_airplane_type">Тип ВС</string>
+    <string name="str_error_add_airplane_types">Необходимо добавить тип ВС</string>
+    <string name="str_import_excel">Импорт XLS</string>
+    <string name="str_export_excel">Экспорт XLS</string>
+    <string name="str_open_file">Открыть XLS</string>
+    <string name="str_import_attention">Предупреждение!</string>
+    <string name="str_import_massage">При импроте данных из файла база данных будет заменена.</string>
+    <string name="str_export_attention">Экспорт в файл?</string>
+    <string name="str_import_success">Импорт завершен</string>
+    <string name="str_export_success">Экспорт завершен</string>
+    <string name="str_file_saved">Файл сохранен</string>
+    <string name="str_settings">Настройки</string>
+    <string name="str_btnpos">Положение кнопки</string>
+    <string name="str_btnpos_summary">Изменение положения кнопки(вступит в силу после перезапуска приложения)</string>
+    <string name="str_moto">Cчетчик моточасов</string>
+    <string name="str_moto_btn">Счетчик</string>
+    <string name="str_motostart">Начальное показание </string>
+    <string name="str_motofinish">Конечное показание </string>
+    <string name="str_motoresult">Результат</string>
+    <string name="str_moto_correct_result">Ошибка,конечно значение меньше!</string>
+    <string name="str_extend_options">Дополнительные опции</string>
+    <string name="icao_hint">ICAO</string>
+    <string name="btn_metar_text">Metar</string>
+    <string name="metar_text">Metar + AUTOTAF</string>
+    <string name="metar_text_summary">Автоматические авиационные прогнозы погоды с сайта http://meteocenter.asia/</string>
+    <string name="str_xls">Настройки XLS</string>
+    <string name="str_alarm_add_airplane_type">Введите тип ВС</string>
+    <string name="str_remove_all">Удалить все</string>
+
+    <string-array name="daynight">
+        <item>день</item>
+        <item>ночь</item>
+    </string-array>
+
+    <string-array name="ifrvfr">
+        <item>VFR</item>
+        <item>IFR</item>
+    </string-array>
+
+    <string-array name="flighttype">
+        <item>круги</item>
+        <item>зона</item>
+        <item>маршрут</item>
+    </string-array>
+
+    <string-array name="btnposArray">
+        <item>Верх Лево</item>
+        <item>Верх Право</item>
+        <item>Низ Лево</item>
+        <item>Низ Право</item>
+    </string-array>
+    <string-array name="btnposValues">
+        <item>tl</item>
+        <item>tr</item>
+        <item>bl</item>
+        <item>br</item>
+    </string-array>
+
+</resources>
