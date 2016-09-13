@@ -73,12 +73,15 @@
                         android:textStyle="bold"
                         android:padding="2dp"/>
                 <TextView
+                        android:maxWidth="80dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:hint="@string/str_type"
                         android:id="@+id/tvType"
                         android:padding="2dp"
-                        android:textSize="@dimen/font_size"/>
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        android:textSize="@dimen/font_size" />
             </LinearLayout>
 
             <LinearLayout
@@ -96,11 +99,14 @@
                         android:textStyle="bold"
                         android:padding="2dp"/>
                 <TextView
+                        android:maxWidth="80dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:hint="@string/str_regnum"
                         android:id="@+id/tvRegNo"
                         android:padding="2dp"
+                        android:singleLine="true"
+                        android:ellipsize="end"
                         android:textSize="@dimen/font_size"/>
             </LinearLayout>
 
@@ -116,6 +122,8 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/str_desc"
                     android:padding="2dp"
+                    android:singleLine="true"
+                    android:ellipsize="end"
                     android:textStyle="italic"
                     android:textSize="@dimen/font_size"/>
         </LinearLayout>

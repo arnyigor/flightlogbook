@@ -2,24 +2,23 @@ package com.arny.flightlogbook;
 
 //imports start==========
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.database.SQLException;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.TextInputLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.*;
 
 import java.math.BigDecimal;
@@ -31,7 +30,8 @@ import java.util.*;
 //imports end==========
 
 //==============Activity start=========================
-public class AddEditActivity extends Activity {
+public class AddEditActivity extends AppCompatActivity {
+	private static final String LOGTIME_STATE_KEY = "com.arny.flightlogbook.extra.instance.time";
 	static final int DIALOG_DATE = 101;
 	private static final String TAG = "LOG_TAG";
 	// =============Variables start================
@@ -43,23 +43,35 @@ public class AddEditActivity extends Activity {
 	LinearLayout motoCont;
 	View.OnClickListener editMotoBtn;
 	String strDesc, strDate, strTime, strMonth,airplane_type,reg_no;
-	int mYear, mMonth, mDay, day_night, ifr_vfr, flight_type, logTime, logHours, logMinutes,airplane_type_id;
+	int mYear, mMonth, mDay, day_night, ifr_vfr, flight_type, logTime,oldLogtime, logHours, logMinutes,airplane_type_id;
 	long mDateTime, mTypeID;
 	int mRowId;
 	Float mMotoStart,mMotoFinish,mMotoResult;
+	TextInputLayout regNoLayout;
 	EditText edtDesc, edtDate, edtTime, edtRegNo,edtMotoStart,edtMotoFinish;
-	Button btnAddEdtItem,btnAddAirplaneTypes;
+	Button btnAddEdtItem;
+	ImageButton btnAddAirplaneTypes;
 	Spinner spinDayNight, spinVfrIfr, spinFlightType;
 	TextView tvAirplaneType,tvMotoResult;
 	Boolean motoCheckPref;
 	List<String> typeList;
 	boolean editable = false;
+	ActionBar actionBar;
 
 	// ==============Forms variables end==============
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		try {
+			actionBar = getSupportActionBar();
+			if (actionBar != null) {
+				actionBar.setDisplayHomeAsUpEnabled(true);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.add_item);
+
 		// ================Forms Ids start=========================
 		getPrefs();
 		db = new DatabaseHandler(this);
@@ -67,15 +79,17 @@ public class AddEditActivity extends Activity {
 		motoCont = (LinearLayout) findViewById(R.id.motoContainer);
 		edtDate = (EditText) findViewById(R.id.edtDate);
 		edtTime = (EditText) findViewById(R.id.edtTime);
-		edtRegNo = (EditText) findViewById(R.id.edtRegNo);
+		regNoLayout = (TextInputLayout) findViewById(R.id.edtRegNoLayout);
+		if (regNoLayout != null) {
+			edtRegNo = (EditText) regNoLayout.findViewById(R.id.edtRegNo);
+		}
+		edtRegNo.requestFocus();
 		btnAddEdtItem = (Button) findViewById(R.id.btnAddEdtItem);
-		btnAddAirplaneTypes = (Button) findViewById(R.id.btnAddAirplaneTypes);
+		btnAddAirplaneTypes = (ImageButton) findViewById(R.id.btnAddAirplaneTypes);
 		spinDayNight = (Spinner) findViewById(R.id.spinDayNight);
 		spinVfrIfr = (Spinner) findViewById(R.id.spinVfrIfr);
 		spinFlightType = (Spinner) findViewById(R.id.spinFlightType);
 		tvAirplaneType = (TextView) findViewById(R.id.tvAirplaneType);
-		// ================Forms Ids end=========================
-		// ==================onCreateCode start=========================
 		mCalendar = Calendar.getInstance();
 		mYear = mCalendar.get(Calendar.YEAR);
 		mMonth = mCalendar.get(Calendar.MONTH);
@@ -101,12 +115,12 @@ public class AddEditActivity extends Activity {
 
 		edtTime.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 			@Override
-			public void onFocusChange(View view, boolean b) {
-				if (b) {
+			public void onFocusChange(View view, boolean inside) {
+				if (inside) {
 					edtTime.setText("");
 				}
-				if (!b){
-					correctLogTime();
+				if (!inside){
+						correctLogTime();
 				}
 			}
 		});
@@ -176,7 +190,12 @@ public class AddEditActivity extends Activity {
 			@Override
 			public void onClick(View view) {
 				filltypes();
-				showAirplaneTypes();
+				if (typeList.size()>0) {
+					showAirplaneTypes();
+				}else{
+					Toast.makeText(AddEditActivity.this, R.string.str_no_types, Toast.LENGTH_SHORT).show();
+				}
+
 			}
 		});
 
@@ -190,22 +209,60 @@ public class AddEditActivity extends Activity {
 		if (motoCheckPref) {
 			showMotoBtn();
 		}
+		fillInputs();
 		// ==================onCreateCode end=========================
 	}// ============onCreate end====================
 
+	@Override
+	public void onSaveInstanceState(Bundle savedInstanceState) {
+		try{
+			savedInstanceState.putInt(LOGTIME_STATE_KEY, logTime);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		// всегда вызывайте суперкласс для сохранения состояний видов
+		super.onSaveInstanceState(savedInstanceState);
+	}
+
+	public void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+		logTime = savedInstanceState.getInt(LOGTIME_STATE_KEY);
+		fillEdtTime(logTime);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.add_edit_menu,menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				super. onBackPressed();
+				return true;
+			case R.id.action_type_edit:
+				Intent AirplanesActivity = new Intent(AddEditActivity.this, AirplaneTypesActivity.class);
+				startActivity(AirplanesActivity);
+				break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
 	private void filltypes() {
-		Log.i(TAG, "--------------------filltypes_start-------------------");
+//		Log.i(TAG, "--------------------filltypes_start-------------------");
 		try {
 			typeList = new ArrayList<String>();
 			ListType = db.getTypeList();
 			for (DataList type : ListType) {
-				Log.i(TAG, "idColType: " + type.getAirplanetypetitle());
+//				Log.i(TAG, "idColType: " + type.getAirplanetypetitle());
 				typeList.add(type.getAirplanetypetitle());
 			}
 		} catch (SQLException e) {
-			Log.i(TAG, "SQLException: " + e.toString());
+//			Log.i(TAG, "SQLException: " + e.toString());
 		}
-		Log.i(TAG, "--------------------filltypes_end-------------------");
+//		Log.i(TAG, "--------------------filltypes_end-------------------");
 	}
 
 	private void showAirplaneTypes() {
@@ -245,7 +302,7 @@ public class AddEditActivity extends Activity {
 				mMotoStart= Float.parseFloat(edtMotoStart.getText().toString());
 				mMotoFinish= Float.parseFloat(edtMotoFinish.getText().toString());
 				mMotoResult = getMotoTime(mMotoStart,mMotoFinish);
-				tvMotoResult.setText(String.valueOf(mMotoResult));
+				tvMotoResult.setText(strLogTime(setLogTimefromMoto(mMotoResult)));
 			} catch (Exception e) {
 				Log.i(TAG, "onTextChanged Exception = "+e.toString());
 			}
@@ -262,7 +319,7 @@ public class AddEditActivity extends Activity {
 				mMotoStart= Float.parseFloat(edtMotoStart.getText().toString());
 				mMotoFinish= Float.parseFloat(edtMotoFinish.getText().toString());
 				mMotoResult = getMotoTime(mMotoStart,mMotoFinish);
-				tvMotoResult.setText(String.valueOf(mMotoResult));
+				tvMotoResult.setText(strLogTime(setLogTimefromMoto(mMotoResult)));
 			} catch (Exception e) {
 				Log.i(TAG, "onTextChanged Exception = "+e.toString());
 			}
@@ -314,7 +371,7 @@ public class AddEditActivity extends Activity {
 		edtMotoStart.addTextChangedListener(motoStart);
 		edtMotoFinish.addTextChangedListener(motoFinish);
 		alertDialog.setTitle(getString(R.string.str_moto));
-		alertDialog.setCancelable(false).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+		alertDialog.setCancelable(false).setPositiveButton(getString(R.string.str_ok), new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
 				logTime = setLogTimefromMoto(mMotoResult);
 				logHours = logTime / 60;
@@ -324,7 +381,7 @@ public class AddEditActivity extends Activity {
 				Log.i(TAG, "onClick logMinutes = "+logMinutes);
 				edtTime.setText(pad(logHours)+":"+pad(logMinutes));
 			}
-		}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+		}).setNegativeButton(getString(R.string.str_cancel), new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
 				dialog.cancel();
 			}
@@ -353,18 +410,62 @@ public class AddEditActivity extends Activity {
 	};
 
 	public String strLogTime(int logtime){
+		Log.i(TAG, "strLogTime logtime = "  +logtime);
 		int totalH = logtime / 60;
 		int totalMin = logtime % 60;
+		Log.i(TAG, "strLogTime totalH = "  +totalH);
+		Log.i(TAG, "strLogTime totalMin = "  +totalMin);
 		return pad(totalH) + ":" + pad(totalMin);
 	}
 
-	private void correctLogTime(){
+	private void getLogTime(){
+		Log.i(TAG, "getLogTime ");
 		try {
 			String inputLogtime = edtTime.getText().toString();
+			Log.i(TAG, "getLogTime inputLogtime.text = "+inputLogtime);
+			if (inputLogtime.length() == 0){
+					logTime = 0;
+			}else if (inputLogtime.length() == 1){
+				logTime = Integer.parseInt(edtTime.getText().toString());
+			} else if (inputLogtime.length() == 2) {
+				logMinutes = Integer.parseInt(edtTime.getText().toString());
+				logTime = Integer.parseInt(edtTime.getText().toString());
+				if (logMinutes > 59) {
+					logHours = 1;
+					logMinutes = logMinutes-60;
+				}
+			} else if (inputLogtime.length() > 2) {
+				if (inputLogtime.contains(":")) {
+					logMinutes = Integer.parseInt(edtTime.getText().toString().substring(inputLogtime.length()-2,inputLogtime.length()));
+					logHours = Integer.parseInt(edtTime.getText().toString().substring(0,inputLogtime.length()-3));
+				}else{
+					logMinutes = Integer.parseInt(edtTime.getText().toString().substring(inputLogtime.length()-2,inputLogtime.length()));
+					logHours = Integer.parseInt(edtTime.getText().toString().substring(0,inputLogtime.length()-2));
+				}
+				if (logMinutes > 59) {
+					logHours = logHours+1;
+					logMinutes = logMinutes-60;
+				}
+				logTime = logHours * 60 + logMinutes;
+			}
+		} catch (Exception e) {
+			Log.i(TAG, "correctLogTime Exception = "+e.toString());
+		}
+	}
+
+	private void correctLogTime(){
+		Log.i(TAG, "correctLogTime ");
+		try {
+			String inputLogtime = edtTime.getText().toString();
+			Log.i(TAG, "correctLogTime inputLogtime.text = "+inputLogtime);
 			Log.i(TAG, "correctLogTime inputLogtime.length = "+inputLogtime.length());
 			if (inputLogtime.length() == 0){
-				edtTime.setText("00:00");
-				logTime = 0;
+				if (logTime != 0) {
+					edtTime.setText(strLogTime(logTime));
+				}else{
+					edtTime.setText("00:00");
+					logTime = 0;
+				}
 			}else if (inputLogtime.length() == 1){
 				logTime = Integer.parseInt(edtTime.getText().toString());
 				edtTime.setText("00:0"+logTime);
@@ -377,8 +478,13 @@ public class AddEditActivity extends Activity {
 				}
 				edtTime.setText(pad(logHours)+":"+pad(logMinutes));
 			} else if (inputLogtime.length() > 2) {
-				logMinutes = Integer.parseInt(edtTime.getText().toString().substring(inputLogtime.length()-2,inputLogtime.length()));
-				logHours = Integer.parseInt(edtTime.getText().toString().substring(0,inputLogtime.length()-2));
+				if (inputLogtime.contains(":")) {
+					logMinutes = Integer.parseInt(edtTime.getText().toString().substring(inputLogtime.length()-2,inputLogtime.length()));
+					logHours = Integer.parseInt(edtTime.getText().toString().substring(0,inputLogtime.length()-3));
+				}else{
+					logMinutes = Integer.parseInt(edtTime.getText().toString().substring(inputLogtime.length()-2,inputLogtime.length()));
+					logHours = Integer.parseInt(edtTime.getText().toString().substring(0,inputLogtime.length()-2));
+				}
 				Log.i(TAG, "correctLogTime logMinutes = "+logMinutes);
 				Log.i(TAG, "correctLogTime logHours = "+logHours);
 				if (logMinutes > 59) {
@@ -390,6 +496,19 @@ public class AddEditActivity extends Activity {
 			}
 		} catch (Exception e) {
 			Log.i(TAG, "correctLogTime Exception = "+e.toString());
+		}
+	}
+
+	private void fillEdtTime(int time){
+		Log.i(TAG, "fillEdtTime logTime = " + time);
+		try {
+			if (time != 0) {
+				edtTime.setText(strLogTime(time));
+			}else{
+				edtTime.setText("00:00");
+			}
+		} catch (Exception e) {
+			Log.i(TAG, "fillEdtTime Exception = "+e.toString());
 		}
 	}
 
@@ -459,7 +578,6 @@ public class AddEditActivity extends Activity {
 				Log.i("LOG_TAG", e.toString());
 			}
 		} else {
-			airplane_type_id = 0;
 			edtDesc.setText("");
 			edtDate.setText("");
 			strDesc = "";
@@ -471,7 +589,14 @@ public class AddEditActivity extends Activity {
 			day_night = 0;
 			ifr_vfr = 0;
 			flight_type = 0;
-			tvAirplaneType.setText(getString(R.string.str_type_empty));
+			filltypes();
+			try {
+				airplane_type_id = 1;
+				tvAirplaneType.setText(getString(R.string.str_type) + " " + typeList.get(0));
+			} catch (Exception e) {
+				airplane_type_id = 0;
+				tvAirplaneType.setText(getString(R.string.str_type_empty));
+			}
 			spinDayNight.setSelection(day_night);
 			spinVfrIfr.setSelection(ifr_vfr);
 			spinFlightType.setSelection(flight_type);
@@ -611,7 +736,6 @@ public class AddEditActivity extends Activity {
 		super.onResume();
 		Log.i("LOG_TAG", "onResume");
 		Log.i("LOG_TAG", "mRowId: " + mRowId);
-		fillInputs();
 	}
 	// ====================OnClicks end======================================
 }// ===================Activity end==================================

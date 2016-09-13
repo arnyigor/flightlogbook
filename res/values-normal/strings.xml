@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Pilot Logbook</string>
-    <string name="action_settings">Настройки</string>
+    <string name="str_dropbox">Синхронизация с Dropbox</string>
     <string name="str_add">Добавить</string>
     <string name="str_edt">Редактировать</string>
     <string name="str_delete">Удалить</string>
@@ -26,16 +26,17 @@
     <string name="str_type">Тип ВС:</string>
     <string name="str_type_empty">Тип ВС: нет</string>
     <string name="str_add_airplane_types">Добавить тип ВС</string>
+    <string name="str_edt_airplane_types">Редактировать тип ВС</string>
     <string name="str_airplane_types">Типы ВС</string>
     <string name="str_airplane_type">Тип ВС</string>
     <string name="str_error_add_airplane_types">Необходимо добавить тип ВС</string>
     <string name="str_import_excel">Импорт XLS</string>
+    <string name="str_import_from_file">Импорт из файловой системы</string>
     <string name="str_export_excel">Экспорт XLS</string>
     <string name="str_open_file">Открыть XLS</string>
     <string name="str_import_attention">Предупреждение!</string>
     <string name="str_import_massage">При импроте данных из файла база данных будет заменена.</string>
     <string name="str_export_attention">Экспорт в файл?</string>
-    <string name="str_import_success">Импорт завершен</string>
     <string name="str_export_success">Экспорт завершен</string>
     <string name="str_file_saved">Файл сохранен</string>
     <string name="str_settings">Настройки</string>
@@ -46,15 +47,20 @@
     <string name="str_motostart">Начальное показание </string>
     <string name="str_motofinish">Конечное показание </string>
     <string name="str_motoresult">Результат</string>
-    <string name="str_moto_correct_result">Ошибка,конечно значение меньше!</string>
+    <string name="str_moto_correct_result">Ошибка,конечное значение меньше!</string>
     <string name="str_extend_options">Дополнительные опции</string>
     <string name="icao_hint">ICAO</string>
     <string name="btn_metar_text">Metar</string>
-    <string name="metar_text">Metar + AUTOTAF</string>
+    <string name="metar_text">Metar + AUTOTAF(beta) в разработке</string>
     <string name="metar_text_summary">Автоматические авиационные прогнозы погоды с сайта http://meteocenter.asia/</string>
     <string name="str_xls">Настройки XLS</string>
     <string name="str_alarm_add_airplane_type">Введите тип ВС</string>
     <string name="str_remove_all">Удалить все</string>
+    <string name="str_dropbox_connect">Соединиться с Dropbox</string>
+    <string name="str_error_import">Ошибка импорта</string>
+    <string name="str_no_types">Нет типов ВС</string>
+    <string name="str_addtype">Добавить тип ВС</string>
+    <string name="str_storage_permission_denied">Доступ к памяти запрещен</string>
 
     <string-array name="daynight">
         <item>день</item>

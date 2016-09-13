@@ -1,0 +1,6 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/action_type_edit"
+          android:showAsAction="never"
+          android:title="@string/str_airplane_types"/>
+
+</menu>

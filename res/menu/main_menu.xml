@@ -23,10 +23,16 @@
             <item android:id="@+id/action_open_file"
                   android:title="@string/str_open_file">
             </item>
+            <item android:id="@+id/action_import_from_file"
+                  android:title="@string/str_import_from_file">
+            </item>
         </menu>
     </item>
     <item android:id="@+id/action_metar"
           android:showAsAction="never"
           android:title="@string/metar_text"/>
+   <!-- <item android:id="@+id/action_dropbox_sync"
+          android:showAsAction="never"
+          android:title="@string/str_dropbox"/>-->
 
 </menu>

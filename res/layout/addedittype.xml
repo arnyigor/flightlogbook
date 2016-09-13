@@ -4,13 +4,21 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
-    <EditText
+    <android.support.design.widget.TextInputLayout
+            android:id="@+id/edtTypeLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/editText" android:layout_gravity="center_horizontal"/>
+            android:layout_height="wrap_content">
+
+        <android.support.design.widget.TextInputEditText
+                android:layout_width="match_parent"
+                android:id="@+id/edtType"
+                android:layout_height="wrap_content"
+                android:hint="@string/str_type"/>
+    </android.support.design.widget.TextInputLayout>
     <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Add"
-            android:id="@+id/btnEditType" android:layout_gravity="center_horizontal"/>
+            android:text="@string/str_add"
+            android:id="@+id/btnEditType"
+            android:layout_gravity="center_horizontal"/>
 </LinearLayout>

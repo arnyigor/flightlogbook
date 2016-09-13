@@ -1,34 +1,40 @@
 package com.arny.flightlogbook;
 // imports start==========
-import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.TextInputLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.*;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 // imports end==========
 
 //==============Activitystart=========================
-public class MetarActivity extends Activity {
+public class MetarActivity extends AppCompatActivity {
     private static final String TAG = "LOG_TAG";
     private static final String PARSE_LINK = "http://meteocenter.asia/?m=aopa&p=";
     // =============Variables_start================
     Button btnMetar;
     TextView tvMetar;
     EditText edtIcaoCode;
+    TextInputLayout edtIcaoCodeLayout;
     String strIcao;
     boolean startParse,finishParse,hasAutotaf;
     List<String> Metarlist;
     ArrayAdapter<String> metaradapter;
+    ActionBar actionBar;
     // =============Variable_send================
 // ====================onCreatestart=========================
     @Override
@@ -38,7 +44,14 @@ public class MetarActivity extends Activity {
         // ================Forms Ids start=========================
         tvMetar = (TextView)findViewById(R.id.tvMetar);
         btnMetar = (Button)findViewById(R.id.btnMetar);
-        edtIcaoCode = (EditText)findViewById(R.id.edtIcaoCode);
+        edtIcaoCodeLayout = (TextInputLayout) findViewById(R.id.edtIcaoCodeLayout);
+        edtIcaoCode = (EditText) edtIcaoCodeLayout.findViewById(R.id.edtIcaoCode);
+        try {
+            actionBar = getSupportActionBar();
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         // ================Forms Ids end=========================
         // находим список
 //        ListView lvMain = (ListView) findViewById(R.id.lvMain);
@@ -62,6 +75,21 @@ public class MetarActivity extends Activity {
         });
         // ==================onCreateCode start=========================
     }//============onCreate_end====================
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case android.R.id.home:
+                // ProjectsActivity is my 'home' activity
+                super. onBackPressed();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
     private class LoadTask extends AsyncTask<String, Integer, String> {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
@@ -80,7 +108,7 @@ public class MetarActivity extends Activity {
             hasAutotaf = false;
             finishParse = false;
             try {
-                URL url = new URL(PARSE_LINK+strIcao);
+                URL url = new URL(PARSE_LINK + strIcao);
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
@@ -90,8 +118,8 @@ public class MetarActivity extends Activity {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     if (line.contains("<PRE>AUTOTAF")) {
-                        startParse=true;
-                        hasAutotaf=true;
+                        startParse = true;
+                        hasAutotaf = true;
                     }
                     if (!finishParse && startParse) {
 //                        Log.i(TAG, "doInBackground line = "+line);
@@ -100,8 +128,8 @@ public class MetarActivity extends Activity {
                         }
                     }
                     if (startParse && line.contains("</PRE>")) {
-                        finishParse=true;
-                        startParse=false;
+                        finishParse = true;
+                        startParse = false;
                     }
                 }
                 resultBuffer = lineBuffer.toString();
