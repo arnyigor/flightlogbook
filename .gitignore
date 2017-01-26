@@ -1,0 +1,14 @@
+.idea/
+Pilot Logbook.iml
+PilotLogBookTest.xls
+PilotLogBookTest.xlsx
+ant.properties
+assets/
+bin/
+build.xml
+gen/
+libs/
+local.properties
+out/
+proguard-project.txt
+project.properties
