@@ -1,4 +1,4 @@
-package com.arny.flightlogbook;
+package com.arny.flightlogbook.models;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;

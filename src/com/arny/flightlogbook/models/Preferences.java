@@ -1,17 +1,14 @@
-package com.arny.flightlogbook;
+package com.arny.flightlogbook.models;
 
-import android.app.Activity;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.Toast;
+
+import com.arny.flightlogbook.R;
 
 
 public class Preferences extends PreferenceActivity {

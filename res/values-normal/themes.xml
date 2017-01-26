@@ -1,28 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light">
-        <!-- This is the styling for action bar -->
-        <item name="actionBarStyle">@style/MyActionBar</item>
-        <!--To change the text styling of options menu items</item>-->
-        <!--<item name="android:itemTextAppearance">@style/MyActionBar.MenuTextStyle</item>-->
-        <!--To change the background of options menu-->
-        <!--<item name="android:itemBackground">@color/skyBlue</item>-->
-    </style>
-
-    <style name="MyActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-        <item name="background">@color/colorPrimary</item>
-        <item name="titleTextStyle">@style/MyActionBarTitle</item>
-    </style>
-
-    <style name="MyActionBarTitle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
-        <item name="android:textColor">@color/colorText</item>
-    </style>
-
-    <!--<style name="MyActionBar.MenuTextStyle"-->
-           <!--parent="style/TextAppearance.AppCompat.Widget.ActionBar.Title">-->
-        <!--<item name="android:textColor">@color/colorAccent</item>-->
-        <!--<item name="android:textStyle">bold</item>-->
-        <!--<item name="android:textSize">25sp</item>-->
-    <!--</style>-->
+    <style name="AppThemeBase" parent="Theme.AppCompat.Light"/>
 </resources>

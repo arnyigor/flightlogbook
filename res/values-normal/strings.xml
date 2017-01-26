@@ -2,6 +2,8 @@
     <string name="app_name">Pilot Logbook</string>
     <string name="str_dropbox">Синхронизация с Dropbox</string>
     <string name="str_add">Добавить</string>
+    <string name="str_fragment">Fragment</string>
+    <string name="str_start">Start</string>
     <string name="str_edt">Редактировать</string>
     <string name="str_delete">Удалить</string>
     <string name="str_clearall">Очистить все</string>
@@ -67,6 +69,12 @@
         <item>ночь</item>
     </string-array>
 
+    <string-array name="filter_by">
+        <item>Дате</item>
+        <item>Типу ЛА</item>
+        <item>Типу полетов</item>
+    </string-array>
+
     <string-array name="ifrvfr">
         <item>VFR</item>
         <item>IFR</item>
@@ -78,17 +86,17 @@
         <item>маршрут</item>
     </string-array>
 
-    <string-array name="btnposArray">
-        <item>Верх Лево</item>
-        <item>Верх Право</item>
-        <item>Низ Лево</item>
-        <item>Низ Право</item>
+    <!--Drawer-->
+    <string-array name="drawer_items">
+        <item>LogBook</item>
+        <item>Статистика</item>
     </string-array>
-    <string-array name="btnposValues">
-        <item>tl</item>
-        <item>tr</item>
-        <item>bl</item>
-        <item>br</item>
-    </string-array>
+
+
+    <string name="drawer_open">drawer_open</string>
+    <string name="drawer_close">drawer_close</string>
+    <string name="str_filter_by">Фильтр по</string>
+    <string name="str_filter_type">Фильтр</string>
+    <string name="str_fitre_stat">Фильтр статистики</string>
 
 </resources>

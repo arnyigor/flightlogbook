@@ -1,4 +1,4 @@
-package com.arny.flightlogbook;
+package com.arny.flightlogbook.views.activities;
 // imports start==========
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import com.arny.flightlogbook.R;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

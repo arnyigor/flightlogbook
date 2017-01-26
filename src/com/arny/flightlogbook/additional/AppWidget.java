@@ -1,4 +1,4 @@
-package com.arny.flightlogbook;
+package com.arny.flightlogbook.additional;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -6,6 +6,8 @@ import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.widget.RemoteViews;
+import com.arny.flightlogbook.R;
+import com.arny.flightlogbook.views.activities.AddEditActivity;
 
 public class AppWidget extends AppWidgetProvider {
 

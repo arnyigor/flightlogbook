@@ -1,4 +1,4 @@
-package com.arny.flightlogbook;
+package com.arny.flightlogbook.models;
 
 public class DataList {
     private int id;

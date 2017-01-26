@@ -1,4 +1,4 @@
-package com.arny.flightlogbook;
+package com.arny.flightlogbook.views.activities;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -13,6 +13,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.*;
+import com.arny.flightlogbook.models.DataList;
+import com.arny.flightlogbook.models.DatabaseHandler;
+import com.arny.flightlogbook.R;
 
 import java.util.List;
 

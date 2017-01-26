@@ -1,11 +1,8 @@
-package com.arny.flightlogbook;
+package com.arny.flightlogbook.views.activities;
 
 import android.support.v7.app.AppCompatActivity;
+import com.arny.flightlogbook.R;
 import com.dropbox.sync.android.DbxAccountManager;
-import com.dropbox.sync.android.DbxFile;
-import com.dropbox.sync.android.DbxFileInfo;
-import com.dropbox.sync.android.DbxFileSystem;
-import com.dropbox.sync.android.DbxPath;
 
 import android.content.Context;
 
@@ -18,9 +15,6 @@ import android.widget.TextView;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.widget.Toast;
-
-import java.io.IOException;
-import java.util.List;
 
 public class DropboxActivity extends AppCompatActivity {
     private static final String TAG = "LOG_TAG";

@@ -1,4 +1,4 @@
-package com.arny.flightlogbook;
+package com.arny.flightlogbook.additional;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
