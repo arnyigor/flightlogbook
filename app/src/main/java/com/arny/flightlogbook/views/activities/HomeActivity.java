@@ -91,7 +91,7 @@ public class HomeActivity extends AppCompatActivity {
 
         drawer = new DrawerBuilder()
                 .withActivity(this)
-//                .withRootView(R.id.container)
+                .withRootView(R.id.drawer_container)
                 .withToolbar(toolbar)
                 .withActionBarDrawerToggle(true)
                 .withActionBarDrawerToggleAnimated(true)
