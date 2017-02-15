@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+    <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:ems="10"
+            android:hint="@string/str_motostart"
+            android:id="@+id/edtStartMoto" android:layout_gravity="center_horizontal"/>
+    <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:ems="10"
+            android:hint="@string/str_motofinish"
+            android:id="@+id/edtFinishMoto" android:layout_gravity="center_horizontal"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:text="@string/str_motoresult"
+            android:textSize="12pt"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvMotoresult"
+            android:layout_gravity="center_horizontal" android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"/>
+</LinearLayout>

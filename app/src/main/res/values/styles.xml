@@ -1,0 +1,48 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="windowActionBar">false</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+
+    <style name="MyActionBarTitle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/colorText</item>
+        <item name="android:textColorPrimary">@color/colorText</item>
+    </style>
+
+    <style name="shadowTV" parent="AppTheme">
+        <item name="android:background">@drawable/tv_shadow</item>
+        <item name="android:padding">10dp</item>
+    </style>
+
+    <style name="TextViewDateStyle" parent="AppTheme">
+        <item name="android:textSize">@dimen/font_size</item>
+        <item name="android:padding">@dimen/text_view_padding</item>
+    </style>
+
+    <style name="gridWidth">
+        <item name="android:width">75dp</item>
+    </style>
+
+    <style name="Widget.ActionBar" parent="@style/Widget.AppCompat.ActionBar">
+        <item name="titleTextStyle">@style/TextAppearance.Widget.ActionBar.Title</item>
+        <item name="subtitleTextStyle">@style/TextAppearance.Widget.ActionBar.Subtitle</item>
+    </style>
+
+    <style name="TextAppearance.Widget.ActionBar.Title" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/colorText</item>
+    </style>
+
+    <style name="TextAppearance.Widget.ActionBar.Subtitle"
+        parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle">
+        <item name="android:textColor">@color/colorText</item>
+    </style>
+
+</resources>
