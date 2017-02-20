@@ -75,7 +75,7 @@
 //
 //	private static final int PICKFILE_RESULT_CODE = 1;
 //	// Storage Permissions
-//	private static final int REQUEST_EXTERNAL_STORAGE = 110;
+//	private static final int REQUEST_EXTERNAL_STORAGE_XLS = 110;
 //	private static final int SAVE_FILE_RESULT_CODE = 111;
 //	private static String[] PERMISSIONS_STORAGE = {
 //			android.Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -163,7 +163,7 @@
 //			ActivityCompat.requestPermissions(
 //					activity,
 //					PERMISSIONS_STORAGE,
-//					REQUEST_EXTERNAL_STORAGE
+//					REQUEST_EXTERNAL_STORAGE_XLS
 //			);
 //		}
 //
@@ -174,7 +174,7 @@
 //	public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
 //		Log.i(TAG, "onRequestPermissionsResult requestCode = " + requestCode);
 //		switch (requestCode) {
-//			case REQUEST_EXTERNAL_STORAGE: {
+//			case REQUEST_EXTERNAL_STORAGE_XLS: {
 //				// If request is cancelled, the result arrays are empty.
 //				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 //					// Log.i(TAG, "onRequestPermissionsResult PERMISSION_GRANTED");

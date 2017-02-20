@@ -1,6 +1,5 @@
 package com.arny.flightlogbook.views.fragments;
 
-import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -36,7 +35,7 @@ public class FlightList extends Fragment {
     private List<DataList> TypeData;
     private String airplane_type;
     private int airplane_type_id, ctxPos;
-    private Context ctx;
+    private Context context;
     private TextView tvTotalTime;
 
     public FlightList() {
@@ -46,19 +45,19 @@ public class FlightList extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.d("FlightList", "onCreateView: ");
         View view = inflater.inflate(R.layout.flight_list, container, false);
-        ctx = container.getContext();
+        context = container.getContext();
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new
-                        Intent(ctx, AddEditActivity.class);
+                        Intent(context, AddEditActivity.class);
                 startActivity(intent);
             }
         });
         tvTotalTime = (TextView) view.findViewById(R.id.tvTotalTime);
         listView = (ListView) view.findViewById(R.id.listView);
-        db = new DatabaseHandler(ctx);
+        db = new DatabaseHandler(context);
         return view;
     }
 
@@ -68,8 +67,8 @@ public class FlightList extends Fragment {
         Log.d("FlightList", "onResume: ");
         IntentFilter filter = new IntentFilter(BackgroundIntentService.ACTION);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
-        LocalBroadcastManager.getInstance(ctx).registerReceiver(broadcastReceiver, filter);
-        if (!isMyServiceRunning(BackgroundIntentService.class)) {
+        LocalBroadcastManager.getInstance(context).registerReceiver(broadcastReceiver, filter);
+        if (!Functions.isMyServiceRunning(BackgroundIntentService.class,context)) {
             initFlights();
         }
     }
@@ -110,7 +109,7 @@ public class FlightList extends Fragment {
         LayoutInflater mInflater;
 
         public ViewAdapter() {
-            mInflater = LayoutInflater.from(ctx);
+            mInflater = LayoutInflater.from(context);
         }
 
         @Override
@@ -157,7 +156,7 @@ public class FlightList extends Fragment {
     }
 
     private void showMenuDialog(int pos) {
-        AlertDialog.Builder alert = new AlertDialog.Builder(ctx);
+        AlertDialog.Builder alert = new AlertDialog.Builder(context);
         String contextMenuText[] = {getString(R.string.str_edt), getString(R.string.str_delete), getString(R.string.str_clearall)};
         ctxPos = pos;//кидаем в глобальную переменную чтобы все видели
         alert.setItems(contextMenuText, new DialogInterface.OnClickListener() {
@@ -174,7 +173,7 @@ public class FlightList extends Fragment {
                         }
                         break;
                     case 1:
-                        AlertDialog.Builder delDialog = new AlertDialog.Builder(ctx);
+                        AlertDialog.Builder delDialog = new AlertDialog.Builder(context);
                         delDialog.setTitle(getString(R.string.str_delete) + "?");
                         delDialog
                                 .setNegativeButton(getString(R.string.str_cancel), null);
@@ -191,7 +190,7 @@ public class FlightList extends Fragment {
                         alert.show();
                         break;
                     case 2:
-                        AlertDialog.Builder delallDialog = new AlertDialog.Builder(ctx);
+                        AlertDialog.Builder delallDialog = new AlertDialog.Builder(context);
                         delallDialog.setTitle(getString(R.string.str_clearall) + "?");
                         delallDialog
                                 .setNegativeButton(getString(R.string.str_cancel), null);
@@ -214,24 +213,14 @@ public class FlightList extends Fragment {
     }
 
     private void displayTotalTime() {
-        tvTotalTime.setText(ctx.getResources().getString(R.string.str_totaltime) + " " + Functions.strLogTime(db.getFlightsTime()));
+        tvTotalTime.setText(context.getResources().getString(R.string.str_totaltime) + " " + Functions.strLogTime(db.getFlightsTime()));
     }
 
     @Override
     public void onPause() {
         super.onPause();
         Log.d("FlightList", "onPause: ");
-        LocalBroadcastManager.getInstance(ctx).unregisterReceiver(broadcastReceiver);
-    }
-
-    private boolean isMyServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) ctx.getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(broadcastReceiver);
     }
 
 

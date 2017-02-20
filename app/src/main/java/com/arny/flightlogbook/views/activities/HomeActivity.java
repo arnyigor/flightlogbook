@@ -1,6 +1,5 @@
 package com.arny.flightlogbook.views.activities;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
@@ -48,7 +46,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -58,13 +55,9 @@ import java.util.Locale;
 
 public class HomeActivity extends AppCompatActivity {
     // Storage Permissions
-    private static final int REQUEST_EXTERNAL_STORAGE = 110;
+
     private static final int SAVE_FILE_RESULT_CODE = 111;
     private static final int MENU_DROPBOX_SYNC = 112;
-    private static String[] PERMISSIONS_STORAGE = {
-            android.Manifest.permission.READ_EXTERNAL_STORAGE,
-            android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-    };
     private static final String LOG_SHEET_MAIN = "Timelog";
     private static final int PICKFILE_RESULT_CODE = 1;
     private static final int MENU_FLIGHTS = 0;
@@ -216,27 +209,12 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    private static boolean verifyStoragePermissions(Activity activity) {
-        // Check if we have write permission
-        int permission = ActivityCompat.checkSelfPermission(activity, android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            // We don't have permission so prompt the user
-            ActivityCompat.requestPermissions(
-                    activity,
-                    PERMISSIONS_STORAGE,
-                    REQUEST_EXTERNAL_STORAGE
-            );
-        }
-
-        return permission == PackageManager.PERMISSION_GRANTED;
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         Log.i(HomeActivity.class.getSimpleName(), "onRequestPermissionsResult: requestCode = " + requestCode);
         switch (requestCode) {
-            case REQUEST_EXTERNAL_STORAGE: {
+            case Functions.REQUEST_EXTERNAL_STORAGE_XLS:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     fileintent = new Intent();
                     fileintent.setAction(Intent.ACTION_GET_CONTENT);
@@ -246,7 +224,15 @@ public class HomeActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(context, R.string.str_storage_permission_denied, Toast.LENGTH_SHORT).show();
                 }
-            }
+                break;
+            case Functions.REQUEST_DBX_EXTERNAL_STORAGE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Fragment dropboxSyncFragment = getSupportFragmentManager().findFragmentById(R.id.container);
+                    if (dropboxSyncFragment instanceof DropboxSyncFragment){
+                        ((DropboxSyncFragment)dropboxSyncFragment).getFileData();
+                    }
+                }
+                break;
         }
     }
 
@@ -264,12 +250,8 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 try {
-                    boolean mlolipop = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP;
-                    boolean permissionGranded = false;
-                    if (mlolipop){
-                        permissionGranded = verifyStoragePermissions(HomeActivity.this);// Do something for lollipop and above versions
-                    }
-                    if (permissionGranded || !mlolipop){
+                    boolean permissionGranded = Functions.checkSDRRWPermessions(getBaseContext(),HomeActivity.this,Functions.REQUEST_EXTERNAL_STORAGE_XLS);
+                    if (permissionGranded){
                         fileintent = new Intent();
                         fileintent.setAction(Intent.ACTION_GET_CONTENT);
                         fileintent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -286,6 +268,33 @@ public class HomeActivity extends AppCompatActivity {
         alert.show();
     }
 
+
+    	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (requestCode) {
+			case PICKFILE_RESULT_CODE:
+				if (resultCode == RESULT_OK) {
+					String FilePath = data.getData().getPath();
+					if (mMyServiceIntent == null){
+						mMyServiceIntent = new Intent(HomeActivity.this, BackgroundIntentService.class);
+					}
+					mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_IMPORT_SD);
+					mMyServiceIntent.putExtra(BackgroundIntentService.OPERATION_IMPORT_SD_FILENAME, FilePath);
+					startService(mMyServiceIntent);
+				} else {
+					Toast.makeText(HomeActivity.this, getString(R.string.str_error_import), Toast.LENGTH_SHORT).show();
+				}
+				break;
+            case SAVE_FILE_RESULT_CODE:
+				if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+					String theFilePath = data.getData().getPath();
+				}
+				break;
+		}
+	}
+
+
+
     public void openFileWith() {
         try {
             Intent myIntent = new Intent(Intent.ACTION_VIEW);
@@ -300,18 +309,18 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    void saveToFile(File aFile) {
-        Uri theUri = Uri.fromFile(aFile).buildUpon().scheme("file.new").build();
-        Intent theIntent = new Intent(Intent.ACTION_PICK);
-        theIntent.setData(theUri);
-        theIntent.putExtra(Intent.EXTRA_TITLE, "A Custom Title"); //optional
-        theIntent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS); //optional
-        try {
-            startActivityForResult(theIntent, SAVE_FILE_RESULT_CODE);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//    void saveToFile(File aFile) {
+//        Uri theUri = Uri.fromFile(aFile).buildUpon().scheme("file.new").build();
+//        Intent theIntent = new Intent(Intent.ACTION_PICK);
+//        theIntent.setData(theUri);
+//        theIntent.putExtra(Intent.EXTRA_TITLE, "A Custom Title"); //optional
+//        theIntent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS); //optional
+//        try {
+//            startActivityForResult(theIntent, SAVE_FILE_RESULT_CODE);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     public boolean saveExcelFile(Context context, String fileName) {
         Row row;
