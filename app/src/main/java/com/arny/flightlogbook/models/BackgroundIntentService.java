@@ -3,7 +3,6 @@ package com.arny.flightlogbook.models;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
-import android.nfc.Tag;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -50,7 +49,6 @@ public class BackgroundIntentService extends IntentService {
 
     @Override
     public void onDestroy() {
-        Log.i(TAG, "onDestroy: ");
         String notice;
         mIsStopped = true;
         if (mIsSuccess) {
@@ -79,7 +77,6 @@ public class BackgroundIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.i(TAG, "onHandleIntent: ");
         operation = intent.getIntExtra(EXTRA_KEY_OPERATION_CODE, 0);
         switch (operation) {
             case OPERATION_IMPORT_SD:

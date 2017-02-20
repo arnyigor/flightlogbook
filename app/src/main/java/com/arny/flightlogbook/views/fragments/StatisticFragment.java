@@ -13,7 +13,7 @@ import android.widget.*;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.models.DataList;
 import com.arny.flightlogbook.models.DatabaseHandler;
-import com.arny.flightlogbook.models.Funct;
+import com.arny.flightlogbook.models.Functions;
 import com.arny.flightlogbook.models.Statistic;
 
 import java.util.Calendar;
@@ -118,9 +118,9 @@ public class StatisticFragment extends Fragment {
     //устанавливаем дату в textView
     private void setDateTimeToTextView() {
         dateAndTimeStart.setTimeInMillis(startdatetime);
-        tvDateFrom.setText(Funct.getStrDate(startdatetime));
+        tvDateFrom.setText(Functions.getDateTime(startdatetime,"ddMMMyyyy"));
         dateAndTimeEnd.setTimeInMillis(enddatetime);
-        tvDateTo.setText(Funct.getStrDate(enddatetime));
+        tvDateTo.setText(Functions.getDateTime(enddatetime,"ddMMMyyyy"));
     }
 
     // отображаем диалоговое окно для выбора даты
@@ -151,7 +151,7 @@ public class StatisticFragment extends Fragment {
             dateAndTimeStart.set(Calendar.DAY_OF_MONTH, dayOfMonth);
             startdatetime = dateAndTimeStart.getTimeInMillis();
             checkStartEndDateTime();
-            tvDateFrom.setText(Funct.getStrDate(startdatetime));
+            tvDateFrom.setText(Functions.getDateTime(startdatetime,"ddMMMyyyy"));
         }
     };
 
@@ -163,7 +163,7 @@ public class StatisticFragment extends Fragment {
             dateAndTimeEnd.set(Calendar.DAY_OF_MONTH, dayOfMonth);
             enddatetime = dateAndTimeEnd.getTimeInMillis();
             checkStartEndDateTime();
-            tvDateTo.setText(Funct.getStrDate(enddatetime));
+            tvDateTo.setText(Functions.getDateTime(enddatetime,"ddMMMyyyy"));
         }
     };
 

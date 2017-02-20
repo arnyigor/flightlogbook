@@ -1,7 +1,14 @@
 package com.arny.flightlogbook.models;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Environment;
+import android.preference.PreferenceManager;
+import android.widget.Toast;
 
+import com.arny.flightlogbook.R;
+
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -14,11 +21,14 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.regex.Pattern;
 
-public class Functions{
+public class Functions {
 
-	public static boolean matcher(String preg,String string) {
-	    return Pattern.matches(preg, string);
-	}
+    private static final String APP_PREFERENCES = "pilotlogbookprefs";
+    public static final String EXEL_FILE_NAME = "PilotLogBook.xls";
+
+    public static boolean matcher(String preg, String string) {
+        return Pattern.matches(preg, string);
+    }
 
     public static String dateFormatChooser(String myTimestamp) {
         HashMap<String, String> pregs = new HashMap<>();
@@ -45,6 +55,7 @@ public class Functions{
     /**
      * if milliseconds==0 returned current datetime,
      * if format==null default "dd MMM yyyy HH:mm:ss.sss"
+     *
      * @param milliseconds
      * @param format
      * @return String datetime
@@ -91,6 +102,18 @@ public class Functions{
         return 0;
     }
 
+    public static SharedPreferences getPrefs(Context context) {
+        return context.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+    }
+
+    public static boolean isFileExist(Context context) {
+        if (!Functions.isExternalStorageAvailable() || Functions.isExternalStorageReadOnly()) {
+            Toast.makeText(context, R.string.storage_not_avalable, Toast.LENGTH_LONG).show();
+            return false;
+        }
+        File file = new File(Environment.getExternalStorageDirectory() + "/Android/data/com.arny.flightlogbook/files", EXEL_FILE_NAME);
+        return file.exists() && file.isFile();
+    }
 
     public static String strLogTime(int logtime) {
         int h = logtime / 60;
@@ -130,16 +153,16 @@ public class Functions{
         String extStorageState = Environment.getExternalStorageState();
         return Environment.MEDIA_MOUNTED_READ_ONLY.equals(extStorageState);
     }
+
     public static boolean isExternalStorageAvailable() {
         String extStorageState = Environment.getExternalStorageState();
         return Environment.MEDIA_MOUNTED.equals(extStorageState);
     }
 
-
     public static int convertStringToTime(String time) {
         int hours = 0;
         int mins = 0;
-        String delimeter = (time.contains(":"))? ":":".";
+        String delimeter = (time.contains(":")) ? ":" : ".";
         int posDelim = time.indexOf(delimeter);
         try {
             hours = Integer.parseInt(time.substring(0, posDelim));

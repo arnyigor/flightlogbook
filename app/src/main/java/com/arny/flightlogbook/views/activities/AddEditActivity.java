@@ -67,9 +67,7 @@ public class AddEditActivity extends AppCompatActivity {
         if (getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-
-        // ================Forms Ids start=========================
-        getPrefs();
+        motoCheckPref = Functions.getPrefs(getBaseContext()).getBoolean("motoCheckPref", false);
         db = new DatabaseHandler(this);
         edtDesc = (EditText) findViewById(R.id.edtDesc);
         motoCont = (LinearLayout) findViewById(R.id.motoContainer);
@@ -262,16 +260,13 @@ public class AddEditActivity extends AppCompatActivity {
 
     private void showAirplaneTypes() {
         CharSequence[] cs = typeList.toArray(new CharSequence[typeList.size()]);
-        Log.i(TAG, "cs " + Arrays.toString(cs));
         AlertDialog.Builder typesBuilder = new AlertDialog.Builder(this);
         typesBuilder.setTitle(getString(R.string.str_type));
         typesBuilder.setItems(cs, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
                 airplane_type = typeList.get(item);
-                Log.i(TAG, "airplane_type:" + airplane_type);
                 ListType = db.getTypeItem(item + 1);//нумерация списка с нуля,в базе с 1цы
                 for (DataList type : ListType) {
-                    Log.i(TAG, "getAirplanetypeid: " + type.getAirplanetypeid());
                     airplane_type_id = type.getAirplanetypeid();
                 }
                 tvAirplaneType.setText(getString(R.string.str_type) + " " + typeList.get(item));
@@ -325,11 +320,6 @@ public class AddEditActivity extends AppCompatActivity {
 
         }
     };
-
-    public void getPrefs() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        motoCheckPref = prefs.getBoolean("motoCheckPref", false);
-    }
 
     private float getMotoTime(float start, float finish) {
         float mMoto = finish - start;
@@ -550,16 +540,9 @@ public class AddEditActivity extends AppCompatActivity {
                     reg_no = aFlightData.getReg_no();
                     edtRegNo.setText(reg_no);
                     edtTime.setText(Functions.strLogTime(logTime));
-                    Log.i(TAG, "fillInputs  aFlightData.getAirplanetypeid() = " + aFlightData.getAirplanetypeid());
-                    Log.i(TAG, "fillInputs  aFlightData.getAirplanetype() = " + aFlightData.getAirplanetype());
-                    Log.i(TAG, "fillInputs  aFlightData.getAirplanetypetitle() = " + aFlightData.getAirplanetypetitle());
                     airplane_type_id = aFlightData.getAirplanetypeid();
-                    ListType = db.getTypeItem(airplane_type_id);
-                    String airplaneType = null;
-                    if (ListType.size()>0){
-                        airplaneType = ListType.get(0).getAirplanetypetitle();
-                    }
-                    String airTypesText = airplaneType == null ? getString(R.string.str_type_empty):getString(R.string.str_type)+ " " + airplane_type;
+                    String airplType = db.getTypeItem(airplane_type_id).get(0).getAirplanetypetitle();
+                    String airTypesText = airplType == null ? getString(R.string.str_type_empty):getString(R.string.str_type)+ " " + airplType;
                     tvAirplaneType.setText(airTypesText);
                     day_night = aFlightData.getDaynight();
                     spinDayNight.setSelection(day_night);

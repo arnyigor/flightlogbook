@@ -26,9 +26,9 @@ import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.models.BackgroundIntentService;
 import com.arny.flightlogbook.models.DataList;
 import com.arny.flightlogbook.models.DatabaseHandler;
-import com.arny.flightlogbook.models.Funct;
 import com.arny.flightlogbook.models.Functions;
 import com.arny.flightlogbook.models.Preferences;
+import com.arny.flightlogbook.views.fragments.DropboxSyncFragment;
 import com.arny.flightlogbook.views.fragments.FlightList;
 import com.arny.flightlogbook.views.fragments.StatisticFragment;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
@@ -60,6 +60,7 @@ public class HomeActivity extends AppCompatActivity {
     // Storage Permissions
     private static final int REQUEST_EXTERNAL_STORAGE = 110;
     private static final int SAVE_FILE_RESULT_CODE = 111;
+    private static final int MENU_DROPBOX_SYNC = 112;
     private static String[] PERMISSIONS_STORAGE = {
             android.Manifest.permission.READ_EXTERNAL_STORAGE,
             android.Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -97,7 +98,8 @@ public class HomeActivity extends AppCompatActivity {
                 .withActionBarDrawerToggleAnimated(true)
                 .addDrawerItems(
                         new PrimaryDrawerItem().withIdentifier(MENU_FLIGHTS).withName(R.string.fragment_logbook).withIcon(GoogleMaterial.Icon.gmd_flight),
-                        new PrimaryDrawerItem().withIdentifier(MENU_STATS).withName(R.string.fragment_stats).withIcon(GoogleMaterial.Icon.gmd_equalizer)
+                        new PrimaryDrawerItem().withIdentifier(MENU_STATS).withName(R.string.fragment_stats).withIcon(GoogleMaterial.Icon.gmd_equalizer),
+                        new PrimaryDrawerItem().withIdentifier(MENU_DROPBOX_SYNC).withName(R.string.fragment_dropbox_sync).withIcon(R.drawable.ic_dropbox_sync)
                 )
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
@@ -122,6 +124,10 @@ public class HomeActivity extends AppCompatActivity {
             case MENU_STATS:
                 fragment = new StatisticFragment();
                 toolbar.setTitle(getString(R.string.fragment_stats));
+                break;
+            case MENU_DROPBOX_SYNC:
+                fragment = new DropboxSyncFragment();
+                toolbar.setTitle(getString(R.string.fragment_dropbox_sync));
                 break;
         }
         if (fragment != null) {
@@ -158,7 +164,7 @@ public class HomeActivity extends AppCompatActivity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        boolean fileExist = Funct.isFileExist(context);
+        boolean fileExist = Functions.isFileExist(context);
         MenuItem exelOpenAction = menu.findItem(R.id.action_open_file);
         MenuItem exelImportAction = menu.findItem(R.id.action_import_excel);
         exelOpenAction.setVisible(fileExist);
@@ -284,7 +290,7 @@ public class HomeActivity extends AppCompatActivity {
         try {
             Intent myIntent = new Intent(Intent.ACTION_VIEW);
             File sdPath = Environment.getExternalStorageDirectory();
-            File file = new File(sdPath + "/Android/data/com.arny.flightlogbook/files", Funct.EXEL_FILE_NAME);
+            File file = new File(sdPath + "/Android/data/com.arny.flightlogbook/files", Functions.EXEL_FILE_NAME);
             String extension = android.webkit.MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(file).toString());
             String mimetype = android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
             myIntent.setDataAndType(Uri.fromFile(file), mimetype);
@@ -359,7 +365,7 @@ public class HomeActivity extends AppCompatActivity {
             c = row.createCell(0);
             c.setCellValue(getDate(export.getDatetime()));
             c = row.createCell(1);
-            c.setCellValue(Funct.strLogTime(export.getLogtime()));
+            c.setCellValue(Functions.strLogTime(export.getLogtime()));
             c = row.createCell(2);
             c.setCellValue(airplane_type);
             c = row.createCell(3);
@@ -418,7 +424,7 @@ public class HomeActivity extends AppCompatActivity {
         alert.setPositiveButton(getString(R.string.str_ok), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                saveExcelFile(getBaseContext(), Funct.EXEL_FILE_NAME);
+                saveExcelFile(getBaseContext(), Functions.EXEL_FILE_NAME);
                 Toast.makeText(context, getString(R.string.str_export_success), Toast.LENGTH_SHORT).show();
             }
         });
@@ -438,7 +444,7 @@ public class HomeActivity extends AppCompatActivity {
         alert.setPositiveButton(getString(R.string.str_ok), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-//				readExcelFile(getBaseContext(), Funct.EXEL_FILE_NAME, false, null);
+//				readExcelFile(getBaseContext(), Functions.EXEL_FILE_NAME, false, null);
 				/*FlightData = db.getFlightListByDate();
 				listView.setAdapter(new ViewAdapter());
 				displayTotalTime();*/
@@ -481,7 +487,7 @@ public class HomeActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int id) {
                         getPrefs();
                         if (autoExportXLSPref) {
-                            saveExcelFile(getBaseContext(), Funct.EXEL_FILE_NAME);
+                            saveExcelFile(getBaseContext(), Functions.EXEL_FILE_NAME);
                         }
                         finish();
                     }

@@ -21,7 +21,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.models.BackgroundIntentService;
-import com.arny.flightlogbook.models.Funct;
+import com.arny.flightlogbook.models.Functions;
 import com.arny.flightlogbook.views.activities.AddEditActivity;
 import com.arny.flightlogbook.models.DataList;
 import com.arny.flightlogbook.models.DatabaseHandler;
@@ -134,8 +134,8 @@ public class FlightList extends Fragment {
             if (convertView == null) {
                 convertView = mInflater.inflate(R.layout.item, null);
             }
-            ((TextView) convertView.findViewById(R.id.tvDate)).setText(Funct.getStrDate(FlightData.get(position).getDatetime()));
-            ((TextView) convertView.findViewById(R.id.tvLogTime)).setText(Funct.strLogTime(FlightData.get(position).getLogtime()));
+            ((TextView) convertView.findViewById(R.id.tvDate)).setText(Functions.getDateTime(FlightData.get(position).getDatetime(),"ddMMMyyyy"));
+            ((TextView) convertView.findViewById(R.id.tvLogTime)).setText(Functions.strLogTime(FlightData.get(position).getLogtime()));
 
             airplane_type_id = FlightData.get(position).getAirplanetypeid();
             TypeData = db.getTypeItem(airplane_type_id);
@@ -214,7 +214,7 @@ public class FlightList extends Fragment {
     }
 
     private void displayTotalTime() {
-        tvTotalTime.setText(ctx.getResources().getString(R.string.str_totaltime) + " " + Funct.strLogTime(db.getFlightsTime()));
+        tvTotalTime.setText(ctx.getResources().getString(R.string.str_totaltime) + " " + Functions.strLogTime(db.getFlightsTime()));
     }
 
     @Override
