@@ -2,9 +2,13 @@ package com.arny.flightlogbook.views.fragments;
 
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,29 +19,61 @@ import com.arny.flightlogbook.models.DataList;
 import com.arny.flightlogbook.models.DatabaseHandler;
 import com.arny.flightlogbook.models.Functions;
 import com.arny.flightlogbook.models.Statistic;
+import com.mikepenz.fastadapter.adapters.ItemAdapter;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import static android.R.id.list;
+
 public class StatisticFragment extends Fragment {
-    DatabaseHandler db;
-    List<DataList> FlightData;
-    List<Statistic> statistics;
+    private static final String LIST_STATE = "listState";
+    private Parcelable mListState = null;
+    private DatabaseHandler db;
+    private List<DataList> FlightData;
+    private List<Statistic> statistics;
     private Context ctx;
     private TextView tvDateFrom,tvDateTo;
-    Calendar dateAndTimeStart = Calendar.getInstance();
-    Calendar dateAndTimeEnd = Calendar.getInstance();
-    long startdatetime,enddatetime;
-    ListView lvStatResult;
+    private Calendar dateAndTimeStart = Calendar.getInstance();
+    private Calendar dateAndTimeEnd = Calendar.getInstance();
+    private long startdatetime,enddatetime;
+    private ListView lvStatResult;
+    private ProgressBar progressStat;
+    private StatisticAdapter statAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.statistic_fragment, container, false);
         ctx = container.getContext();
         db = new DatabaseHandler(ctx);
+        statAdapter = new StatisticAdapter();
         initUI(view);
         startInitDateTime();
+        if(statistics != null) {
+            refreshAdapter();
+        }else{
+            getStatistic();
+        }
         return view;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+//        outState.putParcelable(LIST_STATE, lvStatResult.onSaveInstanceState());
+    }
+
+    private void refreshAdapter() {
+        statAdapter.notifyDataSetChanged();
+        progressStat.setVisibility(View.GONE);
+        lvStatResult.setAdapter(statAdapter);
     }
 
     //инициализация view
@@ -57,6 +93,8 @@ public class StatisticFragment extends Fragment {
                 setDateTo();
             }
         });
+        progressStat = (ProgressBar) view.findViewById(R.id.progressStat);
+        progressStat.setVisibility(View.VISIBLE);
     }
 
     private String getFilterQuery(){
@@ -64,12 +102,6 @@ public class StatisticFragment extends Fragment {
       return query;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        getStatistic();
-
-    }
 
     //функция статистики
     private void getStatistic(){
@@ -78,7 +110,7 @@ public class StatisticFragment extends Fragment {
     }
 
 
-    class LoadStatistic extends AsyncTask<Void, Void, Void> {
+    private class LoadStatistic extends AsyncTask<Void, Void, List<Statistic>> {
 
         @Override
         protected void onPreExecute() {
@@ -86,9 +118,9 @@ public class StatisticFragment extends Fragment {
         }
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected List<Statistic> doInBackground(Void... params) {
             try {
-                statistics = db.getStatistic(getFilterQuery());
+                return db.getStatistic(getFilterQuery());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -96,9 +128,10 @@ public class StatisticFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(Void result) {
+        protected void onPostExecute(List<Statistic> result) {
             super.onPostExecute(result);
-            lvStatResult.setAdapter(new StatisticAdapter());
+            statistics = result;
+            refreshAdapter();
         }
     }
 
@@ -186,6 +219,10 @@ public class StatisticFragment extends Fragment {
         @Override
         public int getCount() {
             return statistics.size();
+        }
+
+        public List<Statistic> getList() {
+            return new ArrayList<>(statistics);
         }
 
         @Override

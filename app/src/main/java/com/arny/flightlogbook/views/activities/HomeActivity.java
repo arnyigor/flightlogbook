@@ -62,6 +62,7 @@ public class HomeActivity extends AppCompatActivity {
     private static final int PICKFILE_RESULT_CODE = 1;
     private static final int MENU_FLIGHTS = 0;
     private static final int MENU_STATS = 1;
+    private static final String DRAWER_SELECTION = "drawer_selection";
     private Drawer drawer = null;
     private Toolbar toolbar;
     private Intent fileintent,mMyServiceIntent;
@@ -104,6 +105,12 @@ public class HomeActivity extends AppCompatActivity {
                 .build();
         if (savedInstanceState == null) {
             selectItem(MENU_FLIGHTS);
+        }else{
+            try{
+                drawer.setSelection(Long.parseLong(savedInstanceState.getString(DRAWER_SELECTION)));
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
     }
 
@@ -140,14 +147,16 @@ public class HomeActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         //add the values which need to be saved from the drawer to the bundle
         outState = drawer.saveInstanceState(outState);
+        outState.putString(DRAWER_SELECTION, String.valueOf(drawer.getCurrentSelection()));
         //add the values which need to be saved from the accountHeader to the bundle
         super.onSaveInstanceState(outState);
     }
 
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-    }
+//    @Override
+//    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+//        Log.i(HomeActivity.class.getSimpleName(), "onRestoreInstanceState: savedInstanceState = " + savedInstanceState.toString());
+//        super.onRestoreInstanceState(savedInstanceState);
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

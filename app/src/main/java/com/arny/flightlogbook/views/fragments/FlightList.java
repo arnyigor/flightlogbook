@@ -43,7 +43,6 @@ public class FlightList extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.d("FlightList", "onCreateView: ");
         View view = inflater.inflate(R.layout.flight_list, container, false);
         context = container.getContext();
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
@@ -64,7 +63,6 @@ public class FlightList extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        Log.d("FlightList", "onResume: ");
         IntentFilter filter = new IntentFilter(BackgroundIntentService.ACTION);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         LocalBroadcastManager.getInstance(context).registerReceiver(broadcastReceiver, filter);

@@ -125,16 +125,30 @@ public class DropboxSyncFragment extends Fragment {
             AsyncAuth auth = new AsyncAuth();
             auth.execute();
         }else{
-            pDialog.setMessage(getString(R.string.dropbox_sync_files));
+            String notif;
+            switch (mOperation){
+                case BackgroundIntentService.OPERATION_DBX_SYNC:
+                    notif = context.getResources().getString(R.string.dropbox_sync_files);
+                    break;
+                default:
+                    notif = context.getResources().getString(R.string.str_import_excel);
+                    break;
+            }
+            pDialog.setMessage(notif);
             if (!pDialog.isShowing()){
                 pDialog.show();
             }
-        }
     }
+    }
+
 
     @Override
     public void onPause() {
         super.onPause();
+        if (pDialog!=null && pDialog.isShowing() ){
+            pDialog.dismiss();
+            pDialog.cancel();
+        }
         LocalBroadcastManager.getInstance(context).unregisterReceiver(broadcastReceiver);
     }
 
@@ -201,8 +215,11 @@ public class DropboxSyncFragment extends Fragment {
             public void onComplete(FullAccount result) {
                 Functions.getPrefs(context).edit().putString(DROPBOX_EMAIL, result.getEmail()).apply();
                 Functions.getPrefs(context).edit().putString(DROPBOX_NAME, result.getName().getDisplayName()).apply();
-                tvDbxEmail.setText(String.format(getString(R.string.dropbox_email),result.getEmail()));
-                tvDbxName.setText(String.format(getString(R.string.dropbox_name),result.getName().getDisplayName()));
+                Log.i(DropboxSyncFragment.class.getSimpleName(), "onComplete: getView() = " + getView());
+                if (getView() != null){
+                    tvDbxEmail.setText(String.format(getString(R.string.dropbox_email),result.getEmail()));
+                    tvDbxName.setText(String.format(getString(R.string.dropbox_name),result.getName().getDisplayName()));
+                }
             }
 
             @Override

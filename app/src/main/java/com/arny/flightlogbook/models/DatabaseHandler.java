@@ -219,7 +219,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 whereQuery +
                 " GROUP BY strftime('%m',datetime(" + COLUMN_DATETIME + "/1000, 'unixepoch'))" +
                 " ORDER BY dt";
-        Log.i(TAG, "getStatistic statisticQuery = " + statisticQuery);
+//        Log.i(TAG, "getStatistic statisticQuery = " + statisticQuery);
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(statisticQuery, null);
         List<Statistic> list = new ArrayList<>();
