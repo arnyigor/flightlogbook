@@ -41,4 +41,5 @@ dependencies {
     compile 'com.dropbox.core:dropbox-core-sdk:2.1.1'
     compile 'org.apache.poi:poi:3.9'
     compile 'com.squareup.okhttp3:okhttp:3.3.0'
+    compile 'com.github.GrenderG:Toasty:1.1.3'
 }

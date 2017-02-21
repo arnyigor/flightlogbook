@@ -4,11 +4,13 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Debug;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.views.fragments.DropboxSyncFragment;
 import com.dropbox.core.DbxException;
@@ -225,7 +227,12 @@ public class BackgroundIntentService extends IntentService {
                                 break;
                             case 1:
                                 try {
-                                    strTime = myCell.getDateCellValue().toString();
+                                    try {
+                                        strTime = Functions.match(myCell.getDateCellValue().toString(), "(\\d{2}:\\d{2})", 1);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                        strTime = myCell.toString();
+                                    }
                                 } catch (Exception e) {
                                     strTime = "00:00";
                                     e.printStackTrace();
@@ -302,8 +309,8 @@ public class BackgroundIntentService extends IntentService {
                                 }
                                 Log.i(TAG, "strDesc " + strDesc);
                                 try {
-                                    logTime = Functions.convertStringToTime(Functions.match(strTime,"\\s(\\d{2}:\\d{2}):",1));
-                                    mDateTime = Functions.convertTimeStringToLong(strDate,"dd-MMM-yyyy");
+                                    logTime = Functions.convertStringToTime(strTime);
+                                    mDateTime = Functions.convertTimeStringToLong(strDate,"dd MMM yyyy");
                                     Log.i(TAG, "strDesc: " + strDesc);
                                     Log.i(TAG, "strDate: " + strDate);
                                     Log.i(TAG, "mDateTime: " + mDateTime);

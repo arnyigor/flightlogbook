@@ -10,6 +10,7 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
 
 import java.io.File;
@@ -59,15 +60,21 @@ public class Functions {
         pregs.put("^[0-9]{1,2}\\s\\W+\\s[0-9]{2}$", "dd MMM yy");
         pregs.put("^[0-9]{1,2}\\s[0-9]{2}\\s[0-9]{2}$", "dd MM yy");
         pregs.put("^[0-9]{1,2}\\s[0-9]{2}\\s[0-9]{4}$", "dd MM yyyy");
-        String format = "dd.mm.YYYY";
+        String format = "dd.mm.yyyy";
         for (HashMap.Entry<String, String> entry : pregs.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
-
-            if (Pattern.matches(key, myTimestamp)) {
-                format = value;
+            if (BuildConfig.DEBUG){
+                Log.i(Functions.class.getSimpleName(), "dateFormatChooser: myTimestamp = " + myTimestamp);
+                Log.i(Functions.class.getSimpleName(), "dateFormatChooser: key = " + key);
+            }
+            if (match(key, myTimestamp,0) !=null) {
+                format = match(key, myTimestamp,0);
                 break;
             }
+        }
+        if (BuildConfig.DEBUG){
+            Log.i(Functions.class.getSimpleName(), "dateFormatChooser: format = " + format);
         }
         return format;
     }
@@ -253,7 +260,6 @@ public class Functions {
     }
 
     public static int convertStringToTime(String time) {
-        time = time.trim();
         Log.i(Functions.class.getSimpleName(), "convertStringToTime: time = " + time);
         int hours = 0;
         int mins = 0;
