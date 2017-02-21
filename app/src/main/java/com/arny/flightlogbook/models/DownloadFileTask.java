@@ -54,21 +54,8 @@ public class DownloadFileTask extends AsyncTask<FileMetadata, Void, File> {
     protected File doInBackground(FileMetadata... params) {
         FileMetadata metadata = params[0];
         try {
-//            File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-//            File path = mPath;
             File file = new File(mPath, Functions.EXEL_FILE_NAME);
             Log.i(DownloadFileTask.class.getSimpleName(), "doInBackground: file = " + String.valueOf(file));
-//            // Make sure the Downloads directory exists.
-//            if (!path.exists()) {
-//                if (!path.mkdirs()) {
-//                    mException = new RuntimeException("Unable to create directory: " + path);
-//                }
-//            } else if (!path.isDirectory()) {
-//                mException = new IllegalStateException("Download path is not a directory: " + path);
-//                return null;
-//            }
-
-            // Download the file.
             try {
                 OutputStream outputStream = new FileOutputStream(file);
                 mDbxClient.files().download(metadata.getPathLower(), metadata.getRev())

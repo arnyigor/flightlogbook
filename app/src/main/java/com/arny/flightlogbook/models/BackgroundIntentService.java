@@ -3,10 +3,20 @@ package com.arny.flightlogbook.models;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.arny.flightlogbook.R;
+import com.arny.flightlogbook.views.fragments.DropboxSyncFragment;
+import com.dropbox.core.DbxException;
+import com.dropbox.core.v2.DbxClientV2;
+import com.dropbox.core.v2.files.FileMetadata;
+import com.dropbox.core.v2.files.ListFolderResult;
+import com.dropbox.core.v2.files.Metadata;
+import com.dropbox.core.v2.files.WriteMode;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -15,8 +25,11 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -24,10 +37,12 @@ public class BackgroundIntentService extends IntentService {
     /*Extras*/
     public static final String ACTION = "com.arny.flightlogbook.models.BackgroundIntentService";
     public static final String EXTRA_KEY_OPERATION_CODE = "BackgroundIntentService.operation.code";
+    public static final String EXTRA_KEY_OPERATION_RESULT = "BackgroundIntentService.operation.result";
     public static final String EXTRA_KEY_FINISH = "BackgroundIntentService.operation.finish";
     public static final String EXTRA_KEY_FINISH_SUCCESS = "BackgroundIntentService.operation.success";
     /*Opearations*/
     public static final int OPERATION_IMPORT_SD = 100;
+    public static final int OPERATION_DBX_SYNC = 102;
     public static final String OPERATION_IMPORT_SD_FILENAME = "BackgroundIntentService.operation.import.sd.filename";
     public static final int OPERATION_EXPORT = 101;
     /*other*/
@@ -35,6 +50,10 @@ public class BackgroundIntentService extends IntentService {
     private boolean mIsSuccess;
     private boolean mIsStopped;
     private int operation;
+    private DbxClientV2 client;
+    private File syncFolder;
+    private FileMetadata remoteMetadata;
+    private Exception mException;
 
     public BackgroundIntentService() {
         super("BackgroundIntentService");
@@ -49,22 +68,37 @@ public class BackgroundIntentService extends IntentService {
 
     @Override
     public void onDestroy() {
+        Log.i(BackgroundIntentService.class.getSimpleName(), "onDestroy: ");
+        onServiceDestroy();
+        super.onDestroy();
+    }
+
+    private void onServiceDestroy() {
+        Log.i(BackgroundIntentService.class.getSimpleName(), "onServiceDestroy: mIsSuccess = " + mIsSuccess);
         String notice;
         mIsStopped = true;
         if (mIsSuccess) {
             notice = "Операция завершена!";
-            if (operation == OPERATION_IMPORT_SD) {
-                notice = "Импорт завершен!";
+            switch (operation){
+                case OPERATION_IMPORT_SD:
+                    notice = "Импорт завершен!";
+                    break;
+                case OPERATION_DBX_SYNC:
+                    notice = "Синхронизация завершена!";
+                    break;
             }
         } else {
             notice = "Операция НЕ завершена!";
-            if (operation == OPERATION_IMPORT_SD) {
-                notice = "Импорт не завершен!";
+            switch (operation){
+                case OPERATION_IMPORT_SD:
+                    notice = "Импорт не завершен!";
+                    break;
+                case OPERATION_DBX_SYNC:
+                    notice = "Синхронизация не завершена!";
+                    break;
             }
         }
-        sendBroadcastIntent();
-        Toast.makeText(getApplicationContext(), notice, Toast.LENGTH_LONG).show();
-        super.onDestroy();
+        sendBroadcastIntent(notice);
     }
 
     @NonNull
@@ -82,17 +116,49 @@ public class BackgroundIntentService extends IntentService {
             case OPERATION_IMPORT_SD:
                 String FilePath = intent.getStringExtra(OPERATION_IMPORT_SD_FILENAME);
                 readExcelFile(getApplicationContext(), null, true, FilePath);
+                mIsSuccess = true;
+                sendBroadcastIntent(getApplicationContext().getResources().getString(R.string.str_import_success));
+                break;
+            case OPERATION_DBX_SYNC:
+                client = DropboxClientFactory.getClient();
+                try {
+                    // Get files and folder metadata from Dropbox root directory
+                    ListFolderResult result = client.files().listFolder("");
+                    Log.i(BackgroundIntentService.class.getSimpleName(), "doInBackground: result = " + String.valueOf(result));
+                    while (true) {
+
+                        for (Metadata metadata : result.getEntries()) {
+                            Log.i(BackgroundIntentService.class.getSimpleName(), "doInBackground: hasname = " + metadata.getName().compareToIgnoreCase(Functions.EXEL_FILE_NAME));
+                            if (metadata.getName().compareToIgnoreCase(Functions.EXEL_FILE_NAME)==0){
+                                if (metadata instanceof  FileMetadata){
+                                    remoteMetadata = (FileMetadata)metadata;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!result.getHasMore()) {
+                            break;
+                        }
+                        result = client.files().listFolderContinue(result.getCursor());
+                    }
+                    syncFile(remoteMetadata);
+                } catch (DbxException e) {
+                    e.printStackTrace();
+                    mIsSuccess = false;
+                    onServiceDestroy();
+                }
                 break;
         }
-        mIsSuccess = true;
-        sendBroadcastIntent();
+
     }
 
 
-    private void sendBroadcastIntent() {
+    private void sendBroadcastIntent(String result) {
         Intent intent = initProadcastIntent();
         intent.putExtra(EXTRA_KEY_FINISH, mIsStopped);
         intent.putExtra(EXTRA_KEY_FINISH_SUCCESS, mIsSuccess);
+        intent.putExtra(EXTRA_KEY_OPERATION_CODE, operation);
+        intent.putExtra(EXTRA_KEY_OPERATION_RESULT, result);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
@@ -159,7 +225,7 @@ public class BackgroundIntentService extends IntentService {
                                 break;
                             case 1:
                                 try {
-                                    strTime = myCell.toString();
+                                    strTime = myCell.getDateCellValue().toString();
                                 } catch (Exception e) {
                                     strTime = "00:00";
                                     e.printStackTrace();
@@ -236,7 +302,7 @@ public class BackgroundIntentService extends IntentService {
                                 }
                                 Log.i(TAG, "strDesc " + strDesc);
                                 try {
-                                    logTime = Functions.convertStringToTime(strTime);
+                                    logTime = Functions.convertStringToTime(Functions.match(strTime,"\\s(\\d{2}:\\d{2}):",1));
                                     mDateTime = Functions.convertTimeStringToLong(strDate,"dd-MMM-yyyy");
                                     Log.i(TAG, "strDesc: " + strDesc);
                                     Log.i(TAG, "strDate: " + strDate);
@@ -250,7 +316,7 @@ public class BackgroundIntentService extends IntentService {
                                     Log.i(TAG, "ifr_vfr: " + ifr_vfr);
                                     Log.i(TAG, "flight_type: " + flight_type);
                                     db.addFlight(mDateTime, logTime, reg_no, airplane_type_id, day_night, ifr_vfr, flight_type, strDesc);
-                                    sendBroadcastIntent();
+                                    sendBroadcastIntent(null);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -268,5 +334,128 @@ public class BackgroundIntentService extends IntentService {
     }//readFile
 
 
+    private void downloadFile(FileMetadata metadata) {
+        try {
+            File file = new File(syncFolder, Functions.EXEL_FILE_NAME);
+            Log.i(DownloadFileTask.class.getSimpleName(), "doInBackground: file = " + String.valueOf(file));
+            try {
+                OutputStream outputStream = new FileOutputStream(file);
+                client.files().download(metadata.getPathLower(), metadata.getRev()).download(outputStream);
+
+                // Tell android about the file
+                Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                intent.setData(Uri.fromFile(file));
+                getApplicationContext().sendBroadcast(intent);
+                Log.i(BackgroundIntentService.class.getSimpleName(), "downloadFile: file = " + file.length());
+                if (file.length()>0){
+                    mIsSuccess = true;
+                    onServiceDestroy();
+                }else{
+                    mIsSuccess = false;
+                    onServiceDestroy();
+                }
+            } catch (DbxException | IOException e) {
+                e.printStackTrace();
+                mIsSuccess = false;
+                onServiceDestroy();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            mIsSuccess = false;
+            onServiceDestroy();
+        }
+
+//        new DownloadFileTask(getApplicationContext(), DropboxClientFactory.getClient(), new DownloadFileTask.Callback() {
+//            @Override
+//            public void onDownloadComplete(File result) {
+//
+//                if (result != null) {
+//                    mIsSuccess = true;
+//                    onServiceDestroy();
+//                }
+//            }
+//
+//            @Override
+//            public void onError(Exception e) {
+//                e.printStackTrace();
+//                Toast.makeText(getApplicationContext(), getString(R.string.dropbox_sync_error), Toast.LENGTH_SHORT).show();
+//                mIsSuccess = false;
+//                onServiceDestroy();
+//            }
+//        }, syncFolder).execute(file);
+
+    }
+
+    private void uploadFile() {
+        try {
+            File localFile = new File(getApplicationContext().getExternalFilesDir(null), Functions.EXEL_FILE_NAME);
+            String remoteFileName = localFile.getName();
+            InputStream inputStream = new FileInputStream(localFile);
+            FileMetadata result =  client.files().uploadBuilder("/" + remoteFileName).withMode(WriteMode.OVERWRITE).uploadAndFinish(inputStream);
+            Log.i(BackgroundIntentService.class.getSimpleName(), "uploadFile: uploadFileMetadata =" + result);
+            if (result !=null){
+                mIsSuccess = true;
+                onServiceDestroy();
+            }else{
+                mIsSuccess = false;
+                onServiceDestroy();
+            }
+        } catch (DbxException | IOException e) {
+            e.printStackTrace();
+            mIsSuccess = false;
+            onServiceDestroy();
+        }
+//        new UploadFileTask(getApplicationContext(), DropboxClientFactory.getClient(), new UploadFileTask.Callback() {
+//            @Override
+//            public void onUploadComplete(FileMetadata result) {
+////                String message = result.getName() + " size " + result.getSize() + " modified " +
+////                        DateFormat.getDateTimeInstance().format(result.getClientModified());
+////                Toast.makeText(context, message, Toast.LENGTH_SHORT) .show();
+//                mIsSuccess = true;
+//                onServiceDestroy();
+//            }
+//
+//            @Override
+//            public void onError(Exception e) {
+//                Log.e(BackgroundIntentService.class.getSimpleName(), "onError: Failed to upload file " + e.getMessage());
+//                Toast.makeText(getApplicationContext(), "An error has occurred", Toast.LENGTH_SHORT).show();
+//                mIsSuccess = false;
+//                onServiceDestroy();
+//            }
+//        }).execute();
+    }
+
+    private void syncFile(final FileMetadata remoteFile) {
+        File localFile = new File(getApplicationContext().getExternalFilesDir(null), Functions.EXEL_FILE_NAME);
+        syncFolder = getApplicationContext().getExternalFilesDir(null);
+        Date localLastModified, remoteLastModified;
+        try {
+            if (remoteFile ==null){
+                Log.i(BackgroundIntentService.class.getSimpleName(), "syncFile: remote is null");
+                uploadFile();
+                return;
+            }
+            remoteLastModified = remoteFile.getClientModified();
+            localLastModified = new Date(localFile.lastModified());
+
+            Log.i(BackgroundIntentService.class.getSimpleName(), "syncFolder: remoteLastModified = " + Functions.getDateTime(remoteLastModified,null));
+            Log.i(BackgroundIntentService.class.getSimpleName(), "syncFolder: localLastModified = " + Functions.getDateTime(localLastModified,null));
+            if (remoteLastModified.after(localLastModified) || !localFile.isFile() || localFile.length() == 0) {
+                Log.i(BackgroundIntentService.class.getSimpleName(), "syncFile: download");
+                downloadFile(remoteFile);
+            } else if (remoteLastModified.before(localLastModified) || remoteFile.getSize()==0) {
+                Log.i(BackgroundIntentService.class.getSimpleName(), "syncFile: upload");
+                uploadFile();
+            }else{
+                Log.i(BackgroundIntentService.class.getSimpleName(), "syncFile: not requed");
+                mIsSuccess = true;
+                onServiceDestroy();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            mIsSuccess = false;
+            onServiceDestroy();
+        }
+    }
 
 }

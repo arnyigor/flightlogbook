@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.arny.flightlogbook.R;
@@ -19,6 +20,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Random;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Functions {
@@ -35,6 +37,17 @@ public class Functions {
 
     public static boolean matcher(String preg, String string) {
         return Pattern.matches(preg, string);
+    }
+
+    public static String match(String where,String pattern,int groupnum){
+        Pattern p = Pattern.compile(pattern);
+        Matcher m = p.matcher(where);
+        while(m.find()) {
+            if (!m.group(groupnum).equals("")) {
+                return m.group(groupnum);
+            }
+        }
+        return null;
     }
 
     public static String dateFormatChooser(String myTimestamp) {
@@ -159,17 +172,27 @@ public class Functions {
     }
 
     public static int validateInt(String val) {
-        if (val != null) {
-            return Integer.parseInt(val);
+        try{
+            if (val != null) {
+                return Integer.parseInt(val);
+            }
+            return 0;
+        }catch (Exception e){
+            e.printStackTrace();
+            return 0;
         }
-        return 0;
     }
 
     public static long validateLong(String val) {
-        if (val != null) {
-            return Long.parseLong(val);
+        try{
+            if (val != null) {
+                return Long.parseLong(val);
+            }
+            return 0;
+        }catch (Exception e){
+            e.printStackTrace();
+            return 0;
         }
-        return 0;
     }
 
     public static SharedPreferences getPrefs(Context context) {
@@ -230,6 +253,8 @@ public class Functions {
     }
 
     public static int convertStringToTime(String time) {
+        time = time.trim();
+        Log.i(Functions.class.getSimpleName(), "convertStringToTime: time = " + time);
         int hours = 0;
         int mins = 0;
         String delimeter = (time.contains(":")) ? ":" : ".";
