@@ -54,8 +54,8 @@ public class HomeActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private Intent fileintent,mMyServiceIntent;
     private Context context;
-    private boolean autoExportXLSPref, metarPref,operationSuccess,finishOperation;
-    private ProgressDialog pDialog;
+    private boolean autoExportXLSPref, metarPref,operationSuccess,finishOperation = true;
+    private ProgressDialog bgProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +63,8 @@ public class HomeActivity extends AppCompatActivity {
         context = this;
         setContentView(R.layout.activity_home);
         getPrefs();
-        pDialog = new ProgressDialog(context);
-        pDialog.setCancelable(false);
+        bgProgress = new ProgressDialog(context);
+        bgProgress.setCancelable(false);
         initBgService();
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -218,21 +218,26 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void hideProgress() {
-        if (pDialog !=null){
-            Log.i(HomeActivity.class.getSimpleName(), "hideProgress: pDialog.isShowing() = " + pDialog.isShowing());
-            if (pDialog.isShowing()){
-                pDialog.dismiss();
+        try {
+            if (bgProgress !=null) {
+                bgProgress.dismiss();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     private void showProgress(String notif) {
-        if (pDialog !=null){
-            pDialog.setMessage(notif);
-            Log.i(HomeActivity.class.getSimpleName(), "showProgress: pDialog.isShowing() = " + pDialog.isShowing());
-            if (!pDialog.isShowing()) {
-                pDialog.show();
+        try {
+            if (bgProgress !=null) {
+                Log.i(HomeActivity.class.getSimpleName(), "hideProgress: bgProgress.isShowing() = " + bgProgress.isShowing());
+                bgProgress.setMessage(notif);
+                if (!bgProgress.isShowing()){
+                    bgProgress.show();
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -355,24 +360,30 @@ public class HomeActivity extends AppCompatActivity {
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-
             Log.i(HomeActivity.class.getSimpleName(), "onReceive: service runing = " + Functions.isMyServiceRunning(BackgroundIntentService.class, context));
             try {
-                finishOperation = intent.getBooleanExtra(BackgroundIntentService.EXTRA_KEY_FINISH, false);
-                mOperationResult = intent.getStringExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_RESULT);
-                operationSuccess = intent.getBooleanExtra(BackgroundIntentService.EXTRA_KEY_FINISH_SUCCESS, false);
+                    finishOperation = intent.getBooleanExtra(BackgroundIntentService.EXTRA_KEY_FINISH, false);
+                    mOperation = intent.getIntExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_IMPORT_SD);
+                    mOperationResult = intent.getStringExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_RESULT);
+                    operationSuccess = intent.getBooleanExtra(BackgroundIntentService.EXTRA_KEY_FINISH_SUCCESS, false);
             } catch (Exception e) {
                 e.printStackTrace();
                 hideProgress();
             }
             Log.i(HomeActivity.class.getSimpleName(), "onReceive: finishOperation = " + finishOperation);
+            Log.i(HomeActivity.class.getSimpleName(), "onReceive: operationSuccess = " + operationSuccess);
             if (finishOperation){
                 hideProgress();
-                Toasty.info(context, mOperationResult, Toast.LENGTH_SHORT).show();
-            }else{
-                getOperationNotif(context);
-                showProgress(notif);
+                if (operationSuccess){
+                    Toasty.success(context, mOperationResult, Toast.LENGTH_SHORT).show();
+                }else{
+                    Toasty.error(context, mOperationResult, Toast.LENGTH_SHORT).show();
+                }
             }
+//            else{
+//                getOperationNotif(context);
+//                showProgress(notif);
+//            }
         }
     };
 

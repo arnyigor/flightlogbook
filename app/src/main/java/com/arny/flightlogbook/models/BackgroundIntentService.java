@@ -97,7 +97,6 @@ public class BackgroundIntentService extends IntentService {
     }
 
     private void onServiceDestroy() {
-        Log.i(BackgroundIntentService.class.getSimpleName(), "onServiceDestroy: mIsSuccess = " + mIsSuccess);
         mIsStopped = true;
         sendBroadcastIntent(getResultNotif());
     }
@@ -181,17 +180,15 @@ public class BackgroundIntentService extends IntentService {
                 } catch (DbxException e) {
                     e.printStackTrace();
                     mIsSuccess = false;
-                    onServiceDestroy();
                 }
                 break;
             case OPERATION_EXPORT:
                 mIsSuccess = saveExcelFile(getApplicationContext(), Functions.EXEL_FILE_NAME);
-                onServiceDestroy();
+               
                 break;
         }
 
     }
-
 
     private void sendBroadcastIntent(String result) {
         Intent intent = initProadcastIntent();
@@ -334,7 +331,7 @@ public class BackgroundIntentService extends IntentService {
             } catch (IOException e) {
                 e.printStackTrace();
                 mIsSuccess = false;
-                onServiceDestroy();
+               
                 return;
             }
 
@@ -475,11 +472,11 @@ public class BackgroundIntentService extends IntentService {
             }//while (rowIter.hasNext())
             //cursorExport.requery();
             mIsSuccess = true;
-            onServiceDestroy();
+           
         } catch (Exception e) {
             e.printStackTrace();
             mIsSuccess = false;
-            onServiceDestroy();
+           
         }
     }//readFile
 
@@ -499,20 +496,20 @@ public class BackgroundIntentService extends IntentService {
                 Log.i(BackgroundIntentService.class.getSimpleName(), "downloadFile: file = " + file.length());
                 if (file.length()>0){
                     mIsSuccess = true;
-                    onServiceDestroy();
+                   
                 }else{
                     mIsSuccess = false;
-                    onServiceDestroy();
+                   
                 }
             } catch (DbxException | IOException e) {
                 e.printStackTrace();
                 mIsSuccess = false;
-                onServiceDestroy();
+               
             }
         } catch (Exception e) {
             e.printStackTrace();
             mIsSuccess = false;
-            onServiceDestroy();
+           
         }
 
 //        new DownloadFileTask(getApplicationContext(), DropboxClientFactory.getClient(), new DownloadFileTask.Callback() {
@@ -521,7 +518,7 @@ public class BackgroundIntentService extends IntentService {
 //
 //                if (result != null) {
 //                    mIsSuccess = true;
-//                    onServiceDestroy();
+//                   
 //                }
 //            }
 //
@@ -530,7 +527,7 @@ public class BackgroundIntentService extends IntentService {
 //                e.printStackTrace();
 //                Toast.makeText(getApplicationContext(), getString(R.string.dropbox_sync_error), Toast.LENGTH_SHORT).show();
 //                mIsSuccess = false;
-//                onServiceDestroy();
+//               
 //            }
 //        }, syncFolder).execute(file);
 
@@ -545,15 +542,15 @@ public class BackgroundIntentService extends IntentService {
             Log.i(BackgroundIntentService.class.getSimpleName(), "uploadFile: uploadFileMetadata =" + result);
             if (result !=null){
                 mIsSuccess = true;
-                onServiceDestroy();
+               
             }else{
                 mIsSuccess = false;
-                onServiceDestroy();
+               
             }
         } catch (DbxException | IOException e) {
             e.printStackTrace();
             mIsSuccess = false;
-            onServiceDestroy();
+           
         }
 //        new UploadFileTask(getApplicationContext(), DropboxClientFactory.getClient(), new UploadFileTask.Callback() {
 //            @Override
@@ -562,7 +559,7 @@ public class BackgroundIntentService extends IntentService {
 ////                        DateFormat.getDateTimeInstance().format(result.getClientModified());
 ////                Toast.makeText(context, message, Toast.LENGTH_SHORT) .show();
 //                mIsSuccess = true;
-//                onServiceDestroy();
+//               
 //            }
 //
 //            @Override
@@ -570,7 +567,7 @@ public class BackgroundIntentService extends IntentService {
 //                Log.e(BackgroundIntentService.class.getSimpleName(), "onError: Failed to upload file " + e.getMessage());
 //                Toast.makeText(getApplicationContext(), "An error has occurred", Toast.LENGTH_SHORT).show();
 //                mIsSuccess = false;
-//                onServiceDestroy();
+//               
 //            }
 //        }).execute();
     }
@@ -599,12 +596,12 @@ public class BackgroundIntentService extends IntentService {
             }else{
                 Log.i(BackgroundIntentService.class.getSimpleName(), "syncFile: not requed");
                 mIsSuccess = true;
-                onServiceDestroy();
+               
             }
         } catch (Exception e) {
             e.printStackTrace();
             mIsSuccess = false;
-            onServiceDestroy();
+           
         }
     }
 

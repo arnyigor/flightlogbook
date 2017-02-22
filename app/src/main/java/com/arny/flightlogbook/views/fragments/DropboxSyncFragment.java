@@ -22,23 +22,13 @@ import android.widget.Toast;
 
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.models.BackgroundIntentService;
-import com.arny.flightlogbook.models.DownloadFileTask;
 import com.arny.flightlogbook.models.DropboxClientFactory;
 import com.arny.flightlogbook.models.Functions;
 import com.arny.flightlogbook.models.GetCurrentAccountTask;
-import com.arny.flightlogbook.models.UploadFileTask;
 import com.arny.flightlogbook.views.activities.HomeActivity;
-import com.dropbox.core.DbxException;
 import com.dropbox.core.android.Auth;
 import com.dropbox.core.v2.DbxClientV2;
-import com.dropbox.core.v2.files.FileMetadata;
-import com.dropbox.core.v2.files.ListFolderResult;
-import com.dropbox.core.v2.files.Metadata;
 import com.dropbox.core.v2.users.FullAccount;
-
-import java.io.File;
-import java.text.DateFormat;
-import java.util.Date;
 
 public class DropboxSyncFragment extends Fragment {
     private static final String DROPBOX_STR_TOKEN = "access-token";
@@ -47,7 +37,7 @@ public class DropboxSyncFragment extends Fragment {
     private Context context;
     private Button login_button,btnSync;
     private TextView tvDbxEmail, tvDbxName;
-    private String accessToken,mOperationResult,dbxEmail,dbxName;
+    private String accessToken,mOperationResult,dbxEmail,dbxName,notif;
     private ProgressDialog pDialog;
     private boolean finishOperation,operationSuccess;
     private DbxClientV2 client;
@@ -98,22 +88,20 @@ public class DropboxSyncFragment extends Fragment {
 
     public void getFileData() {
         try {
-                if (DropboxClientFactory.getClient() !=null){
-                    pDialog.setMessage(getString(R.string.dropbox_sync_files));
-                    if (!pDialog.isShowing()){
-                        pDialog.show();
-                    }
-                    if (mMyServiceIntent == null){
-                        mMyServiceIntent = new Intent(context, BackgroundIntentService.class);
-                    }
-                    mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_DBX_SYNC);
-                    context.startService(mMyServiceIntent);
+            if (DropboxClientFactory.getClient() !=null){
+                showProgress(getString(R.string.dropbox_sync_files));
+                if (mMyServiceIntent == null){
+                    mMyServiceIntent = new Intent(context, BackgroundIntentService.class);
                 }
+                mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_DBX_SYNC);
+                context.startService(mMyServiceIntent);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(context, getString(R.string.dropbox_auth_error), Toast.LENGTH_SHORT).show();
         }
     }
+
 
     @Override
     public void onResume() {
@@ -121,23 +109,27 @@ public class DropboxSyncFragment extends Fragment {
         IntentFilter filter = new IntentFilter(BackgroundIntentService.ACTION);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         LocalBroadcastManager.getInstance(context).registerReceiver(broadcastReceiver, filter);
-        if (!Functions.isMyServiceRunning(BackgroundIntentService.class, context)) {
-            AsyncAuth auth = new AsyncAuth();
-            auth.execute();
-        } else {
-            String notif;
-            switch (mOperation) {
-                case BackgroundIntentService.OPERATION_DBX_SYNC:
-                    notif = context.getResources().getString(R.string.dropbox_sync_files);
-                    break;
-                default:
-                    notif = context.getResources().getString(R.string.str_import_excel);
-                    break;
-            }
-            pDialog.setMessage(notif);
-            if (!pDialog.isShowing()) {
-                pDialog.show();
-            }
+        if (Functions.isMyServiceRunning(BackgroundIntentService.class, context)) {
+            getOperationNotif(context);
+            showProgress(notif);
+        }else{
+            hideProgress();
+            AsyncAuth asyncAuth = new AsyncAuth();
+            asyncAuth.execute();
+        }
+    }
+
+    private void getOperationNotif(Context context) {
+        switch (BackgroundIntentService.getOperation()) {
+            case BackgroundIntentService.OPERATION_DBX_SYNC:
+                notif = context.getResources().getString(R.string.dropbox_sync_files);
+                break;
+            case BackgroundIntentService.OPERATION_EXPORT:
+                notif = context.getResources().getString(R.string.str_export_excel);
+                break;
+            case BackgroundIntentService.OPERATION_IMPORT_SD:
+                notif = context.getResources().getString(R.string.str_import_excel);
+                break;
         }
     }
 
@@ -145,11 +137,27 @@ public class DropboxSyncFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        if (pDialog!=null && pDialog.isShowing() ){
-            pDialog.dismiss();
-            pDialog.cancel();
-        }
+        hideProgress();
         LocalBroadcastManager.getInstance(context).unregisterReceiver(broadcastReceiver);
+    }
+
+    private void hideProgress() {
+        if (pDialog !=null){
+            Log.i(HomeActivity.class.getSimpleName(), "hideProgress: pDialog.isShowing() = " + pDialog.isShowing());
+            if (pDialog.isShowing()){
+                pDialog.dismiss();
+            }
+        }
+    }
+
+    private void showProgress(String notif) {
+        if (pDialog !=null){
+            pDialog.setMessage(notif);
+            Log.i(HomeActivity.class.getSimpleName(), "showProgress: pDialog.isShowing() = " + pDialog.isShowing());
+            if (!pDialog.isShowing()) {
+                pDialog.show();
+            }
+        }
     }
 
     private void setUIVisibility() {
@@ -200,8 +208,6 @@ public class DropboxSyncFragment extends Fragment {
         }
     }
 
-
-
     private boolean hasToken() {
         if (accessToken==null){
             accessToken = Functions.getPrefs(context).getString(DROPBOX_STR_TOKEN, null);
@@ -238,30 +244,19 @@ public class DropboxSyncFragment extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             try {
-                if (!finishOperation){
-                    finishOperation = intent.getBooleanExtra(BackgroundIntentService.EXTRA_KEY_FINISH, false);
-                    mOperation = intent.getIntExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_IMPORT_SD);
-                    mOperationResult = intent.getStringExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_RESULT);
-                    operationSuccess = intent.getBooleanExtra(BackgroundIntentService.EXTRA_KEY_FINISH_SUCCESS, false);
-                }
+                finishOperation = intent.getBooleanExtra(BackgroundIntentService.EXTRA_KEY_FINISH, false);
+                mOperation = intent.getIntExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_IMPORT_SD);
+                mOperationResult = intent.getStringExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_RESULT);
+                operationSuccess = intent.getBooleanExtra(BackgroundIntentService.EXTRA_KEY_FINISH_SUCCESS, false);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            Log.i(DropboxSyncFragment.class.getSimpleName(), "onReceive: finishOperation = " + finishOperation);
-            Log.i(DropboxSyncFragment.class.getSimpleName(), "onReceive: operationSuccess = " + operationSuccess);
-            Log.i(DropboxSyncFragment.class.getSimpleName(), "onReceive: mOperation = " + mOperation);
             if (finishOperation){
-                Log.i(DropboxSyncFragment.class.getSimpleName(), "onReceive: pDialog = " + pDialog);
-                if (pDialog !=null){
-                    pDialog.dismiss();
-                }
+                pDialog.dismiss();
                 Toast.makeText(context, mOperationResult, Toast.LENGTH_SHORT).show();
-//                showDialog(mOperationResult);
             }else{
                 pDialog.setMessage(getString(R.string.dropbox_sync_files));
-                if (!pDialog.isShowing()){
-                    pDialog.show();
-                }
+                pDialog.show();
             }
         }
     };
