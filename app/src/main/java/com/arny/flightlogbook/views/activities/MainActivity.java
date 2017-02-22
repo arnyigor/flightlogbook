@@ -310,7 +310,7 @@
 //						mMyServiceIntent = new Intent(MainActivity.this, BackgroundIntentService.class);
 //					}
 //					mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_IMPORT_SD);
-//					mMyServiceIntent.putExtra(BackgroundIntentService.OPERATION_IMPORT_SD_FILENAME, FilePath);
+//					mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_IMPORT_SD_FILENAME, FilePath);
 //					startService(mMyServiceIntent);
 //				} else {
 //					Toast.makeText(MainActivity.this, getString(R.string.str_error_import), Toast.LENGTH_SHORT).show();

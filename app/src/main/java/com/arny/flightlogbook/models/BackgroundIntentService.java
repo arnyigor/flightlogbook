@@ -21,9 +21,17 @@ import com.dropbox.core.v2.files.Metadata;
 import com.dropbox.core.v2.files.WriteMode;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.formula.functions.Function;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,6 +43,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import es.dmoral.toasty.Toasty;
+
 public class BackgroundIntentService extends IntentService {
     /*Extras*/
     public static final String ACTION = "com.arny.flightlogbook.models.BackgroundIntentService";
@@ -42,20 +52,31 @@ public class BackgroundIntentService extends IntentService {
     public static final String EXTRA_KEY_OPERATION_RESULT = "BackgroundIntentService.operation.result";
     public static final String EXTRA_KEY_FINISH = "BackgroundIntentService.operation.finish";
     public static final String EXTRA_KEY_FINISH_SUCCESS = "BackgroundIntentService.operation.success";
+    public static final String EXTRA_KEY_IMPORT_SD_FILENAME = "BackgroundIntentService.operation.import.sd.filename";
     /*Opearations*/
     public static final int OPERATION_IMPORT_SD = 100;
     public static final int OPERATION_DBX_SYNC = 102;
-    public static final String OPERATION_IMPORT_SD_FILENAME = "BackgroundIntentService.operation.import.sd.filename";
     public static final int OPERATION_EXPORT = 101;
     /*other*/
+    private static final String LOG_SHEET_MAIN = "Timelog";
     private static final String TAG = BackgroundIntentService.class.getName();
+    private static int operation;
+    private List<DataList> ExportData,TypeData;
     private boolean mIsSuccess;
     private boolean mIsStopped;
-    private int operation;
+    private int airplane_type_id;
     private DbxClientV2 client;
     private File syncFolder;
     private FileMetadata remoteMetadata;
     private Exception mException;
+
+    public static int getOperation(){
+        return operation;
+    }
+
+    private void setOperation(int operation){
+        BackgroundIntentService.operation = operation;
+    }
 
     public BackgroundIntentService() {
         super("BackgroundIntentService");
@@ -77,8 +98,12 @@ public class BackgroundIntentService extends IntentService {
 
     private void onServiceDestroy() {
         Log.i(BackgroundIntentService.class.getSimpleName(), "onServiceDestroy: mIsSuccess = " + mIsSuccess);
-        String notice;
         mIsStopped = true;
+        sendBroadcastIntent(getResultNotif());
+    }
+
+    private String getResultNotif() {
+        String notice;
         if (mIsSuccess) {
             notice = "Операция завершена!";
             switch (operation){
@@ -88,9 +113,12 @@ public class BackgroundIntentService extends IntentService {
                 case OPERATION_DBX_SYNC:
                     notice = "Синхронизация завершена!";
                     break;
+                case OPERATION_EXPORT:
+                    notice = "Экспорт завершен!";
+                    break;
             }
         } else {
-            notice = "Операция НЕ завершена!";
+            notice = "Операция не завершена!";
             switch (operation){
                 case OPERATION_IMPORT_SD:
                     notice = "Импорт не завершен!";
@@ -98,9 +126,12 @@ public class BackgroundIntentService extends IntentService {
                 case OPERATION_DBX_SYNC:
                     notice = "Синхронизация не завершена!";
                     break;
+                case OPERATION_EXPORT:
+                    notice = "Экспорт не завершен!";
+                    break;
             }
         }
-        sendBroadcastIntent(notice);
+        return notice;
     }
 
     @NonNull
@@ -113,17 +144,20 @@ public class BackgroundIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        operation = intent.getIntExtra(EXTRA_KEY_OPERATION_CODE, 0);
-        switch (operation) {
+        setOperation(intent.getIntExtra(EXTRA_KEY_OPERATION_CODE, 0));
+        switch (getOperation()) {
             case OPERATION_IMPORT_SD:
-                String FilePath = intent.getStringExtra(OPERATION_IMPORT_SD_FILENAME);
-                readExcelFile(getApplicationContext(), null, true, FilePath);
-                mIsSuccess = true;
-                sendBroadcastIntent(getApplicationContext().getResources().getString(R.string.str_import_success));
+                String mPath = intent.getStringExtra(EXTRA_KEY_IMPORT_SD_FILENAME);
+                Log.i(BackgroundIntentService.class.getSimpleName(), "onHandleIntent: mPath = " + mPath);
+                if (Functions.empty(mPath)){
+                    readExcelFile(getApplicationContext(), Functions.EXEL_FILE_NAME, true);
+                }else{
+                    readExcelFile(getApplicationContext(),mPath, false);
+                }
                 break;
             case OPERATION_DBX_SYNC:
-                client = DropboxClientFactory.getClient();
                 try {
+                    client = DropboxClientFactory.getClient();
                     // Get files and folder metadata from Dropbox root directory
                     ListFolderResult result = client.files().listFolder("");
                     Log.i(BackgroundIntentService.class.getSimpleName(), "doInBackground: result = " + String.valueOf(result));
@@ -150,6 +184,10 @@ public class BackgroundIntentService extends IntentService {
                     onServiceDestroy();
                 }
                 break;
+            case OPERATION_EXPORT:
+                mIsSuccess = saveExcelFile(getApplicationContext(), Functions.EXEL_FILE_NAME);
+                onServiceDestroy();
+                break;
         }
 
     }
@@ -164,37 +202,139 @@ public class BackgroundIntentService extends IntentService {
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
+    public boolean saveExcelFile(Context context, String fileName) {
+        DatabaseHandler db = new DatabaseHandler(this);
+        Row row;
+        if (!Functions.isExternalStorageAvailable() || Functions.isExternalStorageReadOnly()) {
+//            Toasty.error(context, getString(R.string.storage_not_avalable), Toast.LENGTH_LONG).show();
+//            Toast.makeText(context, getString(R.string.storage_not_avalable), Toast.LENGTH_LONG).show();
+            return false;
+        }
+        boolean success = false;
 
-    private void readExcelFile(Context context, String filename, boolean fromSystem, String systemPath) {
+        //New Workbook
+        Workbook wb = new HSSFWorkbook();
+
+        //Cell style for header row
+        CellStyle cs = wb.createCellStyle();
+        cs.setFillForegroundColor(HSSFColor.LIME.index);
+        cs.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+
+        Cell c;
+        //New Sheet
+        Sheet sheet_main = wb.createSheet(LOG_SHEET_MAIN);
+        //create base row
+        row = sheet_main.createRow(0);
+        c = row.createCell(0);
+        c.setCellValue(getString(R.string.str_date));
+        c = row.createCell(1);
+        c.setCellValue(getString(R.string.str_itemlogtime));
+        c = row.createCell(2);
+        c.setCellValue(getString(R.string.str_type_null));
+        c = row.createCell(3);
+        c.setCellValue(getString(R.string.str_regnum));
+        c = row.createCell(4);
+        c.setCellValue(getString(R.string.str_day_night));
+        c = row.createCell(5);
+        c.setCellValue(getString(R.string.str_vfr_ifr));
+        c = row.createCell(6);
+        c.setCellValue(getString(R.string.str_flight_type));
+        c = row.createCell(7);
+        c.setCellValue(getString(R.string.str_desc));
+
+        ExportData = db.getFlightListByDate();
+        int rows = 1;
+        for (DataList export : ExportData) {
+            airplane_type_id = export.getAirplanetypeid();
+            TypeData = db.getTypeItem(airplane_type_id);
+            String airplane_type = "";
+            for (DataList type : TypeData) {
+                airplane_type = type.getAirplanetypetitle();
+            }
+
+            row = sheet_main.createRow(rows);
+            c = row.createCell(0);
+            c.setCellValue(Functions.getDateTime(export.getDatetime(),"dd MMM yyyy"));
+            c = row.createCell(1);
+            c.setCellValue(Functions.strLogTime(export.getLogtime()));
+            c = row.createCell(2);
+            c.setCellValue(airplane_type);
+            c = row.createCell(3);
+            c.setCellValue(export.getReg_no());
+            c = row.createCell(4);
+            c.setCellValue(export.getDaynight());
+            c = row.createCell(5);
+            c.setCellValue(export.getIfrvfr());
+            c = row.createCell(6);
+            c.setCellValue(export.getFlighttype());
+            c = row.createCell(7);
+            c.setCellValue(export.getDescription());
+            rows++;
+        }
+
+        sheet_main.setColumnWidth(0, (15 * 200));
+        sheet_main.setColumnWidth(1, (15 * 150));
+        sheet_main.setColumnWidth(2, (15 * 150));
+        sheet_main.setColumnWidth(3, (15 * 150));
+        sheet_main.setColumnWidth(4, (15 * 250));
+        sheet_main.setColumnWidth(5, (15 * 300));
+        sheet_main.setColumnWidth(6, (15 * 200));
+        sheet_main.setColumnWidth(7, (15 * 500));
+
+        // Create a path where we will place our List of objects on external storage
+        File file = new File(context.getExternalFilesDir(null), fileName);
+        FileOutputStream os = null;
+
+        try {
+            os = new FileOutputStream(file);
+            wb.write(os);
+//            Toasty.success(context, getString(R.string.str_file_saved) + " " + file, Toast.LENGTH_SHORT).show();
+//            Toast.makeText(context, getString(R.string.str_file_saved) + " " + file, Toast.LENGTH_SHORT).show();
+            success = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            success = false;
+        } finally {
+            try {
+                if (null != os)
+                    os.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return success;
+    }
+
+    private void readExcelFile(Context context, String filename, boolean fromSystem) {
         DatabaseHandler db = new DatabaseHandler(this);
         boolean hasType = false;
         boolean checked = false;
-        String strDate = null,strTime = null,airplane_type = null,reg_no = null,strDesc = null;
-        int airplane_type_id = 0,day_night = 0,ifr_vfr = 0,flight_type = 0,logTime = 0;
-        long mDateTime = 0;
+        InputStream myInput;
+        HSSFWorkbook myWorkBook;
+        String strDate = null,strTime = null,airplane_type = null,reg_no = null,strDesc;
+        int airplane_type_id = 0,day_night = 0,ifr_vfr = 0,flight_type = 0,logTime;
+        long mDateTime;
         List<DataList> TypeData;
         File xlsfile;
         if (!Functions.isExternalStorageAvailable() || Functions.isExternalStorageReadOnly()) {
-            Log.i(TAG, "Storage not available or read only");
             return;
         }
 
         try {
             if (fromSystem) {
-                xlsfile = new File("", systemPath);
+                xlsfile = new File(context.getExternalFilesDir(null), Functions.EXEL_FILE_NAME);
             } else {
-                xlsfile = new File(context.getExternalFilesDir(null), filename);
+                xlsfile = new File(filename, "");
             }
             Log.i(TAG, "readExcelFile xlsfile = " + xlsfile);
-            InputStream myInput = null;
-            HSSFWorkbook myWorkBook = null;
+
             try {
                 myInput = new FileInputStream(xlsfile);
                 myWorkBook = new HSSFWorkbook(myInput);
             } catch (IOException e) {
                 e.printStackTrace();
-                Toast.makeText(context, "Ошибка чтения файла", Toast.LENGTH_SHORT).show();
-                Log.i(TAG, "getLocalizedMessage= " + e.getMessage());
+                mIsSuccess = false;
+                onServiceDestroy();
                 return;
             }
 
@@ -227,10 +367,9 @@ public class BackgroundIntentService extends IntentService {
                                 break;
                             case 1:
                                 try {
-                                    try {
+                                    if (myCell.getCellType()==Cell.CELL_TYPE_NUMERIC){
                                         strTime = Functions.match(myCell.getDateCellValue().toString(), "(\\d{2}:\\d{2})", 1);
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
+                                    }else{
                                         strTime = myCell.toString();
                                     }
                                 } catch (Exception e) {
@@ -310,7 +449,7 @@ public class BackgroundIntentService extends IntentService {
                                 Log.i(TAG, "strDesc " + strDesc);
                                 try {
                                     logTime = Functions.convertStringToTime(strTime);
-                                    mDateTime = Functions.convertTimeStringToLong(strDate,"dd MMM yyyy");
+                                    mDateTime = Functions.convertTimeStringToLong(strDate,Functions.dateFormatChooser(strDate));
                                     Log.i(TAG, "strDesc: " + strDesc);
                                     Log.i(TAG, "strDate: " + strDate);
                                     Log.i(TAG, "mDateTime: " + mDateTime);
@@ -335,8 +474,12 @@ public class BackgroundIntentService extends IntentService {
                 rowCnt++;
             }//while (rowIter.hasNext())
             //cursorExport.requery();
+            mIsSuccess = true;
+            onServiceDestroy();
         } catch (Exception e) {
             e.printStackTrace();
+            mIsSuccess = false;
+            onServiceDestroy();
         }
     }//readFile
 

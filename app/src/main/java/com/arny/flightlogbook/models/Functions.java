@@ -55,27 +55,20 @@ public class Functions {
         HashMap<String, String> pregs = new HashMap<>();
         pregs.put("^[0-9]{1,2}\\.[0-9]{2}\\.[0-9]{4}$", "dd.MM.yyyy");
         pregs.put("^[0-9]{1,2}\\.[0-9]{2}\\.[0-9]{2}$", "dd.MM.yy");
-        pregs.put("^[0-9]{1,2}\\-\\W+\\-[0-9]{2}$", "dd-MMM-yy");
-        pregs.put("^[0-9]{1,2}\\-\\W+\\-[0-9]{4}$", "dd-MMM-yyyy");
-        pregs.put("^[0-9]{1,2}\\s\\W+\\s[0-9]{2}$", "dd MMM yy");
+        pregs.put("^[0-9]{1,2}\\-\\.*\\-[0-9]{2}$", "dd-MMM-yy");
+        pregs.put("^[0-9]{1,2}\\-.*\\-[0-9]{4}$", "dd-MMM-yyyy");
+        pregs.put("^[0-9]{1,2}\\s\\.*\\s[0-9]{2}$", "dd MMM yy");
+        pregs.put("^[0-9]{1,2}\\s\\.*\\s[0-9]{4}$", "dd MMM yyyy");
         pregs.put("^[0-9]{1,2}\\s[0-9]{2}\\s[0-9]{2}$", "dd MM yy");
         pregs.put("^[0-9]{1,2}\\s[0-9]{2}\\s[0-9]{4}$", "dd MM yyyy");
-        String format = "dd.mm.yyyy";
+        String format = "dd MMM yyyy";
         for (HashMap.Entry<String, String> entry : pregs.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            if (BuildConfig.DEBUG){
-                Log.i(Functions.class.getSimpleName(), "dateFormatChooser: myTimestamp = " + myTimestamp);
-                Log.i(Functions.class.getSimpleName(), "dateFormatChooser: key = " + key);
-            }
-            if (match(key, myTimestamp,0) !=null) {
-                format = match(key, myTimestamp,0);
+            if (Pattern.matches(entry.getKey(), myTimestamp)) {
+                format = entry.getValue();
                 break;
             }
         }
-        if (BuildConfig.DEBUG){
-            Log.i(Functions.class.getSimpleName(), "dateFormatChooser: format = " + format);
-        }
+
         return format;
     }
 
@@ -272,6 +265,10 @@ public class Functions {
             e.printStackTrace();
         }
         return mins + (hours * 60);
+    }
+
+    public static boolean empty( final String s ) {
+        return s == null || s.trim().isEmpty();
     }
 
 }

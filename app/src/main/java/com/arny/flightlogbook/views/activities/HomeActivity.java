@@ -1,17 +1,19 @@
 package com.arny.flightlogbook.views.activities;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -22,8 +24,6 @@ import android.widget.Toast;
 
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.models.BackgroundIntentService;
-import com.arny.flightlogbook.models.DataList;
-import com.arny.flightlogbook.models.DatabaseHandler;
 import com.arny.flightlogbook.models.Functions;
 import com.arny.flightlogbook.models.Preferences;
 import com.arny.flightlogbook.views.fragments.DropboxSyncFragment;
@@ -35,42 +35,27 @@ import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.util.HSSFColor;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-
 import java.io.File;
-import java.io.FileOutputStream;
-import java.text.DateFormatSymbols;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+
+import es.dmoral.toasty.Toasty;
 
 public class HomeActivity extends AppCompatActivity {
     // Storage Permissions
 
     private static final int SAVE_FILE_RESULT_CODE = 111;
     private static final int MENU_DROPBOX_SYNC = 112;
-    private static final String LOG_SHEET_MAIN = "Timelog";
     private static final int PICKFILE_RESULT_CODE = 1;
     private static final int MENU_FLIGHTS = 0;
     private static final int MENU_STATS = 1;
     private static final String DRAWER_SELECTION = "drawer_selection";
+    private int mOperation;
+    private String mOperationResult,notif;
     private Drawer drawer = null;
     private Toolbar toolbar;
     private Intent fileintent,mMyServiceIntent;
     private Context context;
-    private boolean autoExportXLSPref, metarPref;
-    private DatabaseHandler db;
-    private List<DataList> ExportData,TypeData;
-    private int airplane_type_id;
+    private boolean autoExportXLSPref, metarPref,operationSuccess,finishOperation;
+    private ProgressDialog pDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,8 +63,9 @@ public class HomeActivity extends AppCompatActivity {
         context = this;
         setContentView(R.layout.activity_home);
         getPrefs();
-        db = new DatabaseHandler(this);
-        mMyServiceIntent = new Intent(context, BackgroundIntentService.class);
+        pDialog = new ProgressDialog(context);
+        pDialog.setCancelable(false);
+        initBgService();
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getString(R.string.fragment_logbook));
@@ -138,9 +124,8 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public void getPrefs() {
-        SharedPreferences prefs = PreferenceManager .getDefaultSharedPreferences(getBaseContext());
-        autoExportXLSPref = prefs.getBoolean("autoExportXLSPref", false);
-        metarPref = prefs.getBoolean("metarCheckPref", false);
+        autoExportXLSPref = Functions.getPrefs(context).getBoolean("autoExportXLSPref", false);
+        metarPref = Functions.getPrefs(context).getBoolean("metarCheckPref", false);
     }
 
     @Override
@@ -214,10 +199,49 @@ public class HomeActivity extends AppCompatActivity {
         if (drawer.isDrawerOpen()) {
             drawer.closeDrawer();
         } else {
-            super.onBackPressed();
+            openQuitDialog();
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        IntentFilter filter = new IntentFilter(BackgroundIntentService.ACTION);
+        filter.addCategory(Intent.CATEGORY_DEFAULT);
+        LocalBroadcastManager.getInstance(context).registerReceiver(broadcastReceiver, filter);
+        if (Functions.isMyServiceRunning(BackgroundIntentService.class, context)) {
+            getOperationNotif(context);
+            showProgress(notif);
+        }else{
+            hideProgress();
+        }
+    }
+
+    private void hideProgress() {
+        if (pDialog !=null){
+            Log.i(HomeActivity.class.getSimpleName(), "hideProgress: pDialog.isShowing() = " + pDialog.isShowing());
+            if (pDialog.isShowing()){
+                pDialog.dismiss();
+            }
+        }
+    }
+
+    private void showProgress(String notif) {
+        if (pDialog !=null){
+            pDialog.setMessage(notif);
+            Log.i(HomeActivity.class.getSimpleName(), "showProgress: pDialog.isShowing() = " + pDialog.isShowing());
+            if (!pDialog.isShowing()) {
+                pDialog.show();
+            }
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        hideProgress();
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(broadcastReceiver);
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
@@ -277,19 +301,17 @@ public class HomeActivity extends AppCompatActivity {
         alert.show();
     }
 
-
-    	@Override
+    @Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
 			case PICKFILE_RESULT_CODE:
 				if (resultCode == RESULT_OK) {
 					String FilePath = data.getData().getPath();
-					if (mMyServiceIntent == null){
-						mMyServiceIntent = new Intent(HomeActivity.this, BackgroundIntentService.class);
-					}
-					mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_IMPORT_SD);
-					mMyServiceIntent.putExtra(BackgroundIntentService.OPERATION_IMPORT_SD_FILENAME, FilePath);
+                    initBgService();
+                    mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_IMPORT_SD);
+					mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_IMPORT_SD_FILENAME, FilePath);
 					startService(mMyServiceIntent);
+                    showProgress(getString(R.string.str_import_excel));
 				} else {
 					Toast.makeText(HomeActivity.this, getString(R.string.str_error_import), Toast.LENGTH_SHORT).show();
 				}
@@ -303,8 +325,7 @@ public class HomeActivity extends AppCompatActivity {
 	}
 
 
-
-    public void openFileWith() {
+    private void openFileWith() {
         try {
             Intent myIntent = new Intent(Intent.ACTION_VIEW);
             File sdPath = Environment.getExternalStorageDirectory();
@@ -331,103 +352,45 @@ public class HomeActivity extends AppCompatActivity {
 //        }
 //    }
 
-    public boolean saveExcelFile(Context context, String fileName) {
-        Row row;
-        if (!Functions.isExternalStorageAvailable() || Functions.isExternalStorageReadOnly()) {
-            Toast.makeText(context, getString(R.string.storage_not_avalable), Toast.LENGTH_LONG).show();
-            return false;
-        }
-        boolean success = false;
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
 
-        //New Workbook
-        Workbook wb = new HSSFWorkbook();
-
-        //Cell style for header row
-        CellStyle cs = wb.createCellStyle();
-        cs.setFillForegroundColor(HSSFColor.LIME.index);
-        cs.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
-
-        Cell c;
-        //New Sheet
-        Sheet sheet_main = wb.createSheet(LOG_SHEET_MAIN);
-        //create base row
-        row = sheet_main.createRow(0);
-        c = row.createCell(0);
-        c.setCellValue(getString(R.string.str_date));
-        c = row.createCell(1);
-        c.setCellValue(getString(R.string.str_itemlogtime));
-        c = row.createCell(2);
-        c.setCellValue(getString(R.string.str_type_null));
-        c = row.createCell(3);
-        c.setCellValue(getString(R.string.str_regnum));
-        c = row.createCell(4);
-        c.setCellValue(getString(R.string.str_day_night));
-        c = row.createCell(5);
-        c.setCellValue(getString(R.string.str_vfr_ifr));
-        c = row.createCell(6);
-        c.setCellValue(getString(R.string.str_flight_type));
-        c = row.createCell(7);
-        c.setCellValue(getString(R.string.str_desc));
-
-        ExportData = db.getFlightListByDate();
-        int rows = 1;
-        for (DataList export : ExportData) {
-            airplane_type_id = export.getAirplanetypeid();
-            TypeData = db.getTypeItem(airplane_type_id);
-            String airplane_type = "";
-            for (DataList type : TypeData) {
-                airplane_type = type.getAirplanetypetitle();
-            }
-
-            row = sheet_main.createRow(rows);
-            c = row.createCell(0);
-            c.setCellValue(getDate(export.getDatetime()));
-            c = row.createCell(1);
-            c.setCellValue(Functions.strLogTime(export.getLogtime()));
-            c = row.createCell(2);
-            c.setCellValue(airplane_type);
-            c = row.createCell(3);
-            c.setCellValue(export.getReg_no());
-            c = row.createCell(4);
-            c.setCellValue(export.getDaynight());
-            c = row.createCell(5);
-            c.setCellValue(export.getIfrvfr());
-            c = row.createCell(6);
-            c.setCellValue(export.getFlighttype());
-            c = row.createCell(7);
-            c.setCellValue(export.getDescription());
-            rows++;
-        }
-
-        sheet_main.setColumnWidth(0, (15 * 200));
-        sheet_main.setColumnWidth(1, (15 * 150));
-        sheet_main.setColumnWidth(2, (15 * 150));
-        sheet_main.setColumnWidth(3, (15 * 150));
-        sheet_main.setColumnWidth(4, (15 * 250));
-        sheet_main.setColumnWidth(5, (15 * 300));
-        sheet_main.setColumnWidth(6, (15 * 200));
-        sheet_main.setColumnWidth(7, (15 * 500));
-
-        // Create a path where we will place our List of objects on external storage
-        File file = new File(context.getExternalFilesDir(null), fileName);
-        FileOutputStream os = null;
-
-        try {
-            os = new FileOutputStream(file);
-            wb.write(os);
-            Toast.makeText(context, getString(R.string.str_file_saved) + " " + file, Toast.LENGTH_SHORT).show();
-            success = true;
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
+            Log.i(HomeActivity.class.getSimpleName(), "onReceive: service runing = " + Functions.isMyServiceRunning(BackgroundIntentService.class, context));
             try {
-                if (null != os)
-                    os.close();
-            } catch (Exception ex) {
-                ex.printStackTrace();
+                finishOperation = intent.getBooleanExtra(BackgroundIntentService.EXTRA_KEY_FINISH, false);
+                mOperationResult = intent.getStringExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_RESULT);
+                operationSuccess = intent.getBooleanExtra(BackgroundIntentService.EXTRA_KEY_FINISH_SUCCESS, false);
+            } catch (Exception e) {
+                e.printStackTrace();
+                hideProgress();
+            }
+            Log.i(HomeActivity.class.getSimpleName(), "onReceive: finishOperation = " + finishOperation);
+            if (finishOperation){
+                hideProgress();
+                Toasty.info(context, mOperationResult, Toast.LENGTH_SHORT).show();
+            }else{
+                getOperationNotif(context);
+                showProgress(notif);
             }
         }
-        return success;
+    };
+
+    private void getOperationNotif(Context context) {
+        switch (BackgroundIntentService.getOperation()) {
+            case BackgroundIntentService.OPERATION_DBX_SYNC:
+                notif = context.getResources().getString(R.string.dropbox_sync_files);
+                break;
+            case BackgroundIntentService.OPERATION_EXPORT:
+                notif = context.getResources().getString(R.string.str_export_excel);
+                break;
+            case BackgroundIntentService.OPERATION_IMPORT_SD:
+                notif = context.getResources().getString(R.string.str_import_excel);
+                break;
+            default:
+                notif = context.getResources().getString(R.string.str_import_excel);
+                break;
+        }
     }
 
     private void showExportAlert() {
@@ -442,8 +405,10 @@ public class HomeActivity extends AppCompatActivity {
         alert.setPositiveButton(getString(R.string.str_ok), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                saveExcelFile(getBaseContext(), Functions.EXEL_FILE_NAME);
-                Toast.makeText(context, getString(R.string.str_export_success), Toast.LENGTH_SHORT).show();
+                initBgService();
+                mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_EXPORT);
+                startService(mMyServiceIntent);
+                showProgress(getString(R.string.str_export_excel));
             }
         });
         alert.show();
@@ -462,38 +427,14 @@ public class HomeActivity extends AppCompatActivity {
         alert.setPositiveButton(getString(R.string.str_ok), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-//				readExcelFile(getBaseContext(), Functions.EXEL_FILE_NAME, false, null);
-				/*FlightData = db.getFlightListByDate();
-				listView.setAdapter(new ViewAdapter());
-				displayTotalTime();*/
-                Toast.makeText(context, getString(R.string.str_import_success), Toast.LENGTH_SHORT).show();
+                initBgService();
+                mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_IMPORT_SD);
+                mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_IMPORT_SD_FILENAME, "");
+                startService(mMyServiceIntent);
+                showProgress(getString(R.string.str_import_excel));
             }
         });
         alert.show();
-    }
-
-    private String getDate(long time) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(time);
-        int y = cal.get(Calendar.YEAR);
-        int m = cal.get(Calendar.MONTH);
-        int d = cal.get(Calendar.DAY_OF_MONTH);
-        String strDateFormat = "MMM";
-        String strM = new DateFormatSymbols().getMonths()[m];
-        Date dat = null;
-        try {
-            dat = new SimpleDateFormat(strDateFormat, Locale.getDefault()).parse(strM);
-        } catch (java.text.ParseException e) {
-            e.printStackTrace();
-        }
-        String fDate = new SimpleDateFormat("MMM", Locale.getDefault()).format(dat);
-        return d + " " + fDate + " " + y;
-    }
-
-    private String getTime(long timestamp) {
-        Date d = new Date(timestamp);
-        SimpleDateFormat format = new SimpleDateFormat("hh:mm",Locale.getDefault());
-        return format.format(d);
     }
 
     private void openQuitDialog() {
@@ -505,12 +446,20 @@ public class HomeActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int id) {
                         getPrefs();
                         if (autoExportXLSPref) {
-                            saveExcelFile(getBaseContext(), Functions.EXEL_FILE_NAME);
+                            initBgService();
+                            mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_EXPORT);
+                            startService(mMyServiceIntent);
                         }
                         finish();
                     }
                 });
         AlertDialog alert = quitDialog.create();
         alert.show();
+    }
+
+    private void initBgService() {
+        if (mMyServiceIntent == null){
+            mMyServiceIntent = new Intent(HomeActivity.this, BackgroundIntentService.class);
+        }
     }
 }
