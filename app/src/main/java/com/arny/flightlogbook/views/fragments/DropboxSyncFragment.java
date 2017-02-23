@@ -30,19 +30,26 @@ import com.dropbox.core.android.Auth;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.users.FullAccount;
 
+import java.util.HashMap;
+
+import es.dmoral.toasty.Toasty;
+
 public class DropboxSyncFragment extends Fragment {
     private static final String DROPBOX_STR_TOKEN = "access-token";
-    private static final String DROPBOX_EMAIL = "dbx_email";
-    private static final String DROPBOX_NAME = "dbx_name";
+    private static final String PREF_DBX_EMAIL = "dbx_email";
+    private static final String PREF_DBX_NAME = "dbx_name";
+    private static final String PREF_DBX_LOCAL_DATETIME = "dbx_local_datetime";
+    private static final String PREF_DBX_REMOTE_DATETIME = "dbx_remote_datetime";
     private Context context;
-    private Button login_button,btnSync;
-    private TextView tvDbxEmail, tvDbxName;
-    private String accessToken,mOperationResult,dbxEmail,dbxName,notif;
+    private Button login_button,btnSync,btnSyncDown,btnSyncUp;
+    private TextView tvDbxEmail, tvDbxName,tvDpxData;
+    private String accessToken,mOperationResult,dbxEmail,dbxName,notif,localfileDate,remoteFileDate;
     private ProgressDialog pDialog;
     private boolean finishOperation,operationSuccess;
     private DbxClientV2 client;
     private Intent mMyServiceIntent;
     private int mOperation;
+    private HashMap<String, String> hashMap;
 
     public DropboxSyncFragment() {
         // Required empty public constructor
@@ -59,15 +66,28 @@ public class DropboxSyncFragment extends Fragment {
         mMyServiceIntent = new Intent(context, BackgroundIntentService.class);
         login_button = (Button) rootView.findViewById(R.id.btnDpxLogin);
         btnSync = (Button) rootView.findViewById(R.id.btnSync);
+        btnSyncDown = (Button) rootView.findViewById(R.id.btnSyncDown);
+        btnSyncUp = (Button) rootView.findViewById(R.id.btnSyncUp);
         tvDbxEmail = (TextView) rootView.findViewById(R.id.tvDpxEmail);
         tvDbxName = (TextView) rootView.findViewById(R.id.tvDpxName);
-        dbxEmail = Functions.getPrefs(context).getString(DROPBOX_EMAIL, "");
-        dbxName = Functions.getPrefs(context).getString(DROPBOX_NAME, "");
+        tvDpxData = (TextView) rootView.findViewById(R.id.tvDpxData);
+        localfileDate = Functions.getPrefs(context).getString(PREF_DBX_LOCAL_DATETIME, "");;
+        remoteFileDate = Functions.getPrefs(context).getString(PREF_DBX_REMOTE_DATETIME, "");;
+        setSyncDataFileDateTime();
+        dbxEmail = Functions.getPrefs(context).getString(PREF_DBX_EMAIL, "");
+        dbxName = Functions.getPrefs(context).getString(PREF_DBX_NAME, "");
         tvDbxEmail.setText(String.format(getString(R.string.dropbox_email),dbxEmail));
         tvDbxName.setText(String.format(getString(R.string.dropbox_name),dbxName));
         login_button.setOnClickListener(onClickListenerAuth);
         btnSync.setOnClickListener(onClickListenerSync);
         return rootView;
+    }
+
+    private void setSyncDataFileDateTime() {
+        if (!Functions.empty(localfileDate) && !Functions.empty(remoteFileDate)){
+            tvDpxData.setText("Время локального файла:" +localfileDate + "\n" + "Время удаленного файла:" + remoteFileDate );
+            //TODO upload download btns
+        }
     }
 
     View.OnClickListener onClickListenerAuth = new View.OnClickListener() {
@@ -109,6 +129,7 @@ public class DropboxSyncFragment extends Fragment {
         IntentFilter filter = new IntentFilter(BackgroundIntentService.ACTION);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         LocalBroadcastManager.getInstance(context).registerReceiver(broadcastReceiver, filter);
+
         if (Functions.isMyServiceRunning(BackgroundIntentService.class, context)) {
             getOperationNotif(context);
             showProgress(notif);
@@ -219,8 +240,8 @@ public class DropboxSyncFragment extends Fragment {
         new GetCurrentAccountTask(DropboxClientFactory.getClient(), new GetCurrentAccountTask.Callback() {
             @Override
             public void onComplete(FullAccount result) {
-                Functions.getPrefs(context).edit().putString(DROPBOX_EMAIL, result.getEmail()).apply();
-                Functions.getPrefs(context).edit().putString(DROPBOX_NAME, result.getName().getDisplayName()).apply();
+                Functions.getPrefs(context).edit().putString(PREF_DBX_EMAIL, result.getEmail()).apply();
+                Functions.getPrefs(context).edit().putString(PREF_DBX_NAME, result.getName().getDisplayName()).apply();
                 Log.i(DropboxSyncFragment.class.getSimpleName(), "onComplete: getView() = " + getView());
                 if (getView() != null){
                     tvDbxEmail.setText(String.format(getString(R.string.dropbox_email),result.getEmail()));
@@ -248,18 +269,40 @@ public class DropboxSyncFragment extends Fragment {
                 mOperation = intent.getIntExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_IMPORT_SD);
                 mOperationResult = intent.getStringExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_RESULT);
                 operationSuccess = intent.getBooleanExtra(BackgroundIntentService.EXTRA_KEY_FINISH_SUCCESS, false);
+                hashMap = (HashMap<String, String>) intent.getSerializableExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_DATA);
             } catch (Exception e) {
                 e.printStackTrace();
             }
             if (finishOperation){
-                pDialog.dismiss();
-                Toast.makeText(context, mOperationResult, Toast.LENGTH_SHORT).show();
-            }else{
-                pDialog.setMessage(getString(R.string.dropbox_sync_files));
-                pDialog.show();
+                hideProgress();
+                if (operationSuccess){
+                    operationResult();
+                    Toasty.success(context, mOperationResult, Toast.LENGTH_SHORT).show();
+                }else{
+                    Toasty.error(context, mOperationResult, Toast.LENGTH_SHORT).show();
+                }
             }
+//            if (finishOperation){
+//                pDialog.dismiss();
+//                Toast.makeText(context, mOperationResult, Toast.LENGTH_SHORT).show();
+//            }else{
+//                pDialog.setMessage(getString(R.string.dropbox_sync_files));
+//                pDialog.show();
+//            }
         }
     };
+
+    private void operationResult() {
+        switch (mOperation){
+            case BackgroundIntentService.OPERATION_DBX_SYNC:
+                localfileDate = hashMap.get(BackgroundIntentService.EXTRA_KEY_OPERATION_DATA_LOCAL_DATE);
+                remoteFileDate = hashMap.get(BackgroundIntentService.EXTRA_KEY_OPERATION_DATA_REMOTE_DATE);
+                Functions.getPrefs(context).edit().putString(PREF_DBX_LOCAL_DATETIME, localfileDate).apply();
+                Functions.getPrefs(context).edit().putString(PREF_DBX_REMOTE_DATETIME, remoteFileDate).apply();
+                setSyncDataFileDateTime();
+                break;
+        }
+    }
 
     private void showDialog(String result) {
         AlertDialog.Builder dlg = new AlertDialog.Builder(context);

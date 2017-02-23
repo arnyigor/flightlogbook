@@ -77,7 +77,7 @@ public class FlightList extends Fragment {
         displayTotalTime();
     }
 
-    class LoadFlights extends AsyncTask<Void, Void, Void> {
+   private class LoadFlights extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected void onPreExecute() {
@@ -112,12 +112,14 @@ public class FlightList extends Fragment {
 
         @Override
         public int getCount() {
-            return db.getFlightCount();
+            return FlightData.size();
+//            return db.getFlightCount();
         }
 
         @Override
         public Object getItem(int position) {
-            return db.getFlightItem(FlightData.get(position).getId());
+            return FlightData.get(position);
+//            return db.getFlightItem(FlightData.get(position).getId());
         }
 
         @Override
@@ -127,29 +129,61 @@ public class FlightList extends Fragment {
 
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
-
+            final ViewHolder viewHolder;
             if (convertView == null) {
                 convertView = mInflater.inflate(R.layout.item, null);
+                viewHolder = new ViewHolder();
+                viewHolder.tvDate = (TextView) convertView.findViewById(R.id.tvDate);
+                viewHolder.tvLogTime = (TextView) convertView.findViewById(R.id.tvLogTime);
+                viewHolder.tvType = (TextView) convertView.findViewById(R.id.tvType);
+                viewHolder.tvRegNo = (TextView) convertView.findViewById(R.id.tvRegNo);
+                viewHolder.tvDesc = (TextView) convertView.findViewById(R.id.tvDesc);
+                convertView.setTag(viewHolder);
+            } else {
+                viewHolder = (ViewHolder) convertView.getTag();
             }
-            ((TextView) convertView.findViewById(R.id.tvDate)).setText(Functions.getDateTime(FlightData.get(position).getDatetime(),"ddMMMyyyy"));
-            ((TextView) convertView.findViewById(R.id.tvLogTime)).setText(Functions.strLogTime(FlightData.get(position).getLogtime()));
-
             airplane_type_id = FlightData.get(position).getAirplanetypeid();
             TypeData = db.getTypeItem(airplane_type_id);
             for (DataList type : TypeData) {
                 airplane_type = type.getAirplanetypetitle();
             }
-            ((TextView) convertView.findViewById(R.id.tvType)).setText(airplane_type);
-            ((TextView) convertView.findViewById(R.id.tvRegNo)).setText(String.valueOf(FlightData.get(position).getReg_no()));
-            ((TextView) convertView.findViewById(R.id.tvDesc)).setText(FlightData.get(position).getDescription());
-
+            viewHolder.tvDate.setText(Functions.getDateTime(FlightData.get(position).getDatetime(),"ddMMMyyyy"));
+            viewHolder.tvLogTime.setText(Functions.strLogTime(FlightData.get(position).getLogtime()));
+            viewHolder.tvType.setText(airplane_type);
+            viewHolder.tvRegNo.setText(String.valueOf(FlightData.get(position).getReg_no()));
+            viewHolder.tvDesc.setText(FlightData.get(position).getDescription());
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     showMenuDialog(position);
                 }
             });
+//
+//            if (convertView == null) {
+//                convertView = mInflater.inflate(R.layout.item, null);
+//            }
+//            ((TextView) convertView.findViewById(R.id.tvDate)).setText(Functions.getDateTime(FlightData.get(position).getDatetime(),"ddMMMyyyy"));
+//            ((TextView) convertView.findViewById(R.id.tvLogTime)).setText(Functions.strLogTime(FlightData.get(position).getLogtime()));
+//
+//            airplane_type_id = FlightData.get(position).getAirplanetypeid();
+//            TypeData = db.getTypeItem(airplane_type_id);
+//            for (DataList type : TypeData) {
+//                airplane_type = type.getAirplanetypetitle();
+//            }
+//            ((TextView) convertView.findViewById(R.id.tvType)).setText(airplane_type);
+//            ((TextView) convertView.findViewById(R.id.tvRegNo)).setText(String.valueOf(FlightData.get(position).getReg_no()));
+//            ((TextView) convertView.findViewById(R.id.tvDesc)).setText(FlightData.get(position).getDescription());
+//
+//            convertView.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    showMenuDialog(position);
+//                }
+//            });
             return convertView;
+        }
+        private class ViewHolder {
+            TextView tvDate,tvLogTime,tvType,tvRegNo,tvDesc;
         }
     }
 

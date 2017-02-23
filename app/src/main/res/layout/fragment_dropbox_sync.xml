@@ -22,9 +22,26 @@
             android:id="@+id/tvDpxName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/tvDpxData"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
         <Button
             android:id="@+id/btnSync"
+            android:text="@string/dropbox_sync_files"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
+
+        <Button
+            android:id="@+id/btnSyncDown"
+            android:text="@string/dropbox_sync_files"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
+        <Button
+            android:id="@+id/btnSyncUp"
             android:text="@string/dropbox_sync_files"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
