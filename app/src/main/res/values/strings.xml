@@ -107,6 +107,10 @@
     <string name="dropbox_login">Войти в Dropbox</string>
     <string name="dropbox_app_key">rzzuhol6y1aibdx</string>
     <string name="dropbox_sync_files">Синхронизация</string>
+    <string name="dropbox_sync_upload">Выгрузить</string>
+    <string name="dropbox_sync_download">Загрузить</string>
+    <string name="dropbox_sync_uploading">Выгрузка файла</string>
+    <string name="dropbox_sync_downloading">Загрузка файла</string>
     <string name="dropbox_email">Email:%s</string>
     <string name="dropbox_name">Имя:%s</string>
     <string name="dropbox_sync_complete">Синхронизация завершена</string>

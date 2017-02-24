@@ -61,6 +61,8 @@ public class BackgroundIntentService extends IntentService {
     public static final int OPERATION_IMPORT_SD = 100;
     public static final int OPERATION_DBX_SYNC = 102;
     public static final int OPERATION_EXPORT = 101;
+    public static final int OPERATION_DBX_DOWNLOAD = 103;
+    public static final int OPERATION_DBX_UPLOAD = 104;
     /*other*/
     private static final String LOG_SHEET_MAIN = "Timelog";
     private static final String TAG = BackgroundIntentService.class.getName();
@@ -96,7 +98,6 @@ public class BackgroundIntentService extends IntentService {
 
     @Override
     public void onDestroy() {
-        Log.i(BackgroundIntentService.class.getSimpleName(), "onDestroy: ");
         onServiceDestroy();
         super.onDestroy();
     }
@@ -117,6 +118,12 @@ public class BackgroundIntentService extends IntentService {
                 case OPERATION_DBX_SYNC:
                     notice = "Синхронизация завершена!";
                     break;
+                case OPERATION_DBX_DOWNLOAD:
+                    notice = "Загрузка файла завершена!";
+                    break;
+                case OPERATION_DBX_UPLOAD:
+                    notice = "Выгрузка файла завершена!";
+                    break;
                 case OPERATION_EXPORT:
                     notice = "Экспорт завершен!";
                     break;
@@ -129,6 +136,12 @@ public class BackgroundIntentService extends IntentService {
                     break;
                 case OPERATION_DBX_SYNC:
                     notice = "Синхронизация не завершена!";
+                    break;
+                case OPERATION_DBX_DOWNLOAD:
+                    notice = "Загрузка файла не завершена!";
+                    break;
+                case OPERATION_DBX_UPLOAD:
+                    notice = "Выгрузка файла не завершена!";
                     break;
                 case OPERATION_EXPORT:
                     notice = "Экспорт не завершен!";
@@ -153,7 +166,6 @@ public class BackgroundIntentService extends IntentService {
         switch (getOperation()) {
             case OPERATION_IMPORT_SD:
                 String mPath = intent.getStringExtra(EXTRA_KEY_IMPORT_SD_FILENAME);
-                Log.i(BackgroundIntentService.class.getSimpleName(), "onHandleIntent: mPath = " + mPath);
                 if (Functions.empty(mPath)){
                     readExcelFile(getApplicationContext(), Functions.EXEL_FILE_NAME, true);
                 }else{
@@ -164,21 +176,7 @@ public class BackgroundIntentService extends IntentService {
                 try {
                     client = DropboxClientFactory.getClient();
                     if (client !=null){
-                        ListFolderResult result = client.files().listFolder("");
-                        while (true) {
-                            for (Metadata metadata : result.getEntries()) {
-                                if (metadata.getName().compareToIgnoreCase(Functions.EXEL_FILE_NAME)==0){
-                                    if (metadata instanceof  FileMetadata){
-                                        remoteMetadata = (FileMetadata)metadata;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (!result.getHasMore()) {
-                                break;
-                            }
-                            result = client.files().listFolderContinue(result.getCursor());
-                        }
+                        getRemoteMetaData();
                         syncFile(remoteMetadata);
                     }else{
                         mIsSuccess = false;
@@ -188,11 +186,57 @@ public class BackgroundIntentService extends IntentService {
                     mIsSuccess = false;
                 }
                 break;
+            case OPERATION_DBX_DOWNLOAD:
+                try {
+                    client = DropboxClientFactory.getClient();
+                    if (client !=null){
+                        getRemoteMetaData();
+                        downloadFile(remoteMetadata);
+                    }else{
+                        mIsSuccess = false;
+                    }
+                } catch (DbxException e) {
+                    e.printStackTrace();
+                    mIsSuccess = false;
+                }
+                break;
+            case OPERATION_DBX_UPLOAD:
+                try {
+                    client = DropboxClientFactory.getClient();
+                    if (client !=null){
+                        uploadFile();
+                    }else{
+                        mIsSuccess = false;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    mIsSuccess = false;
+                }
+
+                break;
             case OPERATION_EXPORT:
                 mIsSuccess = saveExcelFile(getApplicationContext(), Functions.EXEL_FILE_NAME);
                 break;
         }
 
+    }
+
+    private void getRemoteMetaData() throws DbxException {
+        ListFolderResult result = client.files().listFolder("");
+        while (true) {
+            for (Metadata metadata : result.getEntries()) {
+                if (metadata.getName().compareToIgnoreCase(Functions.EXEL_FILE_NAME)==0){
+                    if (metadata instanceof FileMetadata){
+                        remoteMetadata = (FileMetadata)metadata;
+                        break;
+                    }
+                }
+            }
+            if (!result.getHasMore()) {
+                break;
+            }
+            result = client.files().listFolderContinue(result.getCursor());
+        }
     }
 
     private void sendBroadcastIntent(String result) {
@@ -488,24 +532,17 @@ public class BackgroundIntentService extends IntentService {
 
     private void downloadFile(FileMetadata metadata) {
         try {
+            syncFolder = getApplicationContext().getExternalFilesDir(null);
             File file = new File(syncFolder, Functions.EXEL_FILE_NAME);
             Log.i(DownloadFileTask.class.getSimpleName(), "doInBackground: file = " + String.valueOf(file));
             try {
                 OutputStream outputStream = new FileOutputStream(file);
                 client.files().download(metadata.getPathLower(), metadata.getRev()).download(outputStream);
-
                 // Tell android about the file
                 Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
                 intent.setData(Uri.fromFile(file));
                 getApplicationContext().sendBroadcast(intent);
-                Log.i(BackgroundIntentService.class.getSimpleName(), "downloadFile: file = " + file.length());
-                if (file.length()>0){
-                    mIsSuccess = true;
-                   
-                }else{
-                    mIsSuccess = false;
-                   
-                }
+                mIsSuccess = file.length() > 0;
             } catch (DbxException | IOException e) {
                 e.printStackTrace();
                 mIsSuccess = false;
@@ -544,69 +581,29 @@ public class BackgroundIntentService extends IntentService {
             String remoteFileName = localFile.getName();
             InputStream inputStream = new FileInputStream(localFile);
             FileMetadata result =  client.files().uploadBuilder("/" + remoteFileName).withMode(WriteMode.OVERWRITE).uploadAndFinish(inputStream);
-            Log.i(BackgroundIntentService.class.getSimpleName(), "uploadFile: uploadFileMetadata =" + result);
-            if (result !=null){
-                mIsSuccess = true;
-               
-            }else{
-                mIsSuccess = false;
-               
-            }
+            mIsSuccess = result != null;
         } catch (DbxException | IOException e) {
             e.printStackTrace();
             mIsSuccess = false;
-           
         }
-//        new UploadFileTask(getApplicationContext(), DropboxClientFactory.getClient(), new UploadFileTask.Callback() {
-//            @Override
-//            public void onUploadComplete(FileMetadata result) {
-////                String message = result.getName() + " size " + result.getSize() + " modified " +
-////                        DateFormat.getDateTimeInstance().format(result.getClientModified());
-////                Toast.makeText(context, message, Toast.LENGTH_SHORT) .show();
-//                mIsSuccess = true;
-//               
-//            }
-//
-//            @Override
-//            public void onError(Exception e) {
-//                Log.e(BackgroundIntentService.class.getSimpleName(), "onError: Failed to upload file " + e.getMessage());
-//                Toast.makeText(getApplicationContext(), "An error has occurred", Toast.LENGTH_SHORT).show();
-//                mIsSuccess = false;
-//               
-//            }
-//        }).execute();
     }
 
-    private void syncFile(final FileMetadata remoteFile) {
+    private void syncFile(FileMetadata remoteFile) {
         File localFile = new File(getApplicationContext().getExternalFilesDir(null), Functions.EXEL_FILE_NAME);
-        syncFolder = getApplicationContext().getExternalFilesDir(null);
-        Date localLastModified, remoteLastModified;
+        String remoteVal, localVal;
         try {
-            if (remoteFile ==null){
-                Log.i(BackgroundIntentService.class.getSimpleName(), "syncFile: remote is null");
-                uploadFile();
-                return;
+            if (remoteFile == null) {
+                remoteVal = null;
+            } else {
+                remoteVal = Functions.getDateTime(remoteFile.getServerModified(), "dd MMM yyyy HH:mm:ss");
             }
-            remoteLastModified = remoteFile.getClientModified();
-            localLastModified = new Date(localFile.lastModified());
-
-            Log.i(BackgroundIntentService.class.getSimpleName(), "syncFolder: remoteLastModified = " + Functions.getDateTime(remoteLastModified,null));
-            Log.i(BackgroundIntentService.class.getSimpleName(), "syncFolder: localLastModified = " + Functions.getDateTime(localLastModified,null));
-
-            hashMap.put(EXTRA_KEY_OPERATION_DATA_REMOTE_DATE, Functions.getDateTime(remoteLastModified,"dd MM yyyy HH:mm:ss"));
-            hashMap.put(EXTRA_KEY_OPERATION_DATA_LOCAL_DATE, Functions.getDateTime(localLastModified,"dd MM yyyy HH:mm:ss"));
-
-//            if (remoteLastModified.after(localLastModified) || !localFile.isFile() || localFile.length() == 0) {
-//                Log.i(BackgroundIntentService.class.getSimpleName(), "syncFile: download");
-//                downloadFile(remoteFile);
-//            } else if (remoteLastModified.before(localLastModified) || remoteFile.getSize()==0) {
-//                Log.i(BackgroundIntentService.class.getSimpleName(), "syncFile: upload");
-//                uploadFile();
-//            }else{
-//                Log.i(BackgroundIntentService.class.getSimpleName(), "syncFile: not requed");
-//                mIsSuccess = true;
-//
-//            }
+            if (localFile.length() == 0) {
+                localVal = null;
+            } else {
+                localVal = Functions.getDateTime(new Date(localFile.lastModified()), "dd MMM yyyy HH:mm:ss");
+            }
+            hashMap.put(EXTRA_KEY_OPERATION_DATA_REMOTE_DATE, remoteVal);
+            hashMap.put(EXTRA_KEY_OPERATION_DATA_LOCAL_DATE, localVal);
             mIsSuccess = true;
         } catch (Exception e) {
             e.printStackTrace();

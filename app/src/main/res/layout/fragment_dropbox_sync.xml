@@ -33,18 +33,30 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+                <Button
+                    android:id="@+id/btnSyncDown"
+                    android:text="@string/dropbox_sync_download"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawableLeft="@drawable/ic_action_download"
+                    android:gravity="start|center_vertical"
+                    android:visibility="gone"/>
+                <Button
+                    android:id="@+id/btnSyncUp"
+                    android:text="@string/dropbox_sync_upload"
+                    android:layout_width="match_parent"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:drawableLeft="@drawable/ic_action_upload"
+                    android:gravity="start|center_vertical"
+                    android:visibility="gone"/>
+        </LinearLayout>
 
-        <Button
-            android:id="@+id/btnSyncDown"
-            android:text="@string/dropbox_sync_files"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"/>
-        <Button
-            android:id="@+id/btnSyncUp"
-            android:text="@string/dropbox_sync_files"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"/>
+
 
 </LinearLayout>

@@ -40,10 +40,11 @@ public class DropboxSyncFragment extends Fragment {
     private static final String PREF_DBX_NAME = "dbx_name";
     private static final String PREF_DBX_LOCAL_DATETIME = "dbx_local_datetime";
     private static final String PREF_DBX_REMOTE_DATETIME = "dbx_remote_datetime";
+    private static final String PREF_DBX_SYNC_DATETIME = "dbx_sync_datetime";
     private Context context;
     private Button login_button,btnSync,btnSyncDown,btnSyncUp;
     private TextView tvDbxEmail, tvDbxName,tvDpxData;
-    private String accessToken,mOperationResult,dbxEmail,dbxName,notif,localfileDate,remoteFileDate;
+    private String accessToken,mOperationResult,dbxEmail,dbxName,notif,localfileDate,remoteFileDate,syncDateTime;
     private ProgressDialog pDialog;
     private boolean finishOperation,operationSuccess;
     private DbxClientV2 client;
@@ -55,15 +56,37 @@ public class DropboxSyncFragment extends Fragment {
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_dropbox_sync, container, false);
         context = container.getContext();
-        pDialog = new ProgressDialog(context);
-        pDialog.setCancelable(false);
         mMyServiceIntent = new Intent(context, BackgroundIntentService.class);
+        initUI(rootView);
+        initListeners();
+        initState();
+        return rootView;
+    }
+
+    private void initState() {
+        localfileDate = Functions.getPrefs(context).getString(PREF_DBX_LOCAL_DATETIME, "");
+        remoteFileDate = Functions.getPrefs(context).getString(PREF_DBX_REMOTE_DATETIME, "");
+        syncDateTime = Functions.getPrefs(context).getString(PREF_DBX_SYNC_DATETIME, "");
+        dbxEmail = Functions.getPrefs(context).getString(PREF_DBX_EMAIL, "");
+        dbxName = Functions.getPrefs(context).getString(PREF_DBX_NAME, "");
+        tvDbxEmail.setText(String.format(getString(R.string.dropbox_email),dbxEmail));
+        tvDbxName.setText(String.format(getString(R.string.dropbox_name),dbxName));
+        setSyncDataFileDateTime();
+    }
+
+    private void initListeners() {
+        login_button.setOnClickListener(onClickListenerAuth);
+        btnSync.setOnClickListener(onClickListenerSync);
+        btnSyncUp.setOnClickListener(onClickListenerSyncUpload);
+        btnSyncDown.setOnClickListener(onClickListenerSyncDownload);
+    }
+
+    private void initUI(View rootView) {
         login_button = (Button) rootView.findViewById(R.id.btnDpxLogin);
         btnSync = (Button) rootView.findViewById(R.id.btnSync);
         btnSyncDown = (Button) rootView.findViewById(R.id.btnSyncDown);
@@ -71,29 +94,44 @@ public class DropboxSyncFragment extends Fragment {
         tvDbxEmail = (TextView) rootView.findViewById(R.id.tvDpxEmail);
         tvDbxName = (TextView) rootView.findViewById(R.id.tvDpxName);
         tvDpxData = (TextView) rootView.findViewById(R.id.tvDpxData);
-        localfileDate = Functions.getPrefs(context).getString(PREF_DBX_LOCAL_DATETIME, "");;
-        remoteFileDate = Functions.getPrefs(context).getString(PREF_DBX_REMOTE_DATETIME, "");;
-        setSyncDataFileDateTime();
-        dbxEmail = Functions.getPrefs(context).getString(PREF_DBX_EMAIL, "");
-        dbxName = Functions.getPrefs(context).getString(PREF_DBX_NAME, "");
-        tvDbxEmail.setText(String.format(getString(R.string.dropbox_email),dbxEmail));
-        tvDbxName.setText(String.format(getString(R.string.dropbox_name),dbxName));
-        login_button.setOnClickListener(onClickListenerAuth);
-        btnSync.setOnClickListener(onClickListenerSync);
-        return rootView;
+        pDialog = new ProgressDialog(context);
+        pDialog.setCancelable(false);
     }
 
     private void setSyncDataFileDateTime() {
-        if (!Functions.empty(localfileDate) && !Functions.empty(remoteFileDate)){
-            tvDpxData.setText("Время локального файла:" +localfileDate + "\n" + "Время удаленного файла:" + remoteFileDate );
-            //TODO upload download btns
-        }
+        StringBuilder dpxData = new StringBuilder();
+        int downVis = !Functions.empty(remoteFileDate) ? View.VISIBLE : View.GONE;
+        int upVis = !Functions.empty(localfileDate) ? View.VISIBLE : View.GONE;
+        dpxData.append("Синхронизация:").append(!Functions.empty(syncDateTime) ? syncDateTime : "нет данных").append("\n");
+        dpxData.append("Локальный файл:").append(!Functions.empty(localfileDate) ? localfileDate : "нет данных").append("\n");
+        dpxData.append("Удаленный файл:").append(!Functions.empty(remoteFileDate) ? remoteFileDate : "нет данных").append("\n");
+        btnSyncDown.setVisibility(downVis);
+        btnSyncUp.setVisibility(upVis);
+        tvDpxData.setText(dpxData.toString());
     }
 
     View.OnClickListener onClickListenerAuth = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Auth.startOAuth2Authentication(context, getString(R.string.dropbox_app_key));
+        }
+    };
+
+    View.OnClickListener onClickListenerSyncUpload = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            if (Functions.checkSDRRWPermessions(context,getActivity(),Functions.REQUEST_DBX_EXTERNAL_STORAGE)){
+                uploadFile();
+            }
+        }
+    };
+
+    View.OnClickListener onClickListenerSyncDownload = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            if (Functions.checkSDRRWPermessions(context,getActivity(),Functions.REQUEST_DBX_EXTERNAL_STORAGE)){
+                downLoadFile();
+            }
         }
     };
 
@@ -105,6 +143,38 @@ public class DropboxSyncFragment extends Fragment {
             }
         }
     };
+
+    public void downLoadFile() {
+        try {
+            if (DropboxClientFactory.getClient() !=null){
+                showProgress(getString(R.string.dropbox_sync_downloading));
+                if (mMyServiceIntent == null){
+                    mMyServiceIntent = new Intent(context, BackgroundIntentService.class);
+                }
+                mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_DBX_DOWNLOAD);
+                context.startService(mMyServiceIntent);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(context, getString(R.string.dropbox_auth_error), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void uploadFile() {
+        try {
+            if (DropboxClientFactory.getClient() !=null){
+                showProgress(getString(R.string.dropbox_sync_uploading));
+                if (mMyServiceIntent == null){
+                    mMyServiceIntent = new Intent(context, BackgroundIntentService.class);
+                }
+                mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_DBX_UPLOAD);
+                context.startService(mMyServiceIntent);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(context, getString(R.string.dropbox_auth_error), Toast.LENGTH_SHORT).show();
+        }
+    }
 
     public void getFileData() {
         try {
@@ -153,7 +223,6 @@ public class DropboxSyncFragment extends Fragment {
                 break;
         }
     }
-
 
     @Override
     public void onPause() {
@@ -282,13 +351,6 @@ public class DropboxSyncFragment extends Fragment {
                     Toasty.error(context, mOperationResult, Toast.LENGTH_SHORT).show();
                 }
             }
-//            if (finishOperation){
-//                pDialog.dismiss();
-//                Toast.makeText(context, mOperationResult, Toast.LENGTH_SHORT).show();
-//            }else{
-//                pDialog.setMessage(getString(R.string.dropbox_sync_files));
-//                pDialog.show();
-//            }
         }
     };
 
@@ -297,8 +359,10 @@ public class DropboxSyncFragment extends Fragment {
             case BackgroundIntentService.OPERATION_DBX_SYNC:
                 localfileDate = hashMap.get(BackgroundIntentService.EXTRA_KEY_OPERATION_DATA_LOCAL_DATE);
                 remoteFileDate = hashMap.get(BackgroundIntentService.EXTRA_KEY_OPERATION_DATA_REMOTE_DATE);
+                syncDateTime = Functions.getDateTime(0,"dd MMM yyyy HH:mm:ss");
                 Functions.getPrefs(context).edit().putString(PREF_DBX_LOCAL_DATETIME, localfileDate).apply();
                 Functions.getPrefs(context).edit().putString(PREF_DBX_REMOTE_DATETIME, remoteFileDate).apply();
+                Functions.getPrefs(context).edit().putString(PREF_DBX_SYNC_DATETIME, syncDateTime).apply();
                 setSyncDataFileDateTime();
                 break;
         }
