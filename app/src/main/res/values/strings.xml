@@ -103,7 +103,6 @@
     <string name="drawer_close">drawer_close</string>
     <string name="str_filter_by">Фильтр по</string>
     <string name="str_filter_type">Фильтр</string>
-    <string name="storage_not_avalable">Storage not available or read only</string>
     <string name="dropbox_login">Войти в Dropbox</string>
     <string name="dropbox_app_key">rzzuhol6y1aibdx</string>
     <string name="dropbox_sync_files">Синхронизация</string>
@@ -116,6 +115,7 @@
     <string name="dropbox_sync_complete">Синхронизация завершена</string>
     <string name="dropbox_sync_error">Ошибка синхронизации</string>
     <string name="dropbox_auth_error">Ошибка авторизации</string>
+    <string name="storage_not_avalable">Память не доступна</string>
 
 
 </resources>
