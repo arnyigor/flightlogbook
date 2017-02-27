@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Debug;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -35,6 +36,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -74,7 +76,6 @@ public class BackgroundIntentService extends IntentService {
     private DbxClientV2 client;
     private File syncFolder;
     private FileMetadata remoteMetadata;
-    private Exception mException;
     private HashMap<String, String> hashMap;
 
     public static int getOperation(){
@@ -169,7 +170,8 @@ public class BackgroundIntentService extends IntentService {
                 if (Functions.empty(mPath)){
                     readExcelFile(getApplicationContext(), Functions.EXEL_FILE_NAME, true);
                 }else{
-                    readExcelFile(getApplicationContext(),mPath, false);
+                    Uri uri = Uri.fromFile(new File(mPath));
+                    readExcelFile(getApplicationContext(),Functions.getSDFilePath(getApplicationContext(),uri), false);
                 }
                 break;
             case OPERATION_DBX_SYNC:
@@ -356,35 +358,29 @@ public class BackgroundIntentService extends IntentService {
         DatabaseHandler db = new DatabaseHandler(this);
         boolean hasType = false;
         boolean checked = false;
-        InputStream myInput;
         HSSFWorkbook myWorkBook;
         String strDate = null,strTime = null,airplane_type = null,reg_no = null,strDesc;
-        int airplane_type_id = 0,day_night = 0,ifr_vfr = 0,flight_type = 0,logTime;
-        long mDateTime;
+        int airplane_type_id = 0,day_night = 0,ifr_vfr = 0,flight_type = 0,logTime = 0;
+        long mDateTime = 0;
         List<DataList> TypeData;
         File xlsfile;
         if (!Functions.isExternalStorageAvailable() || Functions.isExternalStorageReadOnly()) {
             return;
         }
-
         try {
             if (fromSystem) {
                 xlsfile = new File(context.getExternalFilesDir(null), Functions.EXEL_FILE_NAME);
             } else {
-                xlsfile = new File(filename, "");
+                xlsfile = new File("", filename);
             }
-            Log.i(TAG, "readExcelFile xlsfile = " + xlsfile);
-
             try {
-                myInput = new FileInputStream(xlsfile);
-                myWorkBook = new HSSFWorkbook(myInput);
+                FileInputStream fileInputStream = new FileInputStream(xlsfile);
+                myWorkBook = new HSSFWorkbook(fileInputStream);
             } catch (IOException e) {
                 e.printStackTrace();
                 mIsSuccess = false;
-               
                 return;
             }
-
             // Get the first sheet from workbook
             HSSFSheet mySheet = myWorkBook.getSheetAt(0);
             /** We now need something to iterate through the cells.**/
@@ -496,7 +492,21 @@ public class BackgroundIntentService extends IntentService {
                                 Log.i(TAG, "strDesc " + strDesc);
                                 try {
                                     logTime = Functions.convertStringToTime(strTime);
-                                    mDateTime = Functions.convertTimeStringToLong(strDate,Functions.dateFormatChooser(strDate));
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                String format = "dd MMM yyyy";
+                                try {
+                                    format = Functions.dateFormatChooser(strDate);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                try {
+                                    mDateTime = Functions.convertTimeStringToLong(strDate,format);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                try {
                                     Log.i(TAG, "strDesc: " + strDesc);
                                     Log.i(TAG, "strDate: " + strDate);
                                     Log.i(TAG, "mDateTime: " + mDateTime);
@@ -534,7 +544,6 @@ public class BackgroundIntentService extends IntentService {
         try {
             syncFolder = getApplicationContext().getExternalFilesDir(null);
             File file = new File(syncFolder, Functions.EXEL_FILE_NAME);
-            Log.i(DownloadFileTask.class.getSimpleName(), "doInBackground: file = " + String.valueOf(file));
             try {
                 OutputStream outputStream = new FileOutputStream(file);
                 client.files().download(metadata.getPathLower(), metadata.getRev()).download(outputStream);
@@ -553,26 +562,6 @@ public class BackgroundIntentService extends IntentService {
             mIsSuccess = false;
            
         }
-
-//        new DownloadFileTask(getApplicationContext(), DropboxClientFactory.getClient(), new DownloadFileTask.Callback() {
-//            @Override
-//            public void onDownloadComplete(File result) {
-//
-//                if (result != null) {
-//                    mIsSuccess = true;
-//                   
-//                }
-//            }
-//
-//            @Override
-//            public void onError(Exception e) {
-//                e.printStackTrace();
-//                Toast.makeText(getApplicationContext(), getString(R.string.dropbox_sync_error), Toast.LENGTH_SHORT).show();
-//                mIsSuccess = false;
-//               
-//            }
-//        }, syncFolder).execute(file);
-
     }
 
     private void uploadFile() {

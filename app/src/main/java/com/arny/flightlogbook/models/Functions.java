@@ -2,10 +2,16 @@ package com.arny.flightlogbook.models;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
@@ -14,6 +20,7 @@ import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
 
 import java.io.File;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -28,6 +35,8 @@ public class Functions {
 
     private static final String APP_PREFERENCES = "pilotlogbookprefs";
     public static final String EXEL_FILE_NAME = "PilotLogBook.xls";
+    private static final String DOCUMENT_SEPARATOR = ":";
+    private static final String FOLDER_SEPARATOR = "/";
     private static String[] PERMISSIONS_STORAGE = {
             android.Manifest.permission.READ_EXTERNAL_STORAGE,
             android.Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -38,6 +47,125 @@ public class Functions {
 
     public static boolean matcher(String preg, String string) {
         return Pattern.matches(preg, string);
+    }
+
+    public static String getSDFilePath(Context context, Uri uri) {
+        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+        // DocumentProvider
+        if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
+            // ExternalStorageProvider
+            if (isExternalStorageDocument(uri)) {
+                final String docId = DocumentsContract.getDocumentId(uri);
+                final String[] split = docId.split(DOCUMENT_SEPARATOR);
+                final String type = split[0];
+                if ("primary".equalsIgnoreCase(type)) {
+                    return Environment.getExternalStorageDirectory() + FOLDER_SEPARATOR + split[1];
+                }
+            }
+            // DownloadsProvider
+            else if (isDownloadsDocument(uri)) {
+                final String id = DocumentsContract.getDocumentId(uri);
+                final Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                return getDataColumn(context, contentUri, null, null);
+            }
+            // MediaProvider
+            else
+            if (isMediaDocument(uri)) {
+                final String docId = DocumentsContract.getDocumentId(uri);
+                final String[] split = docId.split(DOCUMENT_SEPARATOR);
+                final String type = split[0];
+                Uri contentUri = null;
+                if ("image".equals(type)) {
+                    contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                } else if ("video".equals(type)) {
+                    contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                } else if ("audio".equals(type)) {
+                    contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                }
+                final String selection = "_id=?";
+                final String[] selectionArgs = new String[] {split[1]};
+                return getDataColumn(context, contentUri, selection, selectionArgs);
+            }
+        }
+        else if (isKitKat && !DocumentsContract.isDocumentUri(context, uri)){
+            boolean document = false;
+            String folders = "", type = "",external;
+            for (String segm : uri.getPathSegments()) {
+                if (segm.contains(DOCUMENT_SEPARATOR)) {
+                    type = segm.split(DOCUMENT_SEPARATOR)[0];
+                    folders = segm.split(DOCUMENT_SEPARATOR)[1];
+                    document = true;
+                    break;
+                }
+            }
+            if (type.equals("primary")) {
+                external = Environment.getExternalStorageDirectory().getPath();
+            }else {
+                external = "/storage/" + type;
+            }
+            if (document){
+                return external + FOLDER_SEPARATOR + folders + FOLDER_SEPARATOR + uri.getLastPathSegment();
+            }else{
+                return uri.getPath();
+            }
+        }
+        // MediaStore (and general)
+        else if ("content".equalsIgnoreCase(uri.getScheme())) {
+            // Return the remote address
+            if (isGooglePhotosUri(uri))
+                return uri.getLastPathSegment();
+            return getDataColumn(context, uri, null, null);
+        }
+        // File
+        else if ("file".equalsIgnoreCase(uri.getScheme())) {
+            return uri.getPath();
+        }
+        return null;
+    }
+
+    public static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
+        Cursor cursor = null;
+        final String column = "_data";
+        final String[] projection = { column };
+        try {
+            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                final int index = cursor.getColumnIndexOrThrow(column);
+                return cursor.getString(index);
+            }
+        } finally {
+            if (cursor != null)
+                cursor.close();
+        }
+        return null;
+    }
+
+    public static boolean isExternalStorageDocument(Uri uri) {
+        return "com.android.externalstorage.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is DownloadsProvider.
+     */
+    public static boolean isDownloadsDocument(Uri uri) {
+        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is MediaProvider.
+     */
+    public static boolean isMediaDocument(Uri uri) {
+        return "com.android.providers.media.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is Google Photos.
+     */
+    public static boolean isGooglePhotosUri(Uri uri) {
+        return "com.google.android.apps.photos.content".equals(uri.getAuthority());
     }
 
     public static String match(String where,String pattern,int groupnum){
@@ -68,7 +196,7 @@ public class Functions {
                 break;
             }
         }
-
+        Log.i(Functions.class.getSimpleName(), "dateFormatChooser: format = " + format);
         return format;
     }
 
@@ -121,6 +249,9 @@ public class Functions {
      * @return String datetime
      */
     public static String getDateTime(long milliseconds, String format) {
+        if (milliseconds==-1){
+            return "";
+        }
         try {
             milliseconds = (milliseconds == 0) ? Calendar.getInstance().getTimeInMillis() : milliseconds;
             format = (format == null) ? "dd MMM yyyy HH:mm:ss.sss" : format;
@@ -159,16 +290,17 @@ public class Functions {
     }
 
     public static long convertTimeStringToLong(String myTimestamp, String format) {
-        Calendar mCalendar = Calendar.getInstance();
-        SimpleDateFormat curFormater = new SimpleDateFormat(format, Locale.getDefault());
-        Date dateObj = null;
+        Log.i(Functions.class.getSimpleName(), "convertTimeStringToLong: myTimestamp = " + myTimestamp);
+        Log.i(Functions.class.getSimpleName(), "convertTimeStringToLong: format = " + format);
+        SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.getDefault());
+        Date date;
         try {
-            dateObj = curFormater.parse(myTimestamp);
+            date = formatter.parse(myTimestamp);
         } catch (ParseException e) {
             e.printStackTrace();
+            return -1;
         }
-        mCalendar.setTime(dateObj);
-        return mCalendar.getTimeInMillis();
+        return date.getTime();
     }
 
     public static int validateInt(String val) {
@@ -211,7 +343,7 @@ public class Functions {
     public static String strLogTime(int logtime) {
         int h = logtime / 60;
         int m = logtime % 60;
-        return pad(h) + ":" + pad(m);
+        return pad(h) + DOCUMENT_SEPARATOR + pad(m);
     }
 
     public static String pad(int c) {
@@ -256,7 +388,7 @@ public class Functions {
         Log.i(Functions.class.getSimpleName(), "convertStringToTime: time = " + time);
         int hours = 0;
         int mins = 0;
-        String delimeter = (time.contains(":")) ? ":" : ".";
+        String delimeter = (time.contains(DOCUMENT_SEPARATOR)) ? DOCUMENT_SEPARATOR : ".";
         int posDelim = time.indexOf(delimeter);
         try {
             hours = Integer.parseInt(time.substring(0, posDelim));
@@ -270,5 +402,7 @@ public class Functions {
     public static boolean empty( final String s ) {
         return s == null || s.trim().isEmpty();
     }
+
+
 
 }

@@ -147,7 +147,7 @@ public class FlightList extends Fragment {
             for (DataList type : TypeData) {
                 airplane_type = type.getAirplanetypetitle();
             }
-            viewHolder.tvDate.setText(Functions.getDateTime(FlightData.get(position).getDatetime(),"ddMMMyyyy"));
+            viewHolder.tvDate.setText(Functions.getDateTime(FlightData.get(position).getDatetime(),"dd MMM yyyy"));
             viewHolder.tvLogTime.setText(Functions.strLogTime(FlightData.get(position).getLogtime()));
             viewHolder.tvType.setText(airplane_type);
             viewHolder.tvRegNo.setText(String.valueOf(FlightData.get(position).getReg_no()));

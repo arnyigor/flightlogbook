@@ -312,6 +312,7 @@ public class HomeActivity extends AppCompatActivity {
 			case PICKFILE_RESULT_CODE:
 				if (resultCode == RESULT_OK) {
 					String FilePath = data.getData().getPath();
+                    Log.i(HomeActivity.class.getSimpleName(), "onActivityResult: FilePath = " + FilePath);
                     initBgService();
                     mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_IMPORT_SD);
 					mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_IMPORT_SD_FILENAME, FilePath);
