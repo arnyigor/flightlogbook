@@ -117,5 +117,13 @@
     <string name="dropbox_auth_error">Ошибка авторизации</string>
     <string name="storage_not_avalable">Память не доступна</string>
 
+    <!--statistic-->
+    <string name="stat_column_month">Месяц</string>
+    <string name="stat_column_cnt">Кол-во</string>
+    <string name="stat_column_time">Время</string>
+    <string name="stat_column_day_night">День\nНочь</string>
+    <string name="stat_column_day_vfr_ifr">VFR\nIFR</string>
+    <string name="stat_column_day_czm">Круг\nЗона\nМаршрут</string>
+
 
 </resources>

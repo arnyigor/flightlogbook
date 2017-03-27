@@ -116,42 +116,42 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_weight="0.9"
-            android:text="Месяц"
+            android:text="@string/stat_column_month"
             android:gravity="center"
             android:layout_gravity="center"
             android:layout_height="wrap_content" />
         <TextView
             android:layout_width="match_parent"
             android:layout_weight="1"
-            android:text="Кол-во"
+            android:text="@string/stat_column_cnt"
             android:gravity="center"
             android:layout_gravity="center"
             android:layout_height="wrap_content" />
         <TextView
             android:layout_width="match_parent"
             android:layout_weight="1"
-            android:text="Время"
+            android:text="@string/stat_column_time"
             android:gravity="center"
             android:layout_gravity="center"
             android:layout_height="wrap_content" />
         <TextView
             android:layout_width="match_parent"
             android:layout_weight="1"
-            android:text="день\nночь"
+            android:text="@string/stat_column_day_night"
             android:gravity="center"
             android:layout_gravity="center"
             android:layout_height="wrap_content" />
         <TextView
             android:layout_width="match_parent"
             android:layout_weight="1"
-            android:text="VFR\nIFR"
+            android:text="@string/stat_column_day_vfr_ifr"
             android:gravity="center"
             android:layout_gravity="center"
             android:layout_height="wrap_content" />
         <TextView
             android:layout_width="match_parent"
             android:layout_weight="1"
-            android:text="круг\nзона\nмаршрут"
+            android:text="@string/stat_column_day_czm"
             android:gravity="center"
             android:layout_gravity="center"
             android:layout_height="wrap_content" />
