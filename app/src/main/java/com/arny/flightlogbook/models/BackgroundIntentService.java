@@ -110,6 +110,7 @@ public class BackgroundIntentService extends IntentService {
 
     private String getResultNotif() {
         String notice;
+        //TODO translate
         if (mIsSuccess) {
             notice = "Операция завершена!";
             switch (operation){
@@ -117,7 +118,7 @@ public class BackgroundIntentService extends IntentService {
                     notice = "Импорт завершен!";
                     break;
                 case OPERATION_DBX_SYNC:
-                    notice = "Синхронизация завершена!";
+                    notice = getApplicationContext().getResources().getString(R.string.dropbox_sync_complete) + "!";
                     break;
                 case OPERATION_DBX_DOWNLOAD:
                     notice = "Загрузка файла завершена!";

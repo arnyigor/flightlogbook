@@ -203,7 +203,7 @@ public class StatisticFragment extends Fragment {
     //проверяем конечную дату больше начальной
     private void checkStartEndDateTime() {
         if (startdatetime>enddatetime){
-            Toast.makeText(ctx, "Конечная дата меньше начальной", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ctx, getString(R.string.stat_error_end_less_start), Toast.LENGTH_SHORT).show();
             startInitDateTime();
         }
     }

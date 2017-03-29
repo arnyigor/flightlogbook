@@ -115,4 +115,8 @@
     <string name="stat_column_month">Month</string>
     <string name="stat_column_time">Time</string>
     <string name="stat_column_day_night">day\nnight</string>
+    <string name="dropbox_sync_files_local">Local file:</string>
+    <string name="dropbox_sync_files_no_data">no data</string>
+    <string name="dropbox_sync_files_remote">Remote file:</string>
+    <string name="stat_error_end_less_start">End date is less than the start date</string>
 </resources>

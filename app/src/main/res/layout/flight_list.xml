@@ -1,100 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinatorLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
-    <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/coordinatorLayout"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tvTotalTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:background="@color/colorPrimary"
+            android:padding="5dp"
+            android:text="@string/str_totaltime"
+            android:textColor="#f3fdf8"
+            android:textSize="18sp" />
+
+        <LinearLayout
+            android:id="@+id/lvHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/tvTotalTime"
+            android:orientation="horizontal">
+
             <TextView
-                    android:id="@+id/tvTotalTime"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/colorPrimary"
-                    android:padding="5dp"
-                    android:text="@string/str_totaltime"
-                    android:textColor="#f3fdf8"
-                    android:textSize="18sp"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentStart="true"/>
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1.1"
+                android:padding="2dp"
+                android:text="@string/str_date"
+                android:textSize="@dimen/font_size"
+                android:textStyle="bold" />
 
-            <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:id="@+id/lvHeader"
-                    android:layout_below="@+id/tvTotalTime"
-                    android:layout_alignParentStart="true">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:padding="2dp"
+                android:text="@string/str_itemlogtime"
+                android:textSize="@dimen/font_size"
+                android:textStyle="bold" />
 
-                <TextView
-                        android:layout_width="match_parent"
-                        android:layout_weight="1.1"
-                        android:layout_height="wrap_content"
-                        android:padding="2dp"
-                        android:layout_gravity="center_vertical"
-                        android:text="@string/str_date"
-                        android:textSize="@dimen/font_size"
-                        android:textStyle="bold" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="2dp"
+                android:text="@string/str_type"
+                android:textSize="@dimen/font_size"
+                android:textStyle="bold" />
 
-                <TextView
-                        android:layout_width="match_parent"
-                        android:layout_weight="1.15"
-                        android:layout_height="wrap_content"
-                        android:padding="2dp"
-                        android:text="@string/str_itemlogtime"
-                        android:textSize="@dimen/font_size"
-                        android:textStyle="bold" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="2dp"
+                android:text="@string/str_regnum"
+                android:textSize="@dimen/font_size"
+                android:textStyle="bold" />
+        </LinearLayout>
 
-                <TextView
-                        android:layout_width="match_parent"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:padding="2dp"
-                        android:text="@string/str_type"
-                        android:textSize="@dimen/font_size"
-                        android:textStyle="bold" />
+        <ListView
+            android:id="@+id/listView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/lvHeader" />
 
-                <TextView
-                        android:layout_width="match_parent"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:padding="2dp"
-                        android:text="@string/str_regnum"
-                        android:textSize="@dimen/font_size"
-                        android:textStyle="bold" />
-            </LinearLayout>
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_plus"
+            android:layout_marginBottom="5dp"
+            app:elevation="6dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true" />
 
-            <ListView
-                    android:id="@+id/listView"
-                    android:layout_below="@+id/lvHeader"
-                    android:layout_alignParentStart="true"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+    </RelativeLayout>
 
-            <android.support.design.widget.FloatingActionButton
-                    android:id="@+id/fab"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_plus"
-                    app:elevation="6dp"
-                    app:layout_anchor="@id/listView"
-                    app:layout_anchorGravity="top|right"
-                    android:layout_marginLeft="@dimen/fab_margin"
-                    android:layout_marginRight="@dimen/fab_margin"
-                    android:layout_above="@+id/listView"
-                    android:layout_alignParentEnd="true"/>
-
-        </RelativeLayout>
-
-    </android.support.design.widget.CoordinatorLayout>
-
-
-</RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

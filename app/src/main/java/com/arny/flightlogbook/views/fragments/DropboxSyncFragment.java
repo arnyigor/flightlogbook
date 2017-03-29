@@ -102,9 +102,9 @@ public class DropboxSyncFragment extends Fragment {
         StringBuilder dpxData = new StringBuilder();
         int downVis = !Functions.empty(remoteFileDate) ? View.VISIBLE : View.GONE;
         int upVis = !Functions.empty(localfileDate) ? View.VISIBLE : View.GONE;
-        dpxData.append("Синхронизация:").append(!Functions.empty(syncDateTime) ? syncDateTime : "нет данных").append("\n");
-        dpxData.append("Локальный файл:").append(!Functions.empty(localfileDate) ? localfileDate : "нет данных").append("\n");
-        dpxData.append("Удаленный файл:").append(!Functions.empty(remoteFileDate) ? remoteFileDate : "нет данных").append("\n");
+        dpxData.append(getString(R.string.dropbox_sync_files)).append(!Functions.empty(syncDateTime) ? syncDateTime : getString(R.string.dropbox_sync_files_no_data)).append("\n");
+        dpxData.append(getString(R.string.dropbox_sync_files_local)).append(!Functions.empty(localfileDate) ? localfileDate : getString(R.string.dropbox_sync_files_no_data)).append("\n");
+        dpxData.append(getString(R.string.dropbox_sync_files_remote)).append(!Functions.empty(remoteFileDate) ? remoteFileDate : getString(R.string.dropbox_sync_files_no_data)).append("\n");
         btnSyncDown.setVisibility(downVis);
         btnSyncUp.setVisibility(upVis);
         tvDpxData.setText(dpxData.toString());
