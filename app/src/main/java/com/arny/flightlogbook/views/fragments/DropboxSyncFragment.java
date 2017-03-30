@@ -69,11 +69,11 @@ public class DropboxSyncFragment extends Fragment {
     }
 
     private void initState() {
-        localfileDate = Functions.getPrefs(context).getString(PREF_DBX_LOCAL_DATETIME, "");
-        remoteFileDate = Functions.getPrefs(context).getString(PREF_DBX_REMOTE_DATETIME, "");
-        syncDateTime = Functions.getPrefs(context).getString(PREF_DBX_SYNC_DATETIME, "");
-        dbxEmail = Functions.getPrefs(context).getString(PREF_DBX_EMAIL, "");
-        dbxName = Functions.getPrefs(context).getString(PREF_DBX_NAME, "");
+        localfileDate = Functions.getPrefString(context,PREF_DBX_LOCAL_DATETIME, "");
+        remoteFileDate = Functions.getPrefString(context,PREF_DBX_REMOTE_DATETIME, "");
+        syncDateTime = Functions.getPrefString(context,PREF_DBX_SYNC_DATETIME, "");
+        dbxEmail = Functions.getPrefString(context,PREF_DBX_EMAIL, "");
+        dbxName = Functions.getPrefString(context,PREF_DBX_NAME, "");
         tvDbxEmail.setText(String.format(getString(R.string.dropbox_email),dbxEmail));
         tvDbxName.setText(String.format(getString(R.string.dropbox_name),dbxName));
         setSyncDataFileDateTime();
@@ -265,7 +265,7 @@ public class DropboxSyncFragment extends Fragment {
     }
 
     private void getAccessToken() {
-        accessToken = Functions.getPrefs(context).getString(DROPBOX_STR_TOKEN, null);
+        accessToken = Functions.getPrefString(context,DROPBOX_STR_TOKEN, null);
         if (accessToken == null) {
             accessToken = Auth.getOAuth2Token();
             if (accessToken != null) {
@@ -300,7 +300,7 @@ public class DropboxSyncFragment extends Fragment {
 
     private boolean hasToken() {
         if (accessToken==null){
-            accessToken = Functions.getPrefs(context).getString(DROPBOX_STR_TOKEN, null);
+            accessToken = Functions.getPrefString(context,DROPBOX_STR_TOKEN, null);
         }
         return accessToken != null;
     }
@@ -360,9 +360,9 @@ public class DropboxSyncFragment extends Fragment {
                 localfileDate = hashMap.get(BackgroundIntentService.EXTRA_KEY_OPERATION_DATA_LOCAL_DATE);
                 remoteFileDate = hashMap.get(BackgroundIntentService.EXTRA_KEY_OPERATION_DATA_REMOTE_DATE);
                 syncDateTime = Functions.getDateTime(0,"dd MMM yyyy HH:mm:ss");
-                Functions.getPrefs(context).edit().putString(PREF_DBX_LOCAL_DATETIME, localfileDate).apply();
-                Functions.getPrefs(context).edit().putString(PREF_DBX_REMOTE_DATETIME, remoteFileDate).apply();
-                Functions.getPrefs(context).edit().putString(PREF_DBX_SYNC_DATETIME, syncDateTime).apply();
+                Functions.setPrefString(context,PREF_DBX_LOCAL_DATETIME, localfileDate);
+                Functions.setPrefString(context,PREF_DBX_REMOTE_DATETIME, remoteFileDate);
+                Functions.setPrefString(context,PREF_DBX_SYNC_DATETIME, syncDateTime);
                 setSyncDataFileDateTime();
                 break;
         }

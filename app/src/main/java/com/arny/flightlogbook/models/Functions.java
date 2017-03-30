@@ -341,6 +341,21 @@ public class Functions {
         }
     }
 
+    public static void setPrefString(Context context,String key,String value){
+        Functions.getPrefs(context).edit().putString(key, value).apply();
+    }
+
+    public static void setPrefBool(Context context,String key,boolean value){
+        Functions.getPrefs(context).edit().putBoolean(key, value).apply();
+    }
+
+    public static String getPrefString(Context context,String key,String defaultVal){
+        return getPrefs(context).getString(key, defaultVal);
+    }
+    public static boolean getPrefBool(Context context,String key,boolean defaultVal){
+        return getPrefs(context).getBoolean(key, defaultVal);
+    }
+
     public static SharedPreferences getPrefs(Context context) {
         return context.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
     }

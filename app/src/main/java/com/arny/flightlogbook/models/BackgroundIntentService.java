@@ -592,12 +592,12 @@ public class BackgroundIntentService extends IntentService {
             if (remoteFile == null) {
                 remoteVal = null;
             } else {
-                remoteVal = Functions.getDateTime(remoteFile.getServerModified(), "dd MMM yyyy HH:mm:ss");
+                remoteVal = Functions.getDateTime(remoteFile.getClientModified(), "dd MM yyyy HH:mm:ss");
             }
             if (localFile.length() == 0) {
                 localVal = null;
             } else {
-                localVal = Functions.getDateTime(new Date(localFile.lastModified()), "dd MMM yyyy HH:mm:ss");
+                localVal = Functions.getDateTime(new Date(localFile.lastModified()), "dd MM yyyy HH:mm:ss");
             }
             hashMap.put(EXTRA_KEY_OPERATION_DATA_REMOTE_DATE, remoteVal);
             hashMap.put(EXTRA_KEY_OPERATION_DATA_LOCAL_DATE, localVal);
