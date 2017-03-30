@@ -66,6 +66,29 @@
     <string name="str_import_success">Импорт завершен</string>
     <string name="str_fitre_stat">Фильтр статистики</string>
     <string name="title_activity_home">HomeActivity</string>
+    <!--service-->
+    <string name="service_file_download_success">Загрузка файла завершена</string>
+    <string name="service_file_upload_success">Выгрузка файла завершена</string>
+    <string name="service_operation_success">Операция завершена</string>
+    <string name="service_operation_fail">Операция не завершена</string>
+    <string name="service_import_fail">Импорт не завершен</string>
+    <string name="service_sync_fail">Синхронизация не завершена</string>
+    <string name="service_download_fail">Загрузка файла не завершена</string>
+    <string name="service_upload_fail">Выгрузка файла не завершена</string>
+    <string name="service_export_fail">Экспорт не завершен</string>
+
+    <!--Preferences-->
+    <string name="xls_locale_title">Язык файла XLS</string>
+    <string name="xls_locale_summary">Необходим для корректного распознавания даты</string>
+    <string name="xls_locale_default">RU</string>
+    <string name="xls_locale_key">xls_locale</string>
+    <string name="xls_locale_ru">RU</string>
+    <string name="xls_locale_en">EN</string>
+
+    <string-array name="xls_locales">
+        <item>@string/xls_locale_ru</item>
+        <item>@string/xls_locale_en</item>
+    </string-array>
 
     <string-array name="daynight">
         <item>день</item>

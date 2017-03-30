@@ -11,4 +11,11 @@
                         android:defaultValue="false"
                         android:key="motoCheckPref" />
         </PreferenceCategory>
+        <ListPreference
+            android:defaultValue="@string/xls_locale_default"
+            android:entries="@array/xls_locales"
+            android:entryValues="@array/xls_locales"
+            android:summary="@string/xls_locale_summary"
+            android:title="@string/xls_locale_title"
+            android:key="@string/xls_locale_key" />
 </PreferenceScreen>

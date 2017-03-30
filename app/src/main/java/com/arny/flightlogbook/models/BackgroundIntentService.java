@@ -41,10 +41,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import es.dmoral.toasty.Toasty;
 
@@ -112,41 +114,41 @@ public class BackgroundIntentService extends IntentService {
         String notice;
         //TODO translate
         if (mIsSuccess) {
-            notice = "Операция завершена!";
+            notice = getApplicationContext().getString(R.string.service_operation_success);
             switch (operation){
                 case OPERATION_IMPORT_SD:
-                    notice = "Импорт завершен!";
+                    notice = getApplicationContext().getString(R.string.str_import_success);
                     break;
                 case OPERATION_DBX_SYNC:
-                    notice = getApplicationContext().getResources().getString(R.string.dropbox_sync_complete) + "!";
+                    notice = getApplicationContext().getString(R.string.dropbox_sync_complete);
                     break;
                 case OPERATION_DBX_DOWNLOAD:
-                    notice = "Загрузка файла завершена!";
+                    notice = getApplicationContext().getString(R.string.service_file_download_success);
                     break;
                 case OPERATION_DBX_UPLOAD:
-                    notice = "Выгрузка файла завершена!";
+                    notice = getApplicationContext().getString(R.string.service_file_upload_success);
                     break;
                 case OPERATION_EXPORT:
-                    notice = "Экспорт завершен!";
+                    notice = getApplicationContext().getString(R.string.str_export_success);
                     break;
             }
         } else {
-            notice = "Операция не завершена!";
+            notice = getApplicationContext().getString(R.string.service_operation_fail);
             switch (operation){
                 case OPERATION_IMPORT_SD:
-                    notice = "Импорт не завершен!";
+                    notice = getApplicationContext().getString(R.string.service_import_fail);
                     break;
                 case OPERATION_DBX_SYNC:
-                    notice = "Синхронизация не завершена!";
+                    notice = getApplicationContext().getString(R.string.service_sync_fail);
                     break;
                 case OPERATION_DBX_DOWNLOAD:
-                    notice = "Загрузка файла не завершена!";
+                    notice = getApplicationContext().getString(R.string.service_download_fail);
                     break;
                 case OPERATION_DBX_UPLOAD:
-                    notice = "Выгрузка файла не завершена!";
+                    notice =getApplicationContext().getString(R.string.service_upload_fail);
                     break;
                 case OPERATION_EXPORT:
-                    notice = "Экспорт не завершен!";
+                    notice =getApplicationContext().getString(R.string.service_export_fail);
                     break;
             }
         }
@@ -502,8 +504,13 @@ public class BackgroundIntentService extends IntentService {
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
+                                //TODO сделать автоподбор локали
                                 try {
-                                    mDateTime = Functions.convertTimeStringToLong(strDate,format);
+                                    String lang = Functions.getPrefs(getBaseContext()).getString(context.getString(R.string.xls_locale_key), context.getString(R.string.xls_locale_default));
+                                    Locale locale = new Locale(lang);
+                                    Log.i(BackgroundIntentService.class.getSimpleName(), "readExcelFile: def = " + Locale.getDefault().toString());
+                                    Log.i(BackgroundIntentService.class.getSimpleName(), "readExcelFile: locale = " + locale.toString());
+                                    mDateTime = Functions.convertTimeStringToLong(strDate,format,locale);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }

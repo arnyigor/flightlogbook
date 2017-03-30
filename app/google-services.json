@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "849243032514",
+    "firebase_url": "https://pilot-logbook-287f9.firebaseio.com",
+    "project_id": "pilot-logbook-287f9",
+    "storage_bucket": "pilot-logbook-287f9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:849243032514:android:b247e56da49830cc",
+        "android_client_info": {
+          "package_name": "com.arny.flightlogbook"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "849243032514-3b0ssn5cjti8diu6rv4aqpopkk16h6ok.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQNco2hR5oa7CtOnuxqQ2Izh_u0RgGI-U"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
