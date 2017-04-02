@@ -4,16 +4,11 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Debug;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
-import com.arny.flightlogbook.views.fragments.DropboxSyncFragment;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.FileMetadata;
@@ -27,7 +22,6 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
-import org.apache.poi.ss.formula.functions.Function;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
@@ -36,19 +30,14 @@ import org.apache.poi.ss.usermodel.Workbook;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
-
-import es.dmoral.toasty.Toasty;
 
 public class BackgroundIntentService extends IntentService {
     /*Extras*/
@@ -504,13 +493,8 @@ public class BackgroundIntentService extends IntentService {
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
-                                //TODO сделать автоподбор локали
                                 try {
-                                    String lang = Functions.getPrefs(getBaseContext()).getString(context.getString(R.string.xls_locale_key), context.getString(R.string.xls_locale_default));
-                                    Locale locale = new Locale(lang);
-                                    Log.i(BackgroundIntentService.class.getSimpleName(), "readExcelFile: def = " + Locale.getDefault().toString());
-                                    Log.i(BackgroundIntentService.class.getSimpleName(), "readExcelFile: locale = " + locale.toString());
-                                    mDateTime = Functions.convertTimeStringToLong(strDate,format,locale);
+                                    mDateTime = Functions.convertTimeStringToLong(strDate,format);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }

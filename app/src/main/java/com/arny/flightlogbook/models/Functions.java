@@ -303,20 +303,6 @@ public class Functions {
         return date.getTime();
     }
 
-    public static long convertTimeStringToLong(String myTimestamp, String format,Locale locale) {
-//        Log.i(Functions.class.getSimpleName(), "convertTimeStringToLong: myTimestamp = " + myTimestamp);
-//        Log.i(Functions.class.getSimpleName(), "convertTimeStringToLong: format = " + format);
-        SimpleDateFormat formatter = new SimpleDateFormat(format, locale);
-        Date date;
-        try {
-            date = formatter.parse(myTimestamp);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return -1;
-        }
-        return date.getTime();
-    }
-
     public static int validateInt(String val) {
         try{
             if (val != null) {

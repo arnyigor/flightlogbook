@@ -128,7 +128,7 @@
     <string name="str_filter_type">Фильтр</string>
     <string name="dropbox_login">Войти в Dropbox</string>
     <string name="dropbox_app_key">rzzuhol6y1aibdx</string>
-    <string name="dropbox_sync_files">Синхронизация</string>
+    <string name="dropbox_sync_files">Синхронизация:</string>
     <string name="dropbox_sync_files_no_data">нет данных</string>
     <string name="dropbox_sync_files_local">Локальный файл:</string>
     <string name="dropbox_sync_files_remote">Удаленный файл:</string>
