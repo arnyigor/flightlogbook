@@ -22,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.models.BackgroundIntentService;
 import com.arny.flightlogbook.models.Functions;
@@ -137,12 +138,6 @@ public class HomeActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
     }
 
-//    @Override
-//    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-//        Log.i(HomeActivity.class.getSimpleName(), "onRestoreInstanceState: savedInstanceState = " + savedInstanceState.toString());
-//        super.onRestoreInstanceState(savedInstanceState);
-//    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
@@ -230,7 +225,7 @@ public class HomeActivity extends AppCompatActivity {
     private void showProgress(String notif) {
         try {
             if (bgProgress !=null) {
-                Log.i(HomeActivity.class.getSimpleName(), "hideProgress: bgProgress.isShowing() = " + bgProgress.isShowing());
+                if (BuildConfig.DEBUG) Log.d(HomeActivity.class.getSimpleName(), "hideProgress: bgProgress.isShowing() = " + bgProgress.isShowing());
                 bgProgress.setMessage(notif);
                 if (!bgProgress.isShowing()){
                     bgProgress.show();
@@ -250,7 +245,7 @@ public class HomeActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        Log.i(HomeActivity.class.getSimpleName(), "onRequestPermissionsResult: requestCode = " + requestCode);
+        if (BuildConfig.DEBUG) Log.d(HomeActivity.class.getSimpleName(), "onRequestPermissionsResult: requestCode = " + requestCode);
         switch (requestCode) {
             case Functions.REQUEST_EXTERNAL_STORAGE_XLS:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -312,7 +307,7 @@ public class HomeActivity extends AppCompatActivity {
 			case PICKFILE_RESULT_CODE:
 				if (resultCode == RESULT_OK) {
 					String FilePath = data.getData().getPath();
-                    Log.i(HomeActivity.class.getSimpleName(), "onActivityResult: FilePath = " + FilePath);
+                    if (BuildConfig.DEBUG) Log.d(HomeActivity.class.getSimpleName(), "onActivityResult: FilePath = " + FilePath);
                     initBgService();
                     mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_IMPORT_SD);
 					mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_IMPORT_SD_FILENAME, FilePath);
@@ -361,7 +356,7 @@ public class HomeActivity extends AppCompatActivity {
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.i(HomeActivity.class.getSimpleName(), "onReceive: service runing = " + Functions.isMyServiceRunning(BackgroundIntentService.class, context));
+            if (BuildConfig.DEBUG) Log.d(HomeActivity.class.getSimpleName(), "onReceive: service runing = " + Functions.isMyServiceRunning(BackgroundIntentService.class, context));
             try {
                     finishOperation = intent.getBooleanExtra(BackgroundIntentService.EXTRA_KEY_FINISH, false);
                     mOperation = intent.getIntExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_IMPORT_SD);
@@ -371,8 +366,8 @@ public class HomeActivity extends AppCompatActivity {
                 e.printStackTrace();
                 hideProgress();
             }
-            Log.i(HomeActivity.class.getSimpleName(), "onReceive: finishOperation = " + finishOperation);
-            Log.i(HomeActivity.class.getSimpleName(), "onReceive: operationSuccess = " + operationSuccess);
+            if (BuildConfig.DEBUG) Log.d(HomeActivity.class.getSimpleName(), "onReceive: finishOperation = " + finishOperation);
+            if (BuildConfig.DEBUG) Log.d(HomeActivity.class.getSimpleName(), "onReceive: operationSuccess = " + operationSuccess);
             if (finishOperation){
                 hideProgress();
                 if (operationSuccess){

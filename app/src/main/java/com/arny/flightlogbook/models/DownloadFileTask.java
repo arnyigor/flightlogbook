@@ -55,7 +55,6 @@ public class DownloadFileTask extends AsyncTask<FileMetadata, Void, File> {
         FileMetadata metadata = params[0];
         try {
             File file = new File(mPath, Functions.EXEL_FILE_NAME);
-            Log.i(DownloadFileTask.class.getSimpleName(), "doInBackground: file = " + String.valueOf(file));
             try {
                 OutputStream outputStream = new FileOutputStream(file);
                 mDbxClient.files().download(metadata.getPathLower(), metadata.getRev())

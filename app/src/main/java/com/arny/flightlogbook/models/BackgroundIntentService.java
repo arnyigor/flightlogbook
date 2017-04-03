@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.DbxClientV2;
@@ -383,12 +384,12 @@ public class BackgroundIntentService extends IntentService {
             while (rowIter.hasNext()) {
                 HSSFRow myRow = (HSSFRow) rowIter.next();
                 Iterator cellIter = myRow.cellIterator();
-                Log.i(TAG, "rowIter " + rowCnt);
+                if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "rowIter " + rowCnt);
                 int cellCnt = 0;
                 while (cellIter.hasNext()) {
                     HSSFCell myCell = (HSSFCell) cellIter.next();
-                    Log.i(TAG, "Cell: " + cellCnt);
-                    Log.i(TAG, "Cell Value: " + myCell.toString());
+                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "Cell: " + cellCnt);
+                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "Cell Value: " + myCell.toString());
                     if (rowCnt > 0) {
                         switch (cellCnt) {
                             case 0:
@@ -398,7 +399,7 @@ public class BackgroundIntentService extends IntentService {
                                     strDate = Functions.getDateTime(0,"dd MMM yyyy");
                                     e.printStackTrace();
                                 }
-                                Log.i(TAG, "strDate " + strDate);
+                                if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "strDate " + strDate);
                                 break;
                             case 1:
                                 try {
@@ -411,7 +412,7 @@ public class BackgroundIntentService extends IntentService {
                                     strTime = "00:00";
                                     e.printStackTrace();
                                 }
-                                Log.i(TAG, "strTime " + strTime);
+                                if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "strTime " + strTime);
                                 break;
                             case 2:
                                 try {
@@ -423,11 +424,11 @@ public class BackgroundIntentService extends IntentService {
                                             airplane_type_id = types.getAirplanetypeid();
                                         }
                                     }
-                                    Log.i(TAG, "hasType " + hasType);
+                                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "hasType " + hasType);
                                     if (hasType) {
                                         checked = true;
                                     } else {
-                                        Log.i(TAG, "checked " + checked);
+                                        if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "checked " + checked);
                                         if (!checked) {
                                             db.addType(airplane_type);
                                         }
@@ -436,7 +437,7 @@ public class BackgroundIntentService extends IntentService {
                                     airplane_type = "";
                                     e.printStackTrace();
                                 }
-                                Log.i(TAG, "airplane_type " + airplane_type);
+                                if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "airplane_type " + airplane_type);
                                 break;
                             case 3:
                                 try {
@@ -445,7 +446,7 @@ public class BackgroundIntentService extends IntentService {
                                     reg_no = "";
                                     e.printStackTrace();
                                 }
-                                Log.i(TAG, "reg_no " + reg_no);
+                                if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "reg_no " + reg_no);
                                 break;
                             case 4:
                                 try {
@@ -454,7 +455,7 @@ public class BackgroundIntentService extends IntentService {
                                     day_night = 0;
                                     e.printStackTrace();
                                 }
-                                Log.i(TAG, "day_night " + day_night);
+                                if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "day_night " + day_night);
                                 break;
                             case 5:
                                 try {
@@ -463,7 +464,7 @@ public class BackgroundIntentService extends IntentService {
                                     ifr_vfr = 0;
                                     e.printStackTrace();
                                 }
-                                Log.i(TAG, "ifr_vfr " + ifr_vfr);
+                                if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "ifr_vfr " + ifr_vfr);
                                 break;
                             case 6:
                                 try {
@@ -472,7 +473,7 @@ public class BackgroundIntentService extends IntentService {
                                     flight_type = 0;
                                     e.printStackTrace();
                                 }
-                                Log.i(TAG, "flight_type " + flight_type);
+                                if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "flight_type " + flight_type);
                                 break;
                             case 7:
                                 try {
@@ -481,7 +482,7 @@ public class BackgroundIntentService extends IntentService {
                                     strDesc = "";
                                     e.printStackTrace();
                                 }
-                                Log.i(TAG, "strDesc " + strDesc);
+                                if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "strDesc " + strDesc);
                                 try {
                                     logTime = Functions.convertStringToTime(strTime);
                                 } catch (Exception e) {
@@ -499,17 +500,17 @@ public class BackgroundIntentService extends IntentService {
                                     e.printStackTrace();
                                 }
                                 try {
-                                    Log.i(TAG, "strDesc: " + strDesc);
-                                    Log.i(TAG, "strDate: " + strDate);
-                                    Log.i(TAG, "mDateTime: " + mDateTime);
-                                    Log.i(TAG, "strTime: " + strTime);
-                                    Log.i(TAG, "logTime: " + logTime);
-                                    Log.i(TAG, "reg_no: " + reg_no);
-                                    Log.i(TAG, "airplane_type_id: " + airplane_type_id);
-                                    Log.i(TAG, "airplane_type: " + airplane_type);
-                                    Log.i(TAG, "day_night: " + day_night);
-                                    Log.i(TAG, "ifr_vfr: " + ifr_vfr);
-                                    Log.i(TAG, "flight_type: " + flight_type);
+                                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "strDesc: " + strDesc);
+                                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "strDate: " + strDate);
+                                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "mDateTime: " + mDateTime);
+                                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "strTime: " + strTime);
+                                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "logTime: " + logTime);
+                                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "reg_no: " + reg_no);
+                                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "airplane_type_id: " + airplane_type_id);
+                                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "airplane_type: " + airplane_type);
+                                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "day_night: " + day_night);
+                                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "ifr_vfr: " + ifr_vfr);
+                                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "flight_type: " + flight_type);
                                     db.addFlight(mDateTime, logTime, reg_no, airplane_type_id, day_night, ifr_vfr, flight_type, strDesc);
                                     sendBroadcastIntent(null);
                                 } catch (Exception e) {

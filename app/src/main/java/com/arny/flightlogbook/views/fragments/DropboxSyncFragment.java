@@ -20,6 +20,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.models.BackgroundIntentService;
 import com.arny.flightlogbook.models.DropboxClientFactory;
@@ -233,7 +234,7 @@ public class DropboxSyncFragment extends Fragment {
 
     private void hideProgress() {
         if (pDialog !=null){
-            Log.i(HomeActivity.class.getSimpleName(), "hideProgress: pDialog.isShowing() = " + pDialog.isShowing());
+            if (BuildConfig.DEBUG) Log.d(DropboxSyncFragment.class.getSimpleName(), "hideProgress: pDialog.isShowing() = " + pDialog.isShowing());
             if (pDialog.isShowing()){
                 pDialog.dismiss();
             }
@@ -243,7 +244,7 @@ public class DropboxSyncFragment extends Fragment {
     private void showProgress(String notif) {
         if (pDialog !=null){
             pDialog.setMessage(notif);
-            Log.i(HomeActivity.class.getSimpleName(), "showProgress: pDialog.isShowing() = " + pDialog.isShowing());
+            if (BuildConfig.DEBUG) Log.d(DropboxSyncFragment.class.getSimpleName(), "showProgress: pDialog.isShowing() = " + pDialog.isShowing());
             if (!pDialog.isShowing()) {
                 pDialog.show();
             }
@@ -311,7 +312,7 @@ public class DropboxSyncFragment extends Fragment {
             public void onComplete(FullAccount result) {
                 Functions.getPrefs(context).edit().putString(PREF_DBX_EMAIL, result.getEmail()).apply();
                 Functions.getPrefs(context).edit().putString(PREF_DBX_NAME, result.getName().getDisplayName()).apply();
-                Log.i(DropboxSyncFragment.class.getSimpleName(), "onComplete: getView() = " + getView());
+                if (BuildConfig.DEBUG) Log.d(DropboxSyncFragment.class.getSimpleName(), "onComplete: getView() = " + getView());
                 if (getView() != null){
                     tvDbxEmail.setText(String.format(getString(R.string.dropbox_email),result.getEmail()));
                     tvDbxName.setText(String.format(getString(R.string.dropbox_name),result.getName().getDisplayName()));

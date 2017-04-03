@@ -201,7 +201,7 @@ public class FlightList extends Fragment {
                             intent.putExtra(DatabaseHandler.COLUMN_ID, FlightData.get(ctxPos).getId());
                             startActivity(intent);
                         } catch (Exception e) {
-                            Log.i("LOG_TAG error EDIT", e.toString());
+                            e.printStackTrace();
                         }
                         break;
                     case 1:

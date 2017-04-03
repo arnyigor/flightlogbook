@@ -16,6 +16,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.*;
+
+import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.models.DataList;
 import com.arny.flightlogbook.models.DatabaseHandler;
 import com.arny.flightlogbook.R;
@@ -52,9 +54,10 @@ public class AirplaneTypesActivity extends AppCompatActivity {
         typeslistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.i(TAG, "View = " + view);
-                Log.i(TAG, "position = " + position);
-                Log.i(TAG, "id = " + id);
+                if (BuildConfig.DEBUG) Log.d(AirplaneTypesActivity.class.getSimpleName(), "onItemClick: ");
+                if (BuildConfig.DEBUG) Log.d(AirplaneTypesActivity.class.getSimpleName(), "View = " + view);
+                if (BuildConfig.DEBUG) Log.d(AirplaneTypesActivity.class.getSimpleName(), "position = " + position);
+                if (BuildConfig.DEBUG) Log.d(AirplaneTypesActivity.class.getSimpleName(), "id = " + id);
             }
         });
 
@@ -182,7 +185,7 @@ public class AirplaneTypesActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.i(TAG, "onResume ");
+        if (BuildConfig.DEBUG) Log.d(AirplaneTypesActivity.class.getSimpleName(), "onResume ");
         setVisbltyBtnRemAll();
         typeslistView.setAdapter(new TypesAdapter());
     }
@@ -259,7 +262,7 @@ public class AirplaneTypesActivity extends AppCompatActivity {
 	        /*convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Log.i(TAG, "getId: " + ListTypes.get(position).getAirplanetypeid());
+                    if (BuildConfig.DEBUG) Log.d(AirplaneTypesActivity.class.getSimpleName(), "getId: " + ListTypes.get(position).getAirplanetypeid());
                 }
             });*/
             return convertView;

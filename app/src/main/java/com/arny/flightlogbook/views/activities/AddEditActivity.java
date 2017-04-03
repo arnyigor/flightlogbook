@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.*;
 import android.widget.*;
 
+import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.models.DataList;
 import com.arny.flightlogbook.models.DatabaseHandler;
 import com.arny.flightlogbook.R;
@@ -296,7 +297,7 @@ public class AddEditActivity extends AppCompatActivity {
                 mMotoResult = getMotoTime(mMotoStart, mMotoFinish);
                 tvMotoResult.setText(Functions.strLogTime(setLogTimefromMoto(mMotoResult)));
             } catch (Exception e) {
-                Log.i(TAG, "onTextChanged Exception = " + e.toString());
+                e.printStackTrace();
             }
         }
     };
@@ -315,7 +316,7 @@ public class AddEditActivity extends AppCompatActivity {
                 mMotoResult = getMotoTime(mMotoStart, mMotoFinish);
                 tvMotoResult.setText(Functions.strLogTime(setLogTimefromMoto(mMotoResult)));
             } catch (Exception e) {
-                Log.i(TAG, "onTextChanged Exception = " + e.toString());
+                e.printStackTrace();
             }
 
         }
@@ -365,9 +366,9 @@ public class AddEditActivity extends AppCompatActivity {
                 logTime = setLogTimefromMoto(mMotoResult);
                 logHours = logTime / 60;
                 logMinutes = logTime % 60;
-                Log.i(TAG, "onClick logtime = " + logTime);
-                Log.i(TAG, "onClick logHours = " + logHours);
-                Log.i(TAG, "onClick logMinutes = " + logMinutes);
+                if (BuildConfig.DEBUG) Log.d(AddEditActivity.class.getSimpleName(), "onClick: logTime = " + logTime);
+                if (BuildConfig.DEBUG) Log.d(AddEditActivity.class.getSimpleName(), "onClick: logHours = " + logHours);
+                if (BuildConfig.DEBUG) Log.d(AddEditActivity.class.getSimpleName(), "onClick: logMinutes = " + logMinutes);
                 edtTime.setText(Functions.pad(logHours) + ":" + Functions.pad(logMinutes));
             }
         }).setNegativeButton(getString(R.string.str_cancel), new DialogInterface.OnClickListener() {
@@ -400,10 +401,8 @@ public class AddEditActivity extends AppCompatActivity {
 
 
     private void getLogTime() {
-        Log.i(TAG, "getLogTime ");
         try {
             String inputLogtime = edtTime.getText().toString();
-            Log.i(TAG, "getLogTime inputLogtime.text = " + inputLogtime);
             if (inputLogtime.length() == 0) {
                 logTime = 0;
             } else if (inputLogtime.length() == 1) {
@@ -430,16 +429,13 @@ public class AddEditActivity extends AppCompatActivity {
                 logTime = logHours * 60 + logMinutes;
             }
         } catch (Exception e) {
-            Log.i(TAG, "correctLogTime Exception = " + e.toString());
+            if (BuildConfig.DEBUG) Log.d(AddEditActivity.class.getSimpleName(), "correctLogTime Exception = " + e.toString());
         }
     }
 
     private void correctLogTime() {
-        Log.i(TAG, "correctLogTime ");
         try {
             String inputLogtime = edtTime.getText().toString();
-            Log.i(TAG, "correctLogTime inputLogtime.text = " + inputLogtime);
-            Log.i(TAG, "correctLogTime inputLogtime.length = " + inputLogtime.length());
             if (inputLogtime.length() == 0) {
                 if (logTime != 0) {
                     edtTime.setText(Functions.strLogTime(logTime));
@@ -466,8 +462,6 @@ public class AddEditActivity extends AppCompatActivity {
                     logMinutes = Integer.parseInt(edtTime.getText().toString().substring(inputLogtime.length() - 2, inputLogtime.length()));
                     logHours = Integer.parseInt(edtTime.getText().toString().substring(0, inputLogtime.length() - 2));
                 }
-                Log.i(TAG, "correctLogTime logMinutes = " + logMinutes);
-                Log.i(TAG, "correctLogTime logHours = " + logHours);
                 if (logMinutes > 59) {
                     logHours = logHours + 1;
                     logMinutes = logMinutes - 60;
@@ -476,12 +470,12 @@ public class AddEditActivity extends AppCompatActivity {
                 edtTime.setText(Functions.pad(logHours) + ":" + Functions.pad(logMinutes));
             }
         } catch (Exception e) {
-            Log.i(TAG, "correctLogTime Exception = " + e.toString());
+            e.printStackTrace();
         }
     }
 
     private void fillEdtTime(int time) {
-        Log.i(TAG, "fillEdtTime logTime = " + time);
+        if (BuildConfig.DEBUG) Log.d(AddEditActivity.class.getSimpleName(), "fillEdtTime logTime = " + time);
         try {
             if (time != 0) {
                 edtTime.setText(Functions.strLogTime(time));
@@ -489,7 +483,7 @@ public class AddEditActivity extends AppCompatActivity {
                 edtTime.setText("00:00");
             }
         } catch (Exception e) {
-            Log.i(TAG, "fillEdtTime Exception = " + e.toString());
+            e.printStackTrace();
         }
     }
 
@@ -524,7 +518,6 @@ public class AddEditActivity extends AppCompatActivity {
     }
 
     private void fillInputs() {
-        Log.i("LOG_TAG", "-------------fillInputs---------");
         if (mRowId != 0) {
             try {
                 FlightData = db.getFlightItem(mRowId);
@@ -552,7 +545,7 @@ public class AddEditActivity extends AppCompatActivity {
                     spinFlightType.setSelection(flight_type);
                 }
             } catch (Exception e) {
-                Log.i("LOG_TAG", e.toString());
+                e.printStackTrace();
             }
         } else {
             edtDesc.setText("");
@@ -579,23 +572,23 @@ public class AddEditActivity extends AppCompatActivity {
             spinFlightType.setSelection(flight_type);
         }// row!=0
         //filltypes();
-        Log.i("LOG_TAG", "mRowId: " + String.valueOf(mRowId));
-        Log.i("LOG_TAG", "strDesc: " + String.valueOf(strDesc));
-        Log.i("LOG_TAG", "strDate: " + String.valueOf(strDate));
-        Log.i("LOG_TAG", "reg_no: " + String.valueOf(reg_no));
-        Log.i("LOG_TAG", "airplane_type: " + String.valueOf(airplane_type));
-        Log.i("LOG_TAG", "airplane_type_id: " + String.valueOf(airplane_type_id));
-        Log.i("LOG_TAG", "mDateTime: " + String.valueOf(mDateTime));
-        Log.i("LOG_TAG", "logTime: " + String.valueOf(logTime));
-        Log.i("LOG_TAG", "day_night: " + String.valueOf(day_night));
-        Log.i("LOG_TAG", "ifr_vfr: " + String.valueOf(ifr_vfr));
-        Log.i("LOG_TAG", "flight_type: " + String.valueOf(flight_type));
-        Log.i("LOG_TAG", "-------------fillInputs end---------");
+        if (BuildConfig.DEBUG) Log.d(AddEditActivity.class.getSimpleName(), "mRowId: " + String.valueOf(mRowId));
+        if (BuildConfig.DEBUG) Log.d(AddEditActivity.class.getSimpleName(), "strDesc: " + String.valueOf(strDesc));
+        if (BuildConfig.DEBUG) Log.d(AddEditActivity.class.getSimpleName(), "strDate: " + String.valueOf(strDate));
+        if (BuildConfig.DEBUG) Log.d(AddEditActivity.class.getSimpleName(), "reg_no: " + String.valueOf(reg_no));
+        if (BuildConfig.DEBUG) Log.d(AddEditActivity.class.getSimpleName(), "airplane_type: " + String.valueOf(airplane_type));
+        if (BuildConfig.DEBUG) Log.d(AddEditActivity.class.getSimpleName(), "airplane_type_id: " + String.valueOf(airplane_type_id));
+        if (BuildConfig.DEBUG) Log.d(AddEditActivity.class.getSimpleName(), "mDateTime: " + String.valueOf(mDateTime));
+        if (BuildConfig.DEBUG) Log.d(AddEditActivity.class.getSimpleName(), "logTime: " + String.valueOf(logTime));
+        if (BuildConfig.DEBUG) Log.d(AddEditActivity.class.getSimpleName(), "day_night: " + String.valueOf(day_night));
+        if (BuildConfig.DEBUG) Log.d(AddEditActivity.class.getSimpleName(), "ifr_vfr: " + String.valueOf(ifr_vfr));
+        if (BuildConfig.DEBUG) Log.d(AddEditActivity.class.getSimpleName(), "flight_type: " + String.valueOf(flight_type));
+        if (BuildConfig.DEBUG) Log.d(AddEditActivity.class.getSimpleName(), "-------------fillInputs end---------");
     }// fillinputs
 
     private boolean saveState() {
         String strlogTime = edtTime.getText().toString();
-        Log.i(TAG, "saveState ");
+        if (BuildConfig.DEBUG) Log.d(AddEditActivity.class.getSimpleName(), "saveState ");
         if (!strlogTime.contains(":")) {
             correctLogTime();
         }

@@ -196,7 +196,6 @@ public class Functions {
                 break;
             }
         }
-        Log.i(Functions.class.getSimpleName(), "dateFormatChooser: format = " + format);
         return format;
     }
 
@@ -290,8 +289,6 @@ public class Functions {
     }
 
     public static long convertTimeStringToLong(String myTimestamp, String format) {
-//        Log.i(Functions.class.getSimpleName(), "convertTimeStringToLong: myTimestamp = " + myTimestamp);
-//        Log.i(Functions.class.getSimpleName(), "convertTimeStringToLong: format = " + format);
         SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.getDefault());
         Date date;
         try {
@@ -400,7 +397,6 @@ public class Functions {
     }
 
     public static int convertStringToTime(String time) {
-        Log.i(Functions.class.getSimpleName(), "convertStringToTime: time = " + time);
         int hours = 0;
         int mins = 0;
         String delimeter = (time.contains(DOCUMENT_SEPARATOR)) ? DOCUMENT_SEPARATOR : ".";
