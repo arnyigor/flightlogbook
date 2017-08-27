@@ -202,17 +202,17 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public List<Statistic> getStatistic(String whereQuery) {
         String statisticQuery = "SELECT " + COLUMN_DATETIME + " as dt, " +
                 "   COUNT(*) as cnt, " +
-                "  (SELECT SUM(" + COLUMN_LOG_TIME + ") FROM main_table WHERE strftime('%m',datetime(outer_data." + COLUMN_DATETIME + "/1000, 'unixepoch')) = strftime('%m',datetime(main_table.datetime/1000, 'unixepoch'))) AS total_month, " +
-                "  (SELECT SUM(" + COLUMN_LOG_TIME + ") FROM main_table WHERE strftime('%m',datetime(outer_data." + COLUMN_DATETIME + "/1000, 'unixepoch')) = strftime('%m',datetime(main_table.datetime/1000, 'unixepoch')) AND " + COLUMN_DAY_NIGHT + " = 0) AS daystime, " +
-                "  (SELECT SUM(" + COLUMN_LOG_TIME + ") FROM main_table WHERE strftime('%m',datetime(outer_data." + COLUMN_DATETIME + "/1000, 'unixepoch')) = strftime('%m',datetime(main_table.datetime/1000, 'unixepoch')) AND " + COLUMN_DAY_NIGHT + " = 1) AS nighttime, " +
-                "  (SELECT SUM(" + COLUMN_LOG_TIME + ") FROM main_table WHERE strftime('%m',datetime(outer_data." + COLUMN_DATETIME + "/1000, 'unixepoch')) = strftime('%m',datetime(main_table.datetime/1000, 'unixepoch')) AND " + COLUMN_IFR_VFR + " = 0) AS vfrtime, " +
-                "  (SELECT SUM(" + COLUMN_LOG_TIME + ") FROM main_table WHERE strftime('%m',datetime(outer_data." + COLUMN_DATETIME + "/1000, 'unixepoch')) = strftime('%m',datetime(main_table.datetime/1000, 'unixepoch')) AND " + COLUMN_IFR_VFR + " = 1) AS ifrtime, " +
-                "  (SELECT SUM(" + COLUMN_LOG_TIME + ") FROM main_table WHERE strftime('%m',datetime(outer_data." + COLUMN_DATETIME + "/1000, 'unixepoch')) = strftime('%m',datetime(main_table.datetime/1000, 'unixepoch')) AND " + COLUMN_FLIGHT_TYPE + " = 0) AS circletime, " +
-                "  (SELECT SUM(" + COLUMN_LOG_TIME + ") FROM main_table WHERE strftime('%m',datetime(outer_data." + COLUMN_DATETIME + "/1000, 'unixepoch')) = strftime('%m',datetime(main_table.datetime/1000, 'unixepoch')) AND " + COLUMN_FLIGHT_TYPE + " = 1) AS zonetime, " +
-                "  (SELECT SUM(" + COLUMN_LOG_TIME + ") FROM main_table WHERE strftime('%m',datetime(outer_data." + COLUMN_DATETIME + "/1000, 'unixepoch')) = strftime('%m',datetime(main_table.datetime/1000, 'unixepoch')) AND " + COLUMN_FLIGHT_TYPE + " = 2) AS marshtime " +
+                "  (SELECT SUM(" + COLUMN_LOG_TIME + ") FROM main_table WHERE strftime('%m',datetime(outer_data." + COLUMN_DATETIME + "/1000, 'unixepoch', 'localtime')) = strftime('%m',datetime(main_table.datetime/1000, 'unixepoch', 'localtime'))) AS total_month, " +
+                "  (SELECT SUM(" + COLUMN_LOG_TIME + ") FROM main_table WHERE strftime('%m',datetime(outer_data." + COLUMN_DATETIME + "/1000, 'unixepoch', 'localtime')) = strftime('%m',datetime(main_table.datetime/1000, 'unixepoch', 'localtime')) AND " + COLUMN_DAY_NIGHT + " = 0) AS daystime, " +
+                "  (SELECT SUM(" + COLUMN_LOG_TIME + ") FROM main_table WHERE strftime('%m',datetime(outer_data." + COLUMN_DATETIME + "/1000, 'unixepoch', 'localtime')) = strftime('%m',datetime(main_table.datetime/1000, 'unixepoch')) AND " + COLUMN_DAY_NIGHT + " = 1) AS nighttime, " +
+                "  (SELECT SUM(" + COLUMN_LOG_TIME + ") FROM main_table WHERE strftime('%m',datetime(outer_data." + COLUMN_DATETIME + "/1000, 'unixepoch', 'localtime')) = strftime('%m',datetime(main_table.datetime/1000, 'unixepoch', 'localtime')) AND " + COLUMN_IFR_VFR + " = 0) AS vfrtime, " +
+                "  (SELECT SUM(" + COLUMN_LOG_TIME + ") FROM main_table WHERE strftime('%m',datetime(outer_data." + COLUMN_DATETIME + "/1000, 'unixepoch', 'localtime')) = strftime('%m',datetime(main_table.datetime/1000, 'unixepoch', 'localtime')) AND " + COLUMN_IFR_VFR + " = 1) AS ifrtime, " +
+                "  (SELECT SUM(" + COLUMN_LOG_TIME + ") FROM main_table WHERE strftime('%m',datetime(outer_data." + COLUMN_DATETIME + "/1000, 'unixepoch', 'localtime')) = strftime('%m',datetime(main_table.datetime/1000, 'unixepoch', 'localtime')) AND " + COLUMN_FLIGHT_TYPE + " = 0) AS circletime, " +
+                "  (SELECT SUM(" + COLUMN_LOG_TIME + ") FROM main_table WHERE strftime('%m',datetime(outer_data." + COLUMN_DATETIME + "/1000, 'unixepoch', 'localtime')) = strftime('%m',datetime(main_table.datetime/1000, 'unixepoch', 'localtime')) AND " + COLUMN_FLIGHT_TYPE + " = 1) AS zonetime, " +
+                "  (SELECT SUM(" + COLUMN_LOG_TIME + ") FROM main_table WHERE strftime('%m',datetime(outer_data." + COLUMN_DATETIME + "/1000, 'unixepoch', 'localtime')) = strftime('%m',datetime(main_table.datetime/1000, 'unixepoch', 'localtime')) AND " + COLUMN_FLIGHT_TYPE + " = 2) AS marshtime " +
                 " FROM main_table AS outer_data" +
                 whereQuery +
-                " GROUP BY strftime('%m',datetime(" + COLUMN_DATETIME + "/1000, 'unixepoch'))" +
+                " GROUP BY strftime('%m',datetime(" + COLUMN_DATETIME + "/1000, 'unixepoch', 'localtime'))" +
                 " ORDER BY dt";
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(statisticQuery, null);
