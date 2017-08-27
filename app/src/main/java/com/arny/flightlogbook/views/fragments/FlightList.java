@@ -18,6 +18,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import com.arny.arnylib.adapters.SimpleBindableAdapter;
+import com.arny.flightlogbook.FlightListHolder;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.models.BackgroundIntentService;
 import com.arny.flightlogbook.models.Functions;
@@ -28,6 +30,7 @@ import com.arny.flightlogbook.models.DatabaseHandler;
 import java.util.List;
 
 public class FlightList extends Fragment {
+	private SimpleBindableAdapter<DataList, FlightListHolder> flightListAdapter;
     private DatabaseHandler db;
     private boolean finishOperation = true;
     private ListView listView;
@@ -49,13 +52,13 @@ public class FlightList extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new
-                        Intent(context, AddEditActivity.class);
+                Intent intent = new Intent(context, AddEditActivity.class);
                 startActivity(intent);
             }
         });
         tvTotalTime = (TextView) view.findViewById(R.id.tvTotalTime);
         listView = (ListView) view.findViewById(R.id.listView);
+	    flightListAdapter = new SimpleBindableAdapter<>(R.layout.simple_example_item, FlightListHolder.class);
         db = new DatabaseHandler(context);
         return view;
     }
