@@ -1,18 +1,20 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    >
+<menu
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+>
     <item
-        android:id="@+id/action_settings"
-        android:showAsAction="never"
-        android:title="@string/str_settings"/>
+            android:id="@+id/action_settings"
+            app:showAsAction="never"
+            android:title="@string/str_settings"/>
     <item android:id="@+id/action_about"
-        android:showAsAction="never"
-        android:title="@string/str_about"/>
+          app:showAsAction="never"
+          android:title="@string/str_about"/>
     <item android:id="@+id/action_type_edit"
-          android:showAsAction="never"
+          app:showAsAction="never"
           android:title="@string/str_airplane_types"/>
     <item
             android:id="@+id/action_xls"
-            android:showAsAction="never"
+            app:showAsAction="never"
             android:title="@string/str_xls">
         <menu>
             <item android:id="@+id/action_import_excel"
@@ -29,11 +31,5 @@
             </item>
         </menu>
     </item>
-    <!--<item android:id="@+id/action_metar"-->
-          <!--android:showAsAction="never"-->
-          <!--android:title="@string/metar_text"/>-->
-   <!-- <item android:id="@+id/action_dropbox_sync"
-          android:showAsAction="never"
-          android:title="@string/str_dropbox"/>-->
 
 </menu>

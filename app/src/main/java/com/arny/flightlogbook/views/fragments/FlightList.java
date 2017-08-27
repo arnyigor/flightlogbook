@@ -11,15 +11,18 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 import com.arny.arnylib.adapters.SimpleBindableAdapter;
-import com.arny.flightlogbook.FlightListHolder;
+import com.arny.arnylib.interfaces.AlertDialogListener;
+import com.arny.arnylib.utils.DroidUtils;
+import com.arny.flightlogbook.adapter.FlightListHolder;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.models.BackgroundIntentService;
 import com.arny.flightlogbook.models.Functions;
@@ -27,17 +30,15 @@ import com.arny.flightlogbook.views.activities.AddEditActivity;
 import com.arny.flightlogbook.models.DataList;
 import com.arny.flightlogbook.models.DatabaseHandler;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FlightList extends Fragment {
 	private SimpleBindableAdapter<DataList, FlightListHolder> flightListAdapter;
     private DatabaseHandler db;
     private boolean finishOperation = true;
-    private ListView listView;
-    private List<DataList> FlightData;
-    private List<DataList> TypeData;
-    private String airplane_type;
-    private int airplane_type_id, ctxPos;
+	private List<DataList> FlightData = new ArrayList<>();
+	private int ctxPos;
     private Context context;
     private TextView tvTotalTime;
 
@@ -57,8 +58,20 @@ public class FlightList extends Fragment {
             }
         });
         tvTotalTime = (TextView) view.findViewById(R.id.tvTotalTime);
-        listView = (ListView) view.findViewById(R.id.listView);
-	    flightListAdapter = new SimpleBindableAdapter<>(R.layout.simple_example_item, FlightListHolder.class);
+	    RecyclerView listView = (RecyclerView) view.findViewById(R.id.listView);
+	    listView.setLayoutManager( new LinearLayoutManager(context));
+	    listView.setItemAnimator(new DefaultItemAnimator());
+	    flightListAdapter = new SimpleBindableAdapter<>(context,R.layout.flight_list_item, FlightListHolder.class);
+	    flightListAdapter.setActionListener(new FlightListHolder.SimpleActionListener() {
+
+		    @Override
+		    public void OnItemClickListener(int position, Object Item) {
+			    Log.i(FlightList.class.getSimpleName(), "OnItemClickListener: position = " + position);
+			    Log.i(FlightList.class.getSimpleName(), "OnItemClickListener: Item = " + Item);
+			    showMenuDialog(position);
+		    }
+	    });
+	    listView.setAdapter(flightListAdapter);
         db = new DatabaseHandler(context);
         return view;
     }
@@ -90,7 +103,7 @@ public class FlightList extends Fragment {
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                FlightData = db.getFlightListByDate();
+                FlightData = db.getFlightListByDate(context);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -100,97 +113,13 @@ public class FlightList extends Fragment {
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
-            listView.setAdapter(new ViewAdapter());
+	        flightListAdapter.clear();
+	        flightListAdapter.addAll(FlightData);
             displayTotalTime();
         }
     }
 
-    public class ViewAdapter extends BaseAdapter {
-
-        LayoutInflater mInflater;
-
-        public ViewAdapter() {
-            mInflater = LayoutInflater.from(context);
-        }
-
-        @Override
-        public int getCount() {
-            return FlightData.size();
-//            return db.getFlightCount();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return FlightData.get(position);
-//            return db.getFlightItem(FlightData.get(position).getId());
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return FlightData.get(position).getId();
-        }
-
-        @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
-            final ViewHolder viewHolder;
-            if (convertView == null) {
-                convertView = mInflater.inflate(R.layout.item, null);
-                viewHolder = new ViewHolder();
-                viewHolder.tvDate = (TextView) convertView.findViewById(R.id.tvDate);
-                viewHolder.tvLogTime = (TextView) convertView.findViewById(R.id.tvLogTime);
-                viewHolder.tvType = (TextView) convertView.findViewById(R.id.tvType);
-                viewHolder.tvRegNo = (TextView) convertView.findViewById(R.id.tvRegNo);
-                viewHolder.tvDesc = (TextView) convertView.findViewById(R.id.tvDesc);
-                convertView.setTag(viewHolder);
-            } else {
-                viewHolder = (ViewHolder) convertView.getTag();
-            }
-            airplane_type_id = FlightData.get(position).getAirplanetypeid();
-            TypeData = db.getTypeItem(airplane_type_id);
-            for (DataList type : TypeData) {
-                airplane_type = type.getAirplanetypetitle();
-            }
-            viewHolder.tvDate.setText(Functions.getDateTime(FlightData.get(position).getDatetime(),"dd MMM yyyy"));
-            viewHolder.tvLogTime.setText(Functions.strLogTime(FlightData.get(position).getLogtime()));
-            viewHolder.tvType.setText(airplane_type);
-            viewHolder.tvRegNo.setText(String.valueOf(FlightData.get(position).getReg_no()));
-            viewHolder.tvDesc.setText(FlightData.get(position).getDescription());
-            convertView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    showMenuDialog(position);
-                }
-            });
-//
-//            if (convertView == null) {
-//                convertView = mInflater.inflate(R.layout.item, null);
-//            }
-//            ((TextView) convertView.findViewById(R.id.tvDate)).setText(Functions.getDateTime(FlightData.get(position).getDatetime(),"ddMMMyyyy"));
-//            ((TextView) convertView.findViewById(R.id.tvLogTime)).setText(Functions.strLogTime(FlightData.get(position).getLogtime()));
-//
-//            airplane_type_id = FlightData.get(position).getAirplanetypeid();
-//            TypeData = db.getTypeItem(airplane_type_id);
-//            for (DataList type : TypeData) {
-//                airplane_type = type.getAirplanetypetitle();
-//            }
-//            ((TextView) convertView.findViewById(R.id.tvType)).setText(airplane_type);
-//            ((TextView) convertView.findViewById(R.id.tvRegNo)).setText(String.valueOf(FlightData.get(position).getReg_no()));
-//            ((TextView) convertView.findViewById(R.id.tvDesc)).setText(FlightData.get(position).getDescription());
-//
-//            convertView.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    showMenuDialog(position);
-//                }
-//            });
-            return convertView;
-        }
-        private class ViewHolder {
-            TextView tvDate,tvLogTime,tvType,tvRegNo,tvDesc;
-        }
-    }
-
-    private void showMenuDialog(int pos) {
+	private void showMenuDialog(int pos) {
         AlertDialog.Builder alert = new AlertDialog.Builder(context);
         String contextMenuText[] = {getString(R.string.str_edt), getString(R.string.str_delete), getString(R.string.str_clearall)};
         ctxPos = pos;//кидаем в глобальную переменную чтобы все видели
@@ -200,7 +129,7 @@ public class FlightList extends Fragment {
                 switch (which) {
                     case 0:
                         try {
-                            Intent intent = new Intent(getActivity().getApplicationContext(), AddEditActivity.class);
+                            Intent intent = new Intent(context, AddEditActivity.class);
                             intent.putExtra(DatabaseHandler.COLUMN_ID, FlightData.get(ctxPos).getId());
                             startActivity(intent);
                         } catch (Exception e) {
@@ -208,38 +137,24 @@ public class FlightList extends Fragment {
                         }
                         break;
                     case 1:
-                        AlertDialog.Builder delDialog = new AlertDialog.Builder(context);
-                        delDialog.setTitle(getString(R.string.str_delete) + "?");
-                        delDialog
-                                .setNegativeButton(getString(R.string.str_cancel), null);
-                        delDialog.setPositiveButton(getString(R.string.str_ok),
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        db.removeFlight(FlightData.get(ctxPos).getId());
-                                        LoadFlights lf = new LoadFlights();
-                                        lf.execute();
-//                                        displayTotalTime();
-                                    }
-                                });
-                        AlertDialog alert = delDialog.create();
-                        alert.show();
+	                    DroidUtils.alertConfirmDialog(context, getString(R.string.str_delete), new AlertDialogListener() {
+		                    @Override
+		                    public void onConfirm() {
+			                    db.removeFlight(FlightData.get(ctxPos).getId());
+			                    LoadFlights lf = new LoadFlights();
+			                    lf.execute();
+		                    }
+	                    });
                         break;
                     case 2:
-                        AlertDialog.Builder delallDialog = new AlertDialog.Builder(context);
-                        delallDialog.setTitle(getString(R.string.str_clearall) + "?");
-                        delallDialog
-                                .setNegativeButton(getString(R.string.str_cancel), null);
-                        delallDialog.setPositiveButton(getString(R.string.str_ok),
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        db.removeAllFlights();
-                                        LoadFlights lf = new LoadFlights();
-                                        lf.execute();
-//                                        displayTotalTime();
-                                    }
-                                });
-                        AlertDialog alertAll = delallDialog.create();
-                        alertAll.show();
+	                    DroidUtils.alertConfirmDialog(context, getString(R.string.str_clearall), new AlertDialogListener() {
+		                    @Override
+		                    public void onConfirm() {
+			                    db.removeAllFlights();
+			                    LoadFlights lf = new LoadFlights();
+			                    lf.execute();
+		                    }
+	                    });
                         break;
                 }
             }
@@ -248,13 +163,12 @@ public class FlightList extends Fragment {
     }
 
     private void displayTotalTime() {
-        tvTotalTime.setText(context.getResources().getString(R.string.str_totaltime) + " " + Functions.strLogTime(db.getFlightsTime()));
+        tvTotalTime.setText(String.format("%s %s", context.getResources().getString(R.string.str_totaltime), Functions.strLogTime(db.getFlightsTime())));
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        Log.d("FlightList", "onPause: ");
         LocalBroadcastManager.getInstance(context).unregisterReceiver(broadcastReceiver);
     }
 

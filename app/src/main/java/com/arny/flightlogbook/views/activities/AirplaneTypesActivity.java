@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.*;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,6 +20,7 @@ import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.models.DataList;
 import com.arny.flightlogbook.models.DatabaseHandler;
 import com.arny.flightlogbook.R;
+import com.arny.flightlogbook.models.Type;
 
 import java.util.List;
 
@@ -154,10 +154,8 @@ public class AirplaneTypesActivity extends AppCompatActivity {
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         LinearLayout layout = new LinearLayout(this);
         final EditText edtTypeInput = new EditText(this);
-        List<DataList> dbl = (db.getTypeItem(ListTypes.get(dlgPosition).getAirplanetypeid()));
-        for (DataList item : dbl) {
-            edtTypeInput.setText(item.getAirplanetypetitle());
-        }
+	    Type type = DatabaseHandler.getTypeItem(ListTypes.get(dlgPosition).getAirplanetypeid(), context);;
+	    edtTypeInput.setText(type.getTypeName());
         final ViewGroup.LayoutParams lparams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         edtTypeInput.setLayoutParams(lparams);
         alert.setTitle(getString(R.string.str_edt_airplane_types));
@@ -209,7 +207,7 @@ public class AirplaneTypesActivity extends AppCompatActivity {
 
         @Override
         public Object getItem(int position) {
-            return db.getTypeItem(ListTypes.get(position).getAirplanetypeid());
+            return DatabaseHandler.getTypeItem(ListTypes.get(position).getAirplanetypeid(), context);
         }
 
         @Override

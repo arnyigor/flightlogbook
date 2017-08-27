@@ -18,19 +18,6 @@ public class DataList {
 
     }
 
-    // constructor
-    public DataList(int id, long datetime, int logtime, String reg_no, int airplanetype, int daynight, int ifrvfr, int flighttype, String description){
-        this.id = id;
-        this.datetime = datetime;
-        this.logtime = logtime;
-        this.reg_no = reg_no;
-        this.airplanetype = airplanetype;
-        this.daynight = daynight;
-        this.ifrvfr = ifrvfr;
-        this.flighttype = flighttype;
-        this.description = description;
-    }
-
     public int getId(){
         return this.id;
     }

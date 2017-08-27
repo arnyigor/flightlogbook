@@ -284,17 +284,13 @@ public class BackgroundIntentService extends IntentService {
         c = row.createCell(7);
         c.setCellValue(getString(R.string.str_desc));
 
-        ExportData = db.getFlightListByDate();
+        ExportData = db.getFlightListByDate(context);
         int rows = 1;
         for (DataList export : ExportData) {
             airplane_type_id = export.getAirplanetypeid();
-            TypeData = db.getTypeItem(airplane_type_id);
-            String airplane_type = "";
-            for (DataList type : TypeData) {
-                airplane_type = type.getAirplanetypetitle();
-            }
-
-            row = sheet_main.createRow(rows);
+	        Type type = DatabaseHandler.getTypeItem(airplane_type_id, context);
+	        String airplane_type = type.getTypeName();
+	        row = sheet_main.createRow(rows);
             c = row.createCell(0);
             c.setCellValue(Functions.getDateTime(export.getDatetime(),"dd MMM yyyy"));
             c = row.createCell(1);

@@ -2,13 +2,11 @@ package com.arny.flightlogbook.views.fragments;
 
 import android.app.DatePickerDialog;
 import android.content.Context;
-import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,13 +17,10 @@ import com.arny.flightlogbook.models.DataList;
 import com.arny.flightlogbook.models.DatabaseHandler;
 import com.arny.flightlogbook.models.Functions;
 import com.arny.flightlogbook.models.Statistic;
-import com.mikepenz.fastadapter.adapters.ItemAdapter;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-
-import static android.R.id.list;
 
 public class StatisticFragment extends Fragment {
     private static final String LIST_STATE = "listState";
@@ -137,7 +132,7 @@ public class StatisticFragment extends Fragment {
 
     //начальные данные времени
     private void startInitDateTime() {
-        FlightData = db.getFlightListByDate();
+        FlightData = db.getFlightListByDate(ctx);
         if (FlightData.size()>0){
             startdatetime= FlightData.get(0).getDatetime();
             enddatetime = FlightData.get(FlightData.size()-1).getDatetime();

@@ -7,7 +7,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.arny.arnylib.database.DBProvider;
 import com.arny.flightlogbook.BuildConfig;
+import com.arny.flightlogbook.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -348,8 +350,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return allList;
     }
 
+	private static String getPlaneType(int airplane_type_id, DatabaseHandler db, Context context) {
+		Type type = DatabaseHandler.getTypeItem(airplane_type_id, context);
+		if (type != null) {
+			return type.getTypeName();
+		}
+		return context.getResources().getText(R.string.str_no_types).toString();
+	}
+
     //Get FavList
-    public List<DataList> getFlightListByDate() {
+    public List<DataList> getFlightListByDate(Context context) {
         String selectQuery = "SELECT  * FROM " + MAIN_TABLE + " ORDER BY " + COLUMN_DATETIME;
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -361,7 +371,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 list.setDatetime(Long.parseLong(cursor.getString(cursor.getColumnIndex(COLUMN_DATETIME))));
                 list.setLogtime(Integer.parseInt(cursor.getString(cursor.getColumnIndex(COLUMN_LOG_TIME))));
                 list.setReg_no(cursor.getString(cursor.getColumnIndex(COLUMN_REG_NO)));
-                list.setAirplanetypeid(cursor.getInt(cursor.getColumnIndex(COLUMN_AIRPLANE_TYPE)));
+	            list.setAirplanetypeid(cursor.getInt(cursor.getColumnIndex(COLUMN_AIRPLANE_TYPE)));
+	            list.setAirplanetypetitle(getPlaneType(list.getAirplanetypeid(),this, context));
                 list.setDaynight(Integer.parseInt(cursor.getString(cursor.getColumnIndex(COLUMN_DAY_NIGHT))));
                 list.setIfrvfr(Integer.parseInt(cursor.getString(cursor.getColumnIndex(COLUMN_IFR_VFR))));
                 list.setFlighttype(Integer.parseInt(cursor.getString(cursor.getColumnIndex(COLUMN_FLIGHT_TYPE))));
@@ -436,22 +447,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return allList;
     }
 
-    //Get FavList
-    public List<DataList> getTypeItem(int iditem) {
-        String selectQuery = "SELECT * FROM " + TYPE_TABLE + " where " + COLUMN_TYPE_ID + "= " + iditem;
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);
-        List<DataList> itemList = new ArrayList<DataList>();
-        if (cursor.moveToFirst()) {
-            do {
-                DataList list = new DataList();
-                list.setAirplanetypeid(cursor.getInt(0));
-                list.setAirplanetypetitle(cursor.getString(1));
-                itemList.add(list);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        return itemList;
+    public static Type getTypeItem(int iditem, Context context) {
+	    Cursor cursor = DBProvider.selectDB(TYPE_TABLE, null, COLUMN_TYPE_ID + "=?",new String[]{String.valueOf(iditem)},null, context);
+        return DBProvider.getCursorObject(cursor, Type.class);
     }
 
     //Get FavList

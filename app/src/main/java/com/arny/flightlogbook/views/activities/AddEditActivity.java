@@ -4,13 +4,11 @@ package com.arny.flightlogbook.views.activities;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.SQLException;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +24,7 @@ import com.arny.flightlogbook.models.DataList;
 import com.arny.flightlogbook.models.DatabaseHandler;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.models.Functions;
+import com.arny.flightlogbook.models.Type;
 
 import java.math.BigDecimal;
 import java.text.DateFormatSymbols;
@@ -70,7 +69,7 @@ public class AddEditActivity extends AppCompatActivity {
         }
         motoCheckPref = Functions.getPrefs(getBaseContext()).getBoolean("motoCheckPref", false);
         db = new DatabaseHandler(this);
-        edtDesc = (EditText) findViewById(R.id.edtDesc);
+        edtDesc = (TextInputEditText) findViewById(R.id.edtDesc);
         motoCont = (LinearLayout) findViewById(R.id.motoContainer);
         tvDate = (TextView) findViewById(R.id.edtDate);
         edtTime = (EditText) findViewById(R.id.edtTime);
@@ -266,11 +265,9 @@ public class AddEditActivity extends AppCompatActivity {
         typesBuilder.setItems(cs, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
                 airplane_type = typeList.get(item);
-                ListType = db.getTypeItem(item + 1);//нумерация списка с нуля,в базе с 1цы
-                for (DataList type : ListType) {
-                    airplane_type_id = type.getAirplanetypeid();
-                }
-                tvAirplaneType.setText(getString(R.string.str_type) + " " + typeList.get(item));
+	            Type type = DatabaseHandler.getTypeItem(item + 1, AddEditActivity.this);//нумерация списка с нуля,в базе с 1цы
+                airplane_type_id = type.getTypeId();
+                tvAirplaneType.setText(String.format("%s %s", getString(R.string.str_type), typeList.get(item)));
             }
         });
         typesBuilder.setNegativeButton(getString(R.string.str_cancel), new DialogInterface.OnClickListener() {
@@ -534,7 +531,7 @@ public class AddEditActivity extends AppCompatActivity {
                     edtRegNo.setText(reg_no);
                     edtTime.setText(Functions.strLogTime(logTime));
                     airplane_type_id = aFlightData.getAirplanetypeid();
-                    String airplType = db.getTypeItem(airplane_type_id).get(0).getAirplanetypetitle();
+                    String airplType = DatabaseHandler.getTypeItem(airplane_type_id, AddEditActivity.this).getTypeName();
                     String airTypesText = airplType == null ? getString(R.string.str_type_empty):getString(R.string.str_type)+ " " + airplType;
                     tvAirplaneType.setText(airTypesText);
                     day_night = aFlightData.getDaynight();
@@ -562,7 +559,7 @@ public class AddEditActivity extends AppCompatActivity {
             filltypes();
             if (typeList.size()>0){
                 airplane_type_id = 1;
-                tvAirplaneType.setText(getString(R.string.str_type) + " " + typeList.get(0));
+                tvAirplaneType.setText(String.format("%s %s", getString(R.string.str_type), typeList.get(0)));
             }else{
                 airplane_type_id = 0;
                 tvAirplaneType.setText(getString(R.string.str_no_types));
@@ -594,9 +591,6 @@ public class AddEditActivity extends AppCompatActivity {
         }
         if (logTime != 0) {
             strDesc = edtDesc.getText().toString();
-            if (strDesc.equals("")) {
-                strDesc = getString(R.string.str_empty_title);
-            }
             strDate = tvDate.getText().toString();
             if (strDate.equals("")) {
                 strDate = Functions.getDateTime(0, "dd MMM yyyy");
