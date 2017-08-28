@@ -35,7 +35,6 @@
 					android:layout_weight="1"
 					android:layout_height="wrap_content"
 					android:hint="@string/str_logtime"
-                    android:background="@color/colorTextGrayBg"
 					android:padding="2dp"
 					android:textSize="@dimen/font_size"/>
 
@@ -55,7 +54,6 @@
 					android:id="@+id/tvRegNo"
 					android:layout_width="match_parent"
 					android:layout_weight="1"
-                    android:background="@color/colorTextGrayBg"
 					android:layout_height="wrap_content"
 					android:ellipsize="end"
 					android:hint="@string/str_regnum"

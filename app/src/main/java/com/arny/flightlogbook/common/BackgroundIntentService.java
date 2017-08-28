@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.arny.arnylib.utils.DateTimeUtils;
 import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.models.Flight;
@@ -64,7 +65,7 @@ public class BackgroundIntentService extends IntentService {
     private static final String LOG_SHEET_MAIN = "Timelog";
     private static final String TAG = BackgroundIntentService.class.getName();
     private static int operation;
-    private List<Flight> ExportData,TypeData;
+    private List<Flight> ExportData, TypeData;
     private boolean mIsSuccess;
     private boolean mIsStopped;
     private int airplane_type_id;
@@ -73,11 +74,11 @@ public class BackgroundIntentService extends IntentService {
     private FileMetadata remoteMetadata;
     private HashMap<String, String> hashMap;
 
-    public static int getOperation(){
+    public static int getOperation() {
         return operation;
     }
 
-    private void setOperation(int operation){
+    private void setOperation(int operation) {
         BackgroundIntentService.operation = operation;
     }
 
@@ -107,7 +108,7 @@ public class BackgroundIntentService extends IntentService {
         String notice;
         if (mIsSuccess) {
             notice = getApplicationContext().getString(R.string.service_operation_success);
-            switch (operation){
+            switch (operation) {
                 case OPERATION_IMPORT_SD:
                     notice = getApplicationContext().getString(R.string.str_import_success);
                     break;
@@ -126,7 +127,7 @@ public class BackgroundIntentService extends IntentService {
             }
         } else {
             notice = getApplicationContext().getString(R.string.service_operation_fail);
-            switch (operation){
+            switch (operation) {
                 case OPERATION_IMPORT_SD:
                     notice = getApplicationContext().getString(R.string.service_import_fail);
                     break;
@@ -137,10 +138,10 @@ public class BackgroundIntentService extends IntentService {
                     notice = getApplicationContext().getString(R.string.service_download_fail);
                     break;
                 case OPERATION_DBX_UPLOAD:
-                    notice =getApplicationContext().getString(R.string.service_upload_fail);
+                    notice = getApplicationContext().getString(R.string.service_upload_fail);
                     break;
                 case OPERATION_EXPORT:
-                    notice =getApplicationContext().getString(R.string.service_export_fail);
+                    notice = getApplicationContext().getString(R.string.service_export_fail);
                     break;
             }
         }
@@ -162,20 +163,20 @@ public class BackgroundIntentService extends IntentService {
         switch (getOperation()) {
             case OPERATION_IMPORT_SD:
                 String mPath = intent.getStringExtra(EXTRA_KEY_IMPORT_SD_FILENAME);
-                if (Functions.empty(mPath)){
+                if (Functions.empty(mPath)) {
                     readExcelFile(getApplicationContext(), Functions.EXEL_FILE_NAME, true);
-                }else{
+                } else {
                     Uri uri = Uri.fromFile(new File(mPath));
-                    readExcelFile(getApplicationContext(),Functions.getSDFilePath(getApplicationContext(),uri), false);
+                    readExcelFile(getApplicationContext(), Functions.getSDFilePath(getApplicationContext(), uri), false);
                 }
                 break;
             case OPERATION_DBX_SYNC:
                 try {
                     client = DropboxClientFactory.getClient();
-                    if (client !=null){
+                    if (client != null) {
                         getRemoteMetaData();
                         syncFile(remoteMetadata);
-                    }else{
+                    } else {
                         mIsSuccess = false;
                     }
                 } catch (DbxException e) {
@@ -186,10 +187,10 @@ public class BackgroundIntentService extends IntentService {
             case OPERATION_DBX_DOWNLOAD:
                 try {
                     client = DropboxClientFactory.getClient();
-                    if (client !=null){
+                    if (client != null) {
                         getRemoteMetaData();
                         downloadFile(remoteMetadata);
-                    }else{
+                    } else {
                         mIsSuccess = false;
                     }
                 } catch (DbxException e) {
@@ -200,9 +201,9 @@ public class BackgroundIntentService extends IntentService {
             case OPERATION_DBX_UPLOAD:
                 try {
                     client = DropboxClientFactory.getClient();
-                    if (client !=null){
+                    if (client != null) {
                         uploadFile();
-                    }else{
+                    } else {
                         mIsSuccess = false;
                     }
                 } catch (Exception e) {
@@ -222,9 +223,9 @@ public class BackgroundIntentService extends IntentService {
         ListFolderResult result = client.files().listFolder("");
         while (true) {
             for (Metadata metadata : result.getEntries()) {
-                if (metadata.getName().compareToIgnoreCase(Functions.EXEL_FILE_NAME)==0){
-                    if (metadata instanceof FileMetadata){
-                        remoteMetadata = (FileMetadata)metadata;
+                if (metadata.getName().compareToIgnoreCase(Functions.EXEL_FILE_NAME) == 0) {
+                    if (metadata instanceof FileMetadata) {
+                        remoteMetadata = (FileMetadata) metadata;
                         break;
                     }
                 }
@@ -289,11 +290,11 @@ public class BackgroundIntentService extends IntentService {
         int rows = 1;
         for (Flight export : ExportData) {
             airplane_type_id = export.getAirplanetypeid();
-	        Type type = Local.getTypeItem(airplane_type_id, context);
-	        String airplane_type = type.getTypeName();
-	        row = sheet_main.createRow(rows);
+            Type type = Local.getTypeItem(airplane_type_id, context);
+            String airplane_type = type.getTypeName();
+            row = sheet_main.createRow(rows);
             c = row.createCell(0);
-            c.setCellValue(Functions.getDateTime(export.getDatetime(),"dd MMM yyyy"));
+            c.setCellValue(Functions.getDateTime(export.getDatetime(), "dd MMM yyyy"));
             c = row.createCell(1);
             c.setCellValue(Functions.strLogTime(export.getLogtime()));
             c = row.createCell(2);
@@ -348,8 +349,8 @@ public class BackgroundIntentService extends IntentService {
         boolean hasType = false;
         boolean checked = false;
         HSSFWorkbook myWorkBook;
-        String strDate = null,strTime = null,airplane_type = null,reg_no = null,strDesc;
-        int airplane_type_id = 0,day_night = 0,ifr_vfr = 0,flight_type = 0,logTime = 0;
+        String strDate = null, strTime = null, airplane_type = null, reg_no = null, strDesc;
+        int airplane_type_id = 0, day_night = 0, ifr_vfr = 0, flight_type = 0, logTime = 0;
         long mDateTime = 0;
         List<Type> typeList;
         File xlsfile;
@@ -384,55 +385,49 @@ public class BackgroundIntentService extends IntentService {
                 while (cellIter.hasNext()) {
                     HSSFCell myCell = (HSSFCell) cellIter.next();
                     if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "Cell: " + cellCnt);
-                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "Cell Value: " + myCell.toString());
+                    if (BuildConfig.DEBUG)
+                        Log.d(BackgroundIntentService.class.getSimpleName(), "Cell Value: " + myCell.toString());
                     if (rowCnt > 0) {
                         switch (cellCnt) {
                             case 0:
                                 try {
                                     strDate = myCell.toString();
                                 } catch (Exception e) {
-                                    strDate = Functions.getDateTime(0,"dd MMM yyyy");
+                                    strDate = Functions.getDateTime(0, "dd MMM yyyy");
                                     e.printStackTrace();
                                 }
-                                if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "strDate " + strDate);
+                                if (BuildConfig.DEBUG)
+                                    Log.d(BackgroundIntentService.class.getSimpleName(), "strDate " + strDate);
                                 break;
                             case 1:
                                 try {
-                                    if (myCell.getCellType()==Cell.CELL_TYPE_NUMERIC){
+                                    if (myCell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
                                         strTime = Functions.match(myCell.getDateCellValue().toString(), "(\\d{2}:\\d{2})", 1);
-                                    }else{
+                                    } else {
                                         strTime = myCell.toString();
                                     }
                                 } catch (Exception e) {
                                     strTime = "00:00";
                                     e.printStackTrace();
                                 }
-                                if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "strTime " + strTime);
+                                if (BuildConfig.DEBUG)
+                                    Log.d(BackgroundIntentService.class.getSimpleName(), "strTime " + strTime);
                                 break;
                             case 2:
                                 try {
                                     airplane_type = myCell.toString();
-                                    typeList = Local.getTypeList(context);
-                                    for (Type type : typeList) {
-                                        hasType = airplane_type.equals(type.getTypeName());
-                                        if (hasType) {
-                                            airplane_type_id = type.getTypeId();
-                                        }
-                                    }
-                                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "hasType " + hasType);
-                                    if (hasType) {
-                                        checked = true;
+                                    Type type = Local.getType(airplane_type, context);
+                                    if (type != null) {
+                                        airplane_type_id = type.getTypeId();
                                     } else {
-                                        if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "checked " + checked);
-                                        if (!checked) {
-                                            Local.addType(airplane_type, context);
-                                        }
+                                        airplane_type_id = (int) Local.addType(airplane_type, context);
                                     }
                                 } catch (Exception e) {
                                     airplane_type = "";
                                     e.printStackTrace();
                                 }
-                                if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "airplane_type " + airplane_type);
+                                if (BuildConfig.DEBUG)
+                                    Log.d(BackgroundIntentService.class.getSimpleName(), "airplane_type " + airplane_type);
                                 break;
                             case 3:
                                 try {
@@ -441,34 +436,38 @@ public class BackgroundIntentService extends IntentService {
                                     reg_no = "";
                                     e.printStackTrace();
                                 }
-                                if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "reg_no " + reg_no);
+                                if (BuildConfig.DEBUG)
+                                    Log.d(BackgroundIntentService.class.getSimpleName(), "reg_no " + reg_no);
                                 break;
                             case 4:
                                 try {
-                                    day_night = (int)Float.parseFloat(myCell.toString());
+                                    day_night = (int) Float.parseFloat(myCell.toString());
                                 } catch (Exception e) {
                                     day_night = 0;
                                     e.printStackTrace();
                                 }
-                                if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "day_night " + day_night);
+                                if (BuildConfig.DEBUG)
+                                    Log.d(BackgroundIntentService.class.getSimpleName(), "day_night " + day_night);
                                 break;
                             case 5:
                                 try {
-                                    ifr_vfr = (int)Float.parseFloat(myCell.toString());
+                                    ifr_vfr = (int) Float.parseFloat(myCell.toString());
                                 } catch (Exception e) {
                                     ifr_vfr = 0;
                                     e.printStackTrace();
                                 }
-                                if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "ifr_vfr " + ifr_vfr);
+                                if (BuildConfig.DEBUG)
+                                    Log.d(BackgroundIntentService.class.getSimpleName(), "ifr_vfr " + ifr_vfr);
                                 break;
                             case 6:
                                 try {
-                                    flight_type = (int)Float.parseFloat(myCell.toString());
+                                    flight_type = (int) Float.parseFloat(myCell.toString());
                                 } catch (Exception e) {
                                     flight_type = 0;
                                     e.printStackTrace();
                                 }
-                                if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "flight_type " + flight_type);
+                                if (BuildConfig.DEBUG)
+                                    Log.d(BackgroundIntentService.class.getSimpleName(), "flight_type " + flight_type);
                                 break;
                             case 7:
                                 try {
@@ -477,7 +476,8 @@ public class BackgroundIntentService extends IntentService {
                                     strDesc = "";
                                     e.printStackTrace();
                                 }
-                                if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "strDesc " + strDesc);
+                                if (BuildConfig.DEBUG)
+                                    Log.d(BackgroundIntentService.class.getSimpleName(), "strDesc " + strDesc);
                                 try {
                                     logTime = Functions.convertStringToTime(strTime);
                                 } catch (Exception e) {
@@ -485,27 +485,28 @@ public class BackgroundIntentService extends IntentService {
                                 }
                                 String format = "dd MMM yyyy";
                                 try {
-                                    format = Functions.dateFormatChooser(strDate);
+                                    format = DateTimeUtils.dateFormatChooser(strDate);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
                                 try {
-                                    mDateTime = Functions.convertTimeStringToLong(strDate,format);
+                                    mDateTime = DateTimeUtils.convertTimeStringToLong(strDate, format);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
                                 try {
-                                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "strDesc: " + strDesc);
-                                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "strDate: " + strDate);
-                                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "mDateTime: " + mDateTime);
-                                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "strTime: " + strTime);
-                                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "logTime: " + logTime);
-                                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "reg_no: " + reg_no);
-                                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "airplane_type_id: " + airplane_type_id);
-                                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "airplane_type: " + airplane_type);
-                                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "day_night: " + day_night);
-                                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "ifr_vfr: " + ifr_vfr);
-                                    if (BuildConfig.DEBUG) Log.d(BackgroundIntentService.class.getSimpleName(), "flight_type: " + flight_type);
+                                    Log.d(BackgroundIntentService.class.getSimpleName(), "strDesc: " + strDesc);
+                                    Log.d(BackgroundIntentService.class.getSimpleName(), "strDate: " + strDate);
+                                    Log.d(BackgroundIntentService.class.getSimpleName(), "mDateTime: " + mDateTime);
+                                    Log.d(BackgroundIntentService.class.getSimpleName(), "strTime: " + strTime);
+                                    Log.d(BackgroundIntentService.class.getSimpleName(), "logTime: " + logTime);
+                                    Log.d(BackgroundIntentService.class.getSimpleName(), "reg_no: " + reg_no);
+                                    Log.d(BackgroundIntentService.class.getSimpleName(), "airplane_type_id: " + airplane_type_id);
+                                    Log.d(BackgroundIntentService.class.getSimpleName(), "airplane_type: " + airplane_type);
+                                    Log.d(BackgroundIntentService.class.getSimpleName(), "day_night: " + day_night);
+                                    Log.d(BackgroundIntentService.class.getSimpleName(), "ifr_vfr: " + ifr_vfr);
+                                    Log.d(BackgroundIntentService.class.getSimpleName(), "flight_type: " + flight_type);
+                                    Log.d(BackgroundIntentService.class.getSimpleName(), "strDesc: " + strDesc);
                                     Local.addFlight(mDateTime, logTime, reg_no, airplane_type_id, day_night, ifr_vfr, flight_type, strDesc, context);
                                     sendBroadcastIntent(null);
                                 } catch (Exception e) {
@@ -520,11 +521,11 @@ public class BackgroundIntentService extends IntentService {
             }//while (rowIter.hasNext())
             //cursorExport.requery();
             mIsSuccess = true;
-           
+
         } catch (Exception e) {
             e.printStackTrace();
             mIsSuccess = false;
-           
+
         }
     }//readFile
 
@@ -543,12 +544,12 @@ public class BackgroundIntentService extends IntentService {
             } catch (DbxException | IOException e) {
                 e.printStackTrace();
                 mIsSuccess = false;
-               
+
             }
         } catch (Exception e) {
             e.printStackTrace();
             mIsSuccess = false;
-           
+
         }
     }
 
@@ -557,7 +558,7 @@ public class BackgroundIntentService extends IntentService {
             File localFile = new File(getApplicationContext().getExternalFilesDir(null), Functions.EXEL_FILE_NAME);
             String remoteFileName = localFile.getName();
             InputStream inputStream = new FileInputStream(localFile);
-            FileMetadata result =  client.files().uploadBuilder("/" + remoteFileName).withMode(WriteMode.OVERWRITE).uploadAndFinish(inputStream);
+            FileMetadata result = client.files().uploadBuilder("/" + remoteFileName).withMode(WriteMode.OVERWRITE).uploadAndFinish(inputStream);
             mIsSuccess = result != null;
         } catch (DbxException | IOException e) {
             e.printStackTrace();
@@ -585,7 +586,7 @@ public class BackgroundIntentService extends IntentService {
         } catch (Exception e) {
             e.printStackTrace();
             mIsSuccess = false;
-           
+
         }
     }
 

@@ -38,7 +38,7 @@ public class FlightListHolder extends BindableViewHolder<Flight> {
 		int colorbg = ContextCompat.getColor(context, R.color.colorTextGrayBg);
 		int colorTransparent = ContextCompat.getColor(context, R.color.colorTransparent);
 		int color = position % 2 == 0 ? colorbg : colorTransparent;
-//		llItemBlock.setBackgroundColor(color);
+		llItemBlock.setBackgroundColor(color);
 		simpleActionListener = (SimpleActionListener) actionListener;
 		date.setText(Utility.getDateTime(item.getDatetime(), "dd MMM yyyy"));
 		logTime.setText(Utility.strLogTime(item.getLogtime()));

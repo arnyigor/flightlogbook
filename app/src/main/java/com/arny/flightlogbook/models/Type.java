@@ -1,5 +1,6 @@
 package com.arny.flightlogbook.models;
 
+import com.arny.arnylib.database.DBProvider;
 import org.chalup.microorm.annotations.Column;
 public class Type {
 	@Column("type_id")
@@ -22,4 +23,9 @@ public class Type {
 	public void setTypeName(String typeName) {
 		this.typeName = typeName;
 	}
+
+    @Override
+    public String toString() {
+        return DBProvider.getColumns(this);
+    }
 }

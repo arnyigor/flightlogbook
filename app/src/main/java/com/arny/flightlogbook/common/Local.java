@@ -278,10 +278,9 @@ public class Local {
     }
 
     //Get FavList
-    public static List<Type> getTypeItemByTitle(String title, Context context) {
-        String selectQuery = "SELECT  * FROM " + TYPE_TABLE + " where " + COLUMN_AIRPLANE_TYPE + "= " + title;
-        Cursor cursor = DBProvider.queryDB(selectQuery, null, context);
-        return DBProvider.getCursorObjectList(cursor, Type.class);
+    public static Type getType(String title, Context context) {
+        Cursor cursor = DBProvider.selectDB(TYPE_TABLE, null, COLUMN_AIRPLANE_TYPE + " = ?", new String[]{title},null, context);
+        return DBProvider.getCursorObject(cursor, Type.class);
     }
 
     //Get FavList
