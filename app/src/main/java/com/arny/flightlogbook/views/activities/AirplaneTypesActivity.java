@@ -6,6 +6,9 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,7 +19,12 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.*;
 
+import com.arny.arnylib.adapters.SimpleBindableAdapter;
+import com.arny.arnylib.interfaces.AlertDialogListener;
+import com.arny.arnylib.utils.DroidUtils;
 import com.arny.flightlogbook.BuildConfig;
+import com.arny.flightlogbook.adapter.FlightListHolder;
+import com.arny.flightlogbook.adapter.TypeListHolder;
 import com.arny.flightlogbook.common.Local;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.models.Type;
@@ -27,10 +35,10 @@ public class AirplaneTypesActivity extends AppCompatActivity {
     private static final String TAG = "LOG_TAG";
     private Button add, removeall;
     private Context context = this;
-    private ListView typeslistView;
     private List<Type> types;
     private int dlgPosition = 0;
-
+    private RecyclerView recyclerView;
+    private SimpleBindableAdapter<Type, TypeListHolder> typeListAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -46,41 +54,22 @@ public class AirplaneTypesActivity extends AppCompatActivity {
 
         add = (Button) findViewById(R.id.addType);
         removeall = (Button) findViewById(R.id.removeallTypes);
-        typeslistView = (ListView) findViewById(R.id.typelistView);
 
-        typeslistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (BuildConfig.DEBUG) Log.d(AirplaneTypesActivity.class.getSimpleName(), "onItemClick: ");
-                if (BuildConfig.DEBUG) Log.d(AirplaneTypesActivity.class.getSimpleName(), "View = " + view);
-                if (BuildConfig.DEBUG) Log.d(AirplaneTypesActivity.class.getSimpleName(), "position = " + position);
-                if (BuildConfig.DEBUG) Log.d(AirplaneTypesActivity.class.getSimpleName(), "id = " + id);
-            }
-        });
+        recyclerView = (RecyclerView) findViewById(R.id.typelistView);
+        recyclerView.setLayoutManager( new LinearLayoutManager(context));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        typeListAdapter = new SimpleBindableAdapter<>(context,R.layout.typeitem, TypeListHolder.class);
 
         removeall.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-                alertDialogBuilder.setTitle(getString(R.string.str_delete) + "?");
-                // set dialog message
-                alertDialogBuilder
-                        .setCancelable(false)
-                        .setPositiveButton(getString(R.string.str_ok), new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                Local.removeAllTypes(context);
-                                types = Local.getTypeList(context);
-                                typeslistView.setAdapter(new TypesAdapter());
-                                setVisbltyBtnRemAll();
-                            }
-                        })
-                        .setNegativeButton(getString(R.string.str_cancel), new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                            }
-                        });
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                alertDialog.show();
+                DroidUtils.alertConfirmDialog(context, getString(R.string.str_delete), new AlertDialogListener() {
+                    @Override
+                    public void onConfirm() {
+                        Local.removeAllTypes(context);
+                        setVisbltyBtnRemAll();
+                    }
+                });
             }
         });
 
@@ -115,7 +104,9 @@ public class AirplaneTypesActivity extends AppCompatActivity {
 //        return true;
 //    }
 
+    //str_add_airplane_types
     public void DlgAddType() {
+        DroidUtils.in//// TODO: 28.08.2017  
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         LinearLayout layout = new LinearLayout(this);
         final EditText edtTypeInput = new EditText(this);
@@ -136,7 +127,6 @@ public class AirplaneTypesActivity extends AppCompatActivity {
                 if (!edtTypeInput.getText().toString().equals("") && edtTypeInput.getText().toString().length() > 0) {
                     Local.addType(edtTypeInput.getText().toString(), context);
                     types = Local.getTypeList(context);
-                    typeslistView.setAdapter(new TypesAdapter());
                     setVisbltyBtnRemAll();
                 } else {
                     Toast.makeText(getApplicationContext(), R.string.str_alarm_add_airplane_type, Toast.LENGTH_LONG).show();
@@ -169,7 +159,6 @@ public class AirplaneTypesActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 Local.updateType(edtTypeInput.getText().toString(), types.get(dlgPosition).getTypeId());
                 types = Local.getTypeList(context);
-                typeslistView.setAdapter(new TypesAdapter());
                 setVisbltyBtnRemAll();
             }
         });
@@ -180,87 +169,12 @@ public class AirplaneTypesActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (BuildConfig.DEBUG) Log.d(AirplaneTypesActivity.class.getSimpleName(), "onResume ");
+        types = Local.getTypeList(context);
+        typeListAdapter.addAll(types);
         setVisbltyBtnRemAll();
-        typeslistView.setAdapter(new TypesAdapter());
     }
     private void setVisbltyBtnRemAll(){
-        types = Local.getTypeList(context);
         if (types.size() < 1) removeall.setEnabled(false);
         else removeall.setEnabled(true);
-    }
-    public class TypesAdapter extends BaseAdapter {
-
-        LayoutInflater mInflater;
-
-        TypesAdapter() {
-            mInflater = LayoutInflater.from(context);
-        }
-
-        @Override
-        public int getCount() {
-            return Local.getTypeCount(context);
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return Local.getTypeItem(types.get(position).getTypeId(), context);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return types.get(position).getTypeId();
-        }
-
-        @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
-
-            if (convertView == null) {
-                convertView = mInflater.inflate(R.layout.typeitem, null);
-            }
-            final TextView typeText = (TextView) convertView.findViewById(R.id.nameText);
-            typeText.setText(String.format("%s:%d", getString(R.string.str_airplane_type), types.get(position).getTypeId()));
-            final ImageButton edit = (ImageButton) convertView.findViewById(R.id.edit);
-            edit.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    DlgEdtType(position);
-                }
-            });
-            final ImageButton delete = (ImageButton) convertView.findViewById(R.id.delete);
-            delete.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-                    alertDialogBuilder.setTitle(getString(R.string.str_delete) + "?");
-                    // set dialog message
-                    alertDialogBuilder
-                            .setCancelable(false)
-                            .setPositiveButton(getString(R.string.str_ok), new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    Local.removeType(types.get(position).getTypeId(), context);
-                                    notifyDataSetChanged();
-									/*types = db.getDataList();
-									listView.setAdapter(new ViewAdapter());*/
-                                    setVisbltyBtnRemAll();
-                                }
-                            })
-                            .setNegativeButton(getString(R.string.str_cancel), new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    dialog.cancel();
-                                }
-                            });
-                    AlertDialog alertDialog = alertDialogBuilder.create();
-                    alertDialog.show();
-                }
-            });
-	        /*convertView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (BuildConfig.DEBUG) Log.d(AirplaneTypesActivity.class.getSimpleName(), "getId: " + types.get(position).getAirplanetypeid());
-                }
-            });*/
-            return convertView;
-        }
     }
 }
