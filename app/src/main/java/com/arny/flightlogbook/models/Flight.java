@@ -1,22 +1,27 @@
 package com.arny.flightlogbook.models;
 
-public class DataList {
+import com.arny.arnylib.database.DBProvider;
+import org.chalup.microorm.annotations.Column;
+public class Flight {
+    @Column("_id")
     private int id;
+    @Column("datetime")
     private long datetime;
+    @Column("log_time")
     private int logtime;
+    @Column("reg_no")
     private String reg_no;
-    private int airplanetype;
     private String airplanetypetitle;
+    @Column("airplane_type")
     private int airplanetypeid;
+    @Column("day_night")
     private int daynight;
+    @Column("ifr_vfr")
     private int ifrvfr;
+    @Column("flight_type")
     private int flighttype;
+    @Column("description")
     private String description;
-
-    // Empty constructor
-    public DataList(){
-
-    }
 
     public int getId(){
         return this.id;
@@ -48,14 +53,6 @@ public class DataList {
 
     public void setReg_no(String reg_no){
         this.reg_no = reg_no;
-    }
-
-    public int getAirplanetype(){
-        return this.airplanetype;
-    }
-
-    public void setAirplanetype(int airplanetype){
-        this.airplanetype = airplanetype;
     }
 
     public String getAirplanetypetitle(){
@@ -104,5 +101,10 @@ public class DataList {
 
     public int getAirplanetypeid(){
         return this.airplanetypeid;
+    }
+
+    @Override
+    public String toString() {
+        return DBProvider.getColumns(this);
     }
 }

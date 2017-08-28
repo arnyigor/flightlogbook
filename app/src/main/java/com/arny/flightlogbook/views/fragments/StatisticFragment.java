@@ -4,18 +4,16 @@ import android.app.DatePickerDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
-
 import com.arny.flightlogbook.R;
-import com.arny.flightlogbook.models.DataList;
-import com.arny.flightlogbook.models.DatabaseHandler;
-import com.arny.flightlogbook.models.Functions;
+import com.arny.flightlogbook.common.Local;
+import com.arny.flightlogbook.models.Flight;
+import com.arny.flightlogbook.common.Functions;
 import com.arny.flightlogbook.models.Statistic;
 
 import java.util.ArrayList;
@@ -23,10 +21,7 @@ import java.util.Calendar;
 import java.util.List;
 
 public class StatisticFragment extends Fragment {
-    private static final String LIST_STATE = "listState";
-    private Parcelable mListState = null;
-    private DatabaseHandler db;
-    private List<DataList> FlightData;
+    private List<Flight> FlightData;
     private List<Statistic> statistics;
     private Context ctx;
     private TextView tvDateFrom,tvDateTo;
@@ -41,7 +36,6 @@ public class StatisticFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.statistic_fragment, container, false);
         ctx = container.getContext();
-        db = new DatabaseHandler(ctx);
         statAdapter = new StatisticAdapter();
         initUI(view);
         startInitDateTime();
@@ -115,7 +109,7 @@ public class StatisticFragment extends Fragment {
         @Override
         protected List<Statistic> doInBackground(Void... params) {
             try {
-                return db.getStatistic(getFilterQuery());
+                return Local.getStatistic(getFilterQuery(), ctx);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -132,7 +126,7 @@ public class StatisticFragment extends Fragment {
 
     //начальные данные времени
     private void startInitDateTime() {
-        FlightData = db.getFlightListByDate(ctx);
+        FlightData = Local.getFlightListByDate(ctx);
         if (FlightData.size()>0){
             startdatetime= FlightData.get(0).getDatetime();
             enddatetime = FlightData.get(FlightData.size()-1).getDatetime();

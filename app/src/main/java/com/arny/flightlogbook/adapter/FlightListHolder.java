@@ -5,13 +5,11 @@ import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import com.arny.arnylib.adapters.BindableViewHolder;
 import com.arny.arnylib.utils.Utility;
 import com.arny.flightlogbook.R;
-import com.arny.flightlogbook.models.DataList;
-public class FlightListHolder extends BindableViewHolder<DataList> {
+import com.arny.flightlogbook.models.Flight;
+public class FlightListHolder extends BindableViewHolder<Flight> {
 	private TextView date;
 	private TextView logTime;
 	private TextView tvType;
@@ -34,13 +32,13 @@ public class FlightListHolder extends BindableViewHolder<DataList> {
 	}
 
 	@Override
-	public void bindView(Context context, final int position, final DataList item, ActionListener actionListener) {
+	public void bindView(Context context, final int position, final Flight item, ActionListener actionListener) {
 		super.bindView(context,position, item, actionListener);
 		this.pos = position;
 		int colorbg = ContextCompat.getColor(context, R.color.colorTextGrayBg);
 		int colorTransparent = ContextCompat.getColor(context, R.color.colorTransparent);
 		int color = position % 2 == 0 ? colorbg : colorTransparent;
-		llItemBlock.setBackgroundColor(color);
+//		llItemBlock.setBackgroundColor(color);
 		simpleActionListener = (SimpleActionListener) actionListener;
 		date.setText(Utility.getDateTime(item.getDatetime(), "dd MMM yyyy"));
 		logTime.setText(Utility.strLogTime(item.getLogtime()));

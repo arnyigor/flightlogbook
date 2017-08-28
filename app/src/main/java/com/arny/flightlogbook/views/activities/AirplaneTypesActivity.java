@@ -17,8 +17,7 @@ import android.view.ViewGroup;
 import android.widget.*;
 
 import com.arny.flightlogbook.BuildConfig;
-import com.arny.flightlogbook.models.DataList;
-import com.arny.flightlogbook.models.DatabaseHandler;
+import com.arny.flightlogbook.common.Local;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.models.Type;
 
@@ -28,9 +27,8 @@ public class AirplaneTypesActivity extends AppCompatActivity {
     private static final String TAG = "LOG_TAG";
     private Button add, removeall;
     private Context context = this;
-    private DatabaseHandler db;
     private ListView typeslistView;
-    private List<DataList> ListTypes;
+    private List<Type> types;
     private int dlgPosition = 0;
 
 
@@ -45,7 +43,6 @@ public class AirplaneTypesActivity extends AppCompatActivity {
         }
         toolbar.setTitle(R.string.str_airplane_types);
         toolbar.setTitleTextColor(ContextCompat.getColor(this,R.color.colorText));
-        db = new DatabaseHandler(this);
 
         add = (Button) findViewById(R.id.addType);
         removeall = (Button) findViewById(R.id.removeallTypes);
@@ -71,8 +68,8 @@ public class AirplaneTypesActivity extends AppCompatActivity {
                         .setCancelable(false)
                         .setPositiveButton(getString(R.string.str_ok), new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                db.removeAllTypes();
-                                ListTypes = db.getTypeList();
+                                Local.removeAllTypes(context);
+                                types = Local.getTypeList(context);
                                 typeslistView.setAdapter(new TypesAdapter());
                                 setVisbltyBtnRemAll();
                             }
@@ -137,8 +134,8 @@ public class AirplaneTypesActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (!edtTypeInput.getText().toString().equals("") && edtTypeInput.getText().toString().length() > 0) {
-                    db.addType(edtTypeInput.getText().toString());
-                    ListTypes = db.getTypeList();
+                    Local.addType(edtTypeInput.getText().toString(), context);
+                    types = Local.getTypeList(context);
                     typeslistView.setAdapter(new TypesAdapter());
                     setVisbltyBtnRemAll();
                 } else {
@@ -154,7 +151,7 @@ public class AirplaneTypesActivity extends AppCompatActivity {
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         LinearLayout layout = new LinearLayout(this);
         final EditText edtTypeInput = new EditText(this);
-	    Type type = DatabaseHandler.getTypeItem(ListTypes.get(dlgPosition).getAirplanetypeid(), context);;
+	    Type type = Local.getTypeItem(types.get(dlgPosition).getTypeId(), context);;
 	    edtTypeInput.setText(type.getTypeName());
         final ViewGroup.LayoutParams lparams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         edtTypeInput.setLayoutParams(lparams);
@@ -170,8 +167,8 @@ public class AirplaneTypesActivity extends AppCompatActivity {
         alert.setPositiveButton(getString(R.string.str_ok), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                db.updateType(edtTypeInput.getText().toString(), ListTypes.get(dlgPosition).getAirplanetypeid());
-                ListTypes = db.getTypeList();
+                Local.updateType(edtTypeInput.getText().toString(), types.get(dlgPosition).getTypeId());
+                types = Local.getTypeList(context);
                 typeslistView.setAdapter(new TypesAdapter());
                 setVisbltyBtnRemAll();
             }
@@ -188,8 +185,8 @@ public class AirplaneTypesActivity extends AppCompatActivity {
         typeslistView.setAdapter(new TypesAdapter());
     }
     private void setVisbltyBtnRemAll(){
-        ListTypes = db.getTypeList();
-        if (ListTypes.size() < 1) removeall.setEnabled(false);
+        types = Local.getTypeList(context);
+        if (types.size() < 1) removeall.setEnabled(false);
         else removeall.setEnabled(true);
     }
     public class TypesAdapter extends BaseAdapter {
@@ -202,17 +199,17 @@ public class AirplaneTypesActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return db.getTypeCount();
+            return Local.getTypeCount(context);
         }
 
         @Override
         public Object getItem(int position) {
-            return DatabaseHandler.getTypeItem(ListTypes.get(position).getAirplanetypeid(), context);
+            return Local.getTypeItem(types.get(position).getTypeId(), context);
         }
 
         @Override
         public long getItemId(int position) {
-            return ListTypes.get(position).getAirplanetypeid();
+            return types.get(position).getTypeId();
         }
 
         @Override
@@ -222,7 +219,7 @@ public class AirplaneTypesActivity extends AppCompatActivity {
                 convertView = mInflater.inflate(R.layout.typeitem, null);
             }
             final TextView typeText = (TextView) convertView.findViewById(R.id.nameText);
-            typeText.setText(getString(R.string.str_airplane_type) + ":" + ListTypes.get(position).getAirplanetypetitle());
+            typeText.setText(String.format("%s:%d", getString(R.string.str_airplane_type), types.get(position).getTypeId()));
             final ImageButton edit = (ImageButton) convertView.findViewById(R.id.edit);
             edit.setOnClickListener(new OnClickListener() {
                 @Override
@@ -241,9 +238,9 @@ public class AirplaneTypesActivity extends AppCompatActivity {
                             .setCancelable(false)
                             .setPositiveButton(getString(R.string.str_ok), new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-                                    db.removeType(ListTypes.get(position).getAirplanetypeid());
+                                    Local.removeType(types.get(position).getTypeId(), context);
                                     notifyDataSetChanged();
-									/*ListTypes = db.getDataList();
+									/*types = db.getDataList();
 									listView.setAdapter(new ViewAdapter());*/
                                     setVisbltyBtnRemAll();
                                 }
@@ -260,7 +257,7 @@ public class AirplaneTypesActivity extends AppCompatActivity {
 	        /*convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (BuildConfig.DEBUG) Log.d(AirplaneTypesActivity.class.getSimpleName(), "getId: " + ListTypes.get(position).getAirplanetypeid());
+                    if (BuildConfig.DEBUG) Log.d(AirplaneTypesActivity.class.getSimpleName(), "getId: " + types.get(position).getAirplanetypeid());
                 }
             });*/
             return convertView;

@@ -24,26 +24,22 @@ import com.arny.arnylib.interfaces.AlertDialogListener;
 import com.arny.arnylib.utils.DroidUtils;
 import com.arny.flightlogbook.adapter.FlightListHolder;
 import com.arny.flightlogbook.R;
-import com.arny.flightlogbook.models.BackgroundIntentService;
-import com.arny.flightlogbook.models.Functions;
+import com.arny.flightlogbook.common.Local;
+import com.arny.flightlogbook.common.BackgroundIntentService;
+import com.arny.flightlogbook.common.Functions;
 import com.arny.flightlogbook.views.activities.AddEditActivity;
-import com.arny.flightlogbook.models.DataList;
-import com.arny.flightlogbook.models.DatabaseHandler;
+import com.arny.flightlogbook.models.Flight;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FlightList extends Fragment {
-	private SimpleBindableAdapter<DataList, FlightListHolder> flightListAdapter;
-    private DatabaseHandler db;
+public class FlightListFragment extends Fragment {
+	private SimpleBindableAdapter<Flight, FlightListHolder> flightListAdapter;
     private boolean finishOperation = true;
-	private List<DataList> FlightData = new ArrayList<>();
+	private List<Flight> FlightData = new ArrayList<>();
 	private int ctxPos;
     private Context context;
     private TextView tvTotalTime;
-
-    public FlightList() {
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -58,21 +54,21 @@ public class FlightList extends Fragment {
             }
         });
         tvTotalTime = (TextView) view.findViewById(R.id.tvTotalTime);
-	    RecyclerView listView = (RecyclerView) view.findViewById(R.id.listView);
-	    listView.setLayoutManager( new LinearLayoutManager(context));
-	    listView.setItemAnimator(new DefaultItemAnimator());
+	    RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.listView);
+	    recyclerView.setLayoutManager( new LinearLayoutManager(context));
+	    recyclerView.setItemAnimator(new DefaultItemAnimator());
 	    flightListAdapter = new SimpleBindableAdapter<>(context,R.layout.flight_list_item, FlightListHolder.class);
 	    flightListAdapter.setActionListener(new FlightListHolder.SimpleActionListener() {
 
 		    @Override
 		    public void OnItemClickListener(int position, Object Item) {
-			    Log.i(FlightList.class.getSimpleName(), "OnItemClickListener: position = " + position);
-			    Log.i(FlightList.class.getSimpleName(), "OnItemClickListener: Item = " + Item);
+			    Log.i(FlightListFragment.class.getSimpleName(), "OnItemClickListener: position = " + position);
+			    Log.i(FlightListFragment.class.getSimpleName(), "OnItemClickListener: Item = " + Item);
 			    showMenuDialog(position);
 		    }
 	    });
-	    listView.setAdapter(flightListAdapter);
-        db = new DatabaseHandler(context);
+	    recyclerView.setAdapter(flightListAdapter);
+        DroidUtils.runLayoutAnimation(recyclerView, R.anim.layout_animation_fall_down);
         return view;
     }
 
@@ -90,7 +86,6 @@ public class FlightList extends Fragment {
     private void initFlights() {
         LoadFlights lf = new LoadFlights();
         lf.execute();
-        displayTotalTime();
     }
 
    private class LoadFlights extends AsyncTask<Void, Void, Void> {
@@ -103,7 +98,7 @@ public class FlightList extends Fragment {
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                FlightData = db.getFlightListByDate(context);
+                FlightData = Local.getFlightListByDate(context);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -130,7 +125,7 @@ public class FlightList extends Fragment {
                     case 0:
                         try {
                             Intent intent = new Intent(context, AddEditActivity.class);
-                            intent.putExtra(DatabaseHandler.COLUMN_ID, FlightData.get(ctxPos).getId());
+                            intent.putExtra(Local.COLUMN_ID, FlightData.get(ctxPos).getId());
                             startActivity(intent);
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -140,9 +135,8 @@ public class FlightList extends Fragment {
 	                    DroidUtils.alertConfirmDialog(context, getString(R.string.str_delete), new AlertDialogListener() {
 		                    @Override
 		                    public void onConfirm() {
-			                    db.removeFlight(FlightData.get(ctxPos).getId());
-			                    LoadFlights lf = new LoadFlights();
-			                    lf.execute();
+			                    Local.removeFlight(FlightData.get(ctxPos).getId(), context);
+			                    flightListAdapter.removeChild(ctxPos);
 		                    }
 	                    });
                         break;
@@ -150,7 +144,7 @@ public class FlightList extends Fragment {
 	                    DroidUtils.alertConfirmDialog(context, getString(R.string.str_clearall), new AlertDialogListener() {
 		                    @Override
 		                    public void onConfirm() {
-			                    db.removeAllFlights();
+			                    Local.removeAllFlights(context);
 			                    LoadFlights lf = new LoadFlights();
 			                    lf.execute();
 		                    }
@@ -163,7 +157,7 @@ public class FlightList extends Fragment {
     }
 
     private void displayTotalTime() {
-        tvTotalTime.setText(String.format("%s %s", context.getResources().getString(R.string.str_totaltime), Functions.strLogTime(db.getFlightsTime())));
+        tvTotalTime.setText(String.format("%s %s", context.getResources().getString(R.string.str_totaltime), Functions.strLogTime(Local.getFlightsTime(context))));
     }
 
     @Override

@@ -6,6 +6,6 @@ public class App extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		DBProvider.initDB(getApplicationContext(),"PilotDB",12);
+		DBProvider.initDB(getApplicationContext(),"PilotDB",13);
 	}
 }

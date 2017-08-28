@@ -1,12 +1,11 @@
-package com.arny.flightlogbook.models;
+package com.arny.flightlogbook.network;
 
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Environment;
-import android.util.Log;
 
+import com.arny.flightlogbook.common.Functions;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.FileMetadata;

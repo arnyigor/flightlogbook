@@ -43,7 +43,7 @@
             android:label="@string/str_settings" />
 
         <service
-            android:name=".models.BackgroundIntentService"
+            android:name=".common.BackgroundIntentService"
             android:enabled="true"
             android:exported="false"
             android:label="BackgroundIntentService" />

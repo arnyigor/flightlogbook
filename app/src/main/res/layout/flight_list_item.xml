@@ -4,12 +4,13 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		xmlns:app="http://schemas.android.com/apk/res-auto"
-		app:cardUseCompatPadding="true" >
+		app:cardUseCompatPadding="true"
+        app:cardElevation="5dp"
+        app:cardCornerRadius="2dp">
 
 	<LinearLayout
 			android:focusable="true"
 			android:clickable="true"
-			android:padding="5dp"
 			android:id="@+id/llItemBlock"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
@@ -34,6 +35,7 @@
 					android:layout_weight="1"
 					android:layout_height="wrap_content"
 					android:hint="@string/str_logtime"
+                    android:background="@color/colorTextGrayBg"
 					android:padding="2dp"
 					android:textSize="@dimen/font_size"/>
 
@@ -53,6 +55,7 @@
 					android:id="@+id/tvRegNo"
 					android:layout_width="match_parent"
 					android:layout_weight="1"
+                    android:background="@color/colorTextGrayBg"
 					android:layout_height="wrap_content"
 					android:ellipsize="end"
 					android:hint="@string/str_regnum"

@@ -24,11 +24,11 @@ import android.widget.Toast;
 
 import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
-import com.arny.flightlogbook.models.BackgroundIntentService;
-import com.arny.flightlogbook.models.Functions;
+import com.arny.flightlogbook.common.BackgroundIntentService;
+import com.arny.flightlogbook.common.Functions;
 import com.arny.flightlogbook.models.Preferences;
 import com.arny.flightlogbook.views.fragments.DropboxSyncFragment;
-import com.arny.flightlogbook.views.fragments.FlightList;
+import com.arny.flightlogbook.views.fragments.FlightListFragment;
 import com.arny.flightlogbook.views.fragments.StatisticFragment;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.materialdrawer.Drawer;
@@ -105,7 +105,7 @@ public class HomeActivity extends AppCompatActivity {
         Fragment fragment = null;
         switch (position) {
             case MENU_FLIGHTS:
-                fragment = new FlightList();
+                fragment = new FlightListFragment();
                 toolbar.setTitle(getString(R.string.fragment_logbook));
                 break;
             case MENU_STATS:

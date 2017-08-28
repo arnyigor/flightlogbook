@@ -22,11 +22,10 @@ import android.widget.Toast;
 
 import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
-import com.arny.flightlogbook.models.BackgroundIntentService;
-import com.arny.flightlogbook.models.DropboxClientFactory;
-import com.arny.flightlogbook.models.Functions;
-import com.arny.flightlogbook.models.GetCurrentAccountTask;
-import com.arny.flightlogbook.views.activities.HomeActivity;
+import com.arny.flightlogbook.common.BackgroundIntentService;
+import com.arny.flightlogbook.network.DropboxClientFactory;
+import com.arny.flightlogbook.common.Functions;
+import com.arny.flightlogbook.network.GetCurrentAccountTask;
 import com.dropbox.core.android.Auth;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.users.FullAccount;

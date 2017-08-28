@@ -20,10 +20,10 @@ import android.view.*;
 import android.widget.*;
 
 import com.arny.flightlogbook.BuildConfig;
-import com.arny.flightlogbook.models.DataList;
-import com.arny.flightlogbook.models.DatabaseHandler;
+import com.arny.flightlogbook.common.Local;
+import com.arny.flightlogbook.models.Flight;
 import com.arny.flightlogbook.R;
-import com.arny.flightlogbook.models.Functions;
+import com.arny.flightlogbook.common.Functions;
 import com.arny.flightlogbook.models.Type;
 
 import java.math.BigDecimal;
@@ -35,15 +35,13 @@ import java.util.*;
 public class AddEditActivity extends AppCompatActivity {
     private static final String LOGTIME_STATE_KEY = "com.arny.flightlogbook.extra.instance.time";
     private static final int DIALOG_DATE = 101;
-    private static final String TAG = "LOG_TAG";
-    private List<DataList> FlightData,ListType;
-    private DatabaseHandler db;
+    private List<Flight> FlightData;
     private Calendar mCalendar;
     private LinearLayout motoCont;
     private View.OnClickListener editMotoBtn;
     private String strDesc, strDate, strTime, strMonth, airplane_type, reg_no;
     private int mYear, mMonth, mDay, day_night, ifr_vfr, flight_type, logTime, logHours, logMinutes, airplane_type_id;
-    private long mDateTime, mTypeID;
+    private long mDateTime,mTypeID;
     private int mRowId;
     private float mMotoStart, mMotoFinish, mMotoResult;
     private TextInputLayout regNoLayout;
@@ -68,7 +66,6 @@ public class AddEditActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
         motoCheckPref = Functions.getPrefs(getBaseContext()).getBoolean("motoCheckPref", false);
-        db = new DatabaseHandler(this);
         edtDesc = (TextInputEditText) findViewById(R.id.edtDesc);
         motoCont = (LinearLayout) findViewById(R.id.motoContainer);
         tvDate = (TextView) findViewById(R.id.edtDate);
@@ -86,12 +83,10 @@ public class AddEditActivity extends AppCompatActivity {
         mYear = mCalendar.get(Calendar.YEAR);
         mMonth = mCalendar.get(Calendar.MONTH);
         mDay = mCalendar.get(Calendar.DAY_OF_MONTH);
-
-        db = new DatabaseHandler(this);
         try {
             Bundle extras = getIntent().getExtras();
             if (extras !=null){
-                mRowId = extras.getInt(DatabaseHandler.COLUMN_ID);
+                mRowId = extras.getInt(Local.COLUMN_ID);
                 editable = mRowId != 0;
             }
         } catch (Exception e) {
@@ -249,9 +244,9 @@ public class AddEditActivity extends AppCompatActivity {
     private void filltypes() {
         try {
             typeList = new ArrayList<>();
-            ListType = db.getTypeList();
-            for (DataList type : ListType) {
-                typeList.add(type.getAirplanetypetitle());
+            List<Type> types = Local.getTypeList(AddEditActivity.this);
+            for (Type type : types) {
+                typeList.add(type.getTypeName());
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -265,7 +260,7 @@ public class AddEditActivity extends AppCompatActivity {
         typesBuilder.setItems(cs, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
                 airplane_type = typeList.get(item);
-	            Type type = DatabaseHandler.getTypeItem(item + 1, AddEditActivity.this);//нумерация списка с нуля,в базе с 1цы
+	            Type type = Local.getTypeItem(item + 1, AddEditActivity.this);//нумерация списка с нуля,в базе с 1цы
                 airplane_type_id = type.getTypeId();
                 tvAirplaneType.setText(String.format("%s %s", getString(R.string.str_type), typeList.get(item)));
             }
@@ -506,7 +501,7 @@ public class AddEditActivity extends AppCompatActivity {
                     Toast.makeText(getBaseContext(), getString(R.string.str_error_add_airplane_types), Toast.LENGTH_SHORT).show();
                 } else {
                     airplane_type = edtTypeInput.getText().toString();
-                    mTypeID = db.addType(airplane_type);
+                    mTypeID = Local.addType(airplane_type, AddEditActivity.this);
                     fillInputs();
                 }
             }
@@ -517,8 +512,8 @@ public class AddEditActivity extends AppCompatActivity {
     private void fillInputs() {
         if (mRowId != 0) {
             try {
-                FlightData = db.getFlightItem(mRowId);
-                for (DataList aFlightData : FlightData) {
+                FlightData = Local.getFlightItem(mRowId, AddEditActivity.this);
+                for (Flight aFlightData : FlightData) {
                     strDesc = aFlightData.getDescription();
                     edtDesc.setText(strDesc);
                     mDateTime = aFlightData.getDatetime();
@@ -531,7 +526,7 @@ public class AddEditActivity extends AppCompatActivity {
                     edtRegNo.setText(reg_no);
                     edtTime.setText(Functions.strLogTime(logTime));
                     airplane_type_id = aFlightData.getAirplanetypeid();
-                    String airplType = DatabaseHandler.getTypeItem(airplane_type_id, AddEditActivity.this).getTypeName();
+                    String airplType = Local.getTypeItem(airplane_type_id, AddEditActivity.this).getTypeName();
                     String airTypesText = airplType == null ? getString(R.string.str_type_empty):getString(R.string.str_type)+ " " + airplType;
                     tvAirplaneType.setText(airTypesText);
                     day_night = aFlightData.getDaynight();
@@ -601,10 +596,10 @@ public class AddEditActivity extends AppCompatActivity {
             ifr_vfr = (int) spinVfrIfr.getSelectedItemId();
             flight_type = (int) spinFlightType.getSelectedItemId();
             if (mRowId == 0) {
-                long res = db.addFlight(mDateTime, logTime, reg_no, airplane_type_id, day_night, ifr_vfr, flight_type, strDesc);
+                long res = Local.addFlight(mDateTime, logTime, reg_no, airplane_type_id, day_night, ifr_vfr, flight_type, strDesc, AddEditActivity.this);
                 return res > 0;
             } else {
-                return db.updateFlight(mDateTime, logTime, reg_no, airplane_type_id, day_night, ifr_vfr, flight_type, strDesc, (int) mRowId);//тут тоже делаем сужение типа,странно,что для вставки нужен int,а выдает long
+                return Local.updateFlight(mDateTime, logTime, reg_no, airplane_type_id, day_night, ifr_vfr, flight_type, strDesc, (int) mRowId, AddEditActivity.this);//тут тоже делаем сужение типа,странно,что для вставки нужен int,а выдает long
             }
         } else {
             edtTime.setText("");

@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.models;
+package com.arny.flightlogbook.common;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -13,14 +13,11 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 import android.widget.Toast;
 
-import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
 
 import java.io.File;
-import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
