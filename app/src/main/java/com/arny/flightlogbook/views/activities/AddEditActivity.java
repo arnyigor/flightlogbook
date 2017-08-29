@@ -350,10 +350,6 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
                 logTime = setLogTimefromMoto(mMotoResult);
                 logHours = logTime / 60;
                 logMinutes = logTime % 60;
-                Log.d(AddEditActivity.class.getSimpleName(), "onClick: logTime = " + logTime);
-                Log.d(AddEditActivity.class.getSimpleName(), "onClick: logHours = " + logHours);
-                if (BuildConfig.DEBUG)
-                    Log.d(AddEditActivity.class.getSimpleName(), "onClick: logMinutes = " + logMinutes);
                 edtTime.setText(String.format("%s:%s", Functions.pad(logHours), Functions.pad(logMinutes)));
             }
         }).setNegativeButton(getString(R.string.str_cancel), new DialogInterface.OnClickListener() {
