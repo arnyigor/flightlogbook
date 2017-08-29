@@ -40,7 +40,10 @@ public class FlightListHolder extends BindableViewHolder<Flight> {
 		int color = position % 2 == 0 ? colorbg : colorTransparent;
 		llItemBlock.setBackgroundColor(color);
 		simpleActionListener = (SimpleActionListener) actionListener;
-		date.setText(Utility.getDateTime(item.getDatetime(), "dd MMM yyyy"));
+        long datetime = item.getDatetime();
+        if (datetime > 0) {
+            date.setText(Utility.getDateTime(datetime, "dd MMM yyyy"));
+        }
 		logTime.setText(Utility.strLogTime(item.getLogtime()));
 		tvType.setText(item.getAirplanetypetitle());
 		tvRegNo.setText(item.getReg_no());

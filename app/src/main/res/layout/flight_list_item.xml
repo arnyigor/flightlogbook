@@ -30,17 +30,18 @@
 			<TextView
 					android:id="@+id/tvLogTime"
 					android:layout_width="match_parent"
-					android:layout_weight="1"
+					android:layout_weight="1.2"
                     android:gravity="center_horizontal"
 					android:layout_height="wrap_content"
 					android:hint="@string/str_logtime"
+                    android:textStyle="bold"
 					android:padding="2dp"
 					android:textSize="@dimen/font_size"/>
 
 			<TextView
 					android:id="@+id/tvType"
 					android:layout_width="match_parent"
-					android:layout_weight="1"
+					android:layout_weight="1.05"
                     android:gravity="center_horizontal"
 					android:layout_height="wrap_content"
 					android:ellipsize="end"
@@ -53,7 +54,7 @@
 			<TextView
 					android:id="@+id/tvRegNo"
 					android:layout_width="match_parent"
-					android:layout_weight="1"
+					android:layout_weight="1.05"
 					android:layout_height="wrap_content"
 					android:ellipsize="end"
                     android:gravity="left"

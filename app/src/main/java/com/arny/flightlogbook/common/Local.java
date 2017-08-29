@@ -243,7 +243,7 @@ public class Local {
 
     //Get FavList
     public static List<Flight> getFlightListByDate(Context context) {
-        Cursor cursor = DBProvider.selectDB(MAIN_TABLE,null,null,null,"datetime", context);
+        Cursor cursor = DBProvider.selectDB(MAIN_TABLE,null,null,null,"datetime DESC", context);
         ArrayList<Flight> cursorObjectList = DBProvider.getCursorObjectList(cursor, Flight.class);
         for (Flight flight : cursorObjectList) {
             Type typeItem = getTypeItem(flight.getAirplanetypeid(), context);

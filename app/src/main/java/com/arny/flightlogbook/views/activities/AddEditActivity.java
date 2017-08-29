@@ -2,13 +2,9 @@ package com.arny.flightlogbook.views.activities;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.DatePickerDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.SQLException;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
@@ -20,36 +16,26 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
-
-import butterknife.BindView;
 import com.arny.arnylib.interfaces.InputDialogListener;
-import com.arny.arnylib.utils.DateTimeUtils;
-import com.arny.arnylib.utils.DroidUtils;
-import com.arny.arnylib.utils.ToastMaker;
-import com.arny.arnylib.utils.Utility;
+import com.arny.arnylib.utils.*;
 import com.arny.flightlogbook.BuildConfig;
-import com.arny.flightlogbook.common.Local;
-import com.arny.flightlogbook.models.Flight;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.common.Functions;
+import com.arny.flightlogbook.common.Local;
+import com.arny.flightlogbook.models.Flight;
 import com.arny.flightlogbook.models.Type;
-import com.codetroopers.betterpickers.datepicker.DatePickerBuilder;
-import com.codetroopers.betterpickers.datepicker.DatePickerDialogFragment;
+import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment;
 
 import java.math.BigDecimal;
-import java.text.DateFormatSymbols;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-public class AddEditActivity extends AppCompatActivity implements DatePickerDialogFragment.DatePickerDialogHandler {
+public class AddEditActivity extends AppCompatActivity implements CalendarDatePickerDialogFragment.OnDateSetListener {
     private static final String LOGTIME_STATE_KEY = "com.arny.flightlogbook.extra.instance.time";
-    private static final int DIALOG_DATE = 101;
-    private List<Flight> FlightData;
-    private Calendar mCalendar;
+    private static final String FRAG_TAG_DATE_PICKER = "fragment_date_picker_name";
     private LinearLayout motoCont;
-    private View.OnClickListener editMotoBtn;
-    private String strDesc, strDate, strTime, strMonth, airplane_type, reg_no;
-    private int mYear, mMonth, mDay, day_night, ifr_vfr, flight_type, logTime, logHours, logMinutes, airplane_type_id;
+    private String strDesc, strDate, strTime, airplane_type, reg_no;
+    private int day_night, ifr_vfr, flight_type, logTime, logHours, logMinutes, airplane_type_id;
     private long mDateTime, mTypeID;
     private int mRowId;
     private float mMotoStart, mMotoFinish, mMotoResult;
@@ -60,38 +46,30 @@ public class AddEditActivity extends AppCompatActivity implements DatePickerDial
     private Spinner spinDayNight, spinVfrIfr, spinFlightType;
     private TextView tvAirplaneType, tvMotoResult;
     private TextView edtDate;
-    private ImageView dateTimeChoose;
     private List<String> typeList;
-    private boolean editable = false, motoCheckPref;
-    private Toolbar toolbar;
+    private boolean editable = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_item);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitleTextColor(ContextCompat.getColor(this, R.color.colorText));
         setSupportActionBar(toolbar);
         toolbar.setTitle(R.string.str_edt);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-        motoCheckPref = Functions.getPrefs(getBaseContext()).getBoolean("motoCheckPref", false);
         edtDesc = (TextInputEditText) findViewById(R.id.edtDesc);
         motoCont = (LinearLayout) findViewById(R.id.motoContainer);
-        dateTimeChoose = (ImageView) findViewById(R.id.iv_date);
+        ImageView dateTimeChoose = (ImageView) findViewById(R.id.iv_date);
         edtDate = (TextView) findViewById(R.id.edtDate);
         dateTimeChoose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DatePickerBuilder dpb = new DatePickerBuilder()
-                        .setFragmentManager(getSupportFragmentManager())
-                        .setYear(Integer.parseInt(DateTimeUtils.getDateTime(mDateTime,"yyyy")))
-                        .setMonthOfYear(Integer.parseInt(DateTimeUtils.getDateTime(mDateTime,"MM"))-1)
-                        .setDayOfMonth(Integer.parseInt(DateTimeUtils.getDateTime(mDateTime,"dd")))
-                        .setStyleResId(R.style.BetterPickersDialogFragment)
-                        .setYearOptional(false);
-                dpb.show();
+                CalendarDatePickerDialogFragment cdp = new CalendarDatePickerDialogFragment()
+                        .setOnDateSetListener(AddEditActivity.this);
+                cdp.show(getSupportFragmentManager(), FRAG_TAG_DATE_PICKER);
             }
         });
         edtTime = (EditText) findViewById(R.id.edtTime);
@@ -104,10 +82,6 @@ public class AddEditActivity extends AppCompatActivity implements DatePickerDial
         spinVfrIfr = (Spinner) findViewById(R.id.spinVfrIfr);
         spinFlightType = (Spinner) findViewById(R.id.spinFlightType);
         tvAirplaneType = (TextView) findViewById(R.id.tvAirplaneType);
-        mCalendar = Calendar.getInstance();
-        mYear = mCalendar.get(Calendar.YEAR);
-        mMonth = mCalendar.get(Calendar.MONTH);
-        mDay = mCalendar.get(Calendar.DAY_OF_MONTH);
         try {
             Bundle extras = getIntent().getExtras();
             if (extras != null) {
@@ -165,12 +139,6 @@ public class AddEditActivity extends AppCompatActivity implements DatePickerDial
             }
         });
 
-//        dateTimeChoose.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                showDialog(DIALOG_DATE);
-//            }
-//        });
 
         spinDayNight.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent,
@@ -212,14 +180,7 @@ public class AddEditActivity extends AppCompatActivity implements DatePickerDial
             }
         });
 
-        editMotoBtn = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showMoto();
-            }
-        };
-
-        if (motoCheckPref) {
+        if (Config.getBoolean("motoCheckPref",false,AddEditActivity.this)) {
             showMotoBtn();
         }
     }
@@ -274,7 +235,7 @@ public class AddEditActivity extends AppCompatActivity implements DatePickerDial
             for (Type type : types) {
                 typeList.add(type.getTypeName());
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -363,7 +324,12 @@ public class AddEditActivity extends AppCompatActivity implements DatePickerDial
         Button btn = new Button(this);
         btn.setLayoutParams(lButtonParams);
         btn.setId(R.id.motoBtn);
-        btn.setOnClickListener(editMotoBtn);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showMoto();
+            }
+        });
         btn.setText(getString(R.string.str_moto_btn));
         motoCont.addView(btn);
     }
@@ -468,33 +434,6 @@ public class AddEditActivity extends AppCompatActivity implements DatePickerDial
                 ToastMaker.toastError(AddEditActivity.this,error);
             }
         });
-        AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        LinearLayout layout = new LinearLayout(this);
-        final EditText edtTypeInput = new EditText(this);
-        final ViewGroup.LayoutParams lparams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        edtTypeInput.setLayoutParams(lparams);
-        alert.setTitle(getString(R.string.str_add_airplane_types));
-        layout.addView(edtTypeInput);
-        alert.setView(layout);
-        alert.setNegativeButton(getString(R.string.str_cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        alert.setPositiveButton(getString(R.string.str_ok), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (edtTypeInput.getText().toString().trim().equals("")) {
-                    Toast.makeText(getBaseContext(), getString(R.string.str_error_add_airplane_types), Toast.LENGTH_SHORT).show();
-                } else {
-                    airplane_type = edtTypeInput.getText().toString();
-                    mTypeID = Local.addType(airplane_type, AddEditActivity.this);
-                    fillInputs();
-                }
-            }
-        });
-        alert.show();
     }
 
     private void fillInputs() {
@@ -513,7 +452,7 @@ public class AddEditActivity extends AppCompatActivity implements DatePickerDial
             edtTime.setText(Functions.strLogTime(logTime));
             airplane_type_id = flight.getAirplanetypeid();
             Type typeItem = Local.getTypeItem(airplane_type_id, AddEditActivity.this);
-            String airplType = typeItem != null ? typeItem.getTypeName() : "";
+            String airplType = typeItem != null ? typeItem.getTypeName() : null;
             String airTypesText = Utility.empty(airplType) ? getString(R.string.str_type_empty) : getString(R.string.str_type) + " " + airplType;
             tvAirplaneType.setText(airTypesText);
             day_night = flight.getDaynight();
@@ -567,32 +506,26 @@ public class AddEditActivity extends AppCompatActivity implements DatePickerDial
         if (!strlogTime.contains(":")) {
             correctLogTime();
         }
-        if (logTime != 0) {
-            strDesc = edtDesc.getText().toString();
-            strDate = edtDate.getText().toString();
-            if (strDate.equals("")) {
-                strDate = DateTimeUtils.getDateTime( "dd MM yyyy");
-            }
-            strTime = edtTime.getText().toString();
-            reg_no = edtRegNo.getText().toString();
-            day_night = (int) spinDayNight.getSelectedItemId();
-            ifr_vfr = (int) spinVfrIfr.getSelectedItemId();
-            flight_type = (int) spinFlightType.getSelectedItemId();
-            if (mRowId == 0) {
-                long res = Local.addFlight(mDateTime, logTime, reg_no, airplane_type_id, day_night, ifr_vfr, flight_type, strDesc, AddEditActivity.this);
-                return res > 0;
-            } else {
-                return Local.updateFlight(mDateTime, logTime, reg_no, airplane_type_id, day_night, ifr_vfr, flight_type, strDesc, (int) mRowId, AddEditActivity.this);//тут тоже делаем сужение типа,странно,что для вставки нужен int,а выдает long
-            }
+        strDesc = edtDesc.getText().toString();
+        strDate = edtDate.getText().toString();
+        if (strDate.equals("")) {
+            strDate = DateTimeUtils.getDateTime( "dd MM yyyy");
+        }
+        strTime = edtTime.getText().toString();
+        reg_no = edtRegNo.getText().toString();
+        day_night = (int) spinDayNight.getSelectedItemId();
+        ifr_vfr = (int) spinVfrIfr.getSelectedItemId();
+        flight_type = (int) spinFlightType.getSelectedItemId();
+        if (mRowId == 0) {
+            long res = Local.addFlight(mDateTime, logTime, reg_no, airplane_type_id, day_night, ifr_vfr, flight_type, strDesc, AddEditActivity.this);
+            return res > 0;
         } else {
-            edtTime.setText("");
-            Toast.makeText(AddEditActivity.this, R.string.str_enter_logtime, Toast.LENGTH_SHORT).show();
-            return false;
+            return Local.updateFlight(mDateTime, logTime, reg_no, airplane_type_id, day_night, ifr_vfr, flight_type, strDesc, (int) mRowId, AddEditActivity.this);//тут тоже делаем сужение типа,странно,что для вставки нужен int,а выдает long
         }
     }
 
     @Override
-    public void onDialogDateSet(int reference, int year, int monthOfYear, int dayOfMonth) {
+    public void onDateSet(CalendarDatePickerDialogFragment dialog, int year, int monthOfYear, int dayOfMonth) {
         strDate = dayOfMonth + " " + (monthOfYear+1) + " " + year;
         mDateTime = Functions.convertTimeStringToLong(strDate, "dd MM yyyy");
         edtDate.setText(DateTimeUtils.getDateTime(mDateTime,"dd MMM yyyy"));

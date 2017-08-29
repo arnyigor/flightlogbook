@@ -1,6 +1,7 @@
 package com.arny.flightlogbook.views.activities;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -24,11 +25,13 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.arny.arnylib.utils.BasePermissions;
+import com.arny.arnylib.utils.Config;
 import com.arny.arnylib.utils.RuntimePermissionsActivity;
 import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.common.BackgroundIntentService;
 import com.arny.flightlogbook.common.Functions;
+import com.arny.flightlogbook.common.Local;
 import com.arny.flightlogbook.models.Preferences;
 import com.arny.flightlogbook.views.fragments.DropboxSyncFragment;
 import com.arny.flightlogbook.views.fragments.FlightListFragment;
@@ -37,6 +40,7 @@ import com.arny.flightlogbook.views.fragments.TypeListFragment;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.holder.BadgeStyle;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
@@ -45,7 +49,7 @@ import java.util.List;
 
 import es.dmoral.toasty.Toasty;
 
-public class HomeActivity extends RuntimePermissionsActivity {
+public class HomeActivity extends RuntimePermissionsActivity implements Drawer.OnDrawerListener {
     // Storage Permissions
 
     private static final int SAVE_FILE_RESULT_CODE = 111;
@@ -61,7 +65,7 @@ public class HomeActivity extends RuntimePermissionsActivity {
     private Toolbar toolbar;
     private Intent fileintent, mMyServiceIntent;
     private Context context;
-    private boolean autoExportXLSPref, metarPref, operationSuccess, finishOperation = true;
+    private boolean  operationSuccess, finishOperation = true;
     private ProgressDialog bgProgress;
     private static final int TIME_DELAY = 2000;
     private static long back_pressed;
@@ -71,7 +75,6 @@ public class HomeActivity extends RuntimePermissionsActivity {
         super.onCreate(savedInstanceState);
         context = this;
         setContentView(R.layout.activity_home);
-        getPrefs();
         bgProgress = new ProgressDialog(context);
         bgProgress.setCancelable(false);
         initBgService();
@@ -81,13 +84,14 @@ public class HomeActivity extends RuntimePermissionsActivity {
 
         drawer = new DrawerBuilder()
                 .withActivity(this)
+                .withOnDrawerListener(this)
                 .withRootView(R.id.drawer_container)
                 .withToolbar(toolbar)
                 .withActionBarDrawerToggle(true)
                 .withActionBarDrawerToggleAnimated(true)
                 .addDrawerItems(
-                        new PrimaryDrawerItem().withIdentifier(MENU_FLIGHTS).withName(R.string.fragment_logbook).withIcon(GoogleMaterial.Icon.gmd_flight),
-                        new PrimaryDrawerItem().withIdentifier(MENU_TYPES).withName(R.string.fragment_types).withIcon(GoogleMaterial.Icon.gmd_flight_takeoff),
+                        new PrimaryDrawerItem().withIdentifier(MENU_FLIGHTS).withName(R.string.fragment_logbook).withIcon(GoogleMaterial.Icon.gmd_flight_takeoff),
+                        new PrimaryDrawerItem().withIdentifier(MENU_TYPES).withName(R.string.fragment_types).withIcon(GoogleMaterial.Icon.gmd_flight ),
                         new PrimaryDrawerItem().withIdentifier(MENU_STATS).withName(R.string.fragment_stats).withIcon(GoogleMaterial.Icon.gmd_equalizer),
                         new PrimaryDrawerItem().withIdentifier(MENU_DROPBOX_SYNC).withName(R.string.fragment_dropbox_sync).withIcon(R.drawable.ic_dropbox_sync)
                 )
@@ -143,11 +147,6 @@ public class HomeActivity extends RuntimePermissionsActivity {
             fragmentManager.beginTransaction().replace(R.id.container, fragment).commit();
             drawer.closeDrawer();
         }
-    }
-
-    public void getPrefs() {
-        autoExportXLSPref = Functions.getPrefs(context).getBoolean("autoExportXLSPref", false);
-        metarPref = Functions.getPrefs(context).getBoolean("metarCheckPref", false);
     }
 
     @Override
@@ -210,13 +209,14 @@ public class HomeActivity extends RuntimePermissionsActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     public void onBackPressed() {
 
         if (drawer.isDrawerOpen()) {
             drawer.closeDrawer();
         } else {
-            List<Fragment> fragments = getSupportFragmentManager().getFragments();
+             List<Fragment> fragments = getSupportFragmentManager().getFragments();
             boolean isMain = false;
             for (Fragment curFrag : fragments) {
                 if (curFrag != null && curFrag.isVisible() && curFrag instanceof FlightListFragment) {
@@ -227,6 +227,11 @@ public class HomeActivity extends RuntimePermissionsActivity {
                 selectItem(MENU_FLIGHTS);
             } else {
                 if (back_pressed + TIME_DELAY > System.currentTimeMillis()) {
+                    if (Config.getBoolean("autoExportXLSPref",false,context)) {
+                        initBgService();
+                        mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_EXPORT);
+                        startService(mMyServiceIntent);
+                    }
                     super.onBackPressed();
                 } else {
                     Toast.makeText(getBaseContext(), R.string.press_back_again_to_exit,
@@ -386,19 +391,6 @@ public class HomeActivity extends RuntimePermissionsActivity {
         }
     }
 
-//    void saveToFile(File aFile) {
-//        Uri theUri = Uri.fromFile(aFile).buildUpon().scheme("file.new").build();
-//        Intent theIntent = new Intent(Intent.ACTION_PICK);
-//        theIntent.setData(theUri);
-//        theIntent.putExtra(Intent.EXTRA_TITLE, "A Custom Title"); //optional
-//        theIntent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS); //optional
-//        try {
-//            startActivityForResult(theIntent, SAVE_FILE_RESULT_CODE);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -425,10 +417,6 @@ public class HomeActivity extends RuntimePermissionsActivity {
                     Toasty.error(context, mOperationResult, Toast.LENGTH_SHORT).show();
                 }
             }
-//            else{
-//                getOperationNotif(context);
-//                showProgress(notif);
-//            }
         }
     };
 
@@ -493,29 +481,40 @@ public class HomeActivity extends RuntimePermissionsActivity {
         alert.show();
     }
 
-    private void openQuitDialog() {
-        AlertDialog.Builder quitDialog = new AlertDialog.Builder(context);
-        quitDialog.setTitle(getString(R.string.str_exit));
-        quitDialog.setNegativeButton(getString(R.string.str_cancel), null);
-        quitDialog.setPositiveButton(getString(R.string.str_ok),
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        getPrefs();
-                        if (autoExportXLSPref) {
-                            initBgService();
-                            mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_EXPORT);
-                            startService(mMyServiceIntent);
-                        }
-                        finish();
-                    }
-                });
-        AlertDialog alert = quitDialog.create();
-        alert.show();
-    }
-
     private void initBgService() {
         if (mMyServiceIntent == null) {
             mMyServiceIntent = new Intent(HomeActivity.this, BackgroundIntentService.class);
         }
+    }
+
+    public void updateNavDrawerCounts() {
+        int flights = Local.getFlightListByDate(HomeActivity.this).size();
+        int types = Local.getTypeList(HomeActivity.this).size();
+        PrimaryDrawerItem itemNewTask = (PrimaryDrawerItem) drawer.getDrawerItem(MENU_FLIGHTS);
+        PrimaryDrawerItem itemCompleteTask = (PrimaryDrawerItem) drawer.getDrawerItem(MENU_TYPES);
+
+        if (itemNewTask != null && drawer != null) {
+            itemNewTask.withBadge(String.valueOf(flights)).withBadgeStyle(new BadgeStyle().withTextColorRes(R.color.colorAccent));
+            drawer.updateItem(itemNewTask);
+        }
+        if (itemCompleteTask != null && drawer != null) {
+            itemCompleteTask.withBadge(String.valueOf(types)).withBadgeStyle(new BadgeStyle().withTextColorRes(R.color.colorAccent));
+            drawer.updateItem(itemCompleteTask);
+        }
+    }
+
+    @Override
+    public void onDrawerOpened(View drawerView) {
+        updateNavDrawerCounts();
+    }
+
+    @Override
+    public void onDrawerClosed(View drawerView) {
+
+    }
+
+    @Override
+    public void onDrawerSlide(View drawerView, float slideOffset) {
+
     }
 }

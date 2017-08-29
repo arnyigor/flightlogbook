@@ -7,6 +7,6 @@ public class App extends MultiDexApplication {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		DBProvider.initDB(getApplicationContext(),"PilotDB",13);
+		DBProvider.initDB(getApplicationContext(),"PilotDB",12);
 	}
 }

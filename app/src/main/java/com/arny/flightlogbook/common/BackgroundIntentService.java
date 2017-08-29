@@ -12,6 +12,7 @@ import android.util.Log;
 import com.arny.arnylib.files.FileUtils;
 import com.arny.arnylib.utils.BasePermissions;
 import com.arny.arnylib.utils.DateTimeUtils;
+import com.arny.arnylib.utils.Utility;
 import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.models.Flight;
@@ -421,7 +422,9 @@ public class BackgroundIntentService extends IntentService {
                                     if (type != null) {
                                         airplane_type_id = type.getTypeId();
                                     } else {
-                                        airplane_type_id = (int) Local.addType(airplane_type, context);
+                                        if (!Utility.empty(airplane_type)) {
+                                            airplane_type_id = (int) Local.addType(airplane_type, context);
+                                        }
                                     }
                                 } catch (Exception e) {
                                     airplane_type = "";

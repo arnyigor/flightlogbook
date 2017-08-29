@@ -159,6 +159,7 @@
 
     <string name="press_back_again_to_exit">Нажмите еще раз для выхода</string>
     <string name="storage_permission_denied">Необходимо предоставить разрешения на запись</string>
+    <string name="auto_export_xls_on_exit">Автоэкспорт XLS при выходе</string>
 
 
 </resources>

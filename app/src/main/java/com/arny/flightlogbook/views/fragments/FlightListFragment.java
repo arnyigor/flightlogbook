@@ -137,7 +137,8 @@ public class FlightListFragment extends Fragment {
 		                    public void onConfirm() {
 			                    Local.removeFlight(FlightData.get(ctxPos).getId(), context);
 			                    flightListAdapter.removeChild(ctxPos);
-		                    }
+                                displayTotalTime();
+                            }
 	                    });
                         break;
                     case 2:

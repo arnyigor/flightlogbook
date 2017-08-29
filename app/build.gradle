@@ -6,8 +6,8 @@ android {
         applicationId "com.arny.flightlogbook"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 19
-        versionName "6.0.4"
+        versionCode 610
+        versionName "6.1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         // Enabling multidex support.
         multiDexEnabled true
