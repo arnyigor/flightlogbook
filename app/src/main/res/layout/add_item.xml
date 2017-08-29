@@ -1,91 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".views.activities.AddEditActivity">
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context=".views.activities.AddEditActivity">
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-        <LinearLayout
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="2dp"
             android:orientation="vertical"
             android:layout_below="@+id/toolbar">
 
-            <LinearLayout
+        <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/edtDate"
-                    android:layout_width="match_parent"
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="center_vertical"
                     android:layout_height="wrap_content"
-                    style="@style/TextViewDateStyle"
-                    android:hint="@string/str_date"/>
+                    android:text="@string/str_date"
+                    android:textSize="@dimen/font_size"/>
+            <TextView
+                    android:id="@+id/edtDate"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="5dp"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    android:hint="dd.MM.yyyy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
 
-            </LinearLayout>
+            <ImageView
+                    android:id="@+id/iv_date"
+                    android:padding="5dp"
+                    android:tint="@color/colorAccent"
+                    android:src="@drawable/ic_datetime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+            />
 
-            <LinearLayout
+        </LinearLayout>
+
+        <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
 
-                <TextView
+            <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/str_itemlogtime"
-                    android:textSize="@dimen/font_size" />
+                    android:textSize="@dimen/font_size"/>
 
-                <EditText
+            <EditText
                     android:id="@+id/edtTime"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.3"
                     android:gravity="center"
                     android:hint="@string/str_logtime"
-                    android:inputType="number" />
+                    android:inputType="number"/>
 
-                <LinearLayout
+            <LinearLayout
                     android:id="@+id/motoContainer"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:orientation="vertical"/>
-            </LinearLayout>
+        </LinearLayout>
 
-            <LinearLayout
+        <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
 
-                <android.support.design.widget.TextInputLayout
+            <android.support.design.widget.TextInputLayout
                     android:id="@+id/edtRegNoLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <EditText
+                <EditText
                         android:id="@+id/edtRegNo"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/str_regnum" />
+                        android:hint="@string/str_regnum"/>
 
-                </android.support.design.widget.TextInputLayout>
+            </android.support.design.widget.TextInputLayout>
 
-            </LinearLayout>
+        </LinearLayout>
 
-            <LinearLayout
+        <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <TextView
+            <TextView
                     android:id="@+id/tvAirplaneType"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -93,77 +111,77 @@
                     android:gravity="center_vertical"
                     android:hint="@string/str_type"
                     android:textColor="@android:color/black"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"/>
 
-                <ImageButton
+            <ImageButton
                     android:id="@+id/btnAddAirplaneTypes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:contentDescription="@string/str_add_airplane_types"
                     android:src="@drawable/ic_icon_new"
-                    android:text="@string/str_add" />
-            </LinearLayout>
+                    android:text="@string/str_add"/>
+        </LinearLayout>
 
-            <LinearLayout
+        <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
 
-                <Spinner
+            <Spinner
                     android:id="@+id/spinDayNight"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:entries="@array/daynight"
-                    android:spinnerMode="dropdown" />
+                    android:spinnerMode="dropdown"/>
 
-                <Spinner
+            <Spinner
                     android:id="@+id/spinVfrIfr"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:entries="@array/ifrvfr"
-                    android:spinnerMode="dropdown" />
+                    android:spinnerMode="dropdown"/>
 
-                <Spinner
+            <Spinner
                     android:id="@+id/spinFlightType"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:entries="@array/flighttype"
-                    android:spinnerMode="dropdown" />
-            </LinearLayout>
+                    android:spinnerMode="dropdown"/>
+        </LinearLayout>
 
-            <LinearLayout
+        <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
 
-                <android.support.design.widget.TextInputLayout
+            <android.support.design.widget.TextInputLayout
                     android:id="@+id/edtDescLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <android.support.design.widget.TextInputEditText
+                <android.support.design.widget.TextInputEditText
                         android:id="@+id/edtDesc"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/str_desc"
-                        android:inputType="textMultiLine" />
-                </android.support.design.widget.TextInputLayout>
-            </LinearLayout>
+                        android:inputType="textMultiLine"/>
+            </android.support.design.widget.TextInputLayout>
+        </LinearLayout>
 
-            <LinearLayout
+        <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <Button
+            <Button
                     android:id="@+id/btnAddEdtItem"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/str_add" />
-            </LinearLayout>
+                    android:text="@string/str_add"/>
         </LinearLayout>
+    </LinearLayout>
 </RelativeLayout>

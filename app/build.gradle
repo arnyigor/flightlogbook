@@ -29,7 +29,6 @@ android {
 }
 
 dependencies {
-    implementation 'com.android.support:support-v4:25.4.0'
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(path: ':arnylib')
     compile('com.mikepenz:materialdrawer:5.8.1@aar') {
@@ -40,6 +39,7 @@ dependencies {
     compile 'com.google.firebase:firebase-core:11.2.0'
     compile 'com.google.firebase:firebase-crash:11.2.0'
     compile 'com.android.support:multidex:1.0.2'
+    compile 'com.code-troopers.betterpickers:library:3.1.0'
 }
 // ADD THIS AT THE BOTTOM
 apply plugin: 'com.google.gms.google-services'
