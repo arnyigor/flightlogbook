@@ -1,5 +1,6 @@
 package com.arny.flightlogbook.views.activities;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -22,6 +23,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.arny.arnylib.utils.BasePermissions;
+import com.arny.arnylib.utils.RuntimePermissionsActivity;
 import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.common.BackgroundIntentService;
@@ -30,6 +33,7 @@ import com.arny.flightlogbook.models.Preferences;
 import com.arny.flightlogbook.views.fragments.DropboxSyncFragment;
 import com.arny.flightlogbook.views.fragments.FlightListFragment;
 import com.arny.flightlogbook.views.fragments.StatisticFragment;
+import com.arny.flightlogbook.views.fragments.TypeListFragment;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
@@ -37,26 +41,30 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import java.io.File;
+import java.util.List;
 
 import es.dmoral.toasty.Toasty;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends RuntimePermissionsActivity {
     // Storage Permissions
 
     private static final int SAVE_FILE_RESULT_CODE = 111;
     private static final int MENU_DROPBOX_SYNC = 112;
     private static final int PICKFILE_RESULT_CODE = 1;
     private static final int MENU_FLIGHTS = 0;
-    private static final int MENU_STATS = 1;
+    private static final int MENU_TYPES = 1;
+    private static final int MENU_STATS = 2;
     private static final String DRAWER_SELECTION = "drawer_selection";
     private int mOperation;
-    private String mOperationResult,notif;
+    private String mOperationResult, notif;
     private Drawer drawer = null;
     private Toolbar toolbar;
-    private Intent fileintent,mMyServiceIntent;
+    private Intent fileintent, mMyServiceIntent;
     private Context context;
-    private boolean autoExportXLSPref, metarPref,operationSuccess,finishOperation = true;
+    private boolean autoExportXLSPref, metarPref, operationSuccess, finishOperation = true;
     private ProgressDialog bgProgress;
+    private static final int TIME_DELAY = 2000;
+    private static long back_pressed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +87,7 @@ public class HomeActivity extends AppCompatActivity {
                 .withActionBarDrawerToggleAnimated(true)
                 .addDrawerItems(
                         new PrimaryDrawerItem().withIdentifier(MENU_FLIGHTS).withName(R.string.fragment_logbook).withIcon(GoogleMaterial.Icon.gmd_flight),
+                        new PrimaryDrawerItem().withIdentifier(MENU_TYPES).withName(R.string.fragment_types).withIcon(GoogleMaterial.Icon.gmd_flight_takeoff),
                         new PrimaryDrawerItem().withIdentifier(MENU_STATS).withName(R.string.fragment_stats).withIcon(GoogleMaterial.Icon.gmd_equalizer),
                         new PrimaryDrawerItem().withIdentifier(MENU_DROPBOX_SYNC).withName(R.string.fragment_dropbox_sync).withIcon(R.drawable.ic_dropbox_sync)
                 )
@@ -92,12 +101,20 @@ public class HomeActivity extends AppCompatActivity {
                 .build();
         if (savedInstanceState == null) {
             selectItem(MENU_FLIGHTS);
-        }else{
-            try{
+        } else {
+            try {
                 drawer.setSelection(Long.parseLong(savedInstanceState.getString(DRAWER_SELECTION)));
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+        if (!BasePermissions.isStoragePermissonGranted(this)) {
+            super.requestAppPermissions(new
+                            String[]{
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_EXTERNAL_STORAGE
+                    }, R.string.storage_permission_denied
+                    , BasePermissions.REQUEST_PERMISSIONS);
         }
     }
 
@@ -107,6 +124,10 @@ public class HomeActivity extends AppCompatActivity {
             case MENU_FLIGHTS:
                 fragment = new FlightListFragment();
                 toolbar.setTitle(getString(R.string.fragment_logbook));
+                break;
+            case MENU_TYPES:
+                fragment = new TypeListFragment();
+                toolbar.setTitle(getString(R.string.fragment_types));
                 break;
             case MENU_STATS:
                 fragment = new StatisticFragment();
@@ -191,10 +212,28 @@ public class HomeActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+
         if (drawer.isDrawerOpen()) {
             drawer.closeDrawer();
         } else {
-            openQuitDialog();
+            List<Fragment> fragments = getSupportFragmentManager().getFragments();
+            boolean isMain = false;
+            for (Fragment curFrag : fragments) {
+                if (curFrag != null && curFrag.isVisible() && curFrag instanceof FlightListFragment) {
+                    isMain = true;
+                }
+            }
+            if (!isMain) {
+                selectItem(MENU_FLIGHTS);
+            } else {
+                if (back_pressed + TIME_DELAY > System.currentTimeMillis()) {
+                    super.onBackPressed();
+                } else {
+                    Toast.makeText(getBaseContext(), R.string.press_back_again_to_exit,
+                            Toast.LENGTH_SHORT).show();
+                }
+                back_pressed = System.currentTimeMillis();
+            }
         }
     }
 
@@ -207,14 +246,14 @@ public class HomeActivity extends AppCompatActivity {
         if (Functions.isMyServiceRunning(BackgroundIntentService.class, context)) {
             getOperationNotif(context);
             showProgress(notif);
-        }else{
+        } else {
             hideProgress();
         }
     }
 
     private void hideProgress() {
         try {
-            if (bgProgress !=null) {
+            if (bgProgress != null) {
                 bgProgress.dismiss();
             }
         } catch (Exception e) {
@@ -224,10 +263,11 @@ public class HomeActivity extends AppCompatActivity {
 
     private void showProgress(String notif) {
         try {
-            if (bgProgress !=null) {
-                if (BuildConfig.DEBUG) Log.d(HomeActivity.class.getSimpleName(), "hideProgress: bgProgress.isShowing() = " + bgProgress.isShowing());
+            if (bgProgress != null) {
+                if (BuildConfig.DEBUG)
+                    Log.d(HomeActivity.class.getSimpleName(), "hideProgress: bgProgress.isShowing() = " + bgProgress.isShowing());
                 bgProgress.setMessage(notif);
-                if (!bgProgress.isShowing()){
+                if (!bgProgress.isShowing()) {
                     bgProgress.show();
                 }
             }
@@ -245,7 +285,8 @@ public class HomeActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        if (BuildConfig.DEBUG) Log.d(HomeActivity.class.getSimpleName(), "onRequestPermissionsResult: requestCode = " + requestCode);
+        if (BuildConfig.DEBUG)
+            Log.d(HomeActivity.class.getSimpleName(), "onRequestPermissionsResult: requestCode = " + requestCode);
         switch (requestCode) {
             case Functions.REQUEST_EXTERNAL_STORAGE_XLS:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -261,12 +302,17 @@ public class HomeActivity extends AppCompatActivity {
             case Functions.REQUEST_DBX_EXTERNAL_STORAGE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Fragment dropboxSyncFragment = getSupportFragmentManager().findFragmentById(R.id.container);
-                    if (dropboxSyncFragment instanceof DropboxSyncFragment){
-                        ((DropboxSyncFragment)dropboxSyncFragment).getFileData();
+                    if (dropboxSyncFragment instanceof DropboxSyncFragment) {
+                        ((DropboxSyncFragment) dropboxSyncFragment).getFileData();
                     }
                 }
                 break;
         }
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode) {
+        onResume();
     }
 
     private void showImportDialogSD() {
@@ -283,8 +329,8 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 try {
-                    boolean permissionGranded = Functions.checkSDRRWPermessions(getBaseContext(),HomeActivity.this,Functions.REQUEST_EXTERNAL_STORAGE_XLS);
-                    if (permissionGranded){
+                    boolean permissionGranded = Functions.checkSDRRWPermessions(getBaseContext(), HomeActivity.this, Functions.REQUEST_EXTERNAL_STORAGE_XLS);
+                    if (permissionGranded) {
                         fileintent = new Intent();
                         fileintent.setAction(Intent.ACTION_GET_CONTENT);
                         fileintent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -302,29 +348,29 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     @Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		switch (requestCode) {
-			case PICKFILE_RESULT_CODE:
-				if (resultCode == RESULT_OK) {
-					String FilePath = data.getData().getPath();
-                    if (BuildConfig.DEBUG) Log.d(HomeActivity.class.getSimpleName(), "onActivityResult: FilePath = " + FilePath);
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case PICKFILE_RESULT_CODE:
+                if (resultCode == RESULT_OK) {
+                    String FilePath = data.getData().getPath();
+                    if (BuildConfig.DEBUG)
+                        Log.d(HomeActivity.class.getSimpleName(), "onActivityResult: FilePath = " + FilePath);
                     initBgService();
                     mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_IMPORT_SD);
-					mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_IMPORT_SD_FILENAME, FilePath);
-					startService(mMyServiceIntent);
+                    mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_IMPORT_SD_FILENAME, FilePath);
+                    startService(mMyServiceIntent);
                     showProgress(getString(R.string.str_import_excel));
-				} else {
-					Toast.makeText(HomeActivity.this, getString(R.string.str_error_import), Toast.LENGTH_SHORT).show();
-				}
-				break;
+                } else {
+                    Toast.makeText(HomeActivity.this, getString(R.string.str_error_import), Toast.LENGTH_SHORT).show();
+                }
+                break;
             case SAVE_FILE_RESULT_CODE:
-				if (resultCode == RESULT_OK && data != null && data.getData() != null) {
-					String theFilePath = data.getData().getPath();
-				}
-				break;
-		}
-	}
-
+                if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                    String theFilePath = data.getData().getPath();
+                }
+                break;
+        }
+    }
 
     private void openFileWith() {
         try {
@@ -356,23 +402,26 @@ public class HomeActivity extends AppCompatActivity {
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (BuildConfig.DEBUG) Log.d(HomeActivity.class.getSimpleName(), "onReceive: service runing = " + Functions.isMyServiceRunning(BackgroundIntentService.class, context));
+            if (BuildConfig.DEBUG)
+                Log.d(HomeActivity.class.getSimpleName(), "onReceive: service runing = " + Functions.isMyServiceRunning(BackgroundIntentService.class, context));
             try {
-                    finishOperation = intent.getBooleanExtra(BackgroundIntentService.EXTRA_KEY_FINISH, false);
-                    mOperation = intent.getIntExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_IMPORT_SD);
-                    mOperationResult = intent.getStringExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_RESULT);
-                    operationSuccess = intent.getBooleanExtra(BackgroundIntentService.EXTRA_KEY_FINISH_SUCCESS, false);
+                finishOperation = intent.getBooleanExtra(BackgroundIntentService.EXTRA_KEY_FINISH, false);
+                mOperation = intent.getIntExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_IMPORT_SD);
+                mOperationResult = intent.getStringExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_RESULT);
+                operationSuccess = intent.getBooleanExtra(BackgroundIntentService.EXTRA_KEY_FINISH_SUCCESS, false);
             } catch (Exception e) {
                 e.printStackTrace();
                 hideProgress();
             }
-            if (BuildConfig.DEBUG) Log.d(HomeActivity.class.getSimpleName(), "onReceive: finishOperation = " + finishOperation);
-            if (BuildConfig.DEBUG) Log.d(HomeActivity.class.getSimpleName(), "onReceive: operationSuccess = " + operationSuccess);
-            if (finishOperation){
+            if (BuildConfig.DEBUG)
+                Log.d(HomeActivity.class.getSimpleName(), "onReceive: finishOperation = " + finishOperation);
+            if (BuildConfig.DEBUG)
+                Log.d(HomeActivity.class.getSimpleName(), "onReceive: operationSuccess = " + operationSuccess);
+            if (finishOperation) {
                 hideProgress();
-                if (operationSuccess){
+                if (operationSuccess) {
                     Toasty.success(context, mOperationResult, Toast.LENGTH_SHORT).show();
-                }else{
+                } else {
                     Toasty.error(context, mOperationResult, Toast.LENGTH_SHORT).show();
                 }
             }
@@ -465,7 +514,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void initBgService() {
-        if (mMyServiceIntent == null){
+        if (mMyServiceIntent == null) {
             mMyServiceIntent = new Intent(HomeActivity.this, BackgroundIntentService.class);
         }
     }

@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.*;
 import android.widget.*;
 
+import com.arny.arnylib.utils.Utility;
 import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.common.Local;
 import com.arny.flightlogbook.models.Flight;
@@ -511,34 +512,29 @@ public class AddEditActivity extends AppCompatActivity {
 
     private void fillInputs() {
         if (mRowId != 0) {
-            try {
-                FlightData = Local.getFlightItem(mRowId, AddEditActivity.this);
-                for (Flight aFlightData : FlightData) {
-                    strDesc = aFlightData.getDescription();
-                    edtDesc.setText(strDesc);
-                    mDateTime = aFlightData.getDatetime();
-                    strDate = Functions.getDateTime(aFlightData.getDatetime(), "dd MMM yyyy");
-                    tvDate.setText(strDate);
-                    logTime = aFlightData.getLogtime();
-                    strTime = Functions.getDateTime(aFlightData.getDatetime(), "hh:mm");
-                    edtTime.setText(strTime);
-                    reg_no = aFlightData.getReg_no();
-                    edtRegNo.setText(reg_no);
-                    edtTime.setText(Functions.strLogTime(logTime));
-                    airplane_type_id = aFlightData.getAirplanetypeid();
-                    String airplType = Local.getTypeItem(airplane_type_id, AddEditActivity.this).getTypeName();
-                    String airTypesText = airplType == null ? getString(R.string.str_type_empty):getString(R.string.str_type)+ " " + airplType;
-                    tvAirplaneType.setText(airTypesText);
-                    day_night = aFlightData.getDaynight();
-                    spinDayNight.setSelection(day_night);
-                    ifr_vfr = aFlightData.getIfrvfr();
-                    spinVfrIfr.setSelection(ifr_vfr);
-                    flight_type = aFlightData.getFlighttype();
-                    spinFlightType.setSelection(flight_type);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            Flight flight = Local.getFlightItem(mRowId, AddEditActivity.this);
+            strDesc = flight.getDescription();
+            edtDesc.setText(strDesc);
+            mDateTime = flight.getDatetime();
+            strDate = Functions.getDateTime(flight.getDatetime(), "dd MMM yyyy");
+            tvDate.setText(strDate);
+            logTime = flight.getLogtime();
+            strTime = Functions.getDateTime(flight.getDatetime(), "hh:mm");
+            edtTime.setText(strTime);
+            reg_no = flight.getReg_no();
+            edtRegNo.setText(reg_no);
+            edtTime.setText(Functions.strLogTime(logTime));
+            airplane_type_id = flight.getAirplanetypeid();
+            Type typeItem = Local.getTypeItem(airplane_type_id, AddEditActivity.this);
+            String airplType = typeItem != null ? typeItem.getTypeName() : "";
+            String airTypesText = Utility.empty(airplType)? getString(R.string.str_type_empty) : getString(R.string.str_type) + " " + airplType;
+            tvAirplaneType.setText(airTypesText);
+            day_night = flight.getDaynight();
+            spinDayNight.setSelection(day_night);
+            ifr_vfr = flight.getIfrvfr();
+            spinVfrIfr.setSelection(ifr_vfr);
+            flight_type = flight.getFlighttype();
+            spinFlightType.setSelection(flight_type);
         } else {
             edtDesc.setText("");
             tvDate.setText("");

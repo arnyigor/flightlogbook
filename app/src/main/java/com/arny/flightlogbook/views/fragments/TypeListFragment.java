@@ -1,20 +1,19 @@
-package com.arny.flightlogbook.views.activities;
+package com.arny.flightlogbook.views.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.InputType;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+
 import android.widget.Button;
 import android.widget.Toast;
+import com.arny.arnylib.adapters.BindableViewHolder;
 import com.arny.arnylib.adapters.SimpleBindableAdapter;
 import com.arny.arnylib.interfaces.AlertDialogListener;
 import com.arny.arnylib.interfaces.InputDialogListener;
@@ -27,35 +26,53 @@ import com.arny.flightlogbook.models.Type;
 
 import java.util.List;
 
-public class AirplaneTypesActivity extends AppCompatActivity implements TypeListHolder.SimpleActionListener {
-    private Button removeall;
-    private Context context = this;
+public class TypeListFragment extends Fragment implements TypeListHolder.SimpleActionListener, View.OnClickListener {
+    private Context context;
     private List<Type> types;
     private SimpleBindableAdapter<Type, TypeListHolder> typeListAdapter;
+    private Button removeall;
+
+    public TypeListFragment() {
+    }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.typelist);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() !=null){
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-        toolbar.setTitle(R.string.str_airplane_types);
-        toolbar.setTitleTextColor(ContextCompat.getColor(this,R.color.colorText));
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_type_list, container, false);
+        context = container.getContext();
 
-        Button add = (Button) findViewById(R.id.addType);
-        removeall = (Button) findViewById(R.id.removeallTypes);
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.typelistView);
+        Button add = (Button) view.findViewById(R.id.addType);
+        removeall = (Button) view.findViewById(R.id.removeallTypes);
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.typelistView);
         recyclerView.setLayoutManager( new LinearLayoutManager(context));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         typeListAdapter = new SimpleBindableAdapter<>(context,R.layout.typeitem, TypeListHolder.class);
         typeListAdapter.setActionListener(this);
         recyclerView.setAdapter(typeListAdapter);
-        removeall.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        removeall.setOnClickListener(this);
+        add.setOnClickListener(this);
+        return view;
+    }
+
+    @Override
+    public void OnItemClickListener(int position, Object Item) {
+
+    }
+
+    @Override
+    public void OnTypeEdit(int position) {
+        DlgEdtType(position);
+    }
+
+    @Override
+    public void OnTypeDelete(int position) {
+        DlgRemoveType(position);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.removeallTypes:
                 DroidUtils.alertConfirmDialog(context, getString(R.string.str_delete), new AlertDialogListener() {
                     @Override
                     public void onConfirm() {
@@ -64,31 +81,13 @@ public class AirplaneTypesActivity extends AppCompatActivity implements TypeList
                         setVisbltyBtnRemAll();
                     }
                 });
-            }
-        });
-
-        add.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
+                break;
+            case R.id.addType:
                 DlgAddType();
-            }
-        });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                super.onBackPressed();
-                return true;
+                break;
         }
-        return super.onOptionsItemSelected(item);
     }
+
 
     //str_add_airplane_types
     public void DlgAddType() {
@@ -102,13 +101,13 @@ public class AirplaneTypesActivity extends AppCompatActivity implements TypeList
                     typeListAdapter.add(type);
                     setVisbltyBtnRemAll();
                 } else {
-                    Toast.makeText(getApplicationContext(), R.string.str_alarm_add_airplane_type, Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, R.string.str_alarm_add_airplane_type, Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onError(String error) {
-                Toast.makeText(getApplicationContext(), R.string.str_alarm_add_airplane_type, Toast.LENGTH_LONG).show();
+                Toast.makeText(context, R.string.str_alarm_add_airplane_type, Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -126,13 +125,13 @@ public class AirplaneTypesActivity extends AppCompatActivity implements TypeList
                     types.set(pos,t);
                     typeListAdapter.set(pos,t);
                 } else {
-                    Toast.makeText(getApplicationContext(), R.string.str_alarm_add_airplane_type, Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, R.string.str_alarm_add_airplane_type, Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onError(String error) {
-                Toast.makeText(getApplicationContext(), R.string.str_alarm_add_airplane_type, Toast.LENGTH_LONG).show();
+                Toast.makeText(context, R.string.str_alarm_add_airplane_type, Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -150,9 +149,8 @@ public class AirplaneTypesActivity extends AppCompatActivity implements TypeList
         });
     }
 
-
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         loadList();
         setVisbltyBtnRemAll();
@@ -166,20 +164,5 @@ public class AirplaneTypesActivity extends AppCompatActivity implements TypeList
 
     private void setVisbltyBtnRemAll(){
         removeall.setEnabled(types.size() >= 1);
-    }
-
-    @Override
-    public void OnItemClickListener(int position, Object Item) {
-
-    }
-
-    @Override
-    public void OnTypeEdit(int position) {
-        DlgEdtType(position);
-    }
-
-    @Override
-    public void OnTypeDelete(int position) {
-        DlgRemoveType(position);
     }
 }

@@ -29,6 +29,7 @@ android {
 }
 
 dependencies {
+    implementation 'com.android.support:support-v4:25.4.0'
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(path: ':arnylib')
     compile('com.mikepenz:materialdrawer:5.8.1@aar') {

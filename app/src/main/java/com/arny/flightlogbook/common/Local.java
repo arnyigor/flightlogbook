@@ -231,21 +231,27 @@ public class Local {
     }
 
     //Get FavList
-    public static List<Flight> getFlightItem(int id, Context context) {
+    public static Flight getFlightItem(int id, Context context) {
         Cursor cursor = DBProvider.selectDB(MAIN_TABLE,null,"_id = ?",new String[]{String.valueOf(id)},null, context);
-        return DBProvider.getCursorObjectList(cursor, Flight.class);
-    }
-
-    //Get FavList
-    public static List<Flight> getFlightList(Context context) {
-        Cursor cursor = DBProvider.selectDB(MAIN_TABLE,null,null,null, context);
-        return DBProvider.getCursorObjectList(cursor, Flight.class);
+        Flight cursorObject = DBProvider.getCursorObject(cursor, Flight.class);
+        Type typeItem = getTypeItem(cursorObject.getAirplanetypeid(), context);
+        if (typeItem != null) {
+            cursorObject.setAirplanetypetitle(typeItem.getTypeName());
+        }
+        return cursorObject;
     }
 
     //Get FavList
     public static List<Flight> getFlightListByDate(Context context) {
         Cursor cursor = DBProvider.selectDB(MAIN_TABLE,null,null,null,"datetime", context);
-        return DBProvider.getCursorObjectList(cursor, Flight.class);
+        ArrayList<Flight> cursorObjectList = DBProvider.getCursorObjectList(cursor, Flight.class);
+        for (Flight flight : cursorObjectList) {
+            Type typeItem = getTypeItem(flight.getAirplanetypeid(), context);
+            if (typeItem != null) {
+                flight.setAirplanetypetitle(typeItem.getTypeName());
+            }
+        }
+        return cursorObjectList;
     }
 
     //Get FavList
@@ -264,7 +270,14 @@ public class Local {
             query += " AND " + filterQuery;
         }
         Cursor cursor = DBProvider.queryDB(query, null, context);
-        return DBProvider.getCursorObjectList(cursor, Flight.class);
+        ArrayList<Flight> cursorObjectList = DBProvider.getCursorObjectList(cursor, Flight.class);
+        for (Flight flight : cursorObjectList) {
+            Type typeItem = getTypeItem(flight.getAirplanetypeid(), context);
+            if (typeItem != null) {
+                flight.setAirplanetypetitle(typeItem.getTypeName());
+            };
+        }
+        return cursorObjectList;
     }
 
     //Get FavList
@@ -274,7 +287,14 @@ public class Local {
                 + " ON " + "MAIN." + COLUMN_AIRPLANE_TYPE + " = TYPE." + COLUMN_TYPE_ID
                 + " WHERE TYPE." + COLUMN_AIRPLANE_TYPE + " LIKE '%" + mPlanetype + "%'";
         Cursor cursor = DBProvider.queryDB(selectQuery, null, context);
-        return DBProvider.getCursorObjectList(cursor, Flight.class);
+        ArrayList<Flight> cursorObjectList = DBProvider.getCursorObjectList(cursor, Flight.class);
+        for (Flight flight : cursorObjectList) {
+            Type typeItem = getTypeItem(flight.getAirplanetypeid(), context);
+            if (typeItem != null) {
+                flight.setAirplanetypetitle(typeItem.getTypeName());
+            }
+        }
+        return cursorObjectList;
     }
 
     //Get FavList

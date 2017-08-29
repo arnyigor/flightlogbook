@@ -15,6 +15,7 @@ import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.widget.Toast;
 
+import com.arny.arnylib.utils.BasePermissions;
 import com.arny.flightlogbook.R;
 
 import java.io.File;
@@ -341,7 +342,7 @@ public class Functions {
     }
 
     public static boolean isFileExist(Context context) {
-        if (!Functions.isExternalStorageAvailable() || Functions.isExternalStorageReadOnly()) {
+        if (!BasePermissions.isStoragePermissonGranted(context)) {
             Toast.makeText(context, R.string.storage_not_avalable, Toast.LENGTH_LONG).show();
             return false;
         }

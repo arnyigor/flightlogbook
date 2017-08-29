@@ -4,10 +4,13 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.arny.arnylib.files.FileUtils;
+import com.arny.arnylib.utils.BasePermissions;
 import com.arny.arnylib.utils.DateTimeUtils;
 import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
@@ -249,9 +252,7 @@ public class BackgroundIntentService extends IntentService {
 
     public boolean saveExcelFile(Context context, String fileName) {
         Row row;
-        if (!Functions.isExternalStorageAvailable() || Functions.isExternalStorageReadOnly()) {
-//            Toasty.error(context, getString(R.string.storage_not_avalable), Toast.LENGTH_LONG).show();
-//            Toast.makeText(context, getString(R.string.storage_not_avalable), Toast.LENGTH_LONG).show();
+        if (!BasePermissions.isStoragePermissonGranted(context)) {
             return false;
         }
         boolean success = false;
@@ -291,7 +292,7 @@ public class BackgroundIntentService extends IntentService {
         for (Flight export : ExportData) {
             airplane_type_id = export.getAirplanetypeid();
             Type type = Local.getTypeItem(airplane_type_id, context);
-            String airplane_type = type.getTypeName();
+            String airplane_type = type != null ? type.getTypeName() : "";
             row = sheet_main.createRow(rows);
             c = row.createCell(0);
             c.setCellValue(Functions.getDateTime(export.getDatetime(), "dd MMM yyyy"));
@@ -326,7 +327,7 @@ public class BackgroundIntentService extends IntentService {
         FileOutputStream os = null;
 
         try {
-            os = new FileOutputStream(file);
+            os = new FileOutputStream(file);;
             wb.write(os);
 //            Toasty.success(context, getString(R.string.str_file_saved) + " " + file, Toast.LENGTH_SHORT).show();
 //            Toast.makeText(context, getString(R.string.str_file_saved) + " " + file, Toast.LENGTH_SHORT).show();
