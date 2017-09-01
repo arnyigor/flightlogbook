@@ -248,7 +248,9 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
             public void onClick(DialogInterface dialog, int item) {
                 airplane_type = typeList.get(item);
                 Type type = Local.getTypeItem(item + 1, AddEditActivity.this);//нумерация списка с нуля,в базе с 1цы
-                airplane_type_id = type.getTypeId();
+                if (type != null) {
+                    airplane_type_id = type.getTypeId();
+                }
                 tvAirplaneType.setText(String.format("%s %s", getString(R.string.str_type), typeList.get(item)));
             }
         });
