@@ -46,8 +46,8 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
     private Spinner spinDayNight, spinVfrIfr, spinFlightType;
     private TextView tvAirplaneType, tvMotoResult;
     private TextView edtDate;
-    private List<String> typeList;
-    private boolean editable = false;
+	private List<String> typeList = new ArrayList<>();
+	private boolean editable = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -230,7 +230,6 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 
     private void filltypes() {
         try {
-            typeList = new ArrayList<>();
             List<Type> types = Local.getTypeList(AddEditActivity.this);
             for (Type type : types) {
                 typeList.add(type.getTypeName());
