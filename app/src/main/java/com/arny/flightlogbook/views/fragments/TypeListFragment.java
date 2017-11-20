@@ -2,14 +2,13 @@ package com.arny.flightlogbook.views.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 
 import android.widget.Button;
 import android.widget.Toast;
@@ -41,9 +40,9 @@ public class TypeListFragment extends Fragment implements TypeListHolder.SimpleA
         View view = inflater.inflate(R.layout.fragment_type_list, container, false);
         context = container.getContext();
 
-        Button add = (Button) view.findViewById(R.id.addType);
-        removeall = (Button) view.findViewById(R.id.removeallTypes);
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.typelistView);
+        Button add = view.findViewById(R.id.addType);
+        removeall = view.findViewById(R.id.removeallTypes);
+        RecyclerView recyclerView = view.findViewById(R.id.typelistView);
         recyclerView.setLayoutManager( new LinearLayoutManager(context));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         typeListAdapter = new SimpleBindableAdapter<>(context,R.layout.typeitem, TypeListHolder.class);
@@ -52,6 +51,18 @@ public class TypeListFragment extends Fragment implements TypeListHolder.SimpleA
         removeall.setOnClickListener(this);
         add.setOnClickListener(this);
         return view;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        menu.clear();
     }
 
     @Override

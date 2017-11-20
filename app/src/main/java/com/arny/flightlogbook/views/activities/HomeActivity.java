@@ -16,7 +16,6 @@ import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -78,7 +77,7 @@ public class HomeActivity extends RuntimePermissionsActivity implements Drawer.O
         bgProgress = new ProgressDialog(context);
         bgProgress.setCancelable(false);
         initBgService();
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getString(R.string.fragment_logbook));
 
@@ -166,17 +165,21 @@ public class HomeActivity extends RuntimePermissionsActivity implements Drawer.O
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        boolean fileExist = Functions.isFileExist(context);
+        Log.i(HomeActivity.class.getSimpleName(), "onPrepareOptionsMenu:  menu.hasVisibleItems() = " +  menu.hasVisibleItems());
+        boolean fileExist = Local.isAppFileExist(context);
         MenuItem exelOpenAction = menu.findItem(R.id.action_open_file);
         MenuItem exelImportAction = menu.findItem(R.id.action_import_excel);
-        exelOpenAction.setVisible(fileExist);
-        exelImportAction.setVisible(fileExist);
+        if (exelOpenAction != null) {
+            exelOpenAction.setVisible(fileExist);
+        }
+        if (exelImportAction != null) {
+            exelImportAction.setVisible(fileExist);
+        }
         return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
@@ -440,20 +443,12 @@ public class HomeActivity extends RuntimePermissionsActivity implements Drawer.O
     private void showExportAlert() {
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setTitle(getString(R.string.str_export_attention));
-        alert.setNegativeButton(getString(R.string.str_cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        alert.setPositiveButton(getString(R.string.str_ok), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                initBgService();
-                mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_EXPORT);
-                startService(mMyServiceIntent);
-                showProgress(getString(R.string.str_export_excel));
-            }
+        alert.setNegativeButton(getString(R.string.str_cancel), (dialog, which) -> dialog.cancel());
+        alert.setPositiveButton(getString(R.string.str_ok), (dialog, which) -> {
+            initBgService();
+            mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_EXPORT);
+            startService(mMyServiceIntent);
+            showProgress(getString(R.string.str_export_excel));
         });
         alert.show();
     }
@@ -462,21 +457,13 @@ public class HomeActivity extends RuntimePermissionsActivity implements Drawer.O
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setTitle(getString(R.string.str_import_attention));
         alert.setMessage(getString(R.string.str_import_massage));
-        alert.setNegativeButton(getString(R.string.str_cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        alert.setPositiveButton(getString(R.string.str_ok), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                initBgService();
-                mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_IMPORT_SD);
-                mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_IMPORT_SD_FILENAME, "");
-                startService(mMyServiceIntent);
-                showProgress(getString(R.string.str_import_excel));
-            }
+        alert.setNegativeButton(getString(R.string.str_cancel), (dialog, which) -> dialog.cancel());
+        alert.setPositiveButton(getString(R.string.str_ok), (dialog, which) -> {
+            initBgService();
+            mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_IMPORT_SD);
+            mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_IMPORT_SD_FILENAME, "");
+            startService(mMyServiceIntent);
+            showProgress(getString(R.string.str_import_excel));
         });
         alert.show();
     }

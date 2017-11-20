@@ -37,7 +37,7 @@ public class AirplaneTypesActivity extends AppCompatActivity implements TypeList
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.typelist);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() !=null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -45,9 +45,9 @@ public class AirplaneTypesActivity extends AppCompatActivity implements TypeList
         toolbar.setTitle(R.string.str_airplane_types);
         toolbar.setTitleTextColor(ContextCompat.getColor(this,R.color.colorText));
 
-        Button add = (Button) findViewById(R.id.addType);
-        removeall = (Button) findViewById(R.id.removeallTypes);
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.typelistView);
+        Button add = findViewById(R.id.addType);
+        removeall = findViewById(R.id.removeallTypes);
+        RecyclerView recyclerView = findViewById(R.id.typelistView);
         recyclerView.setLayoutManager( new LinearLayoutManager(context));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         typeListAdapter = new SimpleBindableAdapter<>(context,R.layout.typeitem, TypeListHolder.class);

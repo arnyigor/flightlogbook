@@ -19,9 +19,9 @@ public class TypeListHolder extends BindableViewHolder<Type> {
 
 	public TypeListHolder(View itemView) {
 		super(itemView);
-        typeTitle = (TextView) itemView.findViewById(R.id.typeTitle);
-        edit = (ImageView) itemView.findViewById(R.id.edit);
-        delete = (ImageView) itemView.findViewById(R.id.delete);
+        typeTitle = itemView.findViewById(R.id.typeTitle);
+        edit = itemView.findViewById(R.id.edit);
+        delete = itemView.findViewById(R.id.delete);
 	}
 
 	@SuppressLint("DefaultLocale")

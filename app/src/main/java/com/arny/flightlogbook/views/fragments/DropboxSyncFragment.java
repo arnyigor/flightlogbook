@@ -10,16 +10,16 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.arny.arnylib.utils.Utility;
 import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.common.BackgroundIntentService;
@@ -68,6 +68,19 @@ public class DropboxSyncFragment extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        menu.clear();
+    }
+
+
     private void initState() {
         localfileDate = Functions.getPrefString(context,PREF_DBX_LOCAL_DATETIME, "");
         remoteFileDate = Functions.getPrefString(context,PREF_DBX_REMOTE_DATETIME, "");
@@ -87,24 +100,24 @@ public class DropboxSyncFragment extends Fragment {
     }
 
     private void initUI(View rootView) {
-        login_button = (Button) rootView.findViewById(R.id.btnDpxLogin);
-        btnSync = (Button) rootView.findViewById(R.id.btnSync);
-        btnSyncDown = (Button) rootView.findViewById(R.id.btnSyncDown);
-        btnSyncUp = (Button) rootView.findViewById(R.id.btnSyncUp);
-        tvDbxEmail = (TextView) rootView.findViewById(R.id.tvDpxEmail);
-        tvDbxName = (TextView) rootView.findViewById(R.id.tvDpxName);
-        tvDpxData = (TextView) rootView.findViewById(R.id.tvDpxData);
+        login_button = rootView.findViewById(R.id.btnDpxLogin);
+        btnSync = rootView.findViewById(R.id.btnSync);
+        btnSyncDown = rootView.findViewById(R.id.btnSyncDown);
+        btnSyncUp = rootView.findViewById(R.id.btnSyncUp);
+        tvDbxEmail = rootView.findViewById(R.id.tvDpxEmail);
+        tvDbxName = rootView.findViewById(R.id.tvDpxName);
+        tvDpxData = rootView.findViewById(R.id.tvDpxData);
         pDialog = new ProgressDialog(context);
         pDialog.setCancelable(false);
     }
 
     private void setSyncDataFileDateTime() {
         StringBuilder dpxData = new StringBuilder();
-        int downVis = !Functions.empty(remoteFileDate) ? View.VISIBLE : View.GONE;
-        int upVis = !Functions.empty(localfileDate) ? View.VISIBLE : View.GONE;
-        dpxData.append(getString(R.string.dropbox_sync_files)).append(!Functions.empty(syncDateTime) ? syncDateTime : getString(R.string.dropbox_sync_files_no_data)).append("\n");
-        dpxData.append(getString(R.string.dropbox_sync_files_local)).append(!Functions.empty(localfileDate) ? localfileDate : getString(R.string.dropbox_sync_files_no_data)).append("\n");
-        dpxData.append(getString(R.string.dropbox_sync_files_remote)).append(!Functions.empty(remoteFileDate) ? remoteFileDate : getString(R.string.dropbox_sync_files_no_data)).append("\n");
+        int downVis = !Utility.empty(remoteFileDate) ? View.VISIBLE : View.GONE;
+        int upVis = !Utility.empty(localfileDate) ? View.VISIBLE : View.GONE;
+        dpxData.append(getString(R.string.dropbox_sync_files)).append(!Utility.empty(syncDateTime) ? syncDateTime : getString(R.string.dropbox_sync_files_no_data)).append("\n");
+        dpxData.append(getString(R.string.dropbox_sync_files_local)).append(!Utility.empty(localfileDate) ? localfileDate : getString(R.string.dropbox_sync_files_no_data)).append("\n");
+        dpxData.append(getString(R.string.dropbox_sync_files_remote)).append(!Utility.empty(remoteFileDate) ? remoteFileDate : getString(R.string.dropbox_sync_files_no_data)).append("\n");
         btnSyncDown.setVisibility(downVis);
         btnSyncUp.setVisibility(upVis);
         tvDpxData.setText(dpxData.toString());

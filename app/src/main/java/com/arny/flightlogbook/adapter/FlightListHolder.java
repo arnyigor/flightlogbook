@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.arny.arnylib.adapters.BindableViewHolder;
+import com.arny.arnylib.utils.DateTimeUtils;
 import com.arny.arnylib.utils.Utility;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.models.Flight;
@@ -22,13 +23,13 @@ public class FlightListHolder extends BindableViewHolder<Flight> {
 
 	public FlightListHolder(View itemView) {
 		super(itemView);
-		date  = (TextView) itemView.findViewById(R.id.tvDate);
-		logTime  = (TextView) itemView.findViewById(R.id.tvLogTime);
-		tvType  = (TextView) itemView.findViewById(R.id.tvType);
-		tvRegNo  = (TextView) itemView.findViewById(R.id.tvRegNo);
-		tvDesc  = (TextView) itemView.findViewById(R.id.tvDesc);
-		llDescrBlock  = (LinearLayout) itemView.findViewById(R.id.llDescrBlock);
-		llItemBlock  = (LinearLayout) itemView.findViewById(R.id.llItemBlock);
+		date  = itemView.findViewById(R.id.tvDate);
+		logTime  = itemView.findViewById(R.id.tvLogTime);
+		tvType  = itemView.findViewById(R.id.tvType);
+		tvRegNo  = itemView.findViewById(R.id.tvRegNo);
+		tvDesc  = itemView.findViewById(R.id.tvDesc);
+		llDescrBlock  = itemView.findViewById(R.id.llDescrBlock);
+		llItemBlock  = itemView.findViewById(R.id.llItemBlock);
 	}
 
 	@Override
@@ -42,7 +43,7 @@ public class FlightListHolder extends BindableViewHolder<Flight> {
 		simpleActionListener = (SimpleActionListener) actionListener;
         long datetime = item.getDatetime();
         if (datetime > 0) {
-            date.setText(Utility.getDateTime(datetime, "dd MMM yyyy"));
+            date.setText(DateTimeUtils.getDateTime(datetime, "dd MMM yyyy"));
         }
 		logTime.setText(Utility.strLogTime(item.getLogtime()));
 		tvType.setText(item.getAirplanetypetitle());

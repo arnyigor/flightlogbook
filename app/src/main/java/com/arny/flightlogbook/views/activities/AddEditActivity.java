@@ -2,7 +2,6 @@ package com.arny.flightlogbook.views.activities;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
@@ -18,13 +17,15 @@ import android.view.*;
 import android.widget.*;
 import com.arny.arnylib.interfaces.InputDialogListener;
 import com.arny.arnylib.utils.*;
-import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.common.Functions;
 import com.arny.flightlogbook.common.Local;
 import com.arny.flightlogbook.models.Flight;
 import com.arny.flightlogbook.models.Type;
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment;
+import com.redmadrobot.inputmask.MaskedTextChangedListener;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -36,52 +37,117 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
     private LinearLayout motoCont;
     private String strDesc, strDate, strTime, airplane_type, reg_no;
     private int day_night, ifr_vfr, flight_type, logTime, logHours, logMinutes, airplane_type_id;
-    private long mDateTime, mTypeID;
+    private long mDateTime;
     private int mRowId;
     private float mMotoStart, mMotoFinish, mMotoResult;
-    private TextInputLayout regNoLayout;
     private EditText edtDesc, edtTime, edtRegNo, edtMotoStart, edtMotoFinish;
     private Button btnAddEdtItem;
     private ImageButton btnAddAirplaneTypes;
     private Spinner spinDayNight, spinVfrIfr, spinFlightType;
     private TextView tvAirplaneType, tvMotoResult;
-    private TextView edtDate;
+    private TextInputEditText edtDate;
 	private List<String> typeList = new ArrayList<>();
 	private boolean editable = false;
+    private TextInputLayout tilDate;
+    private MaskedTextChangedListener dateTimeListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_item);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitleTextColor(ContextCompat.getColor(this, R.color.colorText));
         setSupportActionBar(toolbar);
         toolbar.setTitle(R.string.str_edt);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-        edtDesc = (TextInputEditText) findViewById(R.id.edtDesc);
-        motoCont = (LinearLayout) findViewById(R.id.motoContainer);
-        ImageView dateTimeChoose = (ImageView) findViewById(R.id.iv_date);
-        edtDate = (TextView) findViewById(R.id.edtDate);
-        dateTimeChoose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CalendarDatePickerDialogFragment cdp = new CalendarDatePickerDialogFragment()
-                        .setOnDateSetListener(AddEditActivity.this);
-                cdp.show(getSupportFragmentManager(), FRAG_TAG_DATE_PICKER);
+        initUI();
+        if (Config.getBoolean("motoCheckPref",false,AddEditActivity.this)) {
+            showMotoBtn();
+        }
+    }
+
+    private void initUI() {
+        edtDesc =   findViewById(R.id.edtDesc);
+        motoCont = findViewById(R.id.motoContainer);
+        ImageView dateTimeChoose = findViewById(R.id.iv_date);
+        tilDate = findViewById(R.id.tilDate);
+        edtDate = findViewById(R.id.edtDate);
+        edtDate.setOnFocusChangeListener((v, hasFocus) -> {
+            Log.i(AddEditActivity.class.getSimpleName(), "initUI: hasFocus:"+  hasFocus);
+            boolean empty = Utility.empty(edtDate.getText().toString());
+            Log.i(AddEditActivity.class.getSimpleName(), "initUI: empty:"  + empty);
+            if (empty) {
+                if (hasFocus) {
+                    tilDate.setHint(getString(R.string.str_date));
+                    edtDate.setHint(getString(R.string.str_date_format));
+                } else {
+                    tilDate.setHint(null);
+                    edtDate.setHint(getString(R.string.str_date));
+                }
+            } else {
+                tilDate.setHint(getString(R.string.str_date));
+                edtDate.setHint(getString(R.string.str_date));
+                if (!hasFocus) {
+                    String dat = edtDate.getText().toString();
+                    Log.i(AddEditActivity.class.getSimpleName(), "initUI: dat:" + dat);
+                    if (!Utility.empty(dat) && !Utility.matcher("\\d{2}.\\d{2}.\\d{4}", dat)) {
+                        ToastMaker.toastError(AddEditActivity.this, "Ошибка ввода даты");
+                    }
+                }
             }
         });
-        edtTime = (EditText) findViewById(R.id.edtTime);
-        regNoLayout = (TextInputLayout) findViewById(R.id.edtRegNoLayout);
-        edtRegNo = (EditText) regNoLayout.findViewById(R.id.edtRegNo);
+        dateTimeListener = new MaskedTextChangedListener(
+                "[00].[00].[0000]",
+                false,
+                edtDate,
+                new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        if (Utility.empty(edtDate.getText().toString())) {
+                            tilDate.setHint(getString(R.string.str_date));
+                            edtDate.setHint(null);
+                        }
+                    }
+                },
+                (maskFilled, extractedValue) -> {
+                    if (maskFilled) {
+                        try {
+                            mDateTime = DateTimeUtils.getDateTime(extractedValue,"ddMMyyyy").withTimeAtStartOfDay().getMillis();
+                        } catch (Exception e) {
+                            setDayToday();
+                            ToastMaker.toastError(AddEditActivity.this, "Ошибка ввода даты");
+                        }
+                    }
+                }
+        );
+        edtDate.addTextChangedListener(dateTimeListener);
+        dateTimeChoose.setOnClickListener(v -> {
+            CalendarDatePickerDialogFragment cdp = new CalendarDatePickerDialogFragment()
+                    .setOnDateSetListener(AddEditActivity.this);
+            cdp.show(getSupportFragmentManager(), FRAG_TAG_DATE_PICKER);
+        });
+        edtTime = findViewById(R.id.edtTime);
+        TextInputLayout regNoLayout = findViewById(R.id.edtRegNoLayout);
+        edtRegNo = regNoLayout.findViewById(R.id.edtRegNo);
         edtRegNo.requestFocus();
-        btnAddEdtItem = (Button) findViewById(R.id.btnAddEdtItem);
-        btnAddAirplaneTypes = (ImageButton) findViewById(R.id.btnAddAirplaneTypes);
-        spinDayNight = (Spinner) findViewById(R.id.spinDayNight);
-        spinVfrIfr = (Spinner) findViewById(R.id.spinVfrIfr);
-        spinFlightType = (Spinner) findViewById(R.id.spinFlightType);
-        tvAirplaneType = (TextView) findViewById(R.id.tvAirplaneType);
+        btnAddEdtItem = findViewById(R.id.btnAddEdtItem);
+        btnAddAirplaneTypes = findViewById(R.id.btnAddAirplaneTypes);
+        spinDayNight = findViewById(R.id.spinDayNight);
+        spinVfrIfr = findViewById(R.id.spinVfrIfr);
+        spinFlightType = findViewById(R.id.spinFlightType);
+        tvAirplaneType = findViewById(R.id.tvAirplaneType);
         try {
             Bundle extras = getIntent().getExtras();
             if (extras != null) {
@@ -100,45 +166,30 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
             setTitle(getString(R.string.str_add));
         }
 
-        edtTime.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean inside) {
-                if (inside) {
-                    edtTime.setText("");
-                }
-                if (!inside) {
-                    correctLogTime();
-                }
-            }
-        });
-
-        edtTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        edtTime.setOnFocusChangeListener((view, inside) -> {
+            if (inside) {
                 edtTime.setText("");
             }
-        });
-
-        edtTime.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View view, int i, KeyEvent keyEvent) {
-                if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (i == KeyEvent.KEYCODE_ENTER)) {
-                    correctLogTime();
-                    return true;
-                }
-                return false;
+            if (!inside) {
+                correctLogTime();
             }
         });
 
-        btnAddEdtItem.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (saveState()) {
-                    finish();
-                }
+        edtTime.setOnClickListener(view -> edtTime.setText(""));
+
+        edtTime.setOnKeyListener((view, i, keyEvent) -> {
+            if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (i == KeyEvent.KEYCODE_ENTER)) {
+                correctLogTime();
+                return true;
             }
+            return false;
         });
 
+        btnAddEdtItem.setOnClickListener(v -> {
+            if (saveState()) {
+                finish();
+            }
+        });
 
         spinDayNight.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent,
@@ -160,29 +211,22 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
             }
         });
 
-        btnAddAirplaneTypes.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AddAirplaneTypes();
+        btnAddAirplaneTypes.setOnClickListener(view -> AddAirplaneTypes());
+
+        tvAirplaneType.setOnClickListener(view -> {
+            filltypes();
+            if (typeList.size() > 0) {
+                showAirplaneTypes();
+            } else {
+                Toast.makeText(AddEditActivity.this, R.string.str_no_types, Toast.LENGTH_SHORT).show();
             }
+
         });
+    }
 
-        tvAirplaneType.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                filltypes();
-                if (typeList.size() > 0) {
-                    showAirplaneTypes();
-                } else {
-                    Toast.makeText(AddEditActivity.this, R.string.str_no_types, Toast.LENGTH_SHORT).show();
-                }
-
-            }
-        });
-
-        if (Config.getBoolean("motoCheckPref",false,AddEditActivity.this)) {
-            showMotoBtn();
-        }
+    private void setDayToday() {
+        mDateTime = DateTime.now().withTimeAtStartOfDay().getMillis();
+        edtDate.setText(DateTimeUtils.getDateTime(mDateTime,"dd.MM.yyyy"));
     }
 
     @Override
@@ -243,22 +287,15 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
         CharSequence[] cs = typeList.toArray(new CharSequence[typeList.size()]);
         AlertDialog.Builder typesBuilder = new AlertDialog.Builder(this);
         typesBuilder.setTitle(getString(R.string.str_type));
-        typesBuilder.setItems(cs, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int item) {
-                airplane_type = typeList.get(item);
-                Type type = Local.getTypeItem(item + 1, AddEditActivity.this);//нумерация списка с нуля,в базе с 1цы
-                if (type != null) {
-                    airplane_type_id = type.getTypeId();
-                }
-                tvAirplaneType.setText(String.format("%s %s", getString(R.string.str_type), typeList.get(item)));
+        typesBuilder.setItems(cs, (dialog, item) -> {
+            airplane_type = typeList.get(item);
+            Type type = Local.getTypeItem(item + 1, AddEditActivity.this);//нумерация списка с нуля,в базе с 1цы
+            if (type != null) {
+                airplane_type_id = type.getTypeId();
             }
+            tvAirplaneType.setText(String.format("%s %s", getString(R.string.str_type), typeList.get(item)));
         });
-        typesBuilder.setNegativeButton(getString(R.string.str_cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
+        typesBuilder.setNegativeButton(getString(R.string.str_cancel), (dialog, which) -> dialog.cancel());
         AlertDialog alert = typesBuilder.create();
         alert.show();
     }
@@ -275,7 +312,7 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
                 mMotoStart = Float.parseFloat(edtMotoStart.getText().toString());
                 mMotoFinish = Float.parseFloat(edtMotoFinish.getText().toString());
                 mMotoResult = getMotoTime(mMotoStart, mMotoFinish);
-                tvMotoResult.setText(Functions.strLogTime(setLogTimefromMoto(mMotoResult)));
+                tvMotoResult.setText(Utility.strLogTime(setLogTimefromMoto(mMotoResult)));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -294,11 +331,10 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
                 mMotoStart = Float.parseFloat(edtMotoStart.getText().toString());
                 mMotoFinish = Float.parseFloat(edtMotoFinish.getText().toString());
                 mMotoResult = getMotoTime(mMotoStart, mMotoFinish);
-                tvMotoResult.setText(Functions.strLogTime(setLogTimefromMoto(mMotoResult)));
+                tvMotoResult.setText(Utility.strLogTime(setLogTimefromMoto(mMotoResult)));
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
         }
     };
 
@@ -325,12 +361,7 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
         Button btn = new Button(this);
         btn.setLayoutParams(lButtonParams);
         btn.setId(R.id.motoBtn);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showMoto();
-            }
-        });
+        btn.setOnClickListener(v -> showMoto());
         btn.setText(getString(R.string.str_moto_btn));
         motoCont.addView(btn);
     }
@@ -340,27 +371,20 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
         View xmlView = li.inflate(R.layout.moto, null);
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(AddEditActivity.this);
         alertDialog.setView(xmlView);
-        edtMotoStart = (EditText) xmlView.findViewById(R.id.edtStartMoto);
-        edtMotoFinish = (EditText) xmlView.findViewById(R.id.edtFinishMoto);
-        tvMotoResult = (TextView) xmlView.findViewById(R.id.tvMotoresult);
+        edtMotoStart = xmlView.findViewById(R.id.edtStartMoto);
+        edtMotoFinish = xmlView.findViewById(R.id.edtFinishMoto);
+        tvMotoResult = xmlView.findViewById(R.id.tvMotoresult);
         edtMotoStart.addTextChangedListener(motoStart);
         edtMotoFinish.addTextChangedListener(motoFinish);
         alertDialog.setTitle(getString(R.string.str_moto));
-        alertDialog.setCancelable(false).setPositiveButton(getString(R.string.str_ok), new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                logTime = setLogTimefromMoto(mMotoResult);
-                logHours = logTime / 60;
-                logMinutes = logTime % 60;
-                edtTime.setText(String.format("%s:%s", Functions.pad(logHours), Functions.pad(logMinutes)));
-            }
-        }).setNegativeButton(getString(R.string.str_cancel), new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                dialog.cancel();
-            }
-        });
+        alertDialog.setCancelable(false).setPositiveButton(getString(R.string.str_ok), (dialog, id) -> {
+            logTime = setLogTimefromMoto(mMotoResult);
+            logHours = logTime / 60;
+            logMinutes = logTime % 60;
+            edtTime.setText(String.format("%s:%s", Utility.pad(logHours), Utility.pad(logMinutes)));
+        }).setNegativeButton(getString(R.string.str_cancel), (dialog, id) -> dialog.cancel());
         alertDialog.show();
     }
-
 
     @SuppressLint("DefaultLocale")
     private void correctLogTime() {
@@ -368,7 +392,7 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
             String inputLogtime = edtTime.getText().toString();
             if (inputLogtime.length() == 0) {
                 if (logTime != 0) {
-                    edtTime.setText(Functions.strLogTime(logTime));
+                    edtTime.setText(Utility.strLogTime(logTime));
                 } else {
                     edtTime.setText("00:00");
                     logTime = 0;
@@ -383,7 +407,7 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
                     logHours = 1;
                     logMinutes = logMinutes - 60;
                 }
-                edtTime.setText(String.format("%s:%s", Functions.pad(logHours), Functions.pad(logMinutes)));
+                edtTime.setText(String.format("%s:%s", Utility.pad(logHours), Utility.pad(logMinutes)));
             } else if (inputLogtime.length() > 2) {
                 if (inputLogtime.contains(":")) {
                     logMinutes = Integer.parseInt(edtTime.getText().toString().substring(inputLogtime.length() - 2, inputLogtime.length()));
@@ -397,7 +421,7 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
                     logMinutes = logMinutes - 60;
                 }
                 logTime = logHours * 60 + logMinutes;
-                edtTime.setText(String.format("%s:%s", Functions.pad(logHours), Functions.pad(logMinutes)));
+                edtTime.setText(String.format("%s:%s", Utility.pad(logHours), Utility.pad(logMinutes)));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -408,7 +432,7 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
         Log.d(AddEditActivity.class.getSimpleName(), "fillEdtTime logTime = " + time);
         try {
             if (time != 0) {
-                edtTime.setText(Functions.strLogTime(time));
+                edtTime.setText(Utility.strLogTime(time));
             } else {
                 edtTime.setText("00:00");
             }
@@ -422,7 +446,7 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
             @Override
             public void onConfirm(String content) {
                 airplane_type = content;
-                mTypeID = Local.addType(airplane_type, AddEditActivity.this);
+                Local.addType(airplane_type, AddEditActivity.this);
                 fillInputs();
             }
 
@@ -439,14 +463,12 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
             strDesc = flight.getDescription();
             edtDesc.setText(strDesc);
             mDateTime = flight.getDatetime();
-            strDate = Functions.getDateTime(flight.getDatetime(), "dd MMM yyyy");
+            strDate = DateTimeUtils.getDateTime(flight.getDatetime(), "dd.MM.yyyy");
             edtDate.setText(strDate);
             logTime = flight.getLogtime();
-            strTime = Functions.getDateTime(flight.getDatetime(), "hh:mm");
-            edtTime.setText(strTime);
             reg_no = flight.getReg_no();
             edtRegNo.setText(reg_no);
-            edtTime.setText(Functions.strLogTime(logTime));
+            edtTime.setText(Utility.strLogTime(logTime));
             airplane_type_id = flight.getAirplanetypeid();
             Type typeItem = Local.getTypeItem(airplane_type_id, AddEditActivity.this);
             String airplType = typeItem != null ? typeItem.getTypeName() : null;
@@ -465,7 +487,7 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
             strDate = "";
             reg_no = "";
             airplane_type = "";
-            mDateTime = Functions.convertTimeStringToLong(DateTimeUtils.getDateTime( "dd MM yyyy"), "dd MM yyyy");
+            mDateTime = DateTime.now().withTimeAtStartOfDay().getMillis();
             logTime = 0;
             day_night = 0;
             ifr_vfr = 0;
@@ -504,10 +526,6 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
             correctLogTime();
         }
         strDesc = edtDesc.getText().toString();
-        strDate = edtDate.getText().toString();
-        if (strDate.equals("")) {
-            strDate = DateTimeUtils.getDateTime( "dd MM yyyy");
-        }
         strTime = edtTime.getText().toString();
         reg_no = edtRegNo.getText().toString();
         day_night = (int) spinDayNight.getSelectedItemId();
@@ -517,14 +535,19 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
             long res = Local.addFlight(mDateTime, logTime, reg_no, airplane_type_id, day_night, ifr_vfr, flight_type, strDesc, AddEditActivity.this);
             return res > 0;
         } else {
-            return Local.updateFlight(mDateTime, logTime, reg_no, airplane_type_id, day_night, ifr_vfr, flight_type, strDesc, (int) mRowId, AddEditActivity.this);//тут тоже делаем сужение типа,странно,что для вставки нужен int,а выдает long
+            return Local.updateFlight(mDateTime, logTime, reg_no, airplane_type_id, day_night, ifr_vfr, flight_type, strDesc, mRowId, AddEditActivity.this);//тут тоже делаем сужение типа,странно,что для вставки нужен int,а выдает long
         }
     }
 
     @Override
     public void onDateSet(CalendarDatePickerDialogFragment dialog, int year, int monthOfYear, int dayOfMonth) {
         strDate = dayOfMonth + " " + (monthOfYear+1) + " " + year;
-        mDateTime = Functions.convertTimeStringToLong(strDate, "dd MM yyyy");
-        edtDate.setText(DateTimeUtils.getDateTime(mDateTime,"dd MMM yyyy"));
+        try {
+            mDateTime = DateTimeUtils.getDateTime(strDate, "dd MM yyyy").withTimeAtStartOfDay().getMillis();
+        } catch (Exception e) {
+            e.printStackTrace();
+            ToastMaker.toastError(AddEditActivity.this, "Ошибка ввода даты");
+        }
+        edtDate.setText(DateTimeUtils.getDateTime(mDateTime,"dd.MM.yyyy"));
     }
 }

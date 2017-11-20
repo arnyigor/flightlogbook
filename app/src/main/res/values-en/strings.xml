@@ -81,7 +81,7 @@
     <string name="drawer_open">drawer_open</string>
     <string name="dropbox_app_key">rzzuhol6y1aibdx</string>
     <string name="fragment_logbook">LogBook</string>
-    <string name="str_filter_by">Filter</string>
+    <string name="str_sort_by">Sort by</string>
     <string name="str_filter_type">Filter</string>
     <string name="str_fitre_stat">Statistics Filter</string>
     <string name="str_fragment">Fragment</string>
@@ -141,4 +141,9 @@
     <string name="press_back_again_to_exit">Click again to exit</string>
     <string name="storage_permission_denied">Need access to SD write</string>
     <string name="auto_export_xls_on_exit">Export XLS file on exit</string>
+    <string name="str_date_desc">Date descending</string>
+    <string name="str_date_asc">Date Ascending</string>
+    <string name="str_logtime_desc">Flight time descending</string>
+    <string name="str_logtime_asc">Flight time ascending</string>
+    <string name="str_date_format">dd.MM.yyyy</string>
 </resources>

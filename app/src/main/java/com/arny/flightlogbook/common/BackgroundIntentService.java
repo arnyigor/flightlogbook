@@ -167,11 +167,11 @@ public class BackgroundIntentService extends IntentService {
         switch (getOperation()) {
             case OPERATION_IMPORT_SD:
                 String mPath = intent.getStringExtra(EXTRA_KEY_IMPORT_SD_FILENAME);
-                if (Functions.empty(mPath)) {
+                if (Utility.empty(mPath)) {
                     readExcelFile(getApplicationContext(), Functions.EXEL_FILE_NAME, true);
                 } else {
                     Uri uri = Uri.fromFile(new File(mPath));
-                    readExcelFile(getApplicationContext(), Functions.getSDFilePath(getApplicationContext(), uri), false);
+                    readExcelFile(getApplicationContext(), FileUtils.getSDFilePath(getApplicationContext(), uri), false);
                 }
                 break;
             case OPERATION_DBX_SYNC:
@@ -298,7 +298,7 @@ public class BackgroundIntentService extends IntentService {
             c = row.createCell(0);
             c.setCellValue(Functions.getDateTime(export.getDatetime(), "dd MMM yyyy"));
             c = row.createCell(1);
-            c.setCellValue(Functions.strLogTime(export.getLogtime()));
+            c.setCellValue(Utility.strLogTime(export.getLogtime()));
             c = row.createCell(2);
             c.setCellValue(airplane_type);
             c = row.createCell(3);
@@ -328,7 +328,7 @@ public class BackgroundIntentService extends IntentService {
         FileOutputStream os = null;
 
         try {
-            os = new FileOutputStream(file);;
+            os = new FileOutputStream(file);
             wb.write(os);
 //            Toasty.success(context, getString(R.string.str_file_saved) + " " + file, Toast.LENGTH_SHORT).show();
 //            Toast.makeText(context, getString(R.string.str_file_saved) + " " + file, Toast.LENGTH_SHORT).show();
@@ -356,7 +356,7 @@ public class BackgroundIntentService extends IntentService {
         long mDateTime = 0;
         List<Type> typeList;
         File xlsfile;
-        if (!Functions.isExternalStorageAvailable() || Functions.isExternalStorageReadOnly()) {
+        if (!FileUtils.isExternalStorageAvailable() || FileUtils.isExternalStorageReadOnly()) {
             return;
         }
         try {
@@ -404,7 +404,7 @@ public class BackgroundIntentService extends IntentService {
                             case 1:
                                 try {
                                     if (myCell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
-                                        strTime = Functions.match(myCell.getDateCellValue().toString(), "(\\d{2}:\\d{2})", 1);
+                                        strTime = Utility.match(myCell.getDateCellValue().toString(), "(\\d{2}:\\d{2})", 1);
                                     } else {
                                         strTime = myCell.toString();
                                     }
@@ -483,7 +483,7 @@ public class BackgroundIntentService extends IntentService {
                                 if (BuildConfig.DEBUG)
                                     Log.d(BackgroundIntentService.class.getSimpleName(), "strDesc " + strDesc);
                                 try {
-                                    logTime = Functions.convertStringToTime(strTime);
+                                    logTime = DateTimeUtils.convertStringToTime(strTime);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -494,7 +494,7 @@ public class BackgroundIntentService extends IntentService {
                                     e.printStackTrace();
                                 }
                                 try {
-                                    mDateTime = DateTimeUtils.convertTimeStringToLong(strDate, format);
+                                    mDateTime = DateTimeUtils.getDateTime(strDate, format).getMillis();
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }

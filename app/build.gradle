@@ -1,36 +1,50 @@
+apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
+apply plugin: 'kotlin-android'
 buildscript {
     repositories {
         maven { url 'https://maven.fabric.io/public' }
     }
 
     dependencies {
-        classpath 'io.fabric.tools:gradle:1.+'
+        classpath 'io.fabric.tools:gradle:1.24.4'
     }
 }
-apply plugin: 'com.android.application'
-apply plugin: 'io.fabric'
 
 repositories {
     maven { url 'https://maven.fabric.io/public' }
+    maven { url 'https://jitpack.io' }
 }
 
 android {
+    signingConfigs {
+        release {
+            keyAlias 'androidapps'
+            keyPassword KEY_PASSWORD
+            storeFile file('../../keystore/mykeystore.jks')
+            storePassword KEYSTORE_PASSWORD
+        }
+    }
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
     defaultConfig {
         applicationId "com.arny.flightlogbook"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 611
-        versionName "6.1.1"
+        versionCode 616
+        versionName "6.1.6"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         // Enabling multidex support.
         multiDexEnabled true
+    }
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     packagingOptions {
@@ -41,23 +55,27 @@ android {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/MANIFEST.MF'
     }
+
+    compileOptions {
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
+    }
 }
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(path: ':arnylib')
-    compile('com.mikepenz:materialdrawer:5.8.1@aar') {
-        transitive = true
-    }
     compile 'com.dropbox.core:dropbox-core-sdk:2.1.1'
     compile 'org.apache.poi:poi:3.9'
-    compile 'com.google.firebase:firebase-core:11.2.0'
-    compile 'com.google.firebase:firebase-crash:11.2.0'
+    compile 'com.google.firebase:firebase-core:11.6.0'
+    compile 'com.google.firebase:firebase-crash:11.6.0'
     compile 'com.android.support:multidex:1.0.2'
-    compile 'com.code-troopers.betterpickers:library:3.1.0'
-    compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
-        transitive = true;
+    debugCompile 'com.amitshekhar.android:debug-db:1.0.1'
+    compile('com.crashlytics.sdk.android:crashlytics:2.7.1@aar') {
+        transitive = true
     }
+    compile 'com.redmadrobot:inputmask:2.3.0'
+    compile 'org.jetbrains.kotlin:kotlin-stdlib'
 }
 // ADD THIS AT THE BOTTOM
 apply plugin: 'com.google.gms.google-services'

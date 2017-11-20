@@ -6,9 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.*;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.common.Local;
@@ -47,10 +45,18 @@ public class StatisticFragment extends Fragment {
         return view;
     }
 
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         setRetainInstance(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        menu.clear();
     }
 
     @Override
@@ -67,9 +73,9 @@ public class StatisticFragment extends Fragment {
 
     //инициализация view
     private void initUI(View view) {
-        tvDateFrom = (TextView) view.findViewById(R.id.tvDateFrom);
-        tvDateTo = (TextView) view.findViewById(R.id.tvDateTo);
-        lvStatResult = (ListView) view.findViewById(R.id.lvStatResult);
+        tvDateFrom = view.findViewById(R.id.tvDateFrom);
+        tvDateTo = view.findViewById(R.id.tvDateTo);
+        lvStatResult = view.findViewById(R.id.lvStatResult);
         tvDateFrom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -82,7 +88,7 @@ public class StatisticFragment extends Fragment {
                 setDateTo();
             }
         });
-        progressStat = (ProgressBar) view.findViewById(R.id.progressStat);
+        progressStat = view.findViewById(R.id.progressStat);
         progressStat.setVisibility(View.VISIBLE);
     }
 
@@ -124,6 +130,8 @@ public class StatisticFragment extends Fragment {
         }
     }
 
+
+
     //начальные данные времени
     private void startInitDateTime() {
         FlightData = Local.getFlightListByDate(ctx);
@@ -149,9 +157,9 @@ public class StatisticFragment extends Fragment {
     public void setDateFrom() {
         dateAndTimeStart.setTimeInMillis(startdatetime);
         new DatePickerDialog(ctx, onDateStartSetListener,
-                dateAndTimeStart.get(dateAndTimeStart.YEAR),
-                dateAndTimeStart.get(dateAndTimeStart.MONTH),
-                dateAndTimeStart.get(dateAndTimeStart.DAY_OF_MONTH))
+                dateAndTimeStart.get(Calendar.YEAR),
+                dateAndTimeStart.get(Calendar.MONTH),
+                dateAndTimeStart.get(Calendar.DAY_OF_MONTH))
                 .show();
     }
 
@@ -159,9 +167,9 @@ public class StatisticFragment extends Fragment {
     public void setDateTo() {
         dateAndTimeEnd.setTimeInMillis(enddatetime);
         new DatePickerDialog(ctx, onDateEndSetListener,
-                dateAndTimeEnd.get(dateAndTimeEnd.YEAR),
-                dateAndTimeEnd.get(dateAndTimeEnd.MONTH),
-                dateAndTimeEnd.get(dateAndTimeEnd.DAY_OF_MONTH))
+                dateAndTimeEnd.get(Calendar.YEAR),
+                dateAndTimeEnd.get(Calendar.MONTH),
+                dateAndTimeEnd.get(Calendar.DAY_OF_MONTH))
                 .show();
     }
 
@@ -229,18 +237,18 @@ public class StatisticFragment extends Fragment {
             if (convertView == null) {
                 convertView = mInflater.inflate(R.layout.stat_list_item, null);
             }
-            tvMonths = (TextView) convertView.findViewById(R.id.tvMonths);
-            tvCnt = (TextView) convertView.findViewById(R.id.tvCnt);
-            tvTotalMonth = (TextView) convertView.findViewById(R.id.tvTotalMonth);
-            tvDayNight = (TextView) convertView.findViewById(R.id.tvDayNight);
-            tvVfrIfr = (TextView) convertView.findViewById(R.id.tvVfrIfr);
-            tvCZM = (TextView) convertView.findViewById(R.id.tvCZM);
+            tvMonths = convertView.findViewById(R.id.tvMonths);
+            tvCnt = convertView.findViewById(R.id.tvCnt);
+            tvTotalMonth = convertView.findViewById(R.id.tvTotalMonth);
+            tvDayNight = convertView.findViewById(R.id.tvDayNight);
+            tvVfrIfr = convertView.findViewById(R.id.tvVfrIfr);
+            tvCZM = convertView.findViewById(R.id.tvCZM);
 
             tvMonths.setText(String.valueOf(statistics.get(position).getStrMoths()));
             tvCnt.setText(String.valueOf(statistics.get(position).getCnt()));
             tvTotalMonth.setText(String.valueOf(statistics.get(position).getStrTotalByMonths()));
             tvDayNight.setText(String.valueOf(statistics.get(position).getDnTime()));
-            tvVfrIfr.setText(String.valueOf(statistics.get(position).getIVTime()));
+            tvVfrIfr.setText(String.valueOf(statistics.get(position).getIvTime()));
             tvCZM.setText(String.valueOf(statistics.get(position).getCzmTime()));
 
             return convertView;

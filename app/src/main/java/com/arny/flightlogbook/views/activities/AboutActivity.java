@@ -19,11 +19,11 @@ public class AboutActivity extends AppCompatActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.about_layout);
-		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		Toolbar toolbar = findViewById(R.id.toolbar);
 		toolbar.setTitleTextColor(ContextCompat.getColor(this,R.color.colorText));
 		setSupportActionBar(toolbar);
 		toolbar.setTitle(R.string.str_about);
-		final TextView textView = (TextView) findViewById(R.id.tvAboutInfo);
+		final TextView textView = findViewById(R.id.tvAboutInfo);
 		String html = "<h1>Автор программы  - Игорь Седой.</h1><cite><p>Программа предназначена для пилотов,которым необходимо фиксировать полетное время.Проект будет дополняться и расширяться в соответствии с пожеланиями пользователей.</p></cite><p>Все недочеты и пожелания пишите на <b><a href=\"mailto:arnyigor@gmail.com?subject=Pilot LogBook\">arnyigor@gmail.com</a></b></p>";
 		if (Build.VERSION.SDK_INT >= 24) {
 			textView.setText(Html.fromHtml(html,Html.FROM_HTML_MODE_LEGACY));
