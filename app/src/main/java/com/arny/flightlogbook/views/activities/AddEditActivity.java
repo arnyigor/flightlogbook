@@ -460,6 +460,10 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
     private void fillInputs() {
         if (mRowId != 0) {
             Flight flight = Local.getFlightItem(mRowId, AddEditActivity.this);
+            if (flight == null) {
+                initEmptyflight();
+                return;
+            }
             strDesc = flight.getDescription();
             edtDesc.setText(strDesc);
             mDateTime = flight.getDatetime();
@@ -481,28 +485,7 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
             flight_type = flight.getFlighttype();
             spinFlightType.setSelection(flight_type);
         } else {
-            edtDesc.setText("");
-            edtDate.setText("");
-            strDesc = "";
-            strDate = "";
-            reg_no = "";
-            airplane_type = "";
-            mDateTime = DateTime.now().withTimeAtStartOfDay().getMillis();
-            logTime = 0;
-            day_night = 0;
-            ifr_vfr = 0;
-            flight_type = 0;
-            filltypes();
-            if (typeList.size() > 0) {
-                airplane_type_id = 1;
-                tvAirplaneType.setText(String.format("%s %s", getString(R.string.str_type), typeList.get(0)));
-            } else {
-                airplane_type_id = 0;
-                tvAirplaneType.setText(getString(R.string.str_no_types));
-            }
-            spinDayNight.setSelection(day_night);
-            spinVfrIfr.setSelection(ifr_vfr);
-            spinFlightType.setSelection(flight_type);
+            initEmptyflight();
         }// row!=0
         //filltypes();
         Log.d(AddEditActivity.class.getSimpleName(), "mRowId: " + String.valueOf(mRowId));
@@ -518,6 +501,31 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
         Log.d(AddEditActivity.class.getSimpleName(), "flight_type: " + String.valueOf(flight_type));
         Log.d(AddEditActivity.class.getSimpleName(), "-------------fillInputs end---------");
     }// fillinputs
+
+    private void initEmptyflight() {
+        edtDesc.setText("");
+        edtDate.setText("");
+        strDesc = "";
+        strDate = "";
+        reg_no = "";
+        airplane_type = "";
+        mDateTime = DateTime.now().withTimeAtStartOfDay().getMillis();
+        logTime = 0;
+        day_night = 0;
+        ifr_vfr = 0;
+        flight_type = 0;
+        filltypes();
+        if (typeList.size() > 0) {
+            airplane_type_id = 1;
+            tvAirplaneType.setText(String.format("%s %s", getString(R.string.str_type), typeList.get(0)));
+        } else {
+            airplane_type_id = 0;
+            tvAirplaneType.setText(getString(R.string.str_no_types));
+        }
+        spinDayNight.setSelection(day_night);
+        spinVfrIfr.setSelection(ifr_vfr);
+        spinFlightType.setSelection(flight_type);
+    }
 
     private boolean saveState() {
         String strlogTime = edtTime.getText().toString();
