@@ -18,10 +18,7 @@ import android.view.*;
 import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.arny.arnylib.adapters.SimpleBindableAdapter;
-import com.arny.arnylib.utils.Config;
-import com.arny.arnylib.utils.DroidUtils;
-import com.arny.arnylib.utils.ToastMaker;
-import com.arny.arnylib.utils.Utility;
+import com.arny.arnylib.utils.*;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.adapter.FlightListHolder;
 import com.arny.flightlogbook.common.BackgroundIntentService;
@@ -58,8 +55,8 @@ public class FlightListFragment extends Fragment {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         flightListAdapter = new SimpleBindableAdapter<>(context, R.layout.flight_list_item, FlightListHolder.class);
         flightListAdapter.setActionListener((FlightListHolder.SimpleActionListener) (position, Item) -> {
-            Log.i(FlightListFragment.class.getSimpleName(), "OnItemClickListener: position = " + position);
-            Log.i(FlightListFragment.class.getSimpleName(), "OnItemClickListener: Item = " + Item);
+            Log.d(FlightListFragment.class.getSimpleName(), "OnItemClickListener: position = " + position);
+            Log.d(FlightListFragment.class.getSimpleName(), "OnItemClickListener: Item = " + Item);
             showMenuDialog(position);
         });
 	    recyclerView.setAdapter(flightListAdapter);
@@ -144,8 +141,11 @@ public class FlightListFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case  R.id.action_filter:
-                new MaterialDialog.Builder(context)
-                        .title(R.string.str_sort_by)
+	            String[] filters = getResources().getStringArray(R.array.flights_filers);
+	            int filterPos = Config.getInt(Local.CONFIG_USER_FILTER_FLIGHTS, context);
+	            String filter = filters[filterPos];
+	            new MaterialDialog.Builder(context)
+                        .title(getString(R.string.str_sort_by) + " " + filter)
                         .items(R.array.flights_filers)
                         .autoDismiss(true)
                         .itemsCallback((dialog, view, which, text) -> {
@@ -161,7 +161,7 @@ public class FlightListFragment extends Fragment {
 
 
     private void displayTotalTime() {
-        tvTotalTime.setText(String.format("%s %s", context.getResources().getString(R.string.str_totaltime), Utility.strLogTime(Local.getFlightsTime(context))));
+        tvTotalTime.setText(String.format("%s %s", context.getResources().getString(R.string.str_totaltime), DateTimeUtils.strLogTime(Local.getFlightsTime(context))));
     }
 
     @Override

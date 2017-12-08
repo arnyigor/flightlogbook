@@ -167,8 +167,11 @@
     <string name="auto_export_xls_on_exit">Автоэкспорт XLS при выходе</string>
     <string name="str_date_desc">Дата по убыванию</string>
     <string name="str_date_asc">Дата по возрастанию</string>
-    <string name="str_logtime_desc">Полетное время по убыванию</string>
-    <string name="str_logtime_asc">Полетное время по возрастанию</string>
+    <string name="str_logtime_desc">Налет по убыванию</string>
+    <string name="str_logtime_asc">Налет по возрастанию</string>
+	<string name="warning">Предупреждение</string>
+	<string name="dropbox_sync_warning_content">Включена настройка сохранения базы данных при загрузке файла Dropbox.Загрузить?
+	</string>
 
 
 </resources>

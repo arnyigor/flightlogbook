@@ -45,19 +45,14 @@ public class FlightListHolder extends BindableViewHolder<Flight> {
         if (datetime > 0) {
             date.setText(DateTimeUtils.getDateTime(datetime, "dd MMM yyyy"));
         }
-		logTime.setText(Utility.strLogTime(item.getLogtime()));
+		logTime.setText(DateTimeUtils.strLogTime(item.getLogtime()));
 		tvType.setText(item.getAirplanetypetitle());
 		tvRegNo.setText(item.getReg_no());
 		int visDesrcBlock = Utility.empty(item.getDescription()) ? View.GONE : View.VISIBLE;
 		llDescrBlock.setVisibility(visDesrcBlock);
 		tvDesc.setText(item.getDescription());
 		if (simpleActionListener != null) {
-			llItemBlock.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					simpleActionListener.OnItemClickListener(position,item);
-				}
-			});
+			llItemBlock.setOnClickListener(v -> simpleActionListener.OnItemClickListener(position,item));
 		}
 	}
 

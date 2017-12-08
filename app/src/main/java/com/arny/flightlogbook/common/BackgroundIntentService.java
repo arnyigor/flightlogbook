@@ -11,6 +11,7 @@ import android.util.Log;
 
 import com.arny.arnylib.files.FileUtils;
 import com.arny.arnylib.utils.BasePermissions;
+import com.arny.arnylib.utils.Config;
 import com.arny.arnylib.utils.DateTimeUtils;
 import com.arny.arnylib.utils.Utility;
 import com.arny.flightlogbook.BuildConfig;
@@ -170,8 +171,7 @@ public class BackgroundIntentService extends IntentService {
                 if (Utility.empty(mPath)) {
                     readExcelFile(getApplicationContext(), Functions.EXEL_FILE_NAME, true);
                 } else {
-                    Uri uri = Uri.fromFile(new File(mPath));
-                    readExcelFile(getApplicationContext(), FileUtils.getSDFilePath(getApplicationContext(), uri), false);
+	                readExcelFile(getApplicationContext(), FileUtils.getSDFilePath(getApplicationContext(), Uri.fromFile(new File(mPath))), false);
                 }
                 break;
             case OPERATION_DBX_SYNC:
@@ -298,7 +298,7 @@ public class BackgroundIntentService extends IntentService {
             c = row.createCell(0);
             c.setCellValue(Functions.getDateTime(export.getDatetime(), "dd MMM yyyy"));
             c = row.createCell(1);
-            c.setCellValue(Utility.strLogTime(export.getLogtime()));
+            c.setCellValue(DateTimeUtils.strLogTime(export.getLogtime()));
             c = row.createCell(2);
             c.setCellValue(airplane_type);
             c = row.createCell(3);
@@ -550,6 +550,9 @@ public class BackgroundIntentService extends IntentService {
                 mIsSuccess = false;
 
             }
+	        if (Config.getBoolean(Local.DROPBOX_AUTOIMPORT_TO_DB,false,getApplicationContext())) {
+		        readExcelFile(getApplicationContext(), Functions.EXEL_FILE_NAME, true);
+	        }
         } catch (Exception e) {
             e.printStackTrace();
             mIsSuccess = false;

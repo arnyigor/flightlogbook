@@ -8,6 +8,7 @@ import android.util.Log;
 import android.widget.Toast;
 import com.arny.arnylib.database.DBProvider;
 import com.arny.arnylib.utils.BasePermissions;
+import com.arny.arnylib.utils.DateTimeUtils;
 import com.arny.arnylib.utils.Utility;
 import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
@@ -36,8 +37,9 @@ public class Local {
     //Table Name
     public static final String MAIN_TABLE = "main_table";
     public static final String TYPE_TABLE = "type_table";
+	public static final String DROPBOX_AUTOIMPORT_TO_DB = "dropbox_autoimport_to_db";
 
-    //Insert Value
+	//Insert Value
     public static long addFlight(long datetime, int logtime, String reg_no, int airplanetypeid, int daynight, int ifr_vfr, int flighttype, String description, Context context) {
         ContentValues values = new ContentValues();
         values.put(COLUMN_DATETIME, datetime);
@@ -162,19 +164,19 @@ public class Local {
                 listitem.setCnt(Functions.validateInt(cursor.getString(cursor.getColumnIndex("cnt"))));
                 listitem.setStrMoths(Functions.getDateTime(Functions.validateLong(cursor.getString(cursor.getColumnIndex("dt"))),"MMM yyyy"));
                 listitem.setTotalByMonth(Functions.validateInt(cursor.getString(cursor.getColumnIndex("total_month"))));
-                listitem.setStrTotalByMonths(Utility.strLogTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("total_month")))));
+                listitem.setStrTotalByMonths(DateTimeUtils.strLogTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("total_month")))));
                 listitem.setDaysTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("daystime"))));
                 daysTime += Functions.validateInt(cursor.getString(cursor.getColumnIndex("daystime")));
                 listitem.setNightsTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("nighttime"))));
                 nightTime += Functions.validateInt(cursor.getString(cursor.getColumnIndex("nighttime")));
-                listitem.setDnTime(Utility.strLogTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("daystime")))) + "\n" + Utility.strLogTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("nighttime")))));
+                listitem.setDnTime(DateTimeUtils.strLogTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("daystime")))) + "\n" + DateTimeUtils.strLogTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("nighttime")))));
                 listitem.setVfrTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("vfrtime"))));
                 vfrtime += Functions.validateInt(cursor.getString(cursor.getColumnIndex("vfrtime")));
                 ifrtime += Functions.validateInt(cursor.getString(cursor.getColumnIndex("ifrtime")));
                 listitem.setIfrTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("ifrtime"))));
-                listitem.setIvTime(Utility.strLogTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("vfrtime")))) + "\n" + Utility.strLogTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("ifrtime")))));
+                listitem.setIvTime(DateTimeUtils.strLogTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("vfrtime")))) + "\n" + DateTimeUtils.strLogTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("ifrtime")))));
                 circletime += Functions.validateInt(cursor.getString(cursor.getColumnIndex("circletime")));
-                listitem.setCzmTime(Utility.strLogTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("circletime")))) + "\n" + Utility.strLogTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("zonetime"))))+ "\n" + Utility.strLogTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("marshtime")))));
+                listitem.setCzmTime(DateTimeUtils.strLogTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("circletime")))) + "\n" + DateTimeUtils.strLogTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("zonetime"))))+ "\n" + DateTimeUtils.strLogTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("marshtime")))));
                 zonetime += Functions.validateInt(cursor.getString(cursor.getColumnIndex("zonetime")));
                 marshtime += Functions.validateInt(cursor.getString(cursor.getColumnIndex("marshtime")));
 
@@ -191,11 +193,11 @@ public class Local {
         Statistic listitem = new Statistic();
         listitem.setCnt(cnt);
         listitem.setTotalByMonth(totalByMonth);
-        listitem.setStrTotalByMonths(Utility.strLogTime(totalByMonth));
+        listitem.setStrTotalByMonths(DateTimeUtils.strLogTime(totalByMonth));
         listitem.setStrMoths(firstMonth + "\n" + lastMonth);
-        listitem.setDnTime(Utility.strLogTime(daysTime) + "\n" + Utility.strLogTime(nightTime));
-        listitem.setIvTime(Utility.strLogTime(vfrtime) + "\n" + Utility.strLogTime(ifrtime));
-        listitem.setCzmTime(Utility.strLogTime(circletime) + "\n" + Utility.strLogTime(zonetime) + "\n" + Utility.strLogTime(marshtime));
+        listitem.setDnTime(DateTimeUtils.strLogTime(daysTime) + "\n" + DateTimeUtils.strLogTime(nightTime));
+        listitem.setIvTime(DateTimeUtils.strLogTime(vfrtime) + "\n" + DateTimeUtils.strLogTime(ifrtime));
+        listitem.setCzmTime(DateTimeUtils.strLogTime(circletime) + "\n" + DateTimeUtils.strLogTime(zonetime) + "\n" + DateTimeUtils.strLogTime(marshtime));
         listitem.setVfrTime(vfrtime);
         listitem.setVfrTime(ifrtime);
         listitem.setCircleTime(circletime);

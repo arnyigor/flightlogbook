@@ -1,12 +1,10 @@
 package com.arny.flightlogbook.views.activities;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -16,6 +14,7 @@ import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -25,7 +24,6 @@ import android.widget.Toast;
 
 import com.arny.arnylib.utils.BasePermissions;
 import com.arny.arnylib.utils.Config;
-import com.arny.arnylib.utils.RuntimePermissionsActivity;
 import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.common.BackgroundIntentService;
@@ -48,8 +46,7 @@ import java.util.List;
 
 import es.dmoral.toasty.Toasty;
 
-public class HomeActivity extends RuntimePermissionsActivity implements Drawer.OnDrawerListener {
-    // Storage Permissions
+public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerListener {
 
     private static final int SAVE_FILE_RESULT_CODE = 111;
     private static final int MENU_DROPBOX_SYNC = 112;
@@ -111,14 +108,6 @@ public class HomeActivity extends RuntimePermissionsActivity implements Drawer.O
                 e.printStackTrace();
             }
         }
-        if (!BasePermissions.isStoragePermissonGranted(this)) {
-            super.requestAppPermissions(new
-                            String[]{
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            Manifest.permission.READ_EXTERNAL_STORAGE
-                    }, R.string.storage_permission_denied
-                    , BasePermissions.REQUEST_PERMISSIONS);
-        }
     }
 
     private void selectItem(int position) {
@@ -165,7 +154,7 @@ public class HomeActivity extends RuntimePermissionsActivity implements Drawer.O
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        Log.i(HomeActivity.class.getSimpleName(), "onPrepareOptionsMenu:  menu.hasVisibleItems() = " +  menu.hasVisibleItems());
+        Log.d(MainActivity.class.getSimpleName(), "onPrepareOptionsMenu:  menu.hasVisibleItems() = " +  menu.hasVisibleItems());
         boolean fileExist = Local.isAppFileExist(context);
         MenuItem exelOpenAction = menu.findItem(R.id.action_open_file);
         MenuItem exelImportAction = menu.findItem(R.id.action_import_excel);
@@ -248,7 +237,10 @@ public class HomeActivity extends RuntimePermissionsActivity implements Drawer.O
     @Override
     public void onResume() {
         super.onResume();
-        IntentFilter filter = new IntentFilter(BackgroundIntentService.ACTION);
+	    if (!BasePermissions.canAccessStorage(this, 777)) {
+	    	return;
+	    }
+	    IntentFilter filter = new IntentFilter(BackgroundIntentService.ACTION);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         LocalBroadcastManager.getInstance(context).registerReceiver(broadcastReceiver, filter);
         if (Functions.isMyServiceRunning(BackgroundIntentService.class, context)) {
@@ -273,7 +265,7 @@ public class HomeActivity extends RuntimePermissionsActivity implements Drawer.O
         try {
             if (bgProgress != null) {
                 if (BuildConfig.DEBUG)
-                    Log.d(HomeActivity.class.getSimpleName(), "hideProgress: bgProgress.isShowing() = " + bgProgress.isShowing());
+                    Log.d(MainActivity.class.getSimpleName(), "hideProgress: bgProgress.isShowing() = " + bgProgress.isShowing());
                 bgProgress.setMessage(notif);
                 if (!bgProgress.isShowing()) {
                     bgProgress.show();
@@ -293,8 +285,9 @@ public class HomeActivity extends RuntimePermissionsActivity implements Drawer.O
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        if (BuildConfig.DEBUG)
-            Log.d(HomeActivity.class.getSimpleName(), "onRequestPermissionsResult: requestCode = " + requestCode);
+	    if (BuildConfig.DEBUG) {
+		    Log.d(MainActivity.class.getSimpleName(), "onRequestPermissionsResult: requestCode = " + requestCode);
+	    }
         switch (requestCode) {
             case Functions.REQUEST_EXTERNAL_STORAGE_XLS:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -308,49 +301,41 @@ public class HomeActivity extends RuntimePermissionsActivity implements Drawer.O
                 }
                 break;
             case Functions.REQUEST_DBX_EXTERNAL_STORAGE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (BasePermissions.permissionGranted(grantResults)) {
                     Fragment dropboxSyncFragment = getSupportFragmentManager().findFragmentById(R.id.container);
                     if (dropboxSyncFragment instanceof DropboxSyncFragment) {
                         ((DropboxSyncFragment) dropboxSyncFragment).getFileData();
                     }
                 }
                 break;
+	        case 777:
+		        if (BasePermissions.permissionGranted(grantResults)) {
+			       onResume();
+		        }
+		        break;
         }
-    }
-
-    @Override
-    public void onPermissionsGranted(int requestCode) {
-        onResume();
     }
 
     private void showImportDialogSD() {
         AlertDialog.Builder alert = new AlertDialog.Builder(context);
         alert.setTitle(getString(R.string.str_import_attention));
         alert.setMessage(getString(R.string.str_import_massage));
-        alert.setNegativeButton(getString(R.string.str_cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        alert.setPositiveButton(getString(R.string.str_ok), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                try {
-                    boolean permissionGranded = Functions.checkSDRRWPermessions(getBaseContext(), HomeActivity.this, Functions.REQUEST_EXTERNAL_STORAGE_XLS);
-                    if (permissionGranded) {
-                        fileintent = new Intent();
-                        fileintent.setAction(Intent.ACTION_GET_CONTENT);
-                        fileintent.addCategory(Intent.CATEGORY_OPENABLE);
-                        fileintent.setType("*/*");
-                        startActivityForResult(fileintent, PICKFILE_RESULT_CODE);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Toast.makeText(context, getString(R.string.str_error_import), Toast.LENGTH_SHORT).show();
+        alert.setNegativeButton(getString(R.string.str_cancel), (dialog, which) -> dialog.cancel());
+        alert.setPositiveButton(getString(R.string.str_ok), (dialog, which) -> {
+            try {
+                boolean permissionGranded = Functions.checkSDRRWPermessions(getBaseContext(), MainActivity.this, Functions.REQUEST_EXTERNAL_STORAGE_XLS);
+                if (permissionGranded) {
+                    fileintent = new Intent();
+                    fileintent.setAction(Intent.ACTION_GET_CONTENT);
+                    fileintent.addCategory(Intent.CATEGORY_OPENABLE);
+                    fileintent.setType("*/*");
+                    startActivityForResult(fileintent, PICKFILE_RESULT_CODE);
                 }
-
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(context, getString(R.string.str_error_import), Toast.LENGTH_SHORT).show();
             }
+
         });
         alert.show();
     }
@@ -362,14 +347,14 @@ public class HomeActivity extends RuntimePermissionsActivity implements Drawer.O
                 if (resultCode == RESULT_OK) {
                     String FilePath = data.getData().getPath();
                     if (BuildConfig.DEBUG)
-                        Log.d(HomeActivity.class.getSimpleName(), "onActivityResult: FilePath = " + FilePath);
+                        Log.d(MainActivity.class.getSimpleName(), "onActivityResult: FilePath = " + FilePath);
                     initBgService();
                     mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_IMPORT_SD);
                     mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_IMPORT_SD_FILENAME, FilePath);
                     startService(mMyServiceIntent);
                     showProgress(getString(R.string.str_import_excel));
                 } else {
-                    Toast.makeText(HomeActivity.this, getString(R.string.str_error_import), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, getString(R.string.str_error_import), Toast.LENGTH_SHORT).show();
                 }
                 break;
             case SAVE_FILE_RESULT_CODE:
@@ -398,7 +383,7 @@ public class HomeActivity extends RuntimePermissionsActivity implements Drawer.O
         @Override
         public void onReceive(Context context, Intent intent) {
             if (BuildConfig.DEBUG)
-                Log.d(HomeActivity.class.getSimpleName(), "onReceive: service runing = " + Functions.isMyServiceRunning(BackgroundIntentService.class, context));
+                Log.d(MainActivity.class.getSimpleName(), "onReceive: service runing = " + Functions.isMyServiceRunning(BackgroundIntentService.class, context));
             try {
                 finishOperation = intent.getBooleanExtra(BackgroundIntentService.EXTRA_KEY_FINISH, false);
                 mOperation = intent.getIntExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_IMPORT_SD);
@@ -409,9 +394,9 @@ public class HomeActivity extends RuntimePermissionsActivity implements Drawer.O
                 hideProgress();
             }
             if (BuildConfig.DEBUG)
-                Log.d(HomeActivity.class.getSimpleName(), "onReceive: finishOperation = " + finishOperation);
+                Log.d(MainActivity.class.getSimpleName(), "onReceive: finishOperation = " + finishOperation);
             if (BuildConfig.DEBUG)
-                Log.d(HomeActivity.class.getSimpleName(), "onReceive: operationSuccess = " + operationSuccess);
+                Log.d(MainActivity.class.getSimpleName(), "onReceive: operationSuccess = " + operationSuccess);
             if (finishOperation) {
                 hideProgress();
                 if (operationSuccess) {
@@ -470,13 +455,13 @@ public class HomeActivity extends RuntimePermissionsActivity implements Drawer.O
 
     private void initBgService() {
         if (mMyServiceIntent == null) {
-            mMyServiceIntent = new Intent(HomeActivity.this, BackgroundIntentService.class);
+            mMyServiceIntent = new Intent(MainActivity.this, BackgroundIntentService.class);
         }
     }
 
     public void updateNavDrawerCounts() {
-        int flights = Local.getFlightListByDate(HomeActivity.this).size();
-        int types = Local.getTypeList(HomeActivity.this).size();
+        int flights = Local.getFlightListByDate(MainActivity.this).size();
+        int types = Local.getTypeList(MainActivity.this).size();
         PrimaryDrawerItem itemNewTask = (PrimaryDrawerItem) drawer.getDrawerItem(MENU_FLIGHTS);
         PrimaryDrawerItem itemCompleteTask = (PrimaryDrawerItem) drawer.getDrawerItem(MENU_TYPES);
 

@@ -31,10 +31,9 @@ android {
         applicationId "com.arny.flightlogbook"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 616
-        versionName "6.1.6"
+        versionCode 617
+        versionName "6.1.7"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        // Enabling multidex support.
         multiDexEnabled true
     }
     sourceSets {
@@ -45,6 +44,11 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
+        }
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            ext.enableCrashlytics = false
         }
     }
     packagingOptions {
@@ -67,15 +71,11 @@ dependencies {
     compile project(path: ':arnylib')
     compile 'com.dropbox.core:dropbox-core-sdk:2.1.1'
     compile 'org.apache.poi:poi:3.9'
-    compile 'com.google.firebase:firebase-core:11.6.0'
-    compile 'com.google.firebase:firebase-crash:11.6.0'
-    compile 'com.android.support:multidex:1.0.2'
+    compile 'com.android.support:multidex:1.0.1'
     debugCompile 'com.amitshekhar.android:debug-db:1.0.1'
-    compile('com.crashlytics.sdk.android:crashlytics:2.7.1@aar') {
+    compile('com.crashlytics.sdk.android:crashlytics:2.8.0@aar') {
         transitive = true
     }
     compile 'com.redmadrobot:inputmask:2.3.0'
     compile 'org.jetbrains.kotlin:kotlin-stdlib'
 }
-// ADD THIS AT THE BOTTOM
-apply plugin: 'com.google.gms.google-services'

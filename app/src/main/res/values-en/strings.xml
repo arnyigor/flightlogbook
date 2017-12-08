@@ -146,4 +146,8 @@
     <string name="str_logtime_desc">Flight time descending</string>
     <string name="str_logtime_asc">Flight time ascending</string>
     <string name="str_date_format">dd.MM.yyyy</string>
+	<string name="warning">Warning</string>
+	<string name="dropbox_sync_warning_content">Database update setting enabled when download the Dropbox
+		file.Dowload?\n\t\n\t
+	</string>
 </resources>
