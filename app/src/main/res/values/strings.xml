@@ -129,6 +129,12 @@
         <item>@string/str_logtime_asc</item>
         <item>@string/str_logtime_desc</item>
     </string-array>
+
+	<string-array name="flights_edit_items">
+		<item>@string/str_edt</item>
+		<item>@string/str_delete</item>
+		<item>@string/str_clearall</item>
+	</string-array>
     <string name="fragment_logbook">Список полетов</string>
     <string name="fragment_types">Типы</string>
     <string name="fragment_stats">Статистика</string>
@@ -172,6 +178,8 @@
 	<string name="warning">Предупреждение</string>
 	<string name="dropbox_sync_warning_content">Включена настройка сохранения базы данных при загрузке файла Dropbox.Загрузить?
 	</string>
+	<string name="item_updated">Запись обновлена</string>
+	<string name="loading_totals">Обновление данных</string>
 
 
 </resources>

@@ -20,14 +20,13 @@ import android.widget.*;
 import com.arny.arnylib.interfaces.InputDialogListener;
 import com.arny.arnylib.utils.*;
 import com.arny.flightlogbook.R;
-import com.arny.flightlogbook.common.Functions;
 import com.arny.flightlogbook.common.Local;
 import com.arny.flightlogbook.models.Flight;
 import com.arny.flightlogbook.models.Type;
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment;
 import com.redmadrobot.inputmask.MaskedTextChangedListener;
+import io.reactivex.Observable;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -96,7 +95,7 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 		tilDate = findViewById(R.id.tilDate);
 		edtDate = findViewById(R.id.edtDate);
 		edtDate.setOnFocusChangeListener((v, hasFocus) -> {
-			if (hasFocus && imm!=null) {
+			if (hasFocus && imm != null) {
 				imm.showSoftInput(edtDate, InputMethodManager.SHOW_IMPLICIT);
 			}
 			Log.d(AddEditActivity.class.getSimpleName(), "initUI: hasFocus:" + hasFocus);
@@ -194,7 +193,11 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 				edtTime.setText("");
 			}
 			if (!inside) {
-				correctLogTime();
+				try {
+					correctLogTime();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		});
 
@@ -202,16 +205,37 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 
 		edtTime.setOnKeyListener((view, i, keyEvent) -> {
 			if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (i == KeyEvent.KEYCODE_ENTER)) {
-				correctLogTime();
+				try {
+					correctLogTime();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 				return true;
 			}
 			return false;
 		});
 
 		btnAddEdtItem.setOnClickListener(v -> {
-			if (saveState()) {
-				finish();
+			boolean canEdit;
+			try {
+				if (!edtTime.getText().toString().contains(":")) {
+					correctLogTime();
+				}
+				canEdit = true;
+			} catch (Exception e) {
+				ToastMaker.toastError(this, e.getMessage());
+				canEdit = false;
 			}
+			if (!canEdit) {
+				return;
+			}
+			Utility.mainThreadObservable(Observable.fromCallable(() -> saveState(edtDesc.getText().toString(), edtTime.getText().toString(), edtRegNo.getText().toString())))
+					.subscribe(aBoolean -> {
+						if (aBoolean) {
+							ToastMaker.toastSuccess(this,getString(R.string.item_updated));
+							finish();
+						}
+					}, throwable -> ToastMaker.toastError(this, throwable.getMessage()));
 		});
 
 		spinDayNight.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -236,15 +260,19 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 
 		btnAddAirplaneTypes.setOnClickListener(view -> AddAirplaneTypes());
 
-		tvAirplaneType.setOnClickListener(view -> {
-			filltypes();
-			if (typeList.size() > 0) {
-				showAirplaneTypes();
-			} else {
-				Toast.makeText(AddEditActivity.this, R.string.str_no_types, Toast.LENGTH_SHORT).show();
-			}
-
-		});
+		tvAirplaneType.setOnClickListener(view ->
+				Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getTypeList(AddEditActivity.this)))
+						.subscribe(types -> {
+							typeList.clear();
+							for (Type type : types) {
+								typeList.add(type.getTypeName());
+							}
+							if (typeList.size() > 0) {
+								showAirplaneTypes();
+							} else {
+								Toast.makeText(AddEditActivity.this, R.string.str_no_types, Toast.LENGTH_SHORT).show();
+							}
+						}));
 	}
 
 	private void setDayToday() {
@@ -296,15 +324,7 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 	}
 
 	private void filltypes() {
-		try {
-			List<Type> types = Local.getTypeList(AddEditActivity.this);
-			typeList.clear();
-			for (Type type : types) {
-				typeList.add(type.getTypeName());
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+
 	}
 
 	private void showAirplaneTypes() {
@@ -411,44 +431,40 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 	}
 
 	@SuppressLint("DefaultLocale")
-	private void correctLogTime() {
-		try {
-			String inputLogtime = edtTime.getText().toString();
-			if (inputLogtime.length() == 0) {
-				if (logTime != 0) {
-					edtTime.setText(DateTimeUtils.strLogTime(logTime));
-				} else {
-					edtTime.setText("00:00");
-					logTime = 0;
-				}
-			} else if (inputLogtime.length() == 1) {
-				logTime = Integer.parseInt(edtTime.getText().toString());
-				edtTime.setText(String.format("00:0%d", logTime));
-			} else if (inputLogtime.length() == 2) {
-				logMinutes = Integer.parseInt(edtTime.getText().toString());
-				logTime = Integer.parseInt(edtTime.getText().toString());
-				if (logMinutes > 59) {
-					logHours = 1;
-					logMinutes = logMinutes - 60;
-				}
-				edtTime.setText(String.format("%s:%s", MathUtils.pad(logHours), MathUtils.pad(logMinutes)));
-			} else if (inputLogtime.length() > 2) {
-				if (inputLogtime.contains(":")) {
-					logMinutes = Integer.parseInt(edtTime.getText().toString().substring(inputLogtime.length() - 2, inputLogtime.length()));
-					logHours = Integer.parseInt(edtTime.getText().toString().substring(0, inputLogtime.length() - 3));
-				} else {
-					logMinutes = Integer.parseInt(edtTime.getText().toString().substring(inputLogtime.length() - 2, inputLogtime.length()));
-					logHours = Integer.parseInt(edtTime.getText().toString().substring(0, inputLogtime.length() - 2));
-				}
-				if (logMinutes > 59) {
-					logHours = logHours + 1;
-					logMinutes = logMinutes - 60;
-				}
-				logTime = logHours * 60 + logMinutes;
-				edtTime.setText(String.format("%s:%s", MathUtils.pad(logHours), MathUtils.pad(logMinutes)));
+	private void correctLogTime() throws Exception {
+		String inputLogtime = edtTime.getText().toString();
+		if (inputLogtime.length() == 0) {
+			if (logTime != 0) {
+				edtTime.setText(DateTimeUtils.strLogTime(logTime));
+			} else {
+				edtTime.setText("00:00");
+				logTime = 0;
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		} else if (inputLogtime.length() == 1) {
+			logTime = Integer.parseInt(edtTime.getText().toString());
+			edtTime.setText(String.format("00:0%d", logTime));
+		} else if (inputLogtime.length() == 2) {
+			logMinutes = Integer.parseInt(edtTime.getText().toString());
+			logTime = Integer.parseInt(edtTime.getText().toString());
+			if (logMinutes > 59) {
+				logHours = 1;
+				logMinutes = logMinutes - 60;
+			}
+			edtTime.setText(String.format("%s:%s", MathUtils.pad(logHours), MathUtils.pad(logMinutes)));
+		} else if (inputLogtime.length() > 2) {
+			if (inputLogtime.contains(":")) {
+				logMinutes = Integer.parseInt(edtTime.getText().toString().substring(inputLogtime.length() - 2, inputLogtime.length()));
+				logHours = Integer.parseInt(edtTime.getText().toString().substring(0, inputLogtime.length() - 3));
+			} else {
+				logMinutes = Integer.parseInt(edtTime.getText().toString().substring(inputLogtime.length() - 2, inputLogtime.length()));
+				logHours = Integer.parseInt(edtTime.getText().toString().substring(0, inputLogtime.length() - 2));
+			}
+			if (logMinutes > 59) {
+				logHours = logHours + 1;
+				logMinutes = logMinutes - 60;
+			}
+			logTime = logHours * 60 + logMinutes;
+			edtTime.setText(String.format("%s:%s", MathUtils.pad(logHours), MathUtils.pad(logMinutes)));
 		}
 	}
 
@@ -483,48 +499,42 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 
 	private void fillInputs() {
 		if (mRowId != 0) {
-			Flight flight = Local.getFlightItem(mRowId, AddEditActivity.this);
-			if (flight == null) {
-				initEmptyflight();
-				return;
-			}
-			strDesc = flight.getDescription();
-			edtDesc.setText(strDesc);
-			mDateTime = flight.getDatetime();
-			strDate = DateTimeUtils.getDateTime(flight.getDatetime(), "dd.MM.yyyy");
-			edtDate.setText(strDate);
-			logTime = flight.getLogtime();
-			reg_no = flight.getReg_no();
-			edtRegNo.setText(reg_no);
-			edtTime.setText(DateTimeUtils.strLogTime(logTime));
-			airplane_type_id = flight.getAirplanetypeid();
-			Type typeItem = Local.getTypeItem(airplane_type_id, AddEditActivity.this);
-			String airplType = typeItem != null ? typeItem.getTypeName() : null;
-			String airTypesText = Utility.empty(airplType) ? getString(R.string.str_type_empty) : getString(R.string.str_type) + " " + airplType;
-			tvAirplaneType.setText(airTypesText);
-			day_night = flight.getDaynight();
-			spinDayNight.setSelection(day_night);
-			ifr_vfr = flight.getIfrvfr();
-			spinVfrIfr.setSelection(ifr_vfr);
-			flight_type = flight.getFlighttype();
-			spinFlightType.setSelection(flight_type);
+			Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getFlightItem(mRowId, AddEditActivity.this))).subscribe(flight -> {
+				Log.d(AddEditActivity.class.getSimpleName(), "fillInputs: flight:" + flight);
+				if (flight == null) {
+					initEmptyflight();
+					return;
+				}
+				strDesc = flight.getDescription();
+				edtDesc.setText(strDesc);
+				mDateTime = flight.getDatetime();
+				strDate = DateTimeUtils.getDateTime(flight.getDatetime(), "dd.MM.yyyy");
+				edtDate.setText(strDate);
+				logTime = flight.getLogtime();
+				reg_no = flight.getReg_no();
+				edtRegNo.setText(reg_no);
+				edtTime.setText(DateTimeUtils.strLogTime(logTime));
+				airplane_type_id = flight.getAirplanetypeid();
+				String airplanetypetitle = flight.getAirplanetypetitle();
+				if (Utility.empty(airplanetypetitle)) {
+					Type typeItem = Local.getTypeItem(airplane_type_id, AddEditActivity.this);
+					String airplType = typeItem != null ? typeItem.getTypeName() : null;
+					airplanetypetitle = Utility.empty(airplType) ? getString(R.string.str_type_empty) : getString(R.string.str_type) + " " + airplType;
+				}
+				tvAirplaneType.setText(airplanetypetitle);
+				day_night = flight.getDaynight();
+				spinDayNight.setSelection(day_night);
+				ifr_vfr = flight.getIfrvfr();
+				spinVfrIfr.setSelection(ifr_vfr);
+				flight_type = flight.getFlighttype();
+				spinFlightType.setSelection(flight_type);
+			}, throwable -> {
+				ToastMaker.toastError(this, throwable.getMessage());
+			});
 		} else {
 			initEmptyflight();
-		}// row!=0
-		//filltypes();
-		Log.d(AddEditActivity.class.getSimpleName(), "mRowId: " + String.valueOf(mRowId));
-		Log.d(AddEditActivity.class.getSimpleName(), "strDesc: " + String.valueOf(strDesc));
-		Log.d(AddEditActivity.class.getSimpleName(), "strDate: " + String.valueOf(strDate));
-		Log.d(AddEditActivity.class.getSimpleName(), "reg_no: " + String.valueOf(reg_no));
-		Log.d(AddEditActivity.class.getSimpleName(), "airplane_type: " + String.valueOf(airplane_type));
-		Log.d(AddEditActivity.class.getSimpleName(), "airplane_type_id: " + String.valueOf(airplane_type_id));
-		Log.d(AddEditActivity.class.getSimpleName(), "mDateTime: " + String.valueOf(mDateTime));
-		Log.d(AddEditActivity.class.getSimpleName(), "logTime: " + String.valueOf(logTime));
-		Log.d(AddEditActivity.class.getSimpleName(), "day_night: " + String.valueOf(day_night));
-		Log.d(AddEditActivity.class.getSimpleName(), "ifr_vfr: " + String.valueOf(ifr_vfr));
-		Log.d(AddEditActivity.class.getSimpleName(), "flight_type: " + String.valueOf(flight_type));
-		Log.d(AddEditActivity.class.getSimpleName(), "-------------fillInputs end---------");
-	}// fillinputs
+		}
+	}
 
 	private void initEmptyflight() {
 		edtDesc.setText("");
@@ -538,36 +548,39 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 		day_night = 0;
 		ifr_vfr = 0;
 		flight_type = 0;
-		filltypes();
-		if (typeList.size() > 0) {
-			airplane_type_id = 1;
-			tvAirplaneType.setText(String.format("%s %s", getString(R.string.str_type), typeList.get(0)));
-		} else {
-			airplane_type_id = 0;
-			tvAirplaneType.setText(getString(R.string.str_no_types));
-		}
+		Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getTypeList(AddEditActivity.this))).subscribe(types -> {
+			typeList.clear();
+			for (Type type : types) {
+				typeList.add(type.getTypeName());
+			}
+			if (typeList.size() > 0) {
+				airplane_type_id = 1;
+				tvAirplaneType.setText(String.format("%s %s", getString(R.string.str_type), typeList.get(0)));
+			} else {
+				airplane_type_id = 0;
+				tvAirplaneType.setText(getString(R.string.str_no_types));
+			}
+		}, throwable -> {
+			ToastMaker.toastError(this, throwable.getMessage());
+		});
 		spinDayNight.setSelection(day_night);
 		spinVfrIfr.setSelection(ifr_vfr);
 		spinFlightType.setSelection(flight_type);
 	}
 
-	private boolean saveState() {
-		String strlogTime = edtTime.getText().toString();
+	private boolean saveState(String strDesc, String strTime, String reg_no) throws Exception {
 		Log.d(AddEditActivity.class.getSimpleName(), "saveState ");
-		if (!strlogTime.contains(":")) {
-			correctLogTime();
-		}
-		strDesc = edtDesc.getText().toString();
-		strTime = edtTime.getText().toString();
-		reg_no = edtRegNo.getText().toString();
+		this.strDesc = strDesc;
+		this.strTime = strTime;
+		this.reg_no = reg_no;
 		day_night = (int) spinDayNight.getSelectedItemId();
 		ifr_vfr = (int) spinVfrIfr.getSelectedItemId();
 		flight_type = (int) spinFlightType.getSelectedItemId();
 		if (mRowId == 0) {
-			long res = Local.addFlight(mDateTime, logTime, reg_no, airplane_type_id, day_night, ifr_vfr, flight_type, strDesc, AddEditActivity.this);
+			long res = Local.addFlight(mDateTime, logTime, this.reg_no, airplane_type_id, day_night, ifr_vfr, flight_type, this.strDesc, AddEditActivity.this);
 			return res > 0;
 		} else {
-			return Local.updateFlight(mDateTime, logTime, reg_no, airplane_type_id, day_night, ifr_vfr, flight_type, strDesc, mRowId, AddEditActivity.this);//тут тоже делаем сужение типа,странно,что для вставки нужен int,а выдает long
+			return Local.updateFlight(mDateTime, logTime, this.reg_no, airplane_type_id, day_night, ifr_vfr, flight_type, this.strDesc, mRowId, AddEditActivity.this);//тут тоже делаем сужение типа,странно,что для вставки нужен int,а выдает long
 		}
 	}
 

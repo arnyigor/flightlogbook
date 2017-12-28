@@ -12,6 +12,7 @@ class Flight {
     var logtime: Int = 0
     @Column("reg_no")
     var reg_no: String? = null
+    @Column("airplane_type_title")
     var airplanetypetitle: String? = null
     @Column("airplane_type")
     var airplanetypeid: Int = 0

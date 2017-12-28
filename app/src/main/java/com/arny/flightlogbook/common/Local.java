@@ -13,6 +13,7 @@ import com.arny.arnylib.utils.Utility;
 import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.models.*;
+import org.chalup.microorm.MicroOrm;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -135,6 +136,17 @@ public class Local {
         return count;
     }
 
+	public static int getFlightsTotal(Context context) {
+		String countQuery = "SELECT COUNT(*) FROM main_table" ;
+		int count = 0;
+		Cursor cursor = DBProvider.queryDB(countQuery,null, context);
+		if (cursor != null && cursor.moveToFirst()) {
+			count = cursor.getInt(0);
+			cursor.close();
+		}
+		return count;
+	}
+
     public static List<Statistic> getStatistic(String whereQuery, Context context) {
         String statisticQuery = "SELECT  datetime  as dt, " +
                 "   COUNT(*) as cnt, " +
@@ -240,7 +252,7 @@ public class Local {
 
     //Get FavList
     public static Flight getFlightItem(int id, Context context) {
-        Cursor cursor = DBProvider.selectDB(MAIN_TABLE,null,"_id = ?",new String[]{String.valueOf(id)},null, context);
+        Cursor cursor = DBProvider.queryDB( "SELECT _id,date,datetime,log_time,str_time,reg_no,day_night,ifr_vfr,flight_type,description,main_table.airplane_type as airplane_type,type_table.airplane_type as airplane_type_title FROM main_table LEFT JOIN type_table ON type_table.type_id=main_table.airplane_type WHERE _id = ?",new String[]{String.valueOf(id)}, context);
         Flight cursorObject = DBProvider.getCursorObject(cursor, Flight.class);
         if (cursorObject != null) {
             Type typeItem = getTypeItem(cursorObject.getAirplanetypeid(), context);
@@ -258,14 +270,15 @@ public class Local {
 
     //Get FavList
     public static List<Flight> getFlightListByDate(Context context, String orderBy) {
-        Cursor cursor = DBProvider.selectDB(MAIN_TABLE,null,null,null, orderBy, context);
-        ArrayList<Flight> cursorObjectList = DBProvider.getCursorObjectList(cursor, Flight.class);
-        for (Flight flight : cursorObjectList) {
-            Type typeItem = getTypeItem(flight.getAirplanetypeid(), context);
-            if (typeItem != null) {
-                flight.setAirplanetypetitle(typeItem.getTypeName());
-            }
-        }
+//        Cursor cursor = DBProvider.selectDB(MAIN_TABLE,null,null,null, orderBy, context);
+	    Cursor cursor = DBProvider.queryDB("SELECT _id,date,datetime,log_time,str_time,reg_no,day_night,ifr_vfr,flight_type,description,main_table.airplane_type as airplane_type,type_table.airplane_type as airplane_type_title FROM main_table LEFT JOIN type_table ON type_table.type_id=main_table.airplane_type ORDER BY " + orderBy,null,context);
+	    ArrayList<Flight> cursorObjectList = DBProvider.getCursorObjectList(cursor, Flight.class);
+//        for (Flight flight : cursorObjectList) {
+//            Type typeItem = getTypeItem(flight.getAirplanetypeid(), context);
+//            if (typeItem != null) {
+//                flight.setAirplanetypetitle(typeItem.getTypeName());
+//            }
+//        }
         return cursorObjectList;
     }
 
@@ -319,7 +332,7 @@ public class Local {
 
     //Get FavList
     public static List<Type> getTypeList(Context context) {
-        String selectQuery = "SELECT  * FROM " + TYPE_TABLE + " ORDER BY " + COLUMN_TYPE_ID;
+        String selectQuery = "SELECT type_id,airplane_type FROM " + TYPE_TABLE + " ORDER BY " + COLUMN_TYPE_ID;
         Cursor cursor = DBProvider.queryDB(selectQuery, null, context);
         return DBProvider.getCursorObjectList(cursor, Type.class);
     }
