@@ -2,6 +2,7 @@ package com.arny.flightlogbook.views.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -36,11 +37,19 @@ public class TypeListFragment extends Fragment implements TypeListHolder.SimpleA
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-	                         Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_type_list, container, false);
-		context = container.getContext();
+	public void onAttach(Context context) {
+		super.onAttach(context);
+		this.context = context;
+	}
 
+	@Override
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_type_list, container, false);
+	}
+
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
 		Button add = view.findViewById(R.id.addType);
 		removeall = view.findViewById(R.id.removeallTypes);
 		RecyclerView recyclerView = view.findViewById(R.id.typelistView);
@@ -51,7 +60,6 @@ public class TypeListFragment extends Fragment implements TypeListHolder.SimpleA
 		recyclerView.setAdapter(typeListAdapter);
 		removeall.setOnClickListener(this);
 		add.setOnClickListener(this);
-		return view;
 	}
 
 	@Override
@@ -85,13 +93,10 @@ public class TypeListFragment extends Fragment implements TypeListHolder.SimpleA
 	public void onClick(View v) {
 		switch (v.getId()) {
 			case R.id.removeallTypes:
-				DroidUtils.alertConfirmDialog(context, getString(R.string.str_delete), new AlertDialogListener() {
-					@Override
-					public void onConfirm() {
-						Local.removeAllTypes(context);
-						loadList();
-						setVisbltyBtnRemAll();
-					}
+				DroidUtils.alertConfirmDialog(context, getString(R.string.str_delete), () -> {
+					Local.removeAllTypes(context);
+					loadList();
+					setVisbltyBtnRemAll();
 				});
 				break;
 			case R.id.addType:
@@ -149,14 +154,11 @@ public class TypeListFragment extends Fragment implements TypeListHolder.SimpleA
 
 	public void DlgRemoveType(final int pos) {
 		final Type type = Local.getTypeItem(types.get(pos).getTypeId(), context);
-		DroidUtils.alertConfirmDialog(context, getString(R.string.str_remove_airplane_types), new AlertDialogListener() {
-			@Override
-			public void onConfirm() {
-				Local.removeType(type.getTypeId(), context);
-				types.remove(pos);
-				typeListAdapter.removeChild(pos);
-				setVisbltyBtnRemAll();
-			}
+		DroidUtils.alertConfirmDialog(context, getString(R.string.str_remove_airplane_types), () -> {
+			Local.removeType(type.getTypeId(), context);
+			types.remove(pos);
+			typeListAdapter.removeChild(pos);
+			setVisbltyBtnRemAll();
 		});
 	}
 
@@ -164,7 +166,6 @@ public class TypeListFragment extends Fragment implements TypeListHolder.SimpleA
 	public void onResume() {
 		super.onResume();
 		loadList();
-		setVisbltyBtnRemAll();
 	}
 
 	private void loadList() {
@@ -172,10 +173,13 @@ public class TypeListFragment extends Fragment implements TypeListHolder.SimpleA
 			types = types1;
 			typeListAdapter.clear();
 			typeListAdapter.addAll(types);
+			setVisbltyBtnRemAll();
 		});
 	}
 
 	private void setVisbltyBtnRemAll() {
-		removeall.setEnabled(types.size() >= 1);
+		if (types != null) {
+			removeall.setEnabled(types.size() >= 1);
+		}
 	}
 }

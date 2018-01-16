@@ -65,8 +65,10 @@
 				<EditText
 						android:id="@+id/edtTime"
 						android:layout_width="0dp"
+						android:textSize="20sp"
 						android:layout_height="wrap_content"
 						android:layout_weight="0.3"
+						tools:text="15:00"
 						android:gravity="center"
 						android:imeOptions="flagNoExtractUi"
 						android:hint="@string/str_logtime"
@@ -114,13 +116,14 @@
 						android:textColor="@android:color/black"
 						android:textSize="16sp"/>
 
-				<ImageButton
+				<Button
 						android:id="@+id/btnAddAirplaneTypes"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
-						android:contentDescription="@string/str_add_airplane_types"
-						android:src="@drawable/ic_icon_new"
-						android:text="@string/str_add"/>
+						android:minHeight="40dp"
+						android:textSize="12sp"
+						android:text="@string/str_add"
+						android:background="@drawable/btn_bg_green"/>
 			</LinearLayout>
 
 			<LinearLayout
@@ -182,6 +185,7 @@
 						android:id="@+id/btnAddEdtItem"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
+						android:background="@drawable/btn_bg_green"
 						android:text="@string/str_add"/>
 			</LinearLayout>
 		</LinearLayout>

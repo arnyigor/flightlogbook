@@ -45,8 +45,13 @@ public class FlightListFragment extends Fragment {
 	private MaterialDialog itemSelectorDialog;
 
 	@Override
+	public void onAttach(Context context) {
+		super.onAttach(context);
+		this.context = context;
+	}
+
+	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		context = container.getContext();
 		return inflater.inflate(R.layout.flight_list, container, false);
 	}
 
@@ -128,42 +133,8 @@ public class FlightListFragment extends Fragment {
 	}
 
 	private void showMenuDialog(int pos) {
-//		AlertDialog.Builder alert = new AlertDialog.Builder(context);
-//		String contextMenuText[] = {getString(R.string.str_edt), getString(R.string.str_delete), getString(R.string.str_clearall)};
 		ctxPos = pos;//кидаем в глобальную переменную чтобы все видели
 		itemSelectorDialog.show();
-//		alert.setItems(contextMenuText, (dialog, which) -> {
-//			switch (which) {
-//				case 0:
-//					try {
-//						Intent intent = new Intent(context, AddEditActivity.class);
-//						intent.putExtra(Local.COLUMN_ID, flights.get(ctxPos).getId());
-//						startActivity(intent);
-//					} catch (Exception e) {
-//						e.printStackTrace();
-//					}
-//					break;
-//				case 1:
-//					DroidUtils.alertConfirmDialog(context, getString(R.string.str_delete), () -> {
-//						Utility.mainThreadObservable(Observable.just(1).doOnNext(o -> {
-//							Local.removeFlight(flights.get(ctxPos).getId(), context);
-//						})).subscribe(o -> {
-//							flightListAdapter.removeChild(ctxPos);
-//							displayTotalTime();
-//						}, throwable -> ToastMaker.toastError(context, throwable.getMessage()));
-//					});
-//					break;
-//				case 2:
-//					DroidUtils.alertConfirmDialog(context, getString(R.string.str_clearall), () ->
-//							Utility.mainThreadObservable(Observable.just(1)
-//									.doOnNext(o -> Local.removeAllFlights(context)))
-//									.subscribe(o -> {
-//										initFlights(FuncsKt.getFilterflights(Config.getInt(Local.CONFIG_USER_FILTER_FLIGHTS, context)));
-//									}, throwable -> ToastMaker.toastError(context, throwable.getMessage())));
-//					break;
-//			}
-//		});
-//		alert.show();
 	}
 
 	@Override
@@ -203,7 +174,7 @@ public class FlightListFragment extends Fragment {
 		Observable<Integer> flightsTimeObs = Observable.fromCallable(() -> Local.getFlightsTime(context));
 		Observable<Integer> flightsTotalObs = Observable.fromCallable(() -> Local.getFlightsTotal(context));
 		Utility.mainThreadObservable(Observable.zip(flightsTimeObs, flightsTotalObs, (time, cnt) ->
-				String.format("%s %s %s %d", context.getResources().getString(R.string.str_totaltime), DateTimeUtils.strLogTime(time), " Всего записей:", cnt))).subscribe(s -> {
+				String.format("%s %s\n%s %d", context.getResources().getString(R.string.str_totaltime), DateTimeUtils.strLogTime(time), getString(R.string.total_records), cnt))).subscribe(s -> {
 			tvTotalTime.setText(s);
 		});
 

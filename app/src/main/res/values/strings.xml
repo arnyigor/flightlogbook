@@ -180,6 +180,7 @@
 	</string>
 	<string name="item_updated">Запись обновлена</string>
 	<string name="loading_totals">Обновление данных</string>
+	<string name="total_records">Всего записей:</string>
 
 
 </resources>

@@ -94,12 +94,9 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 						new PrimaryDrawerItem().withIdentifier(MENU_STATS).withName(R.string.fragment_stats).withIcon(GoogleMaterial.Icon.gmd_equalizer),
 						new PrimaryDrawerItem().withIdentifier(MENU_DROPBOX_SYNC).withName(R.string.fragment_dropbox_sync).withIcon(R.drawable.ic_dropbox_sync)
 				)
-				.withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-					@Override
-					public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-						selectItem((int) drawerItem.getIdentifier());
-						return true;
-					}
+				.withOnDrawerItemClickListener((view, position, drawerItem) -> {
+					selectItem((int) drawerItem.getIdentifier());
+					return true;
 				})
 				.build();
 		if (savedInstanceState == null) {
@@ -267,8 +264,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 	private void showProgress(String notif) {
 		try {
 			if (bgProgress != null) {
-				if (BuildConfig.DEBUG)
-					Log.d(MainActivity.class.getSimpleName(), "hideProgress: bgProgress.isShowing() = " + bgProgress.isShowing());
+				Log.d(MainActivity.class.getSimpleName(), "hideProgress: bgProgress.isShowing() = " + bgProgress.isShowing());
 				bgProgress.setMessage(notif);
 				if (!bgProgress.isShowing()) {
 					bgProgress.show();

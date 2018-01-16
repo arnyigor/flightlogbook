@@ -43,7 +43,7 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 	private float mMotoStart, mMotoFinish, mMotoResult;
 	private EditText edtDesc, edtTime, edtRegNo, edtMotoStart, edtMotoFinish;
 	private Button btnAddEdtItem;
-	private ImageButton btnAddAirplaneTypes;
+	private  Button btnAddAirplaneTypes;
 	private Spinner spinDayNight, spinVfrIfr, spinFlightType;
 	private TextView tvAirplaneType, tvMotoResult;
 	private TextInputEditText edtDate;

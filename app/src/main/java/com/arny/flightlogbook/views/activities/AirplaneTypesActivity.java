@@ -155,7 +155,6 @@ public class AirplaneTypesActivity extends AppCompatActivity implements TypeList
 	protected void onResume() {
 		super.onResume();
 		loadList();
-		setVisbltyBtnRemAll();
 	}
 
 	private void loadList() {
@@ -163,6 +162,7 @@ public class AirplaneTypesActivity extends AppCompatActivity implements TypeList
 			types = types1;
 			typeListAdapter.clear();
 			typeListAdapter.addAll(types);
+			setVisbltyBtnRemAll();
 		});
 	}
 
