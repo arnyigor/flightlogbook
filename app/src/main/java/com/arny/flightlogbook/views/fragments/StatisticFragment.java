@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.*;
@@ -15,6 +16,7 @@ import com.arny.flightlogbook.models.Flight;
 import com.arny.flightlogbook.common.Functions;
 import com.arny.flightlogbook.models.Statistic;
 import io.reactivex.Observable;
+import io.reactivex.disposables.CompositeDisposable;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -31,11 +33,22 @@ public class StatisticFragment extends Fragment {
 	private ListView lvStatResult;
 	private ProgressBar progressStat;
 	private StatisticAdapter statAdapter;
+	private final CompositeDisposable disposable = new CompositeDisposable();
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.statistic_fragment, container, false);
-		ctx = container.getContext();
+	public void onAttach(Context context) {
+		super.onAttach(context);
+		ctx = context;
+	}
+
+	@Override
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.statistic_fragment, container, false);
+	}
+
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
 		statAdapter = new StatisticAdapter();
 		initUI(view);
 		startInitDateTime();
@@ -44,7 +57,6 @@ public class StatisticFragment extends Fragment {
 		} else {
 			getStatistic();
 		}
-		return view;
 	}
 
 	@Override
@@ -55,15 +67,20 @@ public class StatisticFragment extends Fragment {
 	}
 
 	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		disposable.clear();
+	}
+
+	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
 		menu.clear();
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
-//        outState.putParcelable(LIST_STATE, lvStatResult.onSaveInstanceState());
 	}
 
 	private void refreshAdapter() {
@@ -77,61 +94,28 @@ public class StatisticFragment extends Fragment {
 		tvDateFrom = view.findViewById(R.id.tvDateFrom);
 		tvDateTo = view.findViewById(R.id.tvDateTo);
 		lvStatResult = view.findViewById(R.id.lvStatResult);
-		tvDateFrom.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				setDateFrom();
-			}
-		});
-		tvDateTo.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				setDateTo();
-			}
-		});
+		tvDateFrom.setOnClickListener(v -> setDateFrom());
+		tvDateTo.setOnClickListener(v -> setDateTo());
 		progressStat = view.findViewById(R.id.progressStat);
 		progressStat.setVisibility(View.VISIBLE);
 	}
 
 	private String getFilterQuery() {
-		String query = "";
-		return query;
+		return "";
 	}
 
 	//функция статистики
 	private void getStatistic() {
-		LoadStatistic ls = new LoadStatistic();
-		ls.execute();
-	}
-
-	private class LoadStatistic extends AsyncTask<Void, Void, List<Statistic>> {
-
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-		}
-
-		@Override
-		protected List<Statistic> doInBackground(Void... params) {
-			try {
-				return Local.getStatistic(getFilterQuery(), ctx);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute(List<Statistic> result) {
-			super.onPostExecute(result);
-			statistics = result;
-			refreshAdapter();
-		}
+		disposable.add(Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getStatistic(getFilterQuery(), ctx)))
+				.subscribe(result -> {
+					statistics = result;
+					refreshAdapter();
+				}));
 	}
 
 	//начальные данные времени
 	private void startInitDateTime() {
-		Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getFlightListByDate(ctx))).subscribe(flights -> {
+		disposable.add(Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getFlightListByDate(ctx))).subscribe(flights -> {
 			FlightData = flights;
 			if (FlightData.size() > 0) {
 				startdatetime = FlightData.get(0).getDatetime();
@@ -141,7 +125,7 @@ public class StatisticFragment extends Fragment {
 				enddatetime = Calendar.getInstance().getTimeInMillis();
 			}
 			setDateTimeToTextView();
-		});
+		}));
 	}
 
 	//устанавливаем дату в textView

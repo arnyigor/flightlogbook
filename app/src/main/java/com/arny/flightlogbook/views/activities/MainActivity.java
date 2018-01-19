@@ -48,6 +48,7 @@ import java.util.List;
 
 import es.dmoral.toasty.Toasty;
 import io.reactivex.Observable;
+import io.reactivex.disposables.CompositeDisposable;
 
 public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerListener {
 
@@ -68,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 	private ProgressDialog bgProgress;
 	private static final int TIME_DELAY = 2000;
 	private static long back_pressed;
+	private final CompositeDisposable disposable = new CompositeDisposable();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +82,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 		toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 		toolbar.setTitle(getString(R.string.fragment_logbook));
-
 		drawer = new DrawerBuilder()
 				.withActivity(this)
 				.withOnDrawerListener(this)
@@ -110,31 +111,10 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 		}
 	}
 
-	private void selectItem(int position) {
-		Fragment fragment = null;
-		switch (position) {
-			case MENU_FLIGHTS:
-				fragment = new FlightListFragment();
-				toolbar.setTitle(getString(R.string.fragment_logbook));
-				break;
-			case MENU_TYPES:
-				fragment = new TypeListFragment();
-				toolbar.setTitle(getString(R.string.fragment_types));
-				break;
-			case MENU_STATS:
-				fragment = new StatisticFragment();
-				toolbar.setTitle(getString(R.string.fragment_stats));
-				break;
-			case MENU_DROPBOX_SYNC:
-				fragment = new DropboxSyncFragment();
-				toolbar.setTitle(getString(R.string.fragment_dropbox_sync));
-				break;
-		}
-		if (fragment != null) {
-			FragmentManager fragmentManager = getSupportFragmentManager();
-			fragmentManager.beginTransaction().replace(R.id.container, fragment).commit();
-			drawer.closeDrawer();
-		}
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		disposable.clear();
 	}
 
 	@Override
@@ -199,6 +179,33 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 				break;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	private void selectItem(int position) {
+		Fragment fragment = null;
+		switch (position) {
+			case MENU_FLIGHTS:
+				fragment = new FlightListFragment();
+				toolbar.setTitle(getString(R.string.fragment_logbook));
+				break;
+			case MENU_TYPES:
+				fragment = new TypeListFragment();
+				toolbar.setTitle(getString(R.string.fragment_types));
+				break;
+			case MENU_STATS:
+				fragment = new StatisticFragment();
+				toolbar.setTitle(getString(R.string.fragment_stats));
+				break;
+			case MENU_DROPBOX_SYNC:
+				fragment = new DropboxSyncFragment();
+				toolbar.setTitle(getString(R.string.fragment_dropbox_sync));
+				break;
+		}
+		if (fragment != null) {
+			FragmentManager fragmentManager = getSupportFragmentManager();
+			fragmentManager.beginTransaction().replace(R.id.container, fragment).commit();
+			drawer.closeDrawer();
+		}
 	}
 
 	@SuppressLint("RestrictedApi")
@@ -459,18 +466,18 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 	public void updateNavDrawerCounts() {
 		PrimaryDrawerItem itemNewTask = (PrimaryDrawerItem) drawer.getDrawerItem(MENU_FLIGHTS);
 		PrimaryDrawerItem itemCompleteTask = (PrimaryDrawerItem) drawer.getDrawerItem(MENU_TYPES);
-		Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getFlightListByDate(MainActivity.this).size())).subscribe(flights -> {
+		disposable.add(Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getFlightListByDate(MainActivity.this).size())).subscribe(flights -> {
 			if (itemNewTask != null && drawer != null) {
 				itemNewTask.withBadge(String.valueOf(flights)).withBadgeStyle(new BadgeStyle().withTextColorRes(R.color.colorAccent));
 				drawer.updateItem(itemNewTask);
 			}
-		});
-		Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getTypeList(MainActivity.this).size())).subscribe(types -> {
+		}));
+		disposable.add(Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getTypeList(MainActivity.this).size())).subscribe(types -> {
 			if (itemCompleteTask != null && drawer != null) {
 				itemCompleteTask.withBadge(String.valueOf(types)).withBadgeStyle(new BadgeStyle().withTextColorRes(R.color.colorAccent));
 				drawer.updateItem(itemCompleteTask);
 			}
-		});
+		}));
 	}
 
 	@Override

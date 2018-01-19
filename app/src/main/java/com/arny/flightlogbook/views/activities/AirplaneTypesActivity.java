@@ -25,6 +25,7 @@ import com.arny.flightlogbook.adapter.TypeListHolder;
 import com.arny.flightlogbook.common.Local;
 import com.arny.flightlogbook.models.Type;
 import io.reactivex.Observable;
+import io.reactivex.disposables.CompositeDisposable;
 
 import java.util.List;
 
@@ -33,6 +34,7 @@ public class AirplaneTypesActivity extends AppCompatActivity implements TypeList
 	private Context context = this;
 	private List<Type> types;
 	private SimpleBindableAdapter<Type, TypeListHolder> typeListAdapter;
+	private final CompositeDisposable disposable = new CompositeDisposable();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -74,6 +76,18 @@ public class AirplaneTypesActivity extends AppCompatActivity implements TypeList
 				DlgAddType();
 			}
 		});
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		loadList();
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		disposable.clear();
 	}
 
 	@Override
@@ -151,19 +165,13 @@ public class AirplaneTypesActivity extends AppCompatActivity implements TypeList
 		});
 	}
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		loadList();
-	}
-
 	private void loadList() {
-		Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getTypeList(context))).subscribe(types1 -> {
+		disposable.add(Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getTypeList(context))).subscribe(types1 -> {
 			types = types1;
 			typeListAdapter.clear();
 			typeListAdapter.addAll(types);
 			setVisbltyBtnRemAll();
-		});
+		}));
 	}
 
 	private void setVisbltyBtnRemAll() {

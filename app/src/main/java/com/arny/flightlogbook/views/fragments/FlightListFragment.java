@@ -30,6 +30,7 @@ import com.arny.flightlogbook.common.Local;
 import com.arny.flightlogbook.models.Flight;
 import com.arny.flightlogbook.views.activities.AddEditActivity;
 import io.reactivex.Observable;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.BiFunction;
 
 import java.util.ArrayList;
@@ -43,11 +44,22 @@ public class FlightListFragment extends Fragment {
 	private Context context;
 	private TextView tvTotalTime;
 	private MaterialDialog itemSelectorDialog;
+	private final CompositeDisposable disposable = new CompositeDisposable();
+	private int positionIndex;
+	private LinearLayoutManager mLayoutManager;
+	private int topView;
+	private RecyclerView recyclerView;
 
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
 		this.context = context;
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		disposable.clear();
 	}
 
 	@Override
@@ -65,12 +77,14 @@ public class FlightListFragment extends Fragment {
 		});
 		tvTotalTime = view.findViewById(R.id.tvTotalTime);
 		tvTotalTime.setText(R.string.loading_totals);
-		RecyclerView recyclerView = view.findViewById(R.id.listView);
-		recyclerView.setLayoutManager(new LinearLayoutManager(context));
+		recyclerView = view.findViewById(R.id.listView);
+		mLayoutManager = new LinearLayoutManager(context);
+		recyclerView.setLayoutManager(mLayoutManager);
 		recyclerView.setItemAnimator(new DefaultItemAnimator());
 		flightListAdapter = new SimpleBindableAdapter<>(context, R.layout.flight_list_item, FlightListHolder.class);
 		flightListAdapter.setActionListener((FlightListHolder.SimpleActionListener) (position, Item) -> showMenuDialog(position));
 		recyclerView.setAdapter(flightListAdapter);
+		restoreListPosition();
 		DroidUtils.runLayoutAnimation(recyclerView, R.anim.layout_animation_fall_down);
 		itemSelectorDialog = new MaterialDialog.Builder(context)
 				.items(R.array.flights_edit_items)
@@ -87,25 +101,44 @@ public class FlightListFragment extends Fragment {
 							break;
 						case 1:
 							DroidUtils.alertConfirmDialog(context, getString(R.string.str_delete), () -> {
-								Utility.mainThreadObservable(Observable.just(1).doOnNext(o -> {
+								disposable.add(Utility.mainThreadObservable(Observable.just(1).doOnNext(o -> {
 									Local.removeFlight(flights.get(ctxPos).getId(), context);
-								})).subscribe(o -> {
-									flightListAdapter.removeChild(ctxPos);
-									displayTotalTime();
-								}, throwable -> ToastMaker.toastError(context, throwable.getMessage()));
+								}))
+										.doOnSubscribe(disposable1 -> tvTotalTime.setText(R.string.loading_totals))
+										.subscribe(o -> {
+											flightListAdapter.removeChild(ctxPos);
+											displayTotalTime();
+										}, throwable -> ToastMaker.toastError(context, throwable.getMessage())));
 							});
 							break;
 						case 2:
 							DroidUtils.alertConfirmDialog(context, getString(R.string.str_clearall), () ->
-									Utility.mainThreadObservable(Observable.just(1)
+									disposable.add(Utility.mainThreadObservable(Observable.just(1)
 											.doOnNext(o -> Local.removeAllFlights(context)))
-											.subscribe(o -> {
-												initFlights(FuncsKt.getFilterflights(Config.getInt(Local.CONFIG_USER_FILTER_FLIGHTS, context)));
-											}, throwable -> ToastMaker.toastError(context, throwable.getMessage())));
+											.subscribe(o -> initFlights(FuncsKt.getFilterflights(Config.getInt(Local.CONFIG_USER_FILTER_FLIGHTS, context))),
+													throwable -> ToastMaker.toastError(context, throwable.getMessage()))));
 							break;
 					}
 				})
 				.build();
+	}
+
+	@Override
+	public void onCreate(@Nullable Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.flights_menu, menu);
+	}
+
+	@Override
+	public void onPause() {
+		saveListPosition();
+		super.onPause();
+		LocalBroadcastManager.getInstance(context).unregisterReceiver(broadcastReceiver);
 	}
 
 	@Override
@@ -120,32 +153,34 @@ public class FlightListFragment extends Fragment {
 	}
 
 	private void initFlights(String orderby) {
-		Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getFlightListByDate(context, orderby))
-		).subscribe(flights -> {
+		disposable.add(Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getFlightListByDate(context, orderby))
+		).doOnSubscribe(disposable1 -> tvTotalTime.setText(R.string.loading_totals)).subscribe(flights -> {
 			this.flights = flights;
 			flightListAdapter.clear();
 			flightListAdapter.addAll(flights);
 			displayTotalTime();
+			restoreListPosition();
 		}, throwable -> {
 			ToastMaker.toastError(context, throwable.getMessage());
 			displayTotalTime();
-		});
+		}));
+	}
+
+	private void restoreListPosition() {
+		if (positionIndex != -1) {
+			mLayoutManager.scrollToPositionWithOffset(positionIndex, topView);
+		}
+	}
+
+	private void saveListPosition() {
+		positionIndex = mLayoutManager.findFirstVisibleItemPosition();
+		View startView = recyclerView.getChildAt(0);
+		topView = (startView == null) ? 0 : (startView.getTop() - recyclerView.getPaddingTop());
 	}
 
 	private void showMenuDialog(int pos) {
 		ctxPos = pos;//кидаем в глобальную переменную чтобы все видели
 		itemSelectorDialog.show();
-	}
-
-	@Override
-	public void onCreate(@Nullable Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true);
-	}
-
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.flights_menu, menu);
 	}
 
 	@Override
@@ -173,17 +208,11 @@ public class FlightListFragment extends Fragment {
 	private void displayTotalTime() {
 		Observable<Integer> flightsTimeObs = Observable.fromCallable(() -> Local.getFlightsTime(context));
 		Observable<Integer> flightsTotalObs = Observable.fromCallable(() -> Local.getFlightsTotal(context));
-		Utility.mainThreadObservable(Observable.zip(flightsTimeObs, flightsTotalObs, (time, cnt) ->
+		disposable.add(Utility.mainThreadObservable(Observable.zip(flightsTimeObs, flightsTotalObs, (time, cnt) ->
 				String.format("%s %s\n%s %d", context.getResources().getString(R.string.str_totaltime), DateTimeUtils.strLogTime(time), getString(R.string.total_records), cnt))).subscribe(s -> {
 			tvTotalTime.setText(s);
-		});
+		}));
 
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-		LocalBroadcastManager.getInstance(context).unregisterReceiver(broadcastReceiver);
 	}
 
 	private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -199,10 +228,5 @@ public class FlightListFragment extends Fragment {
 			}
 		}
 	};
-
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-	}
 
 }

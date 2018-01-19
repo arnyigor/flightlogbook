@@ -24,6 +24,7 @@ import com.arny.flightlogbook.adapter.TypeListHolder;
 import com.arny.flightlogbook.common.Local;
 import com.arny.flightlogbook.models.Type;
 import io.reactivex.Observable;
+import io.reactivex.disposables.CompositeDisposable;
 
 import java.util.List;
 
@@ -32,6 +33,7 @@ public class TypeListFragment extends Fragment implements TypeListHolder.SimpleA
 	private List<Type> types;
 	private SimpleBindableAdapter<Type, TypeListHolder> typeListAdapter;
 	private Button removeall;
+	private final CompositeDisposable disposable = new CompositeDisposable();
 
 	public TypeListFragment() {
 	}
@@ -45,6 +47,12 @@ public class TypeListFragment extends Fragment implements TypeListHolder.SimpleA
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		return inflater.inflate(R.layout.fragment_type_list, container, false);
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		disposable.clear();
 	}
 
 	@Override
@@ -169,12 +177,12 @@ public class TypeListFragment extends Fragment implements TypeListHolder.SimpleA
 	}
 
 	private void loadList() {
-		Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getTypeList(context))).subscribe(types1 -> {
+		disposable.add(Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getTypeList(context))).subscribe(types1 -> {
 			types = types1;
 			typeListAdapter.clear();
 			typeListAdapter.addAll(types);
 			setVisbltyBtnRemAll();
-		});
+		}));
 	}
 
 	private void setVisbltyBtnRemAll() {

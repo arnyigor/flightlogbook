@@ -82,8 +82,7 @@ public class Local {
     public static long addType(String planeTypeName, Context context) {
         ContentValues values = new ContentValues();
         values.put(COLUMN_AIRPLANE_TYPE, planeTypeName);
-        Log.d(Local.class.getSimpleName(), "addType" + "\n"
-                    + "planeTypeName = " + planeTypeName + "\n");
+        Log.d(Local.class.getSimpleName(), "addType" + "\n" + "planeTypeName = " + planeTypeName + "\n");
         return DBProvider.insertDB(TYPE_TABLE, values, context);
     }
 

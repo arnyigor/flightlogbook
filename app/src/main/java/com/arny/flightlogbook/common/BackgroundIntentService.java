@@ -1,22 +1,17 @@
 package com.arny.flightlogbook.common;
 
 import android.app.IntentService;
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-
 import com.arny.arnylib.files.FileUtils;
 import com.arny.arnylib.utils.BasePermissions;
 import com.arny.arnylib.utils.Config;
 import com.arny.arnylib.utils.DateTimeUtils;
 import com.arny.arnylib.utils.Utility;
-import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.models.Flight;
 import com.arny.flightlogbook.models.Type;
@@ -27,25 +22,11 @@ import com.dropbox.core.v2.files.FileMetadata;
 import com.dropbox.core.v2.files.ListFolderResult;
 import com.dropbox.core.v2.files.Metadata;
 import com.dropbox.core.v2.files.WriteMode;
-
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.hssf.util.HSSFColor;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -62,7 +43,6 @@ public class BackgroundIntentService extends IntentService {
 	public static final String EXTRA_KEY_OPERATION_DATA = "BackgroundIntentService.operation.data";
 	public static final String EXTRA_KEY_OPERATION_DATA_REMOTE_DATE = "BackgroundIntentService.operation.data.remote.date";
 	public static final String EXTRA_KEY_OPERATION_DATA_LOCAL_DATE = "BackgroundIntentService.operation.data.local.date";
-	public static final int QUEUE_NOTIFICATION_ID = 1111;
 	/*Opearations*/
 	public static final int OPERATION_IMPORT_SD = 100;
 	public static final int OPERATION_DBX_SYNC = 102;
@@ -73,9 +53,6 @@ public class BackgroundIntentService extends IntentService {
 	private static final String LOG_SHEET_MAIN = "Timelog";
 	private static final String TAG = BackgroundIntentService.class.getName();
 	private static int operation;
-	private static NotificationManager notifyManager;
-	private static Notification.Builder notifyBuilder;
-	private static Notification notification;
 	private List<Flight> ExportData, TypeData;
 	private boolean mIsSuccess;
 	private boolean mIsStopped;
@@ -103,57 +80,21 @@ public class BackgroundIntentService extends IntentService {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		startForeground(QUEUE_NOTIFICATION_ID, createNotification(getApplicationContext()));
 	}
 
 	@Override
 	public void onDestroy() {
+        onServiceDestroy();
+        super.onDestroy();
+    }
+
+    private void onServiceDestroy() {
 		mIsStopped = true;
 		sendBroadcastIntent(getResultNotif());
-		stopForeground(true);
 		stopSelf(startId);
 		super.onDestroy();
 	}
 
-	/**
-	 * Установить заголовок нотификации
-	 *
-	 * @param title
-	 * @param context
-	 */
-	public static void setNotificationTitle(String title, Context context) {
-		getNotifyBuilder(context).setContentTitle(title);
-		notifyManager.notify(QUEUE_NOTIFICATION_ID, notifyBuilder.build());
-	}
-
-	/**
-	 * Установить основной текст нотификации
-	 *
-	 * @param text
-	 * @param context
-	 */
-	public static void setNotificationContent(String text, Context context) {
-		getNotifyBuilder(context).setContentText(text);
-		notifyManager.notify(QUEUE_NOTIFICATION_ID, notifyBuilder.build());
-	}
-
-	private static Notification createNotification(Context context) {
-		notifyManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-		notifyBuilder = new Notification.Builder(context);
-		notifyBuilder
-				.setContentTitle("Операции " + context.getString(R.string.app_name))
-				.setContentText("Ожидание операции")
-				.setSmallIcon(R.drawable.ic_action_upload);
-		notification = notifyBuilder.build();
-		return notification;
-	}
-
-	private static Notification.Builder getNotifyBuilder(Context context) {
-		if (notifyBuilder == null) {
-			createNotification(context);
-		}
-		return notifyBuilder;
-	}
 
 	private String getResultNotif() {
 		String notice;
@@ -209,14 +150,10 @@ public class BackgroundIntentService extends IntentService {
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
-//	    setNotificationTitle("Импорт файла", getApplicationContext());
-//	    setNotificationContent(null, getApplicationContext());
-
 		hashMap = new HashMap<>();
 		setOperation(intent.getIntExtra(EXTRA_KEY_OPERATION_CODE, 0));
 		switch (getOperation()) {
 			case OPERATION_IMPORT_SD:
-				setNotificationTitle("Импорт файла", getApplicationContext());
 				String mPath = intent.getStringExtra(EXTRA_KEY_IMPORT_SD_FILENAME);
 				if (Utility.empty(mPath)) {
 					readExcelFile(getApplicationContext(), Functions.EXEL_FILE_NAME, true);
@@ -225,7 +162,6 @@ public class BackgroundIntentService extends IntentService {
 				}
 				break;
 			case OPERATION_DBX_SYNC:
-				setNotificationTitle("Синхронизация с дропбокс", getApplicationContext());
 				try {
 					client = DropboxClientFactory.getClient();
 					if (client != null) {
@@ -240,7 +176,6 @@ public class BackgroundIntentService extends IntentService {
 				}
 				break;
 			case OPERATION_DBX_DOWNLOAD:
-				setNotificationTitle("Загрузка файла с Dropbox", getApplicationContext());
 				try {
 					client = DropboxClientFactory.getClient();
 					if (client != null) {
@@ -255,7 +190,6 @@ public class BackgroundIntentService extends IntentService {
 				}
 				break;
 			case OPERATION_DBX_UPLOAD:
-				setNotificationTitle("Выгрузка файла в Dropbox", getApplicationContext());
 				try {
 					client = DropboxClientFactory.getClient();
 					if (client != null) {
@@ -270,17 +204,10 @@ public class BackgroundIntentService extends IntentService {
 
 				break;
 			case OPERATION_EXPORT:
-				setNotificationTitle("Экспорт файла", getApplicationContext());
 				mIsSuccess = saveExcelFile(getApplicationContext(), Functions.EXEL_FILE_NAME);
 				break;
 		}
 
-	}
-
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		this.startId = startId;
-		return START_STICKY;
 	}
 
 	private void getRemoteMetaData() throws DbxException {
@@ -351,7 +278,6 @@ public class BackgroundIntentService extends IntentService {
 		ExportData = Local.getFlightListByDate(context);
 		int rows = 1;
 		for (Flight export : ExportData) {
-			setNotificationContent("Строка " + rows, getApplicationContext());
 			airplane_type_id = export.getAirplanetypeid();
 			Type type = Local.getTypeItem(airplane_type_id, context);
 			String airplane_type = type != null ? type.getTypeName() : "";
@@ -441,7 +367,6 @@ public class BackgroundIntentService extends IntentService {
 			int rowCnt = 0;
 			Local.removeAllFlights(context);
 			while (rowIter.hasNext()) {
-				setNotificationContent("Строка " + rowCnt, getApplicationContext());
 				HSSFRow myRow = (HSSFRow) rowIter.next();
 				Iterator cellIter = myRow.cellIterator();
 				Log.d(BackgroundIntentService.class.getSimpleName(), "rowIter " + rowCnt);
@@ -545,6 +470,7 @@ public class BackgroundIntentService extends IntentService {
 									e.printStackTrace();
 								}
 								String format = "dd MMM yyyy";
+								strDate = strDate.replace("-", " ").replace(".", " ").replaceAll("\\s+", " ");
 								try {
 									format = DateTimeUtils.dateFormatChooser(strDate);
 								} catch (Exception e) {
@@ -556,7 +482,7 @@ public class BackgroundIntentService extends IntentService {
 									e.printStackTrace();
 								}
 								try {
-									Log.d(BackgroundIntentService.class.getSimpleName(), "strDesc: " + strDesc);
+									Log.d(BackgroundIntentService.class.getSimpleName(), "\nstrDesc: " + strDesc);
 									Log.d(BackgroundIntentService.class.getSimpleName(), "strDate: " + strDate);
 									Log.d(BackgroundIntentService.class.getSimpleName(), "mDateTime: " + mDateTime);
 									Log.d(BackgroundIntentService.class.getSimpleName(), "strTime: " + strTime);
@@ -568,6 +494,7 @@ public class BackgroundIntentService extends IntentService {
 									Log.d(BackgroundIntentService.class.getSimpleName(), "ifr_vfr: " + ifr_vfr);
 									Log.d(BackgroundIntentService.class.getSimpleName(), "flight_type: " + flight_type);
 									Log.d(BackgroundIntentService.class.getSimpleName(), "strDesc: " + strDesc);
+									Log.d(BackgroundIntentService.class.getSimpleName(), "\n");
 									Local.addFlight(mDateTime, logTime, reg_no, airplane_type_id, day_night, ifr_vfr, flight_type, strDesc, context);
 									sendBroadcastIntent(null);
 								} catch (Exception e) {

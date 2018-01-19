@@ -31,6 +31,7 @@
 
         <activity
             android:name=".views.activities.AddEditActivity"
+            android:windowSoftInputMode="stateHidden"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/str_add" />
         <activity

@@ -26,6 +26,7 @@ import com.arny.flightlogbook.models.Type;
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment;
 import com.redmadrobot.inputmask.MaskedTextChangedListener;
 import io.reactivex.Observable;
+import io.reactivex.disposables.CompositeDisposable;
 import org.joda.time.DateTime;
 
 import java.math.BigDecimal;
@@ -43,7 +44,7 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 	private float mMotoStart, mMotoFinish, mMotoResult;
 	private EditText edtDesc, edtTime, edtRegNo, edtMotoStart, edtMotoFinish;
 	private Button btnAddEdtItem;
-	private  Button btnAddAirplaneTypes;
+	private Button btnAddAirplaneTypes;
 	private Spinner spinDayNight, spinVfrIfr, spinFlightType;
 	private TextView tvAirplaneType, tvMotoResult;
 	private TextInputEditText edtDate;
@@ -52,6 +53,7 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 	private TextInputLayout tilDate;
 	private MaskedTextChangedListener dateTimeListener;
 	private InputMethodManager imm;
+	private final CompositeDisposable disposable = new CompositeDisposable();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -73,18 +75,7 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		edtDesc = null;
-		motoCont = null;
-		tilDate = null;
-		edtDate = null;
-		edtTime = null;
-		edtRegNo = null;
-		btnAddEdtItem = null;
-		btnAddAirplaneTypes = null;
-		spinDayNight = null;
-		spinVfrIfr = null;
-		spinFlightType = null;
-		tvAirplaneType = null;
+		disposable.clear();
 	}
 
 	private void initUI() {
@@ -229,13 +220,13 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 			if (!canEdit) {
 				return;
 			}
-			Utility.mainThreadObservable(Observable.fromCallable(() -> saveState(edtDesc.getText().toString(), edtTime.getText().toString(), edtRegNo.getText().toString())))
+			disposable.add(Utility.mainThreadObservable(Observable.fromCallable(() -> saveState(edtDesc.getText().toString(), edtTime.getText().toString(), edtRegNo.getText().toString())))
 					.subscribe(aBoolean -> {
 						if (aBoolean) {
-							ToastMaker.toastSuccess(this,getString(R.string.item_updated));
+							ToastMaker.toastSuccess(this, getString(R.string.item_updated));
 							finish();
 						}
-					}, throwable -> ToastMaker.toastError(this, throwable.getMessage()));
+					}, throwable -> ToastMaker.toastError(this, throwable.getMessage())));
 		});
 
 		spinDayNight.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -261,7 +252,7 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 		btnAddAirplaneTypes.setOnClickListener(view -> AddAirplaneTypes());
 
 		tvAirplaneType.setOnClickListener(view ->
-				Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getTypeList(AddEditActivity.this)))
+				disposable.add(Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getTypeList(AddEditActivity.this)))
 						.subscribe(types -> {
 							typeList.clear();
 							for (Type type : types) {
@@ -272,7 +263,7 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 							} else {
 								Toast.makeText(AddEditActivity.this, R.string.str_no_types, Toast.LENGTH_SHORT).show();
 							}
-						}));
+						})));
 	}
 
 	private void setDayToday() {
@@ -499,7 +490,7 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 
 	private void fillInputs() {
 		if (mRowId != 0) {
-			Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getFlightItem(mRowId, AddEditActivity.this))).subscribe(flight -> {
+			disposable.add(Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getFlightItem(mRowId, AddEditActivity.this))).subscribe(flight -> {
 				Log.d(AddEditActivity.class.getSimpleName(), "fillInputs: flight:" + flight);
 				if (flight == null) {
 					initEmptyflight();
@@ -530,7 +521,7 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 				spinFlightType.setSelection(flight_type);
 			}, throwable -> {
 				ToastMaker.toastError(this, throwable.getMessage());
-			});
+			}));
 		} else {
 			initEmptyflight();
 		}
@@ -548,7 +539,7 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 		day_night = 0;
 		ifr_vfr = 0;
 		flight_type = 0;
-		Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getTypeList(AddEditActivity.this))).subscribe(types -> {
+		disposable.add(Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getTypeList(AddEditActivity.this))).subscribe(types -> {
 			typeList.clear();
 			for (Type type : types) {
 				typeList.add(type.getTypeName());
@@ -562,7 +553,7 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 			}
 		}, throwable -> {
 			ToastMaker.toastError(this, throwable.getMessage());
-		});
+		}));
 		spinDayNight.setSelection(day_night);
 		spinVfrIfr.setSelection(ifr_vfr);
 		spinFlightType.setSelection(flight_type);
