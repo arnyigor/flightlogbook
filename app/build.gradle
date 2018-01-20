@@ -31,8 +31,8 @@ android {
         applicationId "com.arny.flightlogbook"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 617
-        versionName "6.1.7"
+        versionCode 619
+        versionName "6.1.9"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
