@@ -1,25 +1,17 @@
 <resources>
     <string name="app_name">Pilot Logbook</string>
-    <string name="str_dropbox">Синхронизация с Dropbox</string>
-    <string name="str_add">Добавить</string>
-    <string name="str_fragment">Fragment</string>
-    <string name="str_start">Start</string>
-    <string name="str_edt">Редактировать</string>
+	<string name="str_add">Добавить</string>
+	<string name="str_edt">Редактировать</string>
     <string name="str_delete">Удалить</string>
     <string name="str_clearall">Очистить все</string>
-    <string name="str_exit">Выход?</string>
-    <string name="str_ok">OK</string>
+	<string name="str_ok">OK</string>
     <string name="str_cancel">Отмена</string>
-    <string name="str_empty_title">Нет описания</string>
-    <string name="str_desc">Описание</string>
+	<string name="str_desc">Описание</string>
     <string name="str_date">Дата</string>
     <string name="str_date_format">dd.MM.yyyy</string>
     <string name="str_logtime">00:00</string>
     <string name="str_itemlogtime">Налет</string>
-    <string name="str_hours">ч.</string>
-    <string name="str_minutes">мин.</string>
-    <string name="str_enter_logtime">Введите время полета</string>
-    <string name="str_totaltime">Общее время:</string>
+	<string name="str_totaltime">Общее время:</string>
     <string name="str_about">О программе</string>
     <string name="str_regnum">Рег.№</string>
     <string name="str_no_regnum">Нет рег.№</string>
@@ -33,9 +25,7 @@
     <string name="str_edt_airplane_types">Редактировать тип ВС</string>
     <string name="str_remove_airplane_types">Удалить тип ВС</string>
     <string name="str_airplane_types">Типы ВС</string>
-    <string name="str_airplane_type">Тип ВС</string>
-    <string name="str_error_add_airplane_types">Необходимо добавить тип ВС</string>
-    <string name="str_import_excel">Импорт XLS</string>
+	<string name="str_import_excel">Импорт XLS</string>
     <string name="str_import_from_file">Импорт из файловой системы</string>
     <string name="str_export_excel">Экспорт XLS</string>
     <string name="str_open_file">Открыть XLS</string>
@@ -43,35 +33,23 @@
     <string name="str_import_massage">При импроте данных из файла база данных будет заменена.</string>
     <string name="str_export_attention">Экспорт в файл?</string>
     <string name="str_export_success">Экспорт завершен</string>
-    <string name="str_file_saved">Файл сохранен</string>
-    <string name="str_settings">Настройки</string>
-    <string name="str_btnpos">Положение кнопки</string>
-    <string name="str_btnpos_summary">Изменение положения кнопки(вступит в силу после перезапуска приложения)</string>
-    <string name="str_moto">Cчетчик моточасов</string>
+	<string name="str_settings">Настройки</string>
+	<string name="str_moto">Cчетчик моточасов</string>
     <string name="str_moto_btn">Счетчик</string>
     <string name="str_motostart">Начальное показание</string>
     <string name="str_motofinish">Конечное показание</string>
     <string name="str_motoresult">Результат</string>
-    <string name="str_moto_correct_result">Ошибка,конечное значение меньше!</string>
-    <string name="str_extend_options">Дополнительные опции</string>
-    <string name="icao_hint">ICAO</string>
-    <string name="btn_metar_text">Metar</string>
-    <string name="metar_text">Metar + AUTOTAF(beta) в разработке</string>
-    <string name="metar_text_summary">Автоматические авиационные прогнозы погоды с сайта http://meteocenter.asia/
-    </string>
-    <string name="str_xls">Настройки XLS</string>
+	<string name="str_extend_options">Дополнительные опции</string>
+	<string name="str_xls">Настройки XLS</string>
     <string name="str_alarm_add_airplane_type">Введите тип ВС</string>
     <string name="str_remove_all">Удалить все</string>
-    <string name="str_dropbox_connect">Соединиться с Dropbox</string>
-    <string name="str_error_import">Ошибка импорта</string>
+	<string name="str_error_import">Ошибка импорта</string>
     <string name="str_no_types">Нет типов ВС</string>
     <string name="no_type">Нет типа</string>
-    <string name="str_addtype">Добавить тип ВС</string>
-    <string name="str_storage_permission_denied">Доступ к памяти запрещен</string>
+	<string name="str_storage_permission_denied">Доступ к памяти запрещен</string>
     <string name="str_import_success">Импорт завершен</string>
     <string name="str_fitre_stat">Фильтр статистики</string>
-    <string name="title_activity_home">HomeActivity</string>
-    <!--service-->
+	<!--service-->
     <string name="service_file_download_success">Загрузка файла завершена</string>
     <string name="service_file_upload_success">Выгрузка файла завершена</string>
     <string name="service_operation_success">Операция завершена</string>
@@ -83,30 +61,13 @@
     <string name="service_export_fail">Экспорт не завершен</string>
 
     <!--Preferences-->
-    <string name="xls_locale_title">Язык файла XLS</string>
-    <string name="xls_locale_summary">Необходим для корректного распознавания даты</string>
-    <string name="xls_locale_default">RU</string>
-    <string name="xls_locale_key">xls_locale</string>
-    <string name="xls_locale_ru">RU</string>
-    <string name="xls_locale_en">EN</string>
 
-    <string-array name="xls_locales">
-        <item>@string/xls_locale_ru</item>
-        <item>@string/xls_locale_en</item>
-    </string-array>
-
-    <string-array name="daynight">
+	<string-array name="daynight">
         <item>день</item>
         <item>ночь</item>
     </string-array>
 
-    <string-array name="filter_by">
-        <item>Дате</item>
-        <item>Типу ЛА</item>
-        <item>Типу полетов</item>
-    </string-array>
-
-    <string-array name="ifrvfr">
+	<string-array name="ifrvfr">
         <item>VFR</item>
         <item>IFR</item>
     </string-array>
@@ -118,12 +79,8 @@
     </string-array>
 
     <!--Drawer-->
-    <string-array name="drawer_items">
-        <item>@string/fragment_logbook</item>
-        <item>@string/fragment_stats</item>
-    </string-array>
 
-    <string-array name="flights_filers">
+	<string-array name="flights_filers">
         <item>@string/str_date_asc</item>
         <item>@string/str_date_desc</item>
         <item>@string/str_logtime_asc</item>
@@ -139,11 +96,8 @@
     <string name="fragment_types">Типы</string>
     <string name="fragment_stats">Статистика</string>
     <string name="fragment_dropbox_sync">Dropbox синхронизация</string>
-    <string name="drawer_open">drawer_open</string>
-    <string name="drawer_close">drawer_close</string>
-    <string name="str_sort_by">Сортировка по</string>
-    <string name="str_filter_type">Фильтр</string>
-    <string name="dropbox_login">Войти в Dropbox</string>
+	<string name="str_sort_by">Сортировка по</string>
+	<string name="dropbox_login">Войти в Dropbox</string>
     <string name="dropbox_app_key">rzzuhol6y1aibdx</string>
     <string name="dropbox_sync_files">Синхронизация:</string>
     <string name="dropbox_sync_files_no_data">нет данных</string>
@@ -156,8 +110,7 @@
     <string name="dropbox_email">Email:%s</string>
     <string name="dropbox_name">Имя:%s</string>
     <string name="dropbox_sync_complete">Синхронизация завершена</string>
-    <string name="dropbox_sync_error">Ошибка синхронизации</string>
-    <string name="dropbox_auth_error">Ошибка авторизации</string>
+	<string name="dropbox_auth_error">Ошибка авторизации</string>
     <string name="storage_not_avalable">Память не доступна</string>
     <!--statistic-->
     <string name="stat_column_month">Месяц</string>
@@ -169,8 +122,7 @@
     <string name="stat_error_end_less_start">Конечная дата меньше начальной</string>
 
     <string name="press_back_again_to_exit">Нажмите еще раз для выхода</string>
-    <string name="storage_permission_denied">Необходимо предоставить разрешения на запись</string>
-    <string name="auto_export_xls_on_exit">Автоэкспорт XLS при выходе</string>
+	<string name="auto_export_xls_on_exit">Автоэкспорт XLS при выходе</string>
     <string name="str_date_desc">Дата по убыванию</string>
     <string name="str_date_asc">Дата по возрастанию</string>
     <string name="str_logtime_desc">Налет по убыванию</string>

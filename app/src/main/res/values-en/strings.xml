@@ -1,53 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Pilot Logbook</string>
-    <string name="btn_metar_text">Metar</string>
-    <string name="icao_hint">ICAO</string>
-    <string name="metar_text">Metar + AUTOTAF(beta) in developing</string>
-    <string name="metar_text_summary">Automatic aviation weather reports from the site http://meteocenter.asia/</string>
-    <string name="str_about">About the program</string>
+	<string name="str_about">About the program</string>
     <string name="str_add">Add</string>
     <string name="str_add_airplane_types">Add aircraft type</string>
-    <string name="str_addtype">Add aircraft type</string>
-    <string name="str_airplane_type">Aircraft Type</string>
-    <string name="str_airplane_types">The types of aircraft</string>
+	<string name="str_airplane_types">The types of aircraft</string>
     <string name="str_alarm_add_airplane_type">Enter the aircraft type</string>
-    <string name="str_btnpos">Floatactionbutton position</string>
-    <string name="str_btnpos_summary">Floatactionbutton position change(Will enter into force after application restart)</string>
-    <string name="str_cancel">Cancel</string>
+	<string name="str_cancel">Cancel</string>
     <string name="str_clearall">Clear all</string>
     <string name="str_date">Date</string>
     <string name="str_day_night">Day/Night</string>
     <string name="str_delete">Delete</string>
     <string name="str_desc">Description</string>
-    <string name="str_dropbox">Synchronization with Dropbox</string>
-    <string name="str_dropbox_connect">Connect with Dropbox</string>
-    <string name="str_edt">Edit</string>
+	<string name="str_edt">Edit</string>
     <string name="str_edt_airplane_types">Edit aircraft type</string>
-    <string name="str_empty_title">No description</string>
-    <string name="str_enter_logtime">Enter the flight time</string>
-    <string name="str_error_add_airplane_types">It is necessary to add the type of aircraft</string>
-    <string name="str_error_import">import Error</string>
-    <string name="str_exit">Exit?</string>
-    <string name="str_export_attention">Export to a file?</string>
+	<string name="str_error_import">import Error</string>
+	<string name="str_export_attention">Export to a file?</string>
     <string name="str_export_excel">Export XLS</string>
     <string name="str_export_success">Export completed</string>
     <string name="str_extend_options">Additional options</string>
-    <string name="str_file_saved">File saved</string>
-    <string name="str_flight_type">circles / area / route</string>
-    <string name="str_hours">h.</string>
-    <string name="str_import_attention">Warning!</string>
+	<string name="str_flight_type">circles / area / route</string>
+	<string name="str_import_attention">Warning!</string>
     <string name="str_import_excel">Import XLS</string>
     <string name="str_import_from_file">Import from file system</string>
     <string name="str_import_massage">When you import data from a file the database will be replaced.</string>
     <string name="str_import_success">Import completed</string>
     <string name="str_itemlogtime">Time</string>
     <string name="str_logtime">00:00</string>
-    <string name="str_minutes">min.</string>
-    <string name="str_moto">Engine Operating hours meter</string>
+	<string name="str_moto">Engine Operating hours meter</string>
     <string name="str_moto_btn">Hours meter</string>
-    <string name="str_moto_correct_result">Error, the final value of less!</string>
-    <string name="str_motofinish">The final value</string>
+	<string name="str_motofinish">The final value</string>
     <string name="str_motoresult">Result</string>
     <string name="str_motostart">The initial value</string>
     <string name="str_no_types">No aircraft types</string>
@@ -70,36 +52,23 @@
     <string name="dropbox_sync_complete">Sync complete</string>
     <string name="dropbox_sync_download">Download</string>
     <string name="dropbox_sync_downloading">Downloading file</string>
-    <string name="dropbox_sync_error">Sync Error</string>
-    <string name="dropbox_sync_files">Sync</string>
+	<string name="dropbox_sync_files">Sync</string>
     <string name="dropbox_sync_upload">Upload</string>
     <string name="dropbox_sync_uploading">Uploading file</string>
     <string name="fragment_dropbox_sync">Dropbox sync</string>
     <string name="fragment_stats">Statistics</string>
     <string name="storage_not_avalable">Storage not available or read only</string>
-    <string name="drawer_close">drawer_close</string>
-    <string name="drawer_open">drawer_open</string>
-    <string name="dropbox_app_key">rzzuhol6y1aibdx</string>
+	<string name="dropbox_app_key">rzzuhol6y1aibdx</string>
     <string name="fragment_logbook">LogBook</string>
     <string name="str_sort_by">Sort by</string>
-    <string name="str_filter_type">Filter</string>
-    <string name="str_fitre_stat">Statistics Filter</string>
-    <string name="str_fragment">Fragment</string>
-    <string name="str_start">Start</string>
-    <string name="title_activity_home">HomeActivity</string>
+	<string name="str_fitre_stat">Statistics Filter</string>
 
-    <string-array name="daynight">
+	<string-array name="daynight">
         <item>day</item>
         <item>night</item>
     </string-array>
 
-    <string-array name="filter_by">
-        <item>By date</item>
-        <item>aircraft type</item>
-        <item>flight type</item>
-    </string-array>
-
-    <string-array name="ifrvfr">
+	<string-array name="ifrvfr">
         <item>VFR</item>
         <item>IFR</item>
     </string-array>
@@ -128,19 +97,12 @@
     <string name="service_operation_success">Operation complete</string>
     <string name="service_sync_fail">Sync fail</string>
     <string name="service_upload_fail">Upload fail</string>
-    <string name="xls_locale_default">RU</string>
-    <string name="xls_locale_en">EN</string>
-    <string name="xls_locale_key">xls_locale</string>
-    <string name="xls_locale_ru">RU</string>
-    <string name="xls_locale_summary">Required for correct date recognition</string>
-    <string name="xls_locale_title">XLS file locale</string>
-    <string name="str_no_regnum">no Reg no</string>
+	<string name="str_no_regnum">no Reg no</string>
     <string name="str_remove_airplane_types">Remove Type</string>
     <string name="no_type">No type</string>
     <string name="fragment_types">Types</string>
     <string name="press_back_again_to_exit">Click again to exit</string>
-    <string name="storage_permission_denied">Need access to SD write</string>
-    <string name="auto_export_xls_on_exit">Export XLS file on exit</string>
+	<string name="auto_export_xls_on_exit">Export XLS file on exit</string>
     <string name="str_date_desc">Date descending</string>
     <string name="str_date_asc">Date Ascending</string>
     <string name="str_logtime_desc">Flight time descending</string>

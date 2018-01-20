@@ -13,8 +13,7 @@
           app:showAsAction="never"
           android:title="@string/str_airplane_types"/>
     <item
-            android:id="@+id/action_xls"
-            app:showAsAction="never"
+		    app:showAsAction="never"
             android:title="@string/str_xls">
         <menu>
             <item android:id="@+id/action_import_excel"

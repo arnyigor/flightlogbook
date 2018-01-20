@@ -163,7 +163,6 @@
 
 
 				<android.support.design.widget.TextInputLayout
-						android:id="@+id/edtDescLayout"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content">
 

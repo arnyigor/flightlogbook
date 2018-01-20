@@ -21,7 +21,6 @@ import com.arny.arnylib.interfaces.InputDialogListener;
 import com.arny.arnylib.utils.*;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.common.Local;
-import com.arny.flightlogbook.models.Flight;
 import com.arny.flightlogbook.models.Type;
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment;
 import com.redmadrobot.inputmask.MaskedTextChangedListener;
@@ -58,7 +57,7 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.add_item);
+		setContentView(R.layout.activity_addedit);
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		toolbar.setTitleTextColor(ContextCompat.getColor(this, R.color.colorText));
 		setSupportActionBar(toolbar);
@@ -343,13 +342,17 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 		}
 
 		public void onTextChanged(CharSequence s, int start, int before, int count) {
-			try {
-				mMotoStart = Float.parseFloat(edtMotoStart.getText().toString());
-				mMotoFinish = Float.parseFloat(edtMotoFinish.getText().toString());
-				mMotoResult = getMotoTime(mMotoStart, mMotoFinish);
-				tvMotoResult.setText(DateTimeUtils.strLogTime(setLogTimefromMoto(mMotoResult)));
-			} catch (Exception e) {
-				e.printStackTrace();
+			String startString = edtMotoStart.getText().toString();
+			String finishString = edtMotoFinish.getText().toString();
+			if (!startString.isEmpty() && !finishString.isEmpty()) {
+				try {
+					mMotoStart = Float.parseFloat(startString);
+					mMotoFinish = Float.parseFloat(finishString);
+					mMotoResult = getMotoTime(mMotoStart, mMotoFinish);
+					tvMotoResult.setText(DateTimeUtils.strLogTime(setLogTimefromMoto(mMotoResult)));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	};
@@ -394,6 +397,8 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 		LinearLayout.LayoutParams lButtonParams = new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 		Button btn = new Button(this);
+		btn.setBackground(getResources().getDrawable(R.drawable.btn_bg_green));
+		btn.setTextColor(getResources().getColor(R.color.bpWhite));
 		btn.setLayoutParams(lButtonParams);
 		btn.setId(R.id.motoBtn);
 		btn.setOnClickListener(v -> showMoto());

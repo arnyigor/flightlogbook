@@ -1,7 +1,6 @@
 package com.arny.flightlogbook.views.fragments;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +14,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.*;
 import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -31,7 +29,6 @@ import com.arny.flightlogbook.models.Flight;
 import com.arny.flightlogbook.views.activities.AddEditActivity;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.functions.BiFunction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +61,7 @@ public class FlightListFragment extends Fragment {
 
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.flight_list, container, false);
+		return inflater.inflate(R.layout.fragment_flight_list, container, false);
 	}
 
 	@Override

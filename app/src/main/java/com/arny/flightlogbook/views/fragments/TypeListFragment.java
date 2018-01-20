@@ -187,7 +187,7 @@ public class TypeListFragment extends Fragment implements TypeListHolder.SimpleA
 
 	private void setVisbltyBtnRemAll() {
 		if (types != null) {
-			removeall.setEnabled(types.size() >= 1);
+			removeall.setVisibility(types.size() >= 1 ? View.VISIBLE : View.GONE);
 		}
 	}
 }

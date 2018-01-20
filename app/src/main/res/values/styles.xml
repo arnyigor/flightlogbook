@@ -8,55 +8,11 @@
         <item name="windowActionBar">false</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-
-    <style name="MyActionBarTitle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
-        <item name="android:textColor">@color/colorText</item>
-        <item name="android:textColorPrimary">@color/colorText</item>
-    </style>
-
-    <style name="shadowTV" parent="AppTheme">
+	<style name="shadowTV" parent="AppTheme">
         <item name="android:background">@drawable/tv_shadow</item>
         <item name="android:padding">10dp</item>
     </style>
 
-    <style name="TextViewDateStyle" parent="AppTheme">
-        <item name="android:textSize">@dimen/font_size</item>
-        <item name="android:padding">@dimen/text_view_padding</item>
-    </style>
-
-    <style name="gridWidth">
-        <item name="android:width">75dp</item>
-    </style>
-
-    <style name="Widget.ActionBar" parent="@style/Widget.AppCompat.ActionBar">
-        <item name="titleTextStyle">@style/TextAppearance.Widget.ActionBar.Title</item>
-        <item name="subtitleTextStyle">@style/TextAppearance.Widget.ActionBar.Subtitle</item>
-    </style>
-
-    <style name="TextAppearance.Widget.ActionBar.Title" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
-        <item name="android:textColor">@color/colorText</item>
-    </style>
-
-    <style name="TextAppearance.Widget.ActionBar.Subtitle"
-        parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle">
-        <item name="android:textColor">@color/colorText</item>
-    </style>
-
-
-    <style name="BetterPickersDialogFragmentStyle">
-        <item name="bpDialogBackground">@color/colorTextGrayLight</item>
-        <item name="bpTitleColor">@color/dialog_text_color_holo_dark</item>
-        <item name="bpTextColor">@color/dialog_text_color_holo_dark</item>
-        <item name="bpDeleteIcon">@drawable/ic_backspace_dark</item>
-        <item name="bpCheckIcon">@drawable/ic_check_dark</item>
-        <item name="bpKeyBackground">@drawable/key_background_dark</item>
-        <item name="bpButtonBackground">@drawable/button_background_dark</item>
-        <item name="bpTitleDividerColor">@color/default_keyboard_indicator_color_dark</item>
-        <item name="bpDividerColor">@color/default_divider_color_dark</item>
-        <item name="bpKeyboardIndicatorColor">@color/default_keyboard_indicator_color_dark</item>
-    </style>
 
 </resources>
