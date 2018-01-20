@@ -190,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 				break;
 			case MENU_TYPES:
 				fragment = new TypeListFragment();
-				toolbar.setTitle(getString(R.string.fragment_types));
+				toolbar.setTitle(getString(R.string.str_airplane_types));
 				break;
 			case MENU_STATS:
 				fragment = new StatisticFragment();

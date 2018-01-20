@@ -131,7 +131,7 @@
 	<string name="dropbox_sync_warning_content">Включена настройка сохранения базы данных при загрузке файла Dropbox.Загрузить?
 	</string>
 	<string name="item_updated">Запись обновлена</string>
-	<string name="loading_totals">Обновление данных</string>
+	<string name="loading_totals">Обновление данных...</string>
 	<string name="total_records">Всего записей:</string>
 
 
