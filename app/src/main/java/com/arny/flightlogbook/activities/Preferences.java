@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.models;
+package com.arny.flightlogbook.activities;
 
 import android.os.Bundle;
 import android.preference.PreferenceActivity;

@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.common;
+package com.arny.flightlogbook.data;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,36 +9,19 @@ import android.widget.Toast;
 import com.arny.arnylib.database.DBProvider;
 import com.arny.arnylib.utils.BasePermissions;
 import com.arny.arnylib.utils.DateTimeUtils;
-import com.arny.arnylib.utils.Utility;
 import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
-import com.arny.flightlogbook.models.*;
-import org.chalup.microorm.MicroOrm;
+import com.arny.flightlogbook.data.models.Flight;
+import com.arny.flightlogbook.data.models.Statistic;
+import com.arny.flightlogbook.data.models.Type;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.arny.flightlogbook.data.Consts.DB.*;
 public class Local {
-    //Column Name
-    public static final String COLUMN_ID = "_id";
-    public static final String COLUMN_TYPE_ID = "type_id";
-    public static final String COLUMN_DATETIME = "datetime";
-    public static final String COLUMN_LOG_TIME = "log_time";
-    public static final String COLUMN_REG_NO = "reg_no";
-    public static final String COLUMN_AIRPLANE_TYPE = "airplane_type";
-    public static final String COLUMN_DAY_NIGHT = "day_night";
-    public static final String COLUMN_IFR_VFR = "ifr_vfr";
-    public static final String COLUMN_FLIGHT_TYPE = "flight_type";
-    public static final String COLUMN_DESCRIPTION = "description";
-    public static final String CONFIG_USER_FILTER_FLIGHTS = "config_user_filter_flights";
-    //Database Version
-    public static final int DATABASE_VERSION = 12;
-    //Database Name
-    public static final String DATABASE_NAME = "PilotDB";
-    //Table Name
-    public static final String MAIN_TABLE = "main_table";
-    public static final String TYPE_TABLE = "type_table";
-	public static final String DROPBOX_AUTOIMPORT_TO_DB = "dropbox_autoimport_to_db";
+
 
 	//Insert Value
     public static long addFlight(long datetime, int logtime, String reg_no, int airplanetypeid, int daynight, int ifr_vfr, int flighttype, String description, Context context) {
@@ -169,33 +152,33 @@ public class Local {
         if (cursor.moveToFirst()) {
             do {
                 Statistic listitem = new Statistic();
-                cnt += Functions.validateInt(cursor.getString(cursor.getColumnIndex("cnt")));
-                totalByMonth += Functions.validateInt(cursor.getString(cursor.getColumnIndex("total_month")));
-                listitem.setDt(Functions.validateLong(cursor.getString(cursor.getColumnIndex("dt"))));
-                listitem.setCnt(Functions.validateInt(cursor.getString(cursor.getColumnIndex("cnt"))));
-                listitem.setStrMoths(Functions.getDateTime(Functions.validateLong(cursor.getString(cursor.getColumnIndex("dt"))),"MMM yyyy"));
-                listitem.setTotalByMonth(Functions.validateInt(cursor.getString(cursor.getColumnIndex("total_month"))));
-                listitem.setStrTotalByMonths(DateTimeUtils.strLogTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("total_month")))));
-                listitem.setDaysTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("daystime"))));
-                daysTime += Functions.validateInt(cursor.getString(cursor.getColumnIndex("daystime")));
-                listitem.setNightsTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("nighttime"))));
-                nightTime += Functions.validateInt(cursor.getString(cursor.getColumnIndex("nighttime")));
-                listitem.setDnTime(DateTimeUtils.strLogTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("daystime")))) + "\n" + DateTimeUtils.strLogTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("nighttime")))));
-                listitem.setVfrTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("vfrtime"))));
-                vfrtime += Functions.validateInt(cursor.getString(cursor.getColumnIndex("vfrtime")));
-                ifrtime += Functions.validateInt(cursor.getString(cursor.getColumnIndex("ifrtime")));
-                listitem.setIfrTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("ifrtime"))));
-                listitem.setIvTime(DateTimeUtils.strLogTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("vfrtime")))) + "\n" + DateTimeUtils.strLogTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("ifrtime")))));
-                circletime += Functions.validateInt(cursor.getString(cursor.getColumnIndex("circletime")));
-                listitem.setCzmTime(DateTimeUtils.strLogTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("circletime")))) + "\n" + DateTimeUtils.strLogTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("zonetime"))))+ "\n" + DateTimeUtils.strLogTime(Functions.validateInt(cursor.getString(cursor.getColumnIndex("marshtime")))));
-                zonetime += Functions.validateInt(cursor.getString(cursor.getColumnIndex("zonetime")));
-                marshtime += Functions.validateInt(cursor.getString(cursor.getColumnIndex("marshtime")));
+	            cnt += DBProvider.getCursorInt(cursor, "cnt");
+	            totalByMonth += DBProvider.getCursorInt(cursor, "total_month");
+	            listitem.setDt(DBProvider.getCursorLong(cursor,"dt"));
+	            listitem.setCnt(DBProvider.getCursorInt(cursor, "cnt"));
+	            listitem.setStrMoths(DateTimeUtils.getDateTime(DBProvider.getCursorLong(cursor, "dt"), "MMM yyyy"));
+	            listitem.setTotalByMonth(DBProvider.getCursorInt(cursor, "total_month"));
+	            listitem.setStrTotalByMonths(DateTimeUtils.strLogTime(DBProvider.getCursorInt(cursor, "total_month")));
+	            listitem.setDaysTime(DBProvider.getCursorInt(cursor, "daystime"));
+	            daysTime += DBProvider.getCursorInt(cursor, "daystime");
+	            listitem.setNightsTime(DBProvider.getCursorInt(cursor, "nighttime"));
+	            nightTime += DBProvider.getCursorInt(cursor, "nighttime");
+	            listitem.setDnTime(DateTimeUtils.strLogTime(DBProvider.getCursorInt(cursor, "daystime")) + "\n" + DateTimeUtils.strLogTime(DBProvider.getCursorInt(cursor, "nighttime")));
+	            listitem.setVfrTime(DBProvider.getCursorInt(cursor, "vfrtime"));
+	            vfrtime += DBProvider.getCursorInt(cursor, "vfrtime");
+	            ifrtime += DBProvider.getCursorInt(cursor, "ifrtime");
+	            listitem.setIfrTime(DBProvider.getCursorInt(cursor, "ifrtime"));
+	            listitem.setIvTime(DateTimeUtils.strLogTime(DBProvider.getCursorInt(cursor, "vfrtime")) + "\n" + DateTimeUtils.strLogTime(DBProvider.getCursorInt(cursor, "ifrtime")));
+	            circletime += DBProvider.getCursorInt(cursor, "circletime");
+	            listitem.setCzmTime(DateTimeUtils.strLogTime(DBProvider.getCursorInt(cursor, "circletime")) + "\n" + DateTimeUtils.strLogTime(DBProvider.getCursorInt(cursor, "zonetime"))+ "\n" + DateTimeUtils.strLogTime(DBProvider.getCursorInt(cursor, "marshtime")));
+	            zonetime += DBProvider.getCursorInt(cursor, "zonetime");
+	            marshtime += DBProvider.getCursorInt(cursor, "marshtime");
 
                 if (cursor.isFirst()) {
-                    firstMonth = Functions.getDateTime(Long.parseLong(cursor.getString(cursor.getColumnIndex("dt"))),"MMM yyyy");
+	                firstMonth = DateTimeUtils.getDateTime(Long.parseLong(cursor.getString(cursor.getColumnIndex("dt"))), "MMM yyyy");
                 }
                 if (cursor.isLast()) {
-                    lastMonth = Functions.getDateTime(Long.parseLong(cursor.getString(cursor.getColumnIndex("dt"))),"MMM yyyy");
+	                lastMonth = DateTimeUtils.getDateTime(Long.parseLong(cursor.getString(cursor.getColumnIndex("dt"))), "MMM yyyy");
                 }
                 list.add(listitem);
             } while (cursor.moveToNext());
@@ -218,7 +201,7 @@ public class Local {
         return list;
     }
 
-    //Delete Query
+	//Delete Query
     public static void removeFlight(int id, Context context) {
         DBProvider.deleteDB(MAIN_TABLE, "_id = ?", new String[]{String.valueOf(id)}, context);
     }
@@ -341,7 +324,7 @@ public class Local {
             Toast.makeText(context, R.string.storage_not_avalable, Toast.LENGTH_LONG).show();
             return false;
         }
-        File file = new File(Environment.getExternalStorageDirectory() + "/Android/data/com.arny.flightlogbook/files", Functions.EXEL_FILE_NAME);
+        File file = new File(Environment.getExternalStorageDirectory() + "/Android/data/com.arny.flightlogbook/files", Consts.Files.EXEL_FILE_NAME);
         return file.exists() && file.isFile();
     }
 }

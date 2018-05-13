@@ -9,7 +9,7 @@ import com.arny.arnylib.adapters.BindableViewHolder;
 import com.arny.arnylib.utils.DateTimeUtils;
 import com.arny.arnylib.utils.Utility;
 import com.arny.flightlogbook.R;
-import com.arny.flightlogbook.models.Flight;
+import com.arny.flightlogbook.data.models.Flight;
 public class FlightListHolder extends BindableViewHolder<Flight> {
 	private TextView date;
 	private TextView logTime;
@@ -52,7 +52,7 @@ public class FlightListHolder extends BindableViewHolder<Flight> {
 		llDescrBlock.setVisibility(visDesrcBlock);
 		tvDesc.setText(item.getDescription());
 		if (simpleActionListener != null) {
-			llItemBlock.setOnClickListener(v -> simpleActionListener.OnItemClickListener(position,item));
+			llItemBlock.setOnClickListener(v -> simpleActionListener.onItemClick(position,item));
 		}
 	}
 

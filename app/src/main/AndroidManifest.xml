@@ -1,13 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.arny.flightlogbook">
     <application
-	    android:name=".App"
+	    android:name=".FlightApp"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".views.activities.MainActivity"
+            android:name=".activities.MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name">
             <intent-filter>
@@ -17,7 +17,7 @@
         </activity>
 
         <receiver
-            android:name=".additional.AppWidget"
+            android:name=".data.additional.AppWidget"
             android:icon="@drawable/ic_launcher"
             android:label="@string/app_name">
             <intent-filter>
@@ -30,24 +30,24 @@
         </receiver>
 
         <activity
-            android:name=".views.activities.AddEditActivity"
+            android:name=".activities.AddEditActivity"
             android:windowSoftInputMode="stateHidden"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/str_add" />
         <activity
-            android:name=".views.activities.AirplaneTypesActivity"
+            android:name=".activities.AirplaneTypesActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/str_airplane_types" />
         <activity
-            android:name=".views.activities.AboutActivity"
+            android:name=".activities.AboutActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/str_about" />
         <activity
-            android:name=".models.Preferences"
+            android:name="com.arny.flightlogbook.activities.Preferences"
             android:label="@string/str_settings" />
 
         <service
-            android:name=".common.BackgroundIntentService"
+            android:name=".data.service.BackgroundIntentService"
             android:enabled="true"
             android:exported="false"
             android:label="BackgroundIntentService" />

@@ -1,10 +1,8 @@
-package com.arny.flightlogbook.views.fragments;
+package com.arny.flightlogbook.fragments;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
@@ -22,14 +20,16 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.arny.arnylib.utils.Config;
+import com.arny.arnylib.utils.DateTimeUtils;
+import com.arny.arnylib.utils.DroidUtils;
 import com.arny.arnylib.utils.Utility;
 import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
-import com.arny.flightlogbook.common.BackgroundIntentService;
-import com.arny.flightlogbook.common.Local;
-import com.arny.flightlogbook.network.DropboxClientFactory;
-import com.arny.flightlogbook.common.Functions;
-import com.arny.flightlogbook.network.GetCurrentAccountTask;
+import com.arny.flightlogbook.data.Consts;
+import com.arny.flightlogbook.data.network.sync.dropbox.DropboxClientFactory;
+import com.arny.flightlogbook.data.network.sync.dropbox.GetCurrentAccountTask;
+import com.arny.flightlogbook.data.service.BackgroundIntentService;
+import com.arny.flightlogbook.data.Functions;
 import com.dropbox.core.android.Auth;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.users.FullAccount;
@@ -112,14 +112,14 @@ public class DropboxSyncFragment extends Fragment {
 	}
 
 	private void initState() {
-		localfileDate = Functions.getPrefString(context, PREF_DBX_LOCAL_DATETIME, "");
-		remoteFileDate = Functions.getPrefString(context, PREF_DBX_REMOTE_DATETIME, "");
-		syncDateTime = Functions.getPrefString(context, PREF_DBX_SYNC_DATETIME, "");
-		dbxEmail = Functions.getPrefString(context, PREF_DBX_EMAIL, "");
-		dbxName = Functions.getPrefString(context, PREF_DBX_NAME, "");
+		localfileDate = Config.getString( PREF_DBX_LOCAL_DATETIME,context, "");
+		remoteFileDate = Config.getString( PREF_DBX_REMOTE_DATETIME,context, "");
+		syncDateTime = Config.getString( PREF_DBX_SYNC_DATETIME, context,"");
+		dbxEmail = Config.getString( PREF_DBX_EMAIL,context, "");
+		dbxName = Config.getString( PREF_DBX_NAME,context, "");
 		tvDbxEmail.setText(String.format(getString(R.string.dropbox_email), dbxEmail));
 		tvDbxName.setText(String.format(getString(R.string.dropbox_name), dbxName));
-		boolean autoImport = Config.getBoolean(Local.DROPBOX_AUTOIMPORT_TO_DB, false, context);
+		boolean autoImport = Config.getBoolean(Consts.Prefs.DROPBOX_AUTOIMPORT_TO_DB, false, context);
 		checkBoxAutoImport.setChecked(autoImport);
 		setSyncDataFileDateTime();
 	}
@@ -129,7 +129,7 @@ public class DropboxSyncFragment extends Fragment {
 		btnSync.setOnClickListener(onClickListenerSync);
 		btnSyncUp.setOnClickListener(onClickListenerSyncUpload);
 		btnSyncDown.setOnClickListener(onClickListenerSyncDownload);
-		checkBoxAutoImport.setOnCheckedChangeListener((compoundButton, b) -> Config.setBoolean(Local.DROPBOX_AUTOIMPORT_TO_DB,b,context));
+		checkBoxAutoImport.setOnCheckedChangeListener((compoundButton, b) -> Config.setBoolean(Consts.Prefs.DROPBOX_AUTOIMPORT_TO_DB,b,context));
 	}
 
 	private void setSyncDataFileDateTime() {
@@ -154,7 +154,7 @@ public class DropboxSyncFragment extends Fragment {
 	View.OnClickListener onClickListenerSyncUpload = new View.OnClickListener() {
 		@Override
 		public void onClick(View view) {
-			if (Functions.checkSDRRWPermessions(context, getActivity(), Functions.REQUEST_DBX_EXTERNAL_STORAGE)) {
+			if (Functions.checkSDRRWPermessions(context, getActivity(), Consts.RequestCodes.REQUEST_DBX_EXTERNAL_STORAGE)) {
 				new MaterialDialog.Builder(context)
 						.title(R.string.warning)
 						.content(getString(R.string.dropbox_sync_upload) +"?")
@@ -169,8 +169,8 @@ public class DropboxSyncFragment extends Fragment {
 	View.OnClickListener onClickListenerSyncDownload = new View.OnClickListener() {
 		@Override
 		public void onClick(View view) {
-			if (Functions.checkSDRRWPermessions(context, getActivity(), Functions.REQUEST_DBX_EXTERNAL_STORAGE)) {
-				if (Config.getBoolean(Local.DROPBOX_AUTOIMPORT_TO_DB, false, context)) {
+			if (Functions.checkSDRRWPermessions(context, getActivity(), Consts.RequestCodes.REQUEST_DBX_EXTERNAL_STORAGE)) {
+				if (Config.getBoolean(Consts.Prefs.DROPBOX_AUTOIMPORT_TO_DB, false, context)) {
 					new MaterialDialog.Builder(context)
 							.title(R.string.warning)
 							.content(R.string.dropbox_sync_warning_content)
@@ -194,7 +194,7 @@ public class DropboxSyncFragment extends Fragment {
 	View.OnClickListener onClickListenerSync = new View.OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			if (Functions.checkSDRRWPermessions(context, getActivity(), Functions.REQUEST_DBX_EXTERNAL_STORAGE)) {
+			if (Functions.checkSDRRWPermessions(context, getActivity(), Consts.RequestCodes.REQUEST_DBX_EXTERNAL_STORAGE)) {
 				getFileData();
 			}
 		}
@@ -255,7 +255,7 @@ public class DropboxSyncFragment extends Fragment {
 		filter.addCategory(Intent.CATEGORY_DEFAULT);
 		LocalBroadcastManager.getInstance(context).registerReceiver(broadcastReceiver, filter);
 
-		if (Functions.isMyServiceRunning(BackgroundIntentService.class, context)) {
+		if (DroidUtils.isMyServiceRunning(BackgroundIntentService.class, context)) {
 			getOperationNotif(context);
 			showProgress(notif);
 		} else {
@@ -321,11 +321,11 @@ public class DropboxSyncFragment extends Fragment {
 	}
 
 	private void getAccessToken() {
-		accessToken = Functions.getPrefString(context, DROPBOX_STR_TOKEN, null);
+		accessToken = Config.getString( DROPBOX_STR_TOKEN, context,null);
 		if (accessToken == null) {
 			accessToken = Auth.getOAuth2Token();
 			if (accessToken != null) {
-				Functions.getPrefs(context).edit().putString(DROPBOX_STR_TOKEN, accessToken).apply();
+				Config.setString(DROPBOX_STR_TOKEN, accessToken,context);
 				initAndLoadData(accessToken);
 			}
 		} else {
@@ -356,7 +356,7 @@ public class DropboxSyncFragment extends Fragment {
 
 	private boolean hasToken() {
 		if (accessToken == null) {
-			accessToken = Functions.getPrefString(context, DROPBOX_STR_TOKEN, null);
+			accessToken = Config.getString( DROPBOX_STR_TOKEN, context,null);
 		}
 		return accessToken != null;
 	}
@@ -365,8 +365,8 @@ public class DropboxSyncFragment extends Fragment {
 		new GetCurrentAccountTask(DropboxClientFactory.getClient(), new GetCurrentAccountTask.Callback() {
 			@Override
 			public void onComplete(FullAccount result) {
-				Functions.getPrefs(context).edit().putString(PREF_DBX_EMAIL, result.getEmail()).apply();
-				Functions.getPrefs(context).edit().putString(PREF_DBX_NAME, result.getName().getDisplayName()).apply();
+				Config.setString(PREF_DBX_EMAIL, result.getEmail(),context);
+				Config.setString(PREF_DBX_NAME, result.getName().getDisplayName(),context);
 				if (BuildConfig.DEBUG)
 					Log.d(DropboxSyncFragment.class.getSimpleName(), "onComplete: getView() = " + getView());
 				if (getView() != null) {
@@ -416,26 +416,13 @@ public class DropboxSyncFragment extends Fragment {
 			case BackgroundIntentService.OPERATION_DBX_SYNC:
 				localfileDate = hashMap.get(BackgroundIntentService.EXTRA_KEY_OPERATION_DATA_LOCAL_DATE);
 				remoteFileDate = hashMap.get(BackgroundIntentService.EXTRA_KEY_OPERATION_DATA_REMOTE_DATE);
-				syncDateTime = Functions.getDateTime(0, "dd MMM yyyy HH:mm:ss");
-				Functions.setPrefString(context, PREF_DBX_LOCAL_DATETIME, localfileDate);
-				Functions.setPrefString(context, PREF_DBX_REMOTE_DATETIME, remoteFileDate);
-				Functions.setPrefString(context, PREF_DBX_SYNC_DATETIME, syncDateTime);
+				syncDateTime = DateTimeUtils.getDateTime((long) 0, "dd MMM yyyy HH:mm:ss");
+				Config.setString(PREF_DBX_LOCAL_DATETIME, localfileDate,context);
+				Config.setString(PREF_DBX_REMOTE_DATETIME, remoteFileDate,context);
+				Config.setString(PREF_DBX_SYNC_DATETIME, syncDateTime,context);
 				setSyncDataFileDateTime();
 				break;
 		}
-	}
-
-	private void showDialog(String result) {
-		AlertDialog.Builder dlg = new AlertDialog.Builder(context);
-		dlg.setTitle(result);
-		dlg.setNegativeButton(getString(R.string.str_ok),
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						dialog.cancel();
-					}
-				});
-		AlertDialog alert = dlg.create();
-		alert.show();
 	}
 
 }

@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.common;
+package com.arny.flightlogbook.data.service;
 
 import android.app.IntentService;
 import android.content.Context;
@@ -13,9 +13,12 @@ import com.arny.arnylib.utils.Config;
 import com.arny.arnylib.utils.DateTimeUtils;
 import com.arny.arnylib.utils.Utility;
 import com.arny.flightlogbook.R;
-import com.arny.flightlogbook.models.Flight;
-import com.arny.flightlogbook.models.Type;
-import com.arny.flightlogbook.network.DropboxClientFactory;
+import com.arny.flightlogbook.data.Consts;
+import com.arny.flightlogbook.data.Functions;
+import com.arny.flightlogbook.data.Local;
+import com.arny.flightlogbook.data.models.Flight;
+import com.arny.flightlogbook.data.models.Type;
+import com.arny.flightlogbook.data.network.sync.dropbox.DropboxClientFactory;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.FileMetadata;
@@ -34,7 +37,7 @@ import java.util.List;
 
 public class BackgroundIntentService extends IntentService {
 	/*Extras*/
-	public static final String ACTION = "com.arny.flightlogbook.common.BackgroundIntentService";
+	public static final String ACTION = "com.arny.flightlogbook.data.service.BackgroundIntentService";
 	public static final String EXTRA_KEY_OPERATION_CODE = "BackgroundIntentService.operation.code";
 	public static final String EXTRA_KEY_OPERATION_RESULT = "BackgroundIntentService.operation.result";
 	public static final String EXTRA_KEY_FINISH = "BackgroundIntentService.operation.finish";
@@ -283,7 +286,7 @@ public class BackgroundIntentService extends IntentService {
 			String airplane_type = type != null ? type.getTypeName() : "";
 			row = sheet_main.createRow(rows);
 			c = row.createCell(0);
-			c.setCellValue(Functions.getDateTime(export.getDatetime(), "dd MMM yyyy"));
+			c.setCellValue(DateTimeUtils.getDateTime(export.getDatetime(), "dd MMM yyyy"));
 			c = row.createCell(1);
 			c.setCellValue(DateTimeUtils.strLogTime(export.getLogtime()));
 			c = row.createCell(2);
@@ -382,7 +385,7 @@ public class BackgroundIntentService extends IntentService {
 								try {
 									strDate = myCell.toString();
 								} catch (Exception e) {
-									strDate = Functions.getDateTime(0, "dd MMM yyyy");
+									strDate = DateTimeUtils.getDateTime((long) 0, "dd MMM yyyy");
 									e.printStackTrace();
 								}
 
@@ -534,7 +537,7 @@ public class BackgroundIntentService extends IntentService {
 				mIsSuccess = false;
 
 			}
-			if (Config.getBoolean(Local.DROPBOX_AUTOIMPORT_TO_DB, false, getApplicationContext())) {
+			if (Config.getBoolean(Consts.Prefs.DROPBOX_AUTOIMPORT_TO_DB, false, getApplicationContext())) {
 				readExcelFile(getApplicationContext(), Functions.EXEL_FILE_NAME, true);
 			}
 		} catch (Exception e) {
@@ -564,12 +567,12 @@ public class BackgroundIntentService extends IntentService {
 			if (remoteFile == null) {
 				remoteVal = null;
 			} else {
-				remoteVal = Functions.getDateTime(remoteFile.getClientModified(), "dd MM yyyy HH:mm:ss");
+				remoteVal =  DateTimeUtils.getDateTime(remoteFile.getClientModified(), "dd MM yyyy HH:mm:ss");
 			}
 			if (localFile.length() == 0) {
 				localVal = null;
 			} else {
-				localVal = Functions.getDateTime(new Date(localFile.lastModified()), "dd MM yyyy HH:mm:ss");
+				localVal = DateTimeUtils.getDateTime(new Date(localFile.lastModified()), "dd MM yyyy HH:mm:ss");
 			}
 			hashMap.put(EXTRA_KEY_OPERATION_DATA_REMOTE_DATE, remoteVal);
 			hashMap.put(EXTRA_KEY_OPERATION_DATA_LOCAL_DATE, localVal);

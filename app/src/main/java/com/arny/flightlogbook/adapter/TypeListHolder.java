@@ -4,12 +4,11 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.arny.arnylib.adapters.BindableViewHolder;
 import com.arny.flightlogbook.R;
-import com.arny.flightlogbook.models.Type;
+import com.arny.flightlogbook.data.models.Type;
 public class TypeListHolder extends BindableViewHolder<Type> {
     TextView typeTitle;
     ImageView edit;

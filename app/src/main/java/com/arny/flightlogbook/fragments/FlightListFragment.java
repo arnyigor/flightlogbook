@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.views.fragments;
+package com.arny.flightlogbook.fragments;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
@@ -21,12 +21,13 @@ import com.arny.arnylib.adapters.SimpleBindableAdapter;
 import com.arny.arnylib.utils.*;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.adapter.FlightListHolder;
-import com.arny.flightlogbook.common.BackgroundIntentService;
-import com.arny.flightlogbook.common.FuncsKt;
-import com.arny.flightlogbook.common.Functions;
-import com.arny.flightlogbook.common.Local;
-import com.arny.flightlogbook.models.Flight;
-import com.arny.flightlogbook.views.activities.AddEditActivity;
+import com.arny.flightlogbook.data.Consts;
+import com.arny.flightlogbook.data.FuncsKt;
+import com.arny.flightlogbook.data.service.BackgroundIntentService;
+import com.arny.flightlogbook.data.Functions;
+import com.arny.flightlogbook.data.Local;
+import com.arny.flightlogbook.data.models.Flight;
+import com.arny.flightlogbook.activities.AddEditActivity;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
 
@@ -90,7 +91,7 @@ public class FlightListFragment extends Fragment {
 						case 0:
 							try {
 								Intent intent = new Intent(context, AddEditActivity.class);
-								intent.putExtra(Local.COLUMN_ID, flights.get(ctxPos).getId());
+								intent.putExtra(Consts.DB.COLUMN_ID, flights.get(ctxPos).getId());
 								startActivity(intent);
 							} catch (Exception e) {
 								e.printStackTrace();
@@ -112,7 +113,7 @@ public class FlightListFragment extends Fragment {
 							DroidUtils.alertConfirmDialog(context, getString(R.string.str_clearall), () ->
 									disposable.add(Utility.mainThreadObservable(Observable.just(1)
 											.doOnNext(o -> Local.removeAllFlights(context)))
-											.subscribe(o -> initFlights(FuncsKt.getFilterflights(Config.getInt(Local.CONFIG_USER_FILTER_FLIGHTS, context))),
+											.subscribe(o -> initFlights(FuncsKt.getFilterflights(Config.getInt(Consts.Prefs.CONFIG_USER_FILTER_FLIGHTS, context))),
 													throwable -> ToastMaker.toastError(context, throwable.getMessage()))));
 							break;
 					}
@@ -144,8 +145,8 @@ public class FlightListFragment extends Fragment {
 		IntentFilter filter = new IntentFilter(BackgroundIntentService.ACTION);
 		filter.addCategory(Intent.CATEGORY_DEFAULT);
 		LocalBroadcastManager.getInstance(context).registerReceiver(broadcastReceiver, filter);
-		if (!Functions.isMyServiceRunning(BackgroundIntentService.class, context)) {
-			initFlights(FuncsKt.getFilterflights(Config.getInt(Local.CONFIG_USER_FILTER_FLIGHTS, context)));
+		if (!DroidUtils.isMyServiceRunning(BackgroundIntentService.class, context)) {
+			initFlights(FuncsKt.getFilterflights(Config.getInt(Consts.Prefs.CONFIG_USER_FILTER_FLIGHTS, context)));
 		}
 	}
 
@@ -185,14 +186,14 @@ public class FlightListFragment extends Fragment {
 		switch (item.getItemId()) {
 			case R.id.action_filter:
 				String[] filters = getResources().getStringArray(R.array.flights_filers);
-				int filterPos = Config.getInt(Local.CONFIG_USER_FILTER_FLIGHTS, context);
+				int filterPos = Config.getInt(Consts.Prefs.CONFIG_USER_FILTER_FLIGHTS, context);
 				String filter = filters[filterPos];
 				new MaterialDialog.Builder(context)
 						.title(getString(R.string.str_sort_by) + " " + filter)
 						.items(R.array.flights_filers)
 						.autoDismiss(true)
 						.itemsCallback((dialog, view, which, text) -> {
-							Config.setInt(Local.CONFIG_USER_FILTER_FLIGHTS, which, context);
+							Config.setInt(Consts.Prefs.CONFIG_USER_FILTER_FLIGHTS, which, context);
 							initFlights(FuncsKt.getFilterflights(which));
 						})
 						.show();
@@ -221,7 +222,7 @@ public class FlightListFragment extends Fragment {
 				e.printStackTrace();
 			}
 			if (finishOperation) {
-				initFlights(FuncsKt.getFilterflights(Config.getInt(Local.CONFIG_USER_FILTER_FLIGHTS, context)));
+				initFlights(FuncsKt.getFilterflights(Config.getInt(Consts.Prefs.CONFIG_USER_FILTER_FLIGHTS, context)));
 			}
 		}
 	};

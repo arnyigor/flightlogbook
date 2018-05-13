@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.views.activities;
+package com.arny.flightlogbook.activities;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -8,7 +8,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.arny.flightlogbook.R;
-import com.arny.flightlogbook.views.fragments.TypeListFragment;
+import com.arny.flightlogbook.fragments.TypeListFragment;
 
 public class AirplaneTypesActivity extends AppCompatActivity {
 

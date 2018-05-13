@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.models
+package com.arny.flightlogbook.data.models
 
 class Statistic {
     var totalByMonth: Int = 0

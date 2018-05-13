@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.views.activities;
+package com.arny.flightlogbook.activities;
 // imports start==========
 
 import android.os.Build;

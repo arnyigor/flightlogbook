@@ -1,20 +1,19 @@
-package com.arny.flightlogbook.views.fragments;
+package com.arny.flightlogbook.fragments;
 
 import android.app.DatePickerDialog;
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.*;
 import android.widget.*;
+import com.arny.arnylib.utils.DateTimeUtils;
 import com.arny.arnylib.utils.Utility;
 import com.arny.flightlogbook.R;
-import com.arny.flightlogbook.common.Local;
-import com.arny.flightlogbook.models.Flight;
-import com.arny.flightlogbook.common.Functions;
-import com.arny.flightlogbook.models.Statistic;
+import com.arny.flightlogbook.data.Local;
+import com.arny.flightlogbook.data.models.Flight;
+import com.arny.flightlogbook.data.models.Statistic;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
 
@@ -131,9 +130,9 @@ public class StatisticFragment extends Fragment {
 	//устанавливаем дату в textView
 	private void setDateTimeToTextView() {
 		dateAndTimeStart.setTimeInMillis(startdatetime);
-		tvDateFrom.setText(Functions.getDateTime(startdatetime, "ddMMMyyyy"));
+		tvDateFrom.setText(DateTimeUtils.getDateTime(startdatetime, "ddMMMyyyy"));
 		dateAndTimeEnd.setTimeInMillis(enddatetime);
-		tvDateTo.setText(Functions.getDateTime(enddatetime, "ddMMMyyyy"));
+		tvDateTo.setText(DateTimeUtils.getDateTime(enddatetime, "ddMMMyyyy"));
 	}
 
 	// отображаем диалоговое окно для выбора даты
@@ -164,7 +163,7 @@ public class StatisticFragment extends Fragment {
 			dateAndTimeStart.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 			startdatetime = dateAndTimeStart.getTimeInMillis();
 			checkStartEndDateTime();
-			tvDateFrom.setText(Functions.getDateTime(startdatetime, "ddMMMyyyy"));
+			tvDateFrom.setText(DateTimeUtils.getDateTime(startdatetime, "ddMMMyyyy"));
 		}
 	};
 
@@ -176,7 +175,7 @@ public class StatisticFragment extends Fragment {
 			dateAndTimeEnd.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 			enddatetime = dateAndTimeEnd.getTimeInMillis();
 			checkStartEndDateTime();
-			tvDateTo.setText(Functions.getDateTime(enddatetime, "ddMMMyyyy"));
+			tvDateTo.setText(DateTimeUtils.getDateTime(enddatetime, "ddMMMyyyy"));
 		}
 	};
 

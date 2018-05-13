@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.views.activities;
+package com.arny.flightlogbook.activities;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -20,8 +20,9 @@ import android.widget.*;
 import com.arny.arnylib.interfaces.InputDialogListener;
 import com.arny.arnylib.utils.*;
 import com.arny.flightlogbook.R;
-import com.arny.flightlogbook.common.Local;
-import com.arny.flightlogbook.models.Type;
+import com.arny.flightlogbook.data.Consts;
+import com.arny.flightlogbook.data.Local;
+import com.arny.flightlogbook.data.models.Type;
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment;
 import com.redmadrobot.inputmask.MaskedTextChangedListener;
 import io.reactivex.Observable;
@@ -113,6 +114,7 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 		});
 		dateTimeListener = new MaskedTextChangedListener(
 				"[00].[00].[0000]",
+				new ArrayList(),
 				false,
 				edtDate,
 				new TextWatcher() {
@@ -164,7 +166,7 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 		try {
 			Bundle extras = getIntent().getExtras();
 			if (extras != null) {
-				mRowId = extras.getInt(Local.COLUMN_ID);
+				mRowId = extras.getInt(Consts.DB.COLUMN_ID);
 				editable = mRowId != 0;
 			}
 		} catch (Exception e) {

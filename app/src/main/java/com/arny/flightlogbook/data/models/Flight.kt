@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.models
+package com.arny.flightlogbook.data.models
 
 import com.arny.arnylib.utils.Utility
 import org.chalup.microorm.annotations.Column

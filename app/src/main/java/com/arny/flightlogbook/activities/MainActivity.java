@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.views.activities;
+package com.arny.flightlogbook.activities;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -22,26 +22,22 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.arny.arnylib.utils.BasePermissions;
-import com.arny.arnylib.utils.Config;
-import com.arny.arnylib.utils.ToastMaker;
-import com.arny.arnylib.utils.Utility;
+import com.arny.arnylib.utils.*;
 import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
-import com.arny.flightlogbook.common.BackgroundIntentService;
-import com.arny.flightlogbook.common.Functions;
-import com.arny.flightlogbook.common.Local;
-import com.arny.flightlogbook.models.Preferences;
-import com.arny.flightlogbook.views.fragments.DropboxSyncFragment;
-import com.arny.flightlogbook.views.fragments.FlightListFragment;
-import com.arny.flightlogbook.views.fragments.StatisticFragment;
-import com.arny.flightlogbook.views.fragments.TypeListFragment;
+import com.arny.flightlogbook.data.Consts;
+import com.arny.flightlogbook.data.service.BackgroundIntentService;
+import com.arny.flightlogbook.data.Functions;
+import com.arny.flightlogbook.data.Local;
+import com.arny.flightlogbook.fragments.DropboxSyncFragment;
+import com.arny.flightlogbook.fragments.FlightListFragment;
+import com.arny.flightlogbook.fragments.StatisticFragment;
+import com.arny.flightlogbook.fragments.TypeListFragment;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.holder.BadgeStyle;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
-import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import java.io.File;
 import java.util.List;
@@ -250,7 +246,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 		IntentFilter filter = new IntentFilter(BackgroundIntentService.ACTION);
 		filter.addCategory(Intent.CATEGORY_DEFAULT);
 		LocalBroadcastManager.getInstance(context).registerReceiver(broadcastReceiver, filter);
-		if (Functions.isMyServiceRunning(BackgroundIntentService.class, context)) {
+		if (DroidUtils.isMyServiceRunning(BackgroundIntentService.class, context)) {
 			getOperationNotif(context);
 			showProgress(notif);
 		} else {
@@ -295,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 			Log.d(MainActivity.class.getSimpleName(), "onRequestPermissionsResult: requestCode = " + requestCode);
 		}
 		switch (requestCode) {
-			case Functions.REQUEST_EXTERNAL_STORAGE_XLS:
+			case Consts.RequestCodes.REQUEST_EXTERNAL_STORAGE_XLS:
 				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 					fileintent = new Intent();
 					fileintent.setAction(Intent.ACTION_GET_CONTENT);
@@ -306,7 +302,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 					Toast.makeText(context, R.string.str_storage_permission_denied, Toast.LENGTH_SHORT).show();
 				}
 				break;
-			case Functions.REQUEST_DBX_EXTERNAL_STORAGE:
+			case Consts.RequestCodes.REQUEST_DBX_EXTERNAL_STORAGE:
 				if (BasePermissions.permissionGranted(grantResults)) {
 					Fragment dropboxSyncFragment = getSupportFragmentManager().findFragmentById(R.id.container);
 					if (dropboxSyncFragment instanceof DropboxSyncFragment) {
@@ -329,7 +325,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 		alert.setNegativeButton(getString(R.string.str_cancel), (dialog, which) -> dialog.cancel());
 		alert.setPositiveButton(getString(R.string.str_ok), (dialog, which) -> {
 			try {
-				boolean permissionGranded = Functions.checkSDRRWPermessions(getBaseContext(), MainActivity.this, Functions.REQUEST_EXTERNAL_STORAGE_XLS);
+				boolean permissionGranded = Functions.checkSDRRWPermessions(getBaseContext(), MainActivity.this, Consts.RequestCodes.REQUEST_EXTERNAL_STORAGE_XLS);
 				if (permissionGranded) {
 					fileintent = new Intent();
 					fileintent.setAction(Intent.ACTION_GET_CONTENT);
@@ -389,7 +385,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if (BuildConfig.DEBUG)
-				Log.d(MainActivity.class.getSimpleName(), "onReceive: service runing = " + Functions.isMyServiceRunning(BackgroundIntentService.class, context));
+				Log.d(MainActivity.class.getSimpleName(), "onReceive: service runing = " + DroidUtils.isMyServiceRunning(BackgroundIntentService.class, context));
 			try {
 				finishOperation = intent.getBooleanExtra(BackgroundIntentService.EXTRA_KEY_FINISH, false);
 				mOperation = intent.getIntExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_IMPORT_SD);

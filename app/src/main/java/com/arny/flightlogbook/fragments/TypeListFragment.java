@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.views.fragments;
+package com.arny.flightlogbook.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -13,16 +13,14 @@ import android.view.*;
 
 import android.widget.Button;
 import android.widget.Toast;
-import com.arny.arnylib.adapters.BindableViewHolder;
 import com.arny.arnylib.adapters.SimpleBindableAdapter;
-import com.arny.arnylib.interfaces.AlertDialogListener;
 import com.arny.arnylib.interfaces.InputDialogListener;
 import com.arny.arnylib.utils.DroidUtils;
 import com.arny.arnylib.utils.Utility;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.adapter.TypeListHolder;
-import com.arny.flightlogbook.common.Local;
-import com.arny.flightlogbook.models.Type;
+import com.arny.flightlogbook.data.Local;
+import com.arny.flightlogbook.data.models.Type;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
 
@@ -83,7 +81,7 @@ public class TypeListFragment extends Fragment implements TypeListHolder.SimpleA
 	}
 
 	@Override
-	public void OnItemClickListener(int position, Object Item) {
+	public void onItemClick(int position, Object Item) {
 
 	}
 

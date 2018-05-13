@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.network;
+package com.arny.flightlogbook.data.network.sync.dropbox;
 
 
 import com.dropbox.core.DbxRequestConfig;
