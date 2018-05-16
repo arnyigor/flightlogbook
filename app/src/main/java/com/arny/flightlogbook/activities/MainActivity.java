@@ -1,5 +1,6 @@
 package com.arny.flightlogbook.activities;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -27,7 +28,6 @@ import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.data.Consts;
 import com.arny.flightlogbook.data.service.BackgroundIntentService;
-import com.arny.flightlogbook.data.Functions;
 import com.arny.flightlogbook.data.Local;
 import com.arny.flightlogbook.fragments.DropboxSyncFragment;
 import com.arny.flightlogbook.fragments.FlightListFragment;
@@ -42,6 +42,7 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import java.io.File;
 import java.util.List;
 
+import com.tbruyelle.rxpermissions2.RxPermissions;
 import es.dmoral.toasty.Toasty;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
@@ -66,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 	private static final int TIME_DELAY = 2000;
 	private static long back_pressed;
 	private final CompositeDisposable disposable = new CompositeDisposable();
+	private RxPermissions rxPermissions;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 		toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 		toolbar.setTitle(getString(R.string.fragment_logbook));
+		rxPermissions = new RxPermissions(this);
 		drawer = new DrawerBuilder()
 				.withActivity(this)
 				.withOnDrawerListener(this)
@@ -318,25 +321,26 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 		}
 	}
 
+	@SuppressLint("CheckResult")
 	private void showImportDialogSD() {
 		AlertDialog.Builder alert = new AlertDialog.Builder(context);
 		alert.setTitle(getString(R.string.str_import_attention));
 		alert.setMessage(getString(R.string.str_import_massage));
 		alert.setNegativeButton(getString(R.string.str_cancel), (dialog, which) -> dialog.cancel());
 		alert.setPositiveButton(getString(R.string.str_ok), (dialog, which) -> {
-			try {
-				boolean permissionGranded = Functions.checkSDRRWPermessions(getBaseContext(), MainActivity.this, Consts.RequestCodes.REQUEST_EXTERNAL_STORAGE_XLS);
-				if (permissionGranded) {
-					fileintent = new Intent();
-					fileintent.setAction(Intent.ACTION_GET_CONTENT);
-					fileintent.addCategory(Intent.CATEGORY_OPENABLE);
-					fileintent.setType("*/*");
-					startActivityForResult(fileintent, PICKFILE_RESULT_CODE);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				Toast.makeText(context, getString(R.string.str_error_import), Toast.LENGTH_SHORT).show();
-			}
+			rxPermissions
+					.request(android.Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE).subscribe(permissionGranded -> {
+						if (permissionGranded) {
+							fileintent = new Intent();
+							fileintent.setAction(Intent.ACTION_GET_CONTENT);
+							fileintent.addCategory(Intent.CATEGORY_OPENABLE);
+							fileintent.setType("*/*");
+							startActivityForResult(fileintent, PICKFILE_RESULT_CODE);
+						}
+					}, throwable -> {
+						ToastMaker.toastError(this, getString(R.string.str_error_import) + ":" + throwable.getMessage());
+					}
+			);
 
 		});
 		alert.show();
@@ -371,7 +375,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 		try {
 			Intent myIntent = new Intent(Intent.ACTION_VIEW);
 			File sdPath = Environment.getExternalStorageDirectory();
-			File file = new File(sdPath + "/Android/data/com.arny.flightlogbook/files", Functions.EXEL_FILE_NAME);
+			File file = new File(sdPath + "/Android/data/com.arny.flightlogbook/files", Consts.Files.EXEL_FILE_NAME);
 			String extension = android.webkit.MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(file).toString());
 			String mimetype = android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
 			myIntent.setDataAndType(Uri.fromFile(file), mimetype);

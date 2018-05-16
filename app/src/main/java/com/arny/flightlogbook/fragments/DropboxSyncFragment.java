@@ -26,10 +26,9 @@ import com.arny.arnylib.utils.Utility;
 import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.data.Consts;
-import com.arny.flightlogbook.data.network.sync.dropbox.DropboxClientFactory;
-import com.arny.flightlogbook.data.network.sync.dropbox.GetCurrentAccountTask;
+import com.arny.flightlogbook.data.sync.dropbox.DropboxClientFactory;
+import com.arny.flightlogbook.data.sync.dropbox.GetCurrentAccountTask;
 import com.arny.flightlogbook.data.service.BackgroundIntentService;
-import com.arny.flightlogbook.data.Functions;
 import com.dropbox.core.android.Auth;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.users.FullAccount;
@@ -154,7 +153,6 @@ public class DropboxSyncFragment extends Fragment {
 	View.OnClickListener onClickListenerSyncUpload = new View.OnClickListener() {
 		@Override
 		public void onClick(View view) {
-			if (Functions.checkSDRRWPermessions(context, getActivity(), Consts.RequestCodes.REQUEST_DBX_EXTERNAL_STORAGE)) {
 				new MaterialDialog.Builder(context)
 						.title(R.string.warning)
 						.content(getString(R.string.dropbox_sync_upload) +"?")
@@ -162,14 +160,12 @@ public class DropboxSyncFragment extends Fragment {
 						.negativeText(android.R.string.cancel)
 						.onPositive((dialog, which) -> uploadFile())
 						.show();
-			}
 		}
 	};
 
 	View.OnClickListener onClickListenerSyncDownload = new View.OnClickListener() {
 		@Override
 		public void onClick(View view) {
-			if (Functions.checkSDRRWPermessions(context, getActivity(), Consts.RequestCodes.REQUEST_DBX_EXTERNAL_STORAGE)) {
 				if (Config.getBoolean(Consts.Prefs.DROPBOX_AUTOIMPORT_TO_DB, false, context)) {
 					new MaterialDialog.Builder(context)
 							.title(R.string.warning)
@@ -187,18 +183,10 @@ public class DropboxSyncFragment extends Fragment {
 							.onPositive((dialog, which) -> downLoadFile())
 							.show();
 				}
-			}
 		}
 	};
 
-	View.OnClickListener onClickListenerSync = new View.OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			if (Functions.checkSDRRWPermessions(context, getActivity(), Consts.RequestCodes.REQUEST_DBX_EXTERNAL_STORAGE)) {
-				getFileData();
-			}
-		}
-	};
+	View.OnClickListener onClickListenerSync = v -> getFileData();
 
 	public void downLoadFile() {
 		try {

@@ -24,7 +24,6 @@ import com.arny.flightlogbook.adapter.FlightListHolder;
 import com.arny.flightlogbook.data.Consts;
 import com.arny.flightlogbook.data.FuncsKt;
 import com.arny.flightlogbook.data.service.BackgroundIntentService;
-import com.arny.flightlogbook.data.Functions;
 import com.arny.flightlogbook.data.Local;
 import com.arny.flightlogbook.data.models.Flight;
 import com.arny.flightlogbook.activities.AddEditActivity;
