@@ -388,8 +388,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 	private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			if (BuildConfig.DEBUG)
-				Log.d(MainActivity.class.getSimpleName(), "onReceive: service runing = " + DroidUtils.isMyServiceRunning(BackgroundIntentService.class, context));
 			try {
 				finishOperation = intent.getBooleanExtra(BackgroundIntentService.EXTRA_KEY_FINISH, false);
 				mOperation = intent.getIntExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_IMPORT_SD);

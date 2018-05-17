@@ -70,6 +70,21 @@ dependencies {
     compile project(path: ':arnylib')
     compile "com.android.support:multidex:1.0.3"
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    // Tests
+    testImplementation 'org.json:json:20140107'
+    testImplementation "org.robolectric:robolectric:3.8"
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.assertj:assertj-core:3.6.2'
+    androidTestCompile 'com.squareup.assertj:assertj-android:1.2.0'
+    androidTestCompile 'com.squareup.assertj:assertj-android-support-v4:1.2.0'
+    testCompile  'org.mockito:mockito-core:2.15.0'
+    androidTestCompile  'org.mockito:mockito-android:2.7.22'
+    androidTestCompile 'com.android.support.test:runner:1.0.2'
+    androidTestCompile 'com.android.support.test:rules:1.0.2'
+    // Espresso support
+    androidTestCompile('com.android.support.test.espresso:espresso-core:3.0.1', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
     compile 'com.dropbox.core:dropbox-core-sdk:2.1.1'
     compile 'org.apache.poi:poi:3.9'
     compile('com.crashlytics.sdk.android:crashlytics:2.8.0@aar') {
