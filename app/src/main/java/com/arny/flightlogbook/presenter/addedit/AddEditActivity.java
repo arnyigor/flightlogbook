@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.activities;
+package com.arny.flightlogbook.presenter.addedit;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -20,6 +20,7 @@ import android.widget.*;
 import com.arny.arnylib.interfaces.InputDialogListener;
 import com.arny.arnylib.utils.*;
 import com.arny.flightlogbook.R;
+import com.arny.flightlogbook.presenter.types.AirplaneTypesActivity;
 import com.arny.flightlogbook.data.Consts;
 import com.arny.flightlogbook.data.Local;
 import com.arny.flightlogbook.data.models.Type;

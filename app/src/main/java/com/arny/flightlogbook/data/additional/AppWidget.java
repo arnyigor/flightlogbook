@@ -7,7 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.RemoteViews;
 import com.arny.flightlogbook.R;
-import com.arny.flightlogbook.activities.AddEditActivity;
+import com.arny.flightlogbook.presenter.addedit.AddEditActivity;
 
 public class AppWidget extends AppWidgetProvider {
 

@@ -30,12 +30,12 @@
         </receiver>
 
         <activity
-            android:name=".activities.AddEditActivity"
+            android:name=".presenter.addedit.AddEditActivity"
             android:windowSoftInputMode="stateHidden"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/str_add" />
         <activity
-            android:name=".activities.AirplaneTypesActivity"
+            android:name=".presenter.types.AirplaneTypesActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/str_airplane_types" />
         <activity
