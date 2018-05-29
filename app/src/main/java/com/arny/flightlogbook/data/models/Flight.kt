@@ -7,7 +7,7 @@ import com.arny.arnylib.utils.Utility
 import org.chalup.microorm.annotations.Column
 
 @Entity(tableName = "main_table")
-data class Flight(@PrimaryKey(autoGenerate = true)
+data class Flight(@PrimaryKey()
                   @ColumnInfo(name = "_id")
                   var id: Long = 0) {
     constructor() : this(0)

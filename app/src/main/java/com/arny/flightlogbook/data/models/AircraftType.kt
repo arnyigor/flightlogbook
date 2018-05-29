@@ -7,7 +7,7 @@ import com.arny.arnylib.utils.Utility
 import org.chalup.microorm.annotations.Column
 
 @Entity(tableName = "type_table")
-data class Type(@PrimaryKey(autoGenerate = true) @ColumnInfo(name = "type_id") var typeId: Int = 0) {
+data class AircraftType(@PrimaryKey(autoGenerate = true) @ColumnInfo(name = "type_id") var typeId: Int = 0) {
     constructor() : this(0)
 
     @ColumnInfo(name = "airplane_type")

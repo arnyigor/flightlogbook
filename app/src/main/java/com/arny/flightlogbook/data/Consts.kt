@@ -3,6 +3,8 @@ package com.arny.flightlogbook.data
 object Consts {
 
     object DB {
+        const val DB_NAME = "PilotDB"
+        const val DB_VERSION = 12
         //Table Name
         const val MAIN_TABLE = "main_table"
         const val TYPE_TABLE = "type_table"

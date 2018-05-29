@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.support.multidex.MultiDex
 import com.arny.arnylib.database.DBProvider
+import com.arny.flightlogbook.data.Consts
 import com.arny.flightlogbook.di.components.ApplicationComponent
 import com.arny.flightlogbook.di.components.DaggerApplicationComponent
 import com.arny.flightlogbook.di.modules.AndroidModule
@@ -29,7 +30,7 @@ class FlightApp : Application() {
                 .build()
         // Инициализируем Fabric с выключенным crashlytics.
         Fabric.with(this, crashlyticsKit)
-        DBProvider.initDB(applicationContext, "PilotDB", 12)
+        DBProvider.initDB(applicationContext, Consts.DB.DB_NAME, Consts.DB.DB_VERSION)
         applicationComponent = DaggerApplicationComponent.builder().androidModule(AndroidModule(this)).build()
         applicationComponent.inject(this)
         Stetho.initializeWithDefaults(this)

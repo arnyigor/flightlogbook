@@ -20,7 +20,7 @@ import com.arny.arnylib.utils.Utility;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.adapter.TypeListHolder;
 import com.arny.flightlogbook.data.Local;
-import com.arny.flightlogbook.data.models.Type;
+import com.arny.flightlogbook.data.models.AircraftType;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
 
@@ -28,8 +28,8 @@ import java.util.List;
 
 public class TypeListFragment extends Fragment implements TypeListHolder.SimpleActionListener, View.OnClickListener {
 	private Context context;
-	private List<Type> types;
-	private SimpleBindableAdapter<Type, TypeListHolder> typeListAdapter;
+	private List<AircraftType> aircraftTypes;
+	private SimpleBindableAdapter<AircraftType, TypeListHolder> typeListAdapter;
 	private Button removeall;
 	private final CompositeDisposable disposable = new CompositeDisposable();
 
@@ -118,9 +118,9 @@ public class TypeListFragment extends Fragment implements TypeListHolder.SimpleA
 			public void onConfirm(String content) {
 				if (!Utility.empty(content)) {
 					int id = (int) Local.addType(content, context);
-					Type type = Local.getTypeItem(id, context);
-					types.add(type);
-					typeListAdapter.add(type);
+					AircraftType aircraftType = Local.getTypeItem(id, context);
+					aircraftTypes.add(aircraftType);
+					typeListAdapter.add(aircraftType);
 					setVisbltyBtnRemAll();
 				} else {
 					Toast.makeText(context, R.string.str_alarm_add_airplane_type, Toast.LENGTH_LONG).show();
@@ -135,16 +135,16 @@ public class TypeListFragment extends Fragment implements TypeListHolder.SimpleA
 	}
 
 	public void DlgEdtType(final int pos) {
-		final Type type = Local.getTypeItem(types.get(pos).getTypeId(), context);
-		DroidUtils.simpleInputDialog(context, getString(R.string.str_edt_airplane_types), "", type.getTypeName(), getString(R.string.str_ok), getString(R.string.str_cancel), InputType.TYPE_CLASS_TEXT, new InputDialogListener() {
+		final AircraftType aircraftType = Local.getTypeItem(aircraftTypes.get(pos).getTypeId(), context);
+		DroidUtils.simpleInputDialog(context, getString(R.string.str_edt_airplane_types), "", aircraftType.getTypeName(), getString(R.string.str_ok), getString(R.string.str_cancel), InputType.TYPE_CLASS_TEXT, new InputDialogListener() {
 			@Override
 			public void onConfirm(String content) {
 				if (!Utility.empty(content)) {
-					Type t = new Type();
-					t.setTypeId(type.getTypeId());
+					AircraftType t = new AircraftType();
+					t.setTypeId(aircraftType.getTypeId());
 					t.setTypeName(content);
-					Local.updateType(content, type.getTypeId());
-					types.set(pos, t);
+					Local.updateType(content, aircraftType.getTypeId());
+					aircraftTypes.set(pos, t);
 					typeListAdapter.set(pos, t);
 				} else {
 					Toast.makeText(context, R.string.str_alarm_add_airplane_type, Toast.LENGTH_LONG).show();
@@ -159,10 +159,10 @@ public class TypeListFragment extends Fragment implements TypeListHolder.SimpleA
 	}
 
 	public void DlgRemoveType(final int pos) {
-		final Type type = Local.getTypeItem(types.get(pos).getTypeId(), context);
+		final AircraftType aircraftType = Local.getTypeItem(aircraftTypes.get(pos).getTypeId(), context);
 		DroidUtils.alertConfirmDialog(context, getString(R.string.str_remove_airplane_types), () -> {
-			Local.removeType(type.getTypeId(), context);
-			types.remove(pos);
+			Local.removeType(aircraftType.getTypeId(), context);
+			aircraftTypes.remove(pos);
 			typeListAdapter.removeChild(pos);
 			setVisbltyBtnRemAll();
 		});
@@ -176,16 +176,16 @@ public class TypeListFragment extends Fragment implements TypeListHolder.SimpleA
 
 	private void loadList() {
 		disposable.add(Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getTypeList(context))).subscribe(types1 -> {
-			types = types1;
+			aircraftTypes = types1;
 			typeListAdapter.clear();
-			typeListAdapter.addAll(types);
+			typeListAdapter.addAll(aircraftTypes);
 			setVisbltyBtnRemAll();
 		}));
 	}
 
 	private void setVisbltyBtnRemAll() {
-		if (types != null) {
-			removeall.setVisibility(types.size() >= 1 ? View.VISIBLE : View.GONE);
+		if (aircraftTypes != null) {
+			removeall.setVisibility(aircraftTypes.size() >= 1 ? View.VISIBLE : View.GONE);
 		}
 	}
 }

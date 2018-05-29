@@ -2,6 +2,7 @@ package com.arny.flightlogbook.di.components
 
 import android.content.Context
 import com.arny.flightlogbook.FlightApp
+import com.arny.flightlogbook.data.db.MainDB
 import com.arny.flightlogbook.data.source.MainRepository
 import com.arny.flightlogbook.di.modules.AndroidModule
 import dagger.Component
@@ -13,5 +14,5 @@ interface ApplicationComponent {
     fun inject(target: FlightApp)
     fun inject(target: MainRepository)
     fun getContext(): Context
-//    fun getDb(): MainDB
+    fun getDb(): MainDB
 }

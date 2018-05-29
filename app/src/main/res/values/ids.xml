@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item name="motoBtn" type="id">motoBtn</item>
+    <item name="motoBtn" aircraftType="id">motoBtn</item>
 </resources>

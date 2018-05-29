@@ -23,7 +23,7 @@ import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.presenter.types.AirplaneTypesActivity;
 import com.arny.flightlogbook.data.Consts;
 import com.arny.flightlogbook.data.Local;
-import com.arny.flightlogbook.data.models.Type;
+import com.arny.flightlogbook.data.models.AircraftType;
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment;
 import com.redmadrobot.inputmask.MaskedTextChangedListener;
 import io.reactivex.Observable;
@@ -257,8 +257,8 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 				disposable.add(Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getTypeList(AddEditActivity.this)))
 						.subscribe(types -> {
 							typeList.clear();
-							for (Type type : types) {
-								typeList.add(type.getTypeName());
+							for (AircraftType aircraftType : types) {
+								typeList.add(aircraftType.getTypeName());
 							}
 							if (typeList.size() > 0) {
 								showAirplaneTypes();
@@ -326,9 +326,9 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 		typesBuilder.setTitle(getString(R.string.str_type));
 		typesBuilder.setItems(cs, (dialog, item) -> {
 			airplane_type = typeList.get(item);
-			Type type = Local.getTypeItem(item + 1, AddEditActivity.this);//нумерация списка с нуля,в базе с 1цы
-			if (type != null) {
-				airplane_type_id = type.getTypeId();
+			AircraftType aircraftType = Local.getTypeItem(item + 1, AddEditActivity.this);//нумерация списка с нуля,в базе с 1цы
+			if (aircraftType != null) {
+				airplane_type_id = aircraftType.getTypeId();
 			}
 			tvAirplaneType.setText(String.format("%s %s", getString(R.string.str_type), typeList.get(item)));
 		});
@@ -516,8 +516,8 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 				airplane_type_id = flight.getAirplanetypeid();
 				String airplanetypetitle = flight.getAirplanetypetitle();
 				if (Utility.empty(airplanetypetitle)) {
-					Type typeItem = Local.getTypeItem(airplane_type_id, AddEditActivity.this);
-					String airplType = typeItem != null ? typeItem.getTypeName() : null;
+					AircraftType aircraftTypeItem = Local.getTypeItem(airplane_type_id, AddEditActivity.this);
+					String airplType = aircraftTypeItem != null ? aircraftTypeItem.getTypeName() : null;
 					airplanetypetitle = Utility.empty(airplType) ? getString(R.string.str_type_empty) : getString(R.string.str_type) + " " + airplType;
 				}
 				tvAirplaneType.setText(airplanetypetitle);
@@ -549,8 +549,8 @@ public class AddEditActivity extends AppCompatActivity implements CalendarDatePi
 		flight_type = 0;
 		disposable.add(Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getTypeList(AddEditActivity.this))).subscribe(types -> {
 			typeList.clear();
-			for (Type type : types) {
-				typeList.add(type.getTypeName());
+			for (AircraftType aircraftType : types) {
+				typeList.add(aircraftType.getTypeName());
 			}
 			if (typeList.size() > 0) {
 				airplane_type_id = 1;

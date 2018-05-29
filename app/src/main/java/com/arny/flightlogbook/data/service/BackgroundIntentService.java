@@ -16,7 +16,7 @@ import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.data.Consts;
 import com.arny.flightlogbook.data.Local;
 import com.arny.flightlogbook.data.models.Flight;
-import com.arny.flightlogbook.data.models.Type;
+import com.arny.flightlogbook.data.models.AircraftType;
 import com.arny.flightlogbook.data.sync.dropbox.DropboxClientFactory;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.DbxClientV2;
@@ -281,8 +281,8 @@ public class BackgroundIntentService extends IntentService {
 		int rows = 1;
 		for (Flight export : ExportData) {
 			airplane_type_id = export.getAirplanetypeid();
-			Type type = Local.getTypeItem(airplane_type_id, context);
-			String airplane_type = type != null ? type.getTypeName() : "";
+			AircraftType aircraftType = Local.getTypeItem(airplane_type_id, context);
+			String airplane_type = aircraftType != null ? aircraftType.getTypeName() : "";
 			row = sheet_main.createRow(rows);
 			c = row.createCell(0);
 			c.setCellValue(DateTimeUtils.getDateTime(export.getDatetime(), "dd MMM yyyy"));
@@ -343,7 +343,7 @@ public class BackgroundIntentService extends IntentService {
 		String strDate = null, strTime = null, airplane_type = null, reg_no = null, strDesc;
 		int airplane_type_id = 0, day_night = 0, ifr_vfr = 0, flight_type = 0, logTime = 0;
 		long mDateTime = 0;
-		List<Type> typeList;
+		List<AircraftType> aircraftTypeList;
 		File xlsfile;
 		if (!FileUtils.isExternalStorageAvailable() || FileUtils.isExternalStorageReadOnly()) {
 			return;
@@ -407,9 +407,9 @@ public class BackgroundIntentService extends IntentService {
 							case 2:
 								try {
 									airplane_type = myCell.toString();
-									Type type = Local.getType(airplane_type, context);
-									if (type != null) {
-										airplane_type_id = type.getTypeId();
+									AircraftType aircraftType = Local.getType(airplane_type, context);
+									if (aircraftType != null) {
+										airplane_type_id = aircraftType.getTypeId();
 									} else {
 										if (!Utility.empty(airplane_type)) {
 											airplane_type_id = (int) Local.addType(airplane_type, context);

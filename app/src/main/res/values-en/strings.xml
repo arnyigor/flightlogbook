@@ -3,9 +3,9 @@
     <string name="app_name">Pilot Logbook</string>
 	<string name="str_about">About the program</string>
     <string name="str_add">Add</string>
-    <string name="str_add_airplane_types">Add aircraft type</string>
+    <string name="str_add_airplane_types">Add aircraft aircraftType</string>
 	<string name="str_airplane_types">The types of aircraft</string>
-    <string name="str_alarm_add_airplane_type">Enter the aircraft type</string>
+    <string name="str_alarm_add_airplane_type">Enter the aircraft aircraftType</string>
 	<string name="str_cancel">Cancel</string>
     <string name="str_clearall">Clear all</string>
     <string name="str_date">Date</string>
@@ -13,7 +13,7 @@
     <string name="str_delete">Delete</string>
     <string name="str_desc">Description</string>
 	<string name="str_edt">Edit</string>
-    <string name="str_edt_airplane_types">Edit aircraft type</string>
+    <string name="str_edt_airplane_types">Edit aircraft aircraftType</string>
 	<string name="str_error_import">import Error</string>
 	<string name="str_export_attention">Export to a file?</string>
     <string name="str_export_excel">Export XLS</string>
@@ -39,8 +39,8 @@
     <string name="str_remove_all">Remove all</string>
     <string name="str_settings">Settings</string>
     <string name="str_totaltime">Total time:</string>
-    <string name="str_type">Aircraft type</string>
-    <string name="str_type_empty">Aircraft type: none</string>
+    <string name="str_type">Aircraft aircraftType</string>
+    <string name="str_type_empty">Aircraft aircraftType: none</string>
     <string name="str_type_null">Aircraft Type</string>
     <string name="str_vfr_ifr">visual / instrument</string>
     <string name="str_xls">Settings XLS</string>
@@ -99,7 +99,7 @@
     <string name="service_upload_fail">Upload fail</string>
 	<string name="str_no_regnum">no Reg no</string>
     <string name="str_remove_airplane_types">Remove Type</string>
-    <string name="no_type">No type</string>
+    <string name="no_type">No aircraftType</string>
     <string name="fragment_types">Types</string>
     <string name="press_back_again_to_exit">Click again to exit</string>
 	<string name="auto_export_xls_on_exit">Export XLS file on exit</string>

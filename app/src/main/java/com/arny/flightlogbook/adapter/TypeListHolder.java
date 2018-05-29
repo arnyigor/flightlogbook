@@ -8,8 +8,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.arny.arnylib.adapters.BindableViewHolder;
 import com.arny.flightlogbook.R;
-import com.arny.flightlogbook.data.models.Type;
-public class TypeListHolder extends BindableViewHolder<Type> {
+import com.arny.flightlogbook.data.models.AircraftType;
+public class TypeListHolder extends BindableViewHolder<AircraftType> {
     TextView typeTitle;
     ImageView edit;
     ImageView delete;
@@ -25,7 +25,7 @@ public class TypeListHolder extends BindableViewHolder<Type> {
 
 	@SuppressLint("DefaultLocale")
     @Override
-	public void bindView(Context context, int position, final Type item, ActionListener actionListener) {
+	public void bindView(Context context, int position, final AircraftType item, ActionListener actionListener) {
 		super.bindView(context,position, item, actionListener);
 		this.pos = position;
 		int colorbg = ContextCompat.getColor(context, R.color.colorTextGrayBg);
