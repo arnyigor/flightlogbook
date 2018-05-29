@@ -10,6 +10,8 @@ import java.util.List;
 public interface FlightDAO {
 	@Query("SELECT * FROM main_table")
 	List<Flight> getFlights();
+	@Query("SELECT * FROM main_table ORDER BY :orderby")
+	List<Flight> getFlightsWithOrder(String orderby);
 
 	@Query("SELECT * FROM main_table WHERE _id=:id")
 	Flight getFlight(long id);

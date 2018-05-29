@@ -94,31 +94,32 @@ class FlightListFragment : Fragment() {
             listDialog(it, flights_edit_items, dialogListener = ListDialogListener { which ->
                 when (which) {
                     0 -> try {
-                        val intent = Intent(context, AddEditActivity::class.java)
+                        val intent = Intent(it, AddEditActivity::class.java)
                         intent.putExtra(Consts.DB.COLUMN_ID, flights[ctxPos].id)
                         startActivity(intent)
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
 
-                    1 -> DroidUtils.alertConfirmDialog(context, getString(R.string.str_delete)) {
-                        disposable.add(Utility.mainThreadObservable(Observable.just(1).doOnNext { o -> Local.removeFlight(flights[ctxPos].id.toInt(), context) })
-                                .doOnSubscribe { disposable1 -> tvTotalTime.setText(R.string.loading_totals) }
+                    1 -> DroidUtils.alertConfirmDialog(it, getString(R.string.str_delete)) {
+                        disposable.add(Utility.mainThreadObservable(Observable.just(1).doOnNext { o -> Local.removeFlight(flights[ctxPos].id.toInt(), it) })
+                                .doOnSubscribe { disposable1 -> tvTotalTime?.setText(R.string.loading_totals) }
                                 .subscribe({ o ->
-                                    flightListAdapter.removeChild(ctxPos)
+                                    flightListAdapter?.removeChild(ctxPos)
                                     displayTotalTime()
-                                }) { throwable -> ToastMaker.toastError(context, throwable.message) })
+                                }) { throwable -> ToastMaker.toastError(it, throwable.message) })
                     }
-                    2 -> DroidUtils.alertConfirmDialog(context, getString(R.string.str_clearall)) {
+                    2 -> DroidUtils.alertConfirmDialog(it, getString(R.string.str_clearall)) {
                         disposable.add(Utility.mainThreadObservable(Observable.just(1)
-                                .doOnNext { o -> Local.removeAllFlights(context) })
-                                .subscribe({ o -> initFlights(getFilterflights(Config.getInt(Consts.Prefs.CONFIG_USER_FILTER_FLIGHTS, context))) }
-                                ) { throwable -> ToastMaker.toastError(context, throwable.message) })
+                                .doOnNext { o -> Local.removeAllFlights(it) })
+                                .subscribe({ o -> initFlights(getFilterflights(Config.getInt(Consts.Prefs.CONFIG_USER_FILTER_FLIGHTS, it))) }
+                                ) { throwable -> ToastMaker.toastError(it, throwable.message) })
                     }
                 }
             })
         }
-        itemSelectorDialog = MaterialDialog.Builder(context)
+        itemSelectorDialog = context?.let {
+            MaterialDialog.Builder(it)
                 .items(flights_edit_items)
                 .itemsCallback { dialog, view1, which, text ->
                     when (which) {
@@ -132,21 +133,22 @@ class FlightListFragment : Fragment() {
 
                         1 -> DroidUtils.alertConfirmDialog(context, getString(R.string.str_delete)) {
                             disposable.add(Utility.mainThreadObservable(Observable.just(1).doOnNext { o -> Local.removeFlight(flights[ctxPos].id.toInt(), context) })
-                                    .doOnSubscribe { disposable1 -> tvTotalTime.setText(R.string.loading_totals) }
+                                    .doOnSubscribe { disposable1 -> tvTotalTime?.setText(R.string.loading_totals) }
                                     .subscribe({ o ->
-                                        flightListAdapter.removeChild(ctxPos)
+                                        flightListAdapter?.removeChild(ctxPos)
                                         displayTotalTime()
                                     }) { throwable -> ToastMaker.toastError(context, throwable.message) })
                         }
                         2 -> DroidUtils.alertConfirmDialog(context, getString(R.string.str_clearall)) {
                             disposable.add(Utility.mainThreadObservable(Observable.just(1)
                                     .doOnNext { o -> Local.removeAllFlights(context) })
-                                    .subscribe({ o -> initFlights(getFilterflights(Config.getInt(Consts.Prefs.CONFIG_USER_FILTER_FLIGHTS, context))) }
+                                    .subscribe({ o -> initFlights(getFilterflights(Config.getInt(Consts.Prefs.CONFIG_USER_FILTER_FLIGHTS, context!!))) }
                                     ) { throwable -> ToastMaker.toastError(context, throwable.message) })
                         }
                     }
                 }
                 .build()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -176,7 +178,7 @@ class FlightListFragment : Fragment() {
 
     private fun initFlights(orderby: String) {
         disposable.add(Utility.mainThreadObservable(Observable.fromCallable { Local.getFlightListByDate(context, orderby) }
-        ).doOnSubscribe { disposable1 -> tvTotalTime.setText(R.string.loading_totals) }.subscribe({ flights ->
+        ).doOnSubscribe { disposable1 -> tvTotalTime?.setText(R.string.loading_totals) }.subscribe({ flights ->
             this.flights = flights
             flightListAdapter.clear()
             flightListAdapter.addAll(flights)
