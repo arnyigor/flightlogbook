@@ -28,6 +28,7 @@ import com.arny.flightlogbook.data.models.Flight
 import com.arny.flightlogbook.presenter.addedit.AddEditActivity
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.functions.BiFunction
 
 import java.util.ArrayList
 
@@ -120,34 +121,34 @@ class FlightListFragment : Fragment() {
         }
         itemSelectorDialog = context?.let {
             MaterialDialog.Builder(it)
-                .items(flights_edit_items)
-                .itemsCallback { dialog, view1, which, text ->
-                    when (which) {
-                        0 -> try {
-                            val intent = Intent(context, AddEditActivity::class.java)
-                            intent.putExtra(Consts.DB.COLUMN_ID, flights[ctxPos].id)
-                            startActivity(intent)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
+                    .items(flights_edit_items)
+                    .itemsCallback { dialog, view1, which, text ->
+                        when (which) {
+                            0 -> try {
+                                val intent = Intent(context, AddEditActivity::class.java)
+                                intent.putExtra(Consts.DB.COLUMN_ID, flights[ctxPos].id)
+                                startActivity(intent)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
 
-                        1 -> DroidUtils.alertConfirmDialog(context, getString(R.string.str_delete)) {
-                            disposable.add(Utility.mainThreadObservable(Observable.just(1).doOnNext { o -> Local.removeFlight(flights[ctxPos].id.toInt(), context) })
-                                    .doOnSubscribe { disposable1 -> tvTotalTime?.setText(R.string.loading_totals) }
-                                    .subscribe({ o ->
-                                        flightListAdapter?.removeChild(ctxPos)
-                                        displayTotalTime()
-                                    }) { throwable -> ToastMaker.toastError(context, throwable.message) })
-                        }
-                        2 -> DroidUtils.alertConfirmDialog(context, getString(R.string.str_clearall)) {
-                            disposable.add(Utility.mainThreadObservable(Observable.just(1)
-                                    .doOnNext { o -> Local.removeAllFlights(context) })
-                                    .subscribe({ o -> initFlights(getFilterflights(Config.getInt(Consts.Prefs.CONFIG_USER_FILTER_FLIGHTS, context!!))) }
-                                    ) { throwable -> ToastMaker.toastError(context, throwable.message) })
+                            1 -> DroidUtils.alertConfirmDialog(context, getString(R.string.str_delete)) {
+                                disposable.add(Utility.mainThreadObservable(Observable.just(1).doOnNext { o -> Local.removeFlight(flights[ctxPos].id.toInt(), context) })
+                                        .doOnSubscribe { disposable1 -> tvTotalTime?.setText(R.string.loading_totals) }
+                                        .subscribe({ o ->
+                                            flightListAdapter?.removeChild(ctxPos)
+                                            displayTotalTime()
+                                        }) { throwable -> ToastMaker.toastError(context, throwable.message) })
+                            }
+                            2 -> DroidUtils.alertConfirmDialog(context, getString(R.string.str_clearall)) {
+                                disposable.add(Utility.mainThreadObservable(Observable.just(1)
+                                        .doOnNext { o -> Local.removeAllFlights(context) })
+                                        .subscribe({ o -> initFlights(getFilterflights(Config.getInt(Consts.Prefs.CONFIG_USER_FILTER_FLIGHTS, context!!))) }
+                                        ) { throwable -> ToastMaker.toastError(context, throwable.message) })
+                            }
                         }
                     }
-                }
-                .build()
+                    .build()
         }
     }
 
@@ -157,22 +158,24 @@ class FlightListFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        inflater.inflate(R.menu.flights_menu, menu)
+        inflater?.inflate(R.menu.flights_menu, menu)
     }
 
     override fun onPause() {
         saveListPosition()
         super.onPause()
-        LocalBroadcastManager.getInstance(context).unregisterReceiver(broadcastReceiver)
+        context?.let { LocalBroadcastManager.getInstance(it).unregisterReceiver(broadcastReceiver) }
     }
 
     override fun onResume() {
         super.onResume()
         val filter = IntentFilter(BackgroundIntentService.ACTION)
         filter.addCategory(Intent.CATEGORY_DEFAULT)
-        LocalBroadcastManager.getInstance(context).registerReceiver(broadcastReceiver, filter)
-        if (!DroidUtils.isMyServiceRunning(BackgroundIntentService::class.java, context)) {
-            initFlights(getFilterflights(Config.getInt(Consts.Prefs.CONFIG_USER_FILTER_FLIGHTS, context)))
+        context?.let {
+            LocalBroadcastManager.getInstance(it).registerReceiver(broadcastReceiver, filter)
+            if (!DroidUtils.isMyServiceRunning(BackgroundIntentService::class.java, context)) {
+                initFlights(getFilterflights(Config.getInt(Consts.Prefs.CONFIG_USER_FILTER_FLIGHTS, it)))
+            }
         }
     }
 
@@ -180,8 +183,8 @@ class FlightListFragment : Fragment() {
         disposable.add(Utility.mainThreadObservable(Observable.fromCallable { Local.getFlightListByDate(context, orderby) }
         ).doOnSubscribe { disposable1 -> tvTotalTime?.setText(R.string.loading_totals) }.subscribe({ flights ->
             this.flights = flights
-            flightListAdapter.clear()
-            flightListAdapter.addAll(flights)
+            flightListAdapter?.clear()
+            flightListAdapter?.addAll(flights)
             displayTotalTime()
             restoreListPosition()
         }) { throwable ->
@@ -192,14 +195,17 @@ class FlightListFragment : Fragment() {
 
     private fun restoreListPosition() {
         if (positionIndex != -1) {
-            mLayoutManager.scrollToPositionWithOffset(positionIndex, topView)
+            mLayoutManager?.scrollToPositionWithOffset(positionIndex, topView)
         }
     }
 
     private fun saveListPosition() {
-        positionIndex = mLayoutManager.findFirstVisibleItemPosition()
-        val startView = recyclerView.getChildAt(0)
-        topView = if (startView == null) 0 else startView.top - recyclerView.paddingTop
+        positionIndex = mLayoutManager?.findFirstVisibleItemPosition() ?: 0
+        val startView = recyclerView?.getChildAt(0)
+        topView = if (startView == null) 0 else {
+            val paddingTop = recyclerView?.paddingTop ?: 0
+            startView.top - paddingTop
+        }
     }
 
     private fun showMenuDialog(pos: Int) {
@@ -233,9 +239,11 @@ class FlightListFragment : Fragment() {
     private fun displayTotalTime() {
         val flightsTimeObs = Observable.fromCallable { Local.getFlightsTime(context) }
         val flightsTotalObs = Observable.fromCallable { Local.getFlightsTotal(context) }
-        disposable.add(Utility.mainThreadObservable(Observable.zip<Int, Int, String>(flightsTimeObs, flightsTotalObs, { time, cnt -> String.format("%s %s\n%s %d", context.resources.getString(R.string.str_totaltime), DateTimeUtils.strLogTime(time), getString(R.string.total_records), cnt) }))
-                .subscribe { s -> tvTotalTime.text = s })
-
+        disposable.add(Utility.mainThreadObservable(Observable.zip<Int, Int, String>(flightsTimeObs, flightsTotalObs, BiFunction { time: Int, cnt: Int ->
+            String.format("%s %s\n%s %d", context?.resources?.getString(R.string.str_totaltime),
+                    DateTimeUtils.strLogTime(time),
+                    getString(R.string.total_records),
+                    cnt)
+        })).subscribe { s -> tvTotalTime?.text = s })
     }
-
 }

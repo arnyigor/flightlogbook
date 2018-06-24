@@ -133,6 +133,7 @@
 	<string name="item_updated">Запись обновлена</string>
 	<string name="loading_totals">Обновление данных...</string>
 	<string name="total_records">Всего записей:</string>
+	<string name="record_not_found">Запись не найдена</string>
 
 
 </resources>

@@ -60,9 +60,20 @@ android {
     }
 
     compileOptions {
-        targetCompatibility 1.8
-        sourceCompatibility 1.8
+        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_8
     }
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+            returnDefaultValues = true
+        }
+    }
+
+    dexOptions {
+        incremental true
+    }
+
 }
 
 dependencies {
@@ -85,6 +96,7 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:3.0.1', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    androidTestImplementation 'com.android.support.test.espresso:espresso-intents:3.0.2'
     compile 'com.dropbox.core:dropbox-core-sdk:2.1.1'
     compile 'org.apache.poi:poi:3.9'
     compile('com.crashlytics.sdk.android:crashlytics:2.8.0@aar') {

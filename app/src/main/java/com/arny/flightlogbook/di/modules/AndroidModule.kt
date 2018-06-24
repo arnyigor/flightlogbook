@@ -4,7 +4,7 @@ import android.app.Application
 import android.arch.persistence.room.Room
 import android.content.Context
 import android.support.annotation.NonNull
-import com.arny.mvpclean.data.repository.main.MainDB
+import com.arny.flightlogbook.data.db.MainDB
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
