@@ -7,10 +7,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import com.arny.arnylib.utils.Utility;
 import com.arny.flightlogbook.R;
+import com.arny.flightlogbook.data.models.Flight;
+import com.arny.flightlogbook.data.source.MainRepository;
+import io.reactivex.functions.BiFunction;
 
 public class AirplaneTypesActivity extends AppCompatActivity {
-
+	private final MainRepository repository = new  MainRepository();
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

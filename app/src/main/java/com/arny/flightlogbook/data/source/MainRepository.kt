@@ -19,7 +19,13 @@ class MainRepository : BaseRepository(), MainDataContract {
     }
 
     override fun getFlight(id: Long): Observable<Flight> {
-        return Observable.fromCallable { applicationComponent.getDb().flightDAO.getFlight(id) }
+        val db = applicationComponent.getDb()
+        return Observable.fromCallable { db.flightDAO.getFlight(id) }
+                .map {
+                    val type = db.flightTypeDAO.getFlightType(it.airplanetypeid.toLong())
+                    it.airplanetypetitle = type.typeTitle
+                    it
+                }
     }
 
     override fun getContext(): Context {

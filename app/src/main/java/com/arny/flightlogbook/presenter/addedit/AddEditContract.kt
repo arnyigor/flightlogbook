@@ -12,6 +12,11 @@ object AddEditContract {
         fun updateAircaftTypes(types: List<AircraftType>)
         fun setDateTime(mDateTime: String)
         fun setLogTime(strLogTime: String?)
+        fun setRegNo(regNo: String?)
+        fun setPlaneType(airplanetypetitle: String?)
+        fun setSpinDayNight(daynight: Int)
+        fun setSpinIfrVfr(ifrvfr: Int)
+        fun setFlightType(flighttype: Int)
 
     }
 
