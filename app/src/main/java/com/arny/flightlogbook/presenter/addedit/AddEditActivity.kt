@@ -20,6 +20,7 @@ import com.arny.arnylib.utils.*
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.data.Consts
 import com.arny.flightlogbook.data.Local
+import com.arny.flightlogbook.data.models.AircraftType
 import com.arny.flightlogbook.data.models.Flight
 import com.arny.flightlogbook.data.source.MainRepository
 import com.arny.flightlogbook.presenter.types.AirplaneTypesActivity
@@ -57,6 +58,37 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
     private var dateTimeListener: MaskedTextChangedListener? = null
     private var imm: InputMethodManager? = null
     private val disposable = CompositeDisposable()
+
+    override fun setDescription(desc: String) {
+
+    }
+
+    override fun setDate(date: String) {
+    }
+
+    override fun updateAircaftTypes(types: List<AircraftType>) {
+    }
+
+    override fun setDateTime(mDateTime: String) {
+    }
+
+    override fun setLogTime(strLogTime: String?) {
+    }
+
+    override fun setRegNo(regNo: String?) {
+    }
+
+    override fun setPlaneType(airplanetypetitle: String?) {
+    }
+
+    override fun setSpinDayNight(daynight: Int) {
+    }
+
+    override fun setSpinIfrVfr(ifrvfr: Int) {
+    }
+
+    override fun setFlightType(flighttype: Int) {
+    }
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -197,7 +229,7 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
             }
             disposable.add(Utility.mainThreadObservable(Observable.fromCallable { saveState(edtDesc?.text.toString(), edtTime?.text.toString(), edtRegNo?.text.toString()) })
                     .subscribe({ b ->
-                        val res = b?:false
+                        val res = b ?: false
                         if (res) {
                             ToastMaker.toastSuccess(this, getString(R.string.item_updated))
                             finish()
@@ -321,8 +353,8 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
         val lButtonParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         val btn = Button(this)
-        btn.background = resources.getDrawable(R.drawable.btn_bg_green)
-        btn.setTextColor(resources.getColor(R.color.bpWhite))
+        btn.background = ContextCompat.getDrawable(this, R.drawable.btn_bg_green)
+        btn.setTextColor(ContextCompat.getColor(this, R.color.bpWhite))
         btn.layoutParams = lButtonParams
         btn.setOnClickListener { v -> showMoto() }
         btn.text = getString(R.string.str_moto_btn)
