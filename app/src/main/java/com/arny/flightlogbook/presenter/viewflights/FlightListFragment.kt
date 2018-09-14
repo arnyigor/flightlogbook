@@ -1,67 +1,50 @@
 package com.arny.flightlogbook.presenter.viewflights
 
-import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
-import android.support.v4.app.Fragment
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.*
-import android.widget.TextView
 import com.afollestad.materialdialogs.MaterialDialog
-import com.arny.arnylib.adapters.SimpleBindableAdapter
-import com.arny.arnylib.interfaces.ListDialogListener
-import com.arny.arnylib.utils.*
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.adapter.FlightListHolder
 import com.arny.flightlogbook.data.Consts
-import com.arny.flightlogbook.data.*
-import com.arny.flightlogbook.data.service.BackgroundIntentService
-import com.arny.flightlogbook.data.Local
 import com.arny.flightlogbook.data.models.Flight
+import com.arny.flightlogbook.data.service.BackgroundIntentService
 import com.arny.flightlogbook.presenter.addedit.AddEditActivity
+import com.arny.flightlogbook.presenter.base.BaseMvpFragment
+import com.arny.flightlogbook.utils.Prefs
+import com.arny.flightlogbook.utils.Utility
+import com.arny.flightlogbook.utils.adapters.AbstractRecyclerViewAdapter
+import com.arny.flightlogbook.utils.dialogs.ConfirmDialogListener
+import com.arny.flightlogbook.utils.dialogs.ListDialogListener
+import com.arny.flightlogbook.utils.dialogs.confirmDialog
+import com.arny.flightlogbook.utils.dialogs.listDialog
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.functions.BiFunction
+import kotlinx.android.synthetic.main.fragment_flight_list.*
 
-import java.util.ArrayList
-
-class FlightListFragment : Fragment() {
-    private var flightListAdapter: SimpleBindableAdapter<Flight, FlightListHolder>? = null
+class FlightListFragment : BaseMvpFragment<ViewFlightsContract.View, ViewFlightsPresenter>(), ViewFlightsContract.View {
+    private var adapter: FlightsAdapter? = null
     private var finishOperation = true
-    private var flights: List<Flight> = ArrayList()
-    private var ctxPos: Int = 0
-    private var tvTotalTime: TextView? = null
-    private var itemSelectorDialog: MaterialDialog? = null
     private val disposable = CompositeDisposable()
     private var positionIndex: Int = 0
     private var mLayoutManager: LinearLayoutManager? = null
     private var topView: Int = 0
-    private var recyclerView: RecyclerView? = null
 
-    private val broadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            try {
-                finishOperation = intent.getBooleanExtra(BackgroundIntentService.EXTRA_KEY_FINISH, false)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-
-            if (finishOperation) {
-                initFlights(getFilterflights(Config.getInt(Consts.Prefs.CONFIG_USER_FILTER_FLIGHTS, context)))
-            }
-        }
+    override fun initPresenter(): ViewFlightsPresenter {
+        return ViewFlightsPresenter()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        disposable.clear()
+    companion object {
+        @JvmStatic
+        fun newInstance(): FlightListFragment {
+            return FlightListFragment()
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -75,90 +58,18 @@ class FlightListFragment : Fragment() {
             val intent = Intent(context, AddEditActivity::class.java)
             startActivity(intent)
         }
-        tvTotalTime = view.findViewById(R.id.tvTotalTime)
-        tvTotalTime?.setText(R.string.loading_totals)
-        recyclerView = view.findViewById(R.id.listView)
+        tvTotalTime.setText(R.string.loading_totals)
         mLayoutManager = LinearLayoutManager(context)
-        recyclerView?.layoutManager = mLayoutManager
-        recyclerView?.itemAnimator = DefaultItemAnimator()
-        flightListAdapter = SimpleBindableAdapter(context, R.layout.flight_list_item, FlightListHolder::class.java)
-        flightListAdapter?.setActionListener(object : FlightListHolder.SimpleActionListener {
-            override fun onItemClick(position: Int, Item: Any?) {
-                showMenuDialog(position)
-            }
-        })
-        recyclerView?.adapter = flightListAdapter
+        listView.layoutManager = mLayoutManager
+        listView.itemAnimator = DefaultItemAnimator()
+        adapter = FlightsAdapter(context, AbstractRecyclerViewAdapter.OnViewHolderListener { view, position, item -> showMenuDialog(position) })
+        listView.adapter = adapter
         restoreListPosition()
-        DroidUtils.runLayoutAnimation(recyclerView, R.anim.layout_animation_fall_down)
-        val flights_edit_items = R.array.flights_edit_items
-        context?.let {
-            listDialog(it, flights_edit_items, dialogListener = ListDialogListener { which ->
-                when (which) {
-                    0 -> try {
-                        val intent = Intent(it, AddEditActivity::class.java)
-                        intent.putExtra(Consts.DB.COLUMN_ID, flights[ctxPos].id)
-                        startActivity(intent)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-
-                    1 -> DroidUtils.alertConfirmDialog(it, getString(R.string.str_delete)) {
-                        disposable.add(Utility.mainThreadObservable(Observable.just(1).doOnNext { o -> Local.removeFlight(flights[ctxPos].id.toInt(), it) })
-                                .doOnSubscribe { disposable1 -> tvTotalTime?.setText(R.string.loading_totals) }
-                                .subscribe({ o ->
-                                    flightListAdapter?.removeChild(ctxPos)
-                                    displayTotalTime()
-                                }) { throwable -> ToastMaker.toastError(it, throwable.message) })
-                    }
-                    2 -> DroidUtils.alertConfirmDialog(it, getString(R.string.str_clearall)) {
-                        disposable.add(Utility.mainThreadObservable(Observable.just(1)
-                                .doOnNext { o -> Local.removeAllFlights(it) })
-                                .subscribe({ o -> initFlights(getFilterflights(Config.getInt(Consts.Prefs.CONFIG_USER_FILTER_FLIGHTS, it))) }
-                                ) { throwable -> ToastMaker.toastError(it, throwable.message) })
-                    }
-                }
-            })
-        }
-        itemSelectorDialog = context?.let {
-            MaterialDialog.Builder(it)
-                    .items(flights_edit_items)
-                    .itemsCallback { dialog, view1, which, text ->
-                        when (which) {
-                            0 -> try {
-                                val intent = Intent(context, AddEditActivity::class.java)
-                                intent.putExtra(Consts.DB.COLUMN_ID, flights[ctxPos].id)
-                                startActivity(intent)
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                            }
-
-                            1 -> DroidUtils.alertConfirmDialog(context, getString(R.string.str_delete)) {
-                                disposable.add(Utility.mainThreadObservable(Observable.just(1).doOnNext { o -> Local.removeFlight(flights[ctxPos].id.toInt(), context) })
-                                        .doOnSubscribe { disposable1 -> tvTotalTime?.setText(R.string.loading_totals) }
-                                        .subscribe({ o ->
-                                            flightListAdapter?.removeChild(ctxPos)
-                                            displayTotalTime()
-                                        }) { throwable -> ToastMaker.toastError(context, throwable.message) })
-                            }
-                            2 -> DroidUtils.alertConfirmDialog(context, getString(R.string.str_clearall)) {
-                                disposable.add(Utility.mainThreadObservable(Observable.just(1)
-                                        .doOnNext { o -> Local.removeAllFlights(context) })
-                                        .subscribe({ o -> initFlights(getFilterflights(Config.getInt(Consts.Prefs.CONFIG_USER_FILTER_FLIGHTS, context!!))) }
-                                        ) { throwable -> ToastMaker.toastError(context, throwable.message) })
-                            }
-                        }
-                    }
-                    .build()
-        }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        inflater?.inflate(R.menu.flights_menu, menu)
+    override fun onDestroy() {
+        super.onDestroy()
+        disposable.clear()
     }
 
     override fun onPause() {
@@ -171,26 +82,37 @@ class FlightListFragment : Fragment() {
         super.onResume()
         val filter = IntentFilter(BackgroundIntentService.ACTION)
         filter.addCategory(Intent.CATEGORY_DEFAULT)
-        context?.let {
-            LocalBroadcastManager.getInstance(it).registerReceiver(broadcastReceiver, filter)
-            if (!DroidUtils.isMyServiceRunning(BackgroundIntentService::class.java, context)) {
-                initFlights(getFilterflights(Config.getInt(Consts.Prefs.CONFIG_USER_FILTER_FLIGHTS, it)))
-            }
+        context?.let { ctx ->
+            LocalBroadcastManager.getInstance(ctx).registerReceiver(broadcastReceiver, filter)
+            Utility.mainThreadObservable(Observable.fromCallable {
+                Utility.isMyServiceRunning(BackgroundIntentService::class.java, ctx)
+            }).subscribe({ running ->
+                if (!running) {
+                    initFlights()
+                }
+            }, {
+                it.printStackTrace()
+            })
+
         }
     }
 
-    private fun initFlights(orderby: String) {
-        disposable.add(Utility.mainThreadObservable(Observable.fromCallable { Local.getFlightListByDate(context, orderby) }
-        ).doOnSubscribe { disposable1 -> tvTotalTime?.setText(R.string.loading_totals) }.subscribe({ flights ->
-            this.flights = flights
-            flightListAdapter?.clear()
-            flightListAdapter?.addAll(flights)
-            displayTotalTime()
-            restoreListPosition()
-        }) { throwable ->
-            ToastMaker.toastError(context, throwable.message)
-            displayTotalTime()
-        })
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        inflater?.inflate(R.menu.flights_menu, menu)
+    }
+
+    override fun updateAdapter(flights: ArrayList<Flight>) {
+        adapter?.clear()
+        adapter?.addAll(flights)
+    }
+
+    private fun initFlights() {
+        mPresenter.loadFlights()
     }
 
     private fun restoreListPosition() {
@@ -201,16 +123,51 @@ class FlightListFragment : Fragment() {
 
     private fun saveListPosition() {
         positionIndex = mLayoutManager?.findFirstVisibleItemPosition() ?: 0
-        val startView = recyclerView?.getChildAt(0)
+        val startView = listView.getChildAt(0)
         topView = if (startView == null) 0 else {
-            val paddingTop = recyclerView?.paddingTop ?: 0
+            val paddingTop = listView.paddingTop
             startView.top - paddingTop
         }
     }
 
-    private fun showMenuDialog(pos: Int) {
-        ctxPos = pos//кидаем в глобальную переменную чтобы все видели
-        itemSelectorDialog?.show()
+    private fun showMenuDialog(position: Int) {
+        context?.let { ctx ->
+            listDialog(ctx, R.array.flights_edit_items, getString(R.string.choose_action), cancelable = true, dialogListener = ListDialogListener { selected ->
+                when (selected) {
+                    0 -> try {
+                        val intent = Intent(context, AddEditActivity::class.java)
+                        intent.putExtra(Consts.DB.COLUMN_ID, adapter?.getItem(position)?.id)
+                        startActivity(intent)
+                        activity?.overridePendingTransition(0, 0)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+
+                    1 -> confirmDialog(ctx, getString(R.string.str_delete), dialogListener = object : ConfirmDialogListener {
+                        override fun onCancel() {
+
+                        }
+
+                        override fun onConfirm() {
+                            mPresenter.removeItem(adapter?.getItem(position))
+                        }
+                    })
+                    2 -> {
+                        confirmDialog(ctx, getString(R.string.str_clearall), dialogListener = object : ConfirmDialogListener {
+                            override fun onCancel() {
+
+                            }
+
+                            override fun onConfirm() {
+                                mPresenter.removeAllFlights()
+                            }
+                        })
+
+
+                    }
+                }
+            })
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -218,15 +175,15 @@ class FlightListFragment : Fragment() {
             R.id.action_filter -> {
                 val filters = resources.getStringArray(R.array.flights_filers)
                 context?.let {
-                    val filterPos = Config.getInt(Consts.Prefs.CONFIG_USER_FILTER_FLIGHTS, it)
+                    val filterPos = Prefs.getInt(Consts.PrefsConsts.CONFIG_USER_FILTER_FLIGHTS, it)
                     val filter = filters[filterPos]
                     MaterialDialog.Builder(it)
                             .title(getString(R.string.str_sort_by) + " " + filter)
                             .items(R.array.flights_filers)
                             .autoDismiss(true)
                             .itemsCallback { dialog, view, which, text ->
-                                Config.setInt(Consts.Prefs.CONFIG_USER_FILTER_FLIGHTS, which, it)
-                                initFlights(getFilterflights(which))
+                                Prefs.setInt(Consts.PrefsConsts.CONFIG_USER_FILTER_FLIGHTS, which, it)
+                                initFlights()
                             }.show()
                 }
                 return true
@@ -235,15 +192,21 @@ class FlightListFragment : Fragment() {
         return true
     }
 
-    @SuppressLint("DefaultLocale")
-    private fun displayTotalTime() {
-        val flightsTimeObs = Observable.fromCallable { Local.getFlightsTime(context) }
-        val flightsTotalObs = Observable.fromCallable { Local.getFlightsTotal(context) }
-        disposable.add(Utility.mainThreadObservable(Observable.zip<Int, Int, String>(flightsTimeObs, flightsTotalObs, BiFunction { time: Int, cnt: Int ->
-            String.format("%s %s\n%s %d", context?.resources?.getString(R.string.str_totaltime),
-                    DateTimeUtils.strLogTime(time),
-                    getString(R.string.total_records),
-                    cnt)
-        })).subscribe { s -> tvTotalTime?.text = s })
+    override fun displayTotalTime(time: String) {
+        tvTotalTime?.text = time
+    }
+
+    private val broadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            try {
+                finishOperation = intent.getBooleanExtra(BackgroundIntentService.EXTRA_KEY_FINISH, false)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
+            if (finishOperation) {
+                initFlights()
+            }
+        }
     }
 }

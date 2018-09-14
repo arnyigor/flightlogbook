@@ -1,5 +1,7 @@
 package com.arny.flightlogbook.data.models
 
+import com.arny.flightlogbook.utils.Utility
+
 class Statistic {
     var totalByMonth: Int = 0
     var cnt: Int = 0
@@ -16,4 +18,8 @@ class Statistic {
     var dnTime: String? = null
     var ivTime: String? = null
     var czmTime: String? = null
+
+    override fun toString(): String {
+        return Utility.getFields(this)
+    }
 }

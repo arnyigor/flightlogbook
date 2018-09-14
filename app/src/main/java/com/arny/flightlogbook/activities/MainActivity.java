@@ -13,7 +13,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -23,27 +22,32 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.arny.arnylib.utils.*;
 import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.data.Consts;
-import com.arny.flightlogbook.data.service.BackgroundIntentService;
 import com.arny.flightlogbook.data.Local;
+import com.arny.flightlogbook.data.service.BackgroundIntentService;
+import com.arny.flightlogbook.data.source.MainRepositoryImpl;
 import com.arny.flightlogbook.fragments.DropboxSyncFragment;
-import com.arny.flightlogbook.presenter.viewflights.FlightListFragment;
 import com.arny.flightlogbook.fragments.StatisticFragment;
-import com.arny.flightlogbook.presenter.types.TypeListFragment;
 import com.arny.flightlogbook.presenter.types.AirplaneTypesActivity;
+import com.arny.flightlogbook.presenter.types.TypeListFragment;
+import com.arny.flightlogbook.presenter.viewflights.FlightListFragment;
+import com.arny.flightlogbook.utils.AppCompatActivityExtKt;
+import com.arny.flightlogbook.utils.BasePermissions;
+import com.arny.flightlogbook.utils.Prefs;
+import com.arny.flightlogbook.utils.ToastMaker;
+import com.arny.flightlogbook.utils.Utility;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.holder.BadgeStyle;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.File;
 import java.util.List;
 
-import com.tbruyelle.rxpermissions2.RxPermissions;
 import es.dmoral.toasty.Toasty;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
@@ -69,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 	private static long back_pressed;
 	private final CompositeDisposable disposable = new CompositeDisposable();
 	private RxPermissions rxPermissions;
+	private MainRepositoryImpl repository = MainRepositoryImpl.Companion.getInstance();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -119,10 +124,8 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
-		//add the values which need to be saved from the drawer to the bundle
 		outState = drawer.saveInstanceState(outState);
 		outState.putString(DRAWER_SELECTION, String.valueOf(drawer.getCurrentSelection()));
-		//add the values which need to be saved from the accountHeader to the bundle
 		super.onSaveInstanceState(outState);
 	}
 
@@ -130,21 +133,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.main_menu, menu);
 		return true;
-	}
-
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		Log.d(MainActivity.class.getSimpleName(), "onPrepareOptionsMenu:  menu.hasVisibleItems() = " + menu.hasVisibleItems());
-		boolean fileExist = Local.isAppFileExist(context);
-		MenuItem exelOpenAction = menu.findItem(R.id.action_open_file);
-		MenuItem exelImportAction = menu.findItem(R.id.action_import_excel);
-		if (exelOpenAction != null) {
-			exelOpenAction.setVisible(fileExist);
-		}
-		if (exelImportAction != null) {
-			exelImportAction.setVisible(fileExist);
-		}
-		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
@@ -162,20 +150,52 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 				startActivity(intentSettings);
 				break;
 			case R.id.action_import_excel:
-				showImportAlert();
+				rxPermissions.request(android.Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+						.subscribe(permissionGranded -> {
+									if (permissionGranded) {
+										showImportAlert();
+									}
+								}, throwable -> {
+									ToastMaker.toastError(this, getString(R.string.str_error_import) + ":" + throwable.getMessage());
+								}
+						);
 				break;
 			case R.id.action_export_excel:
-				showExportAlert();
+				rxPermissions.request(android.Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+						.subscribe(permissionGranded -> {
+									if (permissionGranded) {
+										showExportAlert();
+									}
+								}, throwable -> {
+									ToastMaker.toastError(this, getString(R.string.str_error_import) + ":" + throwable.getMessage());
+								}
+						);
 				break;
 			case R.id.action_open_file:
-				openFileWith();
+				rxPermissions.request(android.Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+						.subscribe(permissionGranded -> {
+									if (permissionGranded) {
+										openFileWith();
+									}
+								}, throwable -> {
+									ToastMaker.toastError(this, getString(R.string.str_error_import) + ":" + throwable.getMessage());
+								}
+						);
 				break;
 			case R.id.action_type_edit:
 				Intent mAirplanesActivity = new Intent(context, AirplaneTypesActivity.class);
 				startActivity(mAirplanesActivity);
 				break;
 			case R.id.action_import_from_file:
-				showImportDialogSD();
+				rxPermissions.request(android.Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+						.subscribe(permissionGranded -> {
+									if (permissionGranded) {
+										showImportDialogSD();
+									}
+								}, throwable -> {
+									ToastMaker.toastError(this, getString(R.string.str_error_import) + ":" + throwable.getMessage());
+								}
+						);
 				break;
 		}
 		return super.onOptionsItemSelected(item);
@@ -185,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 		Fragment fragment = null;
 		switch (position) {
 			case MENU_FLIGHTS:
-				fragment = new FlightListFragment();
+				fragment = FlightListFragment.newInstance();
 				toolbar.setTitle(getString(R.string.fragment_logbook));
 				break;
 			case MENU_TYPES:
@@ -202,8 +222,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 				break;
 		}
 		if (fragment != null) {
-			FragmentManager fragmentManager = getSupportFragmentManager();
-			fragmentManager.beginTransaction().replace(R.id.container, fragment).commit();
+			AppCompatActivityExtKt.replaceFragmentInActivity(this, fragment, R.id.container);
 			drawer.closeDrawer();
 		}
 	}
@@ -211,7 +230,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 	@SuppressLint("RestrictedApi")
 	@Override
 	public void onBackPressed() {
-
 		if (drawer.isDrawerOpen()) {
 			drawer.closeDrawer();
 		} else {
@@ -226,7 +244,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 				selectItem(MENU_FLIGHTS);
 			} else {
 				if (back_pressed + TIME_DELAY > System.currentTimeMillis()) {
-					if (Config.getBoolean("autoExportXLSPref", false, context)) {
+					if (Prefs.getBoolean("autoExportXLSPref", false, context)) {
 						initBgService();
 						mMyServiceIntent.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_EXPORT);
 						startService(mMyServiceIntent);
@@ -241,21 +259,44 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 		}
 	}
 
+	@SuppressLint("CheckResult")
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (!BasePermissions.canAccessStorage(this, 777)) {
-			return;
-		}
 		IntentFilter filter = new IntentFilter(BackgroundIntentService.ACTION);
 		filter.addCategory(Intent.CATEGORY_DEFAULT);
 		LocalBroadcastManager.getInstance(context).registerReceiver(broadcastReceiver, filter);
-		if (DroidUtils.isMyServiceRunning(BackgroundIntentService.class, context)) {
-			getOperationNotif(context);
-			showProgress(notif);
-		} else {
-			hideProgress();
-		}
+		Utility.mainThreadObservable(Observable.fromCallable(() ->
+				Utility.isMyServiceRunning(BackgroundIntentService.class, MainActivity.this)))
+				.subscribe(aBoolean -> {
+					if (aBoolean) {
+						getOperationNotif(context);
+						showProgress(notif);
+					} else {
+						hideProgress();
+					}
+				}, Throwable::printStackTrace);
+
+
+		rxPermissions.request(android.Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+				.subscribe(permissionGranded -> {
+							if (permissionGranded) {
+								Menu menu = toolbar.getMenu();
+								boolean fileExist = Local.isAppFileExist(context);
+								MenuItem exelOpenAction = menu.findItem(R.id.action_open_file);
+								MenuItem exelImportAction = menu.findItem(R.id.action_import_excel);
+								if (exelOpenAction != null) {
+									exelOpenAction.setVisible(fileExist);
+								}
+								if (exelImportAction != null) {
+									exelImportAction.setVisible(fileExist);
+								}
+							}
+						}, throwable -> {
+							ToastMaker.toastError(this, getString(R.string.str_error_import) + ":" + throwable.getMessage());
+						}
+				);
+
 	}
 
 	private void hideProgress() {
@@ -291,9 +332,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-		if (BuildConfig.DEBUG) {
-			Log.d(MainActivity.class.getSimpleName(), "onRequestPermissionsResult: requestCode = " + requestCode);
-		}
 		switch (requestCode) {
 			case Consts.RequestCodes.REQUEST_EXTERNAL_STORAGE_XLS:
 				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -314,11 +352,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 					}
 				}
 				break;
-			case 777:
-				if (BasePermissions.permissionGranted(grantResults)) {
-					onResume();
-				}
-				break;
 		}
 	}
 
@@ -329,19 +362,11 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 		alert.setMessage(getString(R.string.str_import_massage));
 		alert.setNegativeButton(getString(R.string.str_cancel), (dialog, which) -> dialog.cancel());
 		alert.setPositiveButton(getString(R.string.str_ok), (dialog, which) -> {
-			rxPermissions
-					.request(android.Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE).subscribe(permissionGranded -> {
-						if (permissionGranded) {
-							fileintent = new Intent();
-							fileintent.setAction(Intent.ACTION_GET_CONTENT);
-							fileintent.addCategory(Intent.CATEGORY_OPENABLE);
-							fileintent.setType("*/*");
-							startActivityForResult(fileintent, PICKFILE_RESULT_CODE);
-						}
-					}, throwable -> {
-						ToastMaker.toastError(this, getString(R.string.str_error_import) + ":" + throwable.getMessage());
-					}
-			);
+			fileintent = new Intent();
+			fileintent.setAction(Intent.ACTION_GET_CONTENT);
+			fileintent.addCategory(Intent.CATEGORY_OPENABLE);
+			fileintent.setType("*/*");
+			startActivityForResult(fileintent, PICKFILE_RESULT_CODE);
 
 		});
 		alert.show();
@@ -462,21 +487,24 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 		}
 	}
 
+	@SuppressLint("CheckResult")
 	public void updateNavDrawerCounts() {
 		PrimaryDrawerItem itemNewTask = (PrimaryDrawerItem) drawer.getDrawerItem(MENU_FLIGHTS);
 		PrimaryDrawerItem itemCompleteTask = (PrimaryDrawerItem) drawer.getDrawerItem(MENU_TYPES);
-		disposable.add(Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getFlightListByDate(MainActivity.this).size())).subscribe(flights -> {
-			if (itemNewTask != null && drawer != null) {
-				itemNewTask.withBadge(String.valueOf(flights)).withBadgeStyle(new BadgeStyle().withTextColorRes(R.color.colorAccent));
-				drawer.updateItem(itemNewTask);
-			}
-		}));
-		disposable.add(Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getTypeList(MainActivity.this).size())).subscribe(types -> {
-			if (itemCompleteTask != null && drawer != null) {
-				itemCompleteTask.withBadge(String.valueOf(types)).withBadgeStyle(new BadgeStyle().withTextColorRes(R.color.colorAccent));
-				drawer.updateItem(itemCompleteTask);
-			}
-		}));
+		disposable.add(Utility.mainThreadObservable(repository.getFlightsCount())
+				.subscribe(flights -> {
+					if (itemNewTask != null && drawer != null) {
+						itemNewTask.withBadge(String.valueOf(flights)).withBadgeStyle(new BadgeStyle().withTextColorRes(R.color.colorAccent));
+						drawer.updateItem(itemNewTask);
+					}
+				}));
+		disposable.add(Utility.mainThreadObservable(repository.getAircraftTypesCount())
+				.subscribe(types -> {
+					if (itemCompleteTask != null && drawer != null) {
+						itemCompleteTask.withBadge(String.valueOf(types)).withBadgeStyle(new BadgeStyle().withTextColorRes(R.color.colorAccent));
+						drawer.updateItem(itemCompleteTask);
+					}
+				}));
 	}
 
 	@Override

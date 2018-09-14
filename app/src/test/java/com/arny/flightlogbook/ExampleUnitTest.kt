@@ -1,14 +1,13 @@
 package com.arny.flightlogbook
 
-import android.content.Intent
+import com.arny.flightlogbook.utils.Utility.getTimeDiff
+import org.assertj.core.api.Assertions.assertThat
+import org.joda.time.DateTime
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.MethodSorters
 import org.mockito.junit.MockitoJUnitRunner
-import com.arny.arnylib.utils.DateTimeUtils.getTimeDiff
-import org.assertj.core.api.Assertions.assertThat
-import org.joda.time.DateTime
 
 
 @RunWith(MockitoJUnitRunner::class)

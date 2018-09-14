@@ -123,7 +123,7 @@
 						android:minHeight="40dp"
 						android:textSize="12sp"
 						android:text="@string/str_add"
-						android:background="@drawable/btn_bg_green" android:textColor="@color/bpWhite"/>
+						android:background="@drawable/btn_bg_green" android:textColor="@android:color/white"/>
 			</LinearLayout>
 
 			<LinearLayout
@@ -185,7 +185,7 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:background="@drawable/btn_bg_green"
-						android:text="@string/str_add" android:textColor="@color/bpWhite"/>
+						android:text="@string/str_add" android:textColor="@android:color/white"/>
 			</LinearLayout>
 		</LinearLayout>
 	</ScrollView>

@@ -1,31 +1,33 @@
 package com.arny.flightlogbook.presenter.addedit
 
-import com.arny.arnylib.presenter.base.BaseMvpPresenterImpl
-import com.arny.arnylib.utils.DateTimeUtils
-import com.arny.arnylib.utils.Utility
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.data.models.Flight
-import com.arny.flightlogbook.data.source.MainRepository
+import com.arny.flightlogbook.data.source.MainRepositoryImpl
+import com.arny.flightlogbook.presenter.base.BaseMvpPresenterImpl
+import com.arny.flightlogbook.utils.DateTimeUtils
+import com.arny.flightlogbook.utils.Utility
 
 
-class AddEditPresenter(private val repository: MainRepository) : BaseMvpPresenterImpl<AddEditContract.View>(), AddEditContract.Presenter {
+class AddEditPresenter : BaseMvpPresenterImpl<AddEditContract.View>(), AddEditContract.Presenter {
+    private var logTime: Int = 0
+    private val repository = MainRepositoryImpl.instance
     override fun setUIFromFlight(flight: Flight) {
         mView?.setDescription(flight.description ?: "")
-        mView?.setDateTime(DateTimeUtils.getDateTime(flight.datetime, "dd.MM.yyyy"))
-        logTime = flight.logtime
+        mView?.setDateTime(DateTimeUtils.getDateTime(flight.datetime ?: 0, "dd.MM.yyyy"))
+        logTime = flight.logtime ?: 0
         val strLogTime = DateTimeUtils.strLogTime(logTime)
         mView?.setLogTime(strLogTime)
         mView?.setRegNo(flight.reg_no)
         val airplType = flight.airplanetypetitle
         val airplanetypetitle = if (Utility.empty(airplType)) repository.getString(R.string.str_type_empty) else repository.getString(R.string.str_type) + " " + airplType
         mView?.setPlaneType(airplanetypetitle)
-        mView?.setSpinDayNight(flight.daynight)
-        mView?.setSpinIfrVfr(flight.ifrvfr)
-        mView?.setFlightType(flight.flighttype)
+        mView?.setSpinDayNight(flight.daynight ?: 0)
+        mView?.setSpinIfrVfr(flight.ifrvfr ?: 0)
+        mView?.setFlightType(flight.flighttype ?: 0)
     }
 
-    override fun initUIFromId(id: Int) {
-        Utility.mainThreadObservable(repository.getFlight(id.toLong()))
+    override fun initUIFromId(id: Long?) {
+        Utility.mainThreadObservable(repository.getFlight(id ?: 0))
                 .subscribe({
                     if (it != null) {
                         setUIFromFlight(it)
@@ -34,17 +36,15 @@ class AddEditPresenter(private val repository: MainRepository) : BaseMvpPresente
                         initEmptyUI()
                     }
                 }) {
+                    it.printStackTrace()
                     initEmptyUI()
                     mView?.toastError(repository.getString(R.string.record_not_found) + ":" + it.message)
                 }
     }
-
-    private var logTime: Int = 0
     override fun initEmptyUI() {
         mView?.setDescription("")
         mView?.setDate("")
     }
-
     private fun loadPLaneTypes() {
         Utility.mainThreadObservable(repository.getDbTypeList())
                 .subscribe({
@@ -59,7 +59,7 @@ class AddEditPresenter(private val repository: MainRepository) : BaseMvpPresente
                 })
     }
 
-    override fun initState(id: Int?) {
+    override fun initState(id: Long?) {
         loadPLaneTypes()
         if (id != null) {
             initUIFromId(id)

@@ -113,6 +113,8 @@
 		file.Dowload?\n\t\n\t
 	</string>
 	<string name="item_updated">Item updated</string>
-	<string name="loading_totals">Updating data...</string>
+	<string name="loading_totals">Updating data…</string>
 	<string name="total_records">Total items:</string>
+    <string name="choose_action">Choose action</string>
+    <string name="record_not_found">Item not found</string>
 </resources>

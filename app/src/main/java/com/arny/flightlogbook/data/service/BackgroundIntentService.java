@@ -7,28 +7,43 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import com.arny.arnylib.files.FileUtils;
-import com.arny.arnylib.utils.BasePermissions;
-import com.arny.arnylib.utils.Config;
-import com.arny.arnylib.utils.DateTimeUtils;
-import com.arny.arnylib.utils.Utility;
+
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.data.Consts;
 import com.arny.flightlogbook.data.Local;
-import com.arny.flightlogbook.data.models.Flight;
 import com.arny.flightlogbook.data.models.AircraftType;
+import com.arny.flightlogbook.data.models.Flight;
 import com.arny.flightlogbook.data.sync.dropbox.DropboxClientFactory;
+import com.arny.flightlogbook.utils.BasePermissions;
+import com.arny.flightlogbook.utils.DateTimeUtils;
+import com.arny.flightlogbook.utils.FileUtils;
+import com.arny.flightlogbook.utils.Prefs;
+import com.arny.flightlogbook.utils.Utility;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.FileMetadata;
 import com.dropbox.core.v2.files.ListFolderResult;
 import com.dropbox.core.v2.files.Metadata;
 import com.dropbox.core.v2.files.WriteMode;
-import org.apache.poi.hssf.usermodel.*;
-import org.apache.poi.hssf.util.HSSFColor;
-import org.apache.poi.ss.usermodel.*;
 
-import java.io.*;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -53,9 +68,8 @@ public class BackgroundIntentService extends IntentService {
 	public static final int OPERATION_DBX_UPLOAD = 104;
 	/*other*/
 	private static final String LOG_SHEET_MAIN = "Timelog";
-	private static final String TAG = BackgroundIntentService.class.getName();
 	private static int operation;
-	private List<Flight> ExportData, TypeData;
+	private List<Flight> ExportData;
 	private boolean mIsSuccess;
 	private boolean mIsStopped;
 	private int airplane_type_id;
@@ -280,7 +294,7 @@ public class BackgroundIntentService extends IntentService {
 		ExportData = Local.getFlightListByDate(context);
 		int rows = 1;
 		for (Flight export : ExportData) {
-			airplane_type_id = export.getAirplanetypeid();
+			airplane_type_id = export.getAircraft_id();
 			AircraftType aircraftType = Local.getTypeItem(airplane_type_id, context);
 			String airplane_type = aircraftType != null ? aircraftType.getTypeName() : "";
 			row = sheet_main.createRow(rows);
@@ -536,7 +550,7 @@ public class BackgroundIntentService extends IntentService {
 				mIsSuccess = false;
 
 			}
-			if (Config.getBoolean(Consts.Prefs.DROPBOX_AUTOIMPORT_TO_DB, false, getApplicationContext())) {
+			if (Prefs.getBoolean(Consts.PrefsConsts.DROPBOX_AUTOIMPORT_TO_DB, false, getApplicationContext())) {
 				readExcelFile(getApplicationContext(), Consts.Files.EXEL_FILE_NAME, true);
 			}
 		} catch (Exception e) {

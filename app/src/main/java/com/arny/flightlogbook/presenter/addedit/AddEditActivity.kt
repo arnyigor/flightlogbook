@@ -14,16 +14,16 @@ import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
-import com.arny.arnylib.interfaces.InputDialogListener
-import com.arny.arnylib.presenter.base.BaseMvpActivity
-import com.arny.arnylib.utils.*
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.data.Consts
 import com.arny.flightlogbook.data.Local
 import com.arny.flightlogbook.data.models.AircraftType
 import com.arny.flightlogbook.data.models.Flight
-import com.arny.flightlogbook.data.source.MainRepository
+import com.arny.flightlogbook.presenter.base.BaseMvpActivity
 import com.arny.flightlogbook.presenter.types.AirplaneTypesActivity
+import com.arny.flightlogbook.utils.*
+import com.arny.flightlogbook.utils.dialogs.InputDialogListener
+import com.arny.flightlogbook.utils.dialogs.inputDialog
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment
 import com.redmadrobot.inputmask.MaskedTextChangedListener
 import io.reactivex.Observable
@@ -34,7 +34,6 @@ import java.math.BigDecimal
 import java.util.*
 
 class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(), AddEditContract.View, CalendarDatePickerDialogFragment.OnDateSetListener {
-    override val mPresenter = AddEditPresenter(MainRepository())
     private var motoCont: LinearLayout? = null
     private var strDesc: String? = null
     private var strDate: String? = null
@@ -58,6 +57,10 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
     private var dateTimeListener: MaskedTextChangedListener? = null
     private var imm: InputMethodManager? = null
     private val disposable = CompositeDisposable()
+
+    override fun initPresenter(): AddEditPresenter {
+        return AddEditPresenter()
+    }
 
     override fun setDescription(desc: String) {
 
@@ -99,7 +102,7 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
         toolbar.setTitle(R.string.str_edt)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         initUI()
-        if (Config.getBoolean("motoCheckPref", false, this@AddEditActivity)) {
+        if (Prefs.getBoolean("motoCheckPref", false, this@AddEditActivity)) {
             showMotoBtn()
         }
     }
@@ -175,10 +178,10 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
         dateTimeChoose.setOnClickListener { v ->
             val cdp = CalendarDatePickerDialogFragment()
                     .setOnDateSetListener(this@AddEditActivity)
-            cdp.show(supportFragmentManager, FRAG_TAG_DATE_PICKER)
+            cdp.show(supportFragmentManager, "fragment_date_picker_name")
         }
         edtRegNo.requestFocus()
-        mRowId = getIntentExtra<Int>(intent, Consts.DB.COLUMN_ID) ?: 0
+        mRowId = getIntentExtra<Long>(intent, Consts.DB.COLUMN_ID)?.toInt() ?: 0
         editable = mRowId != 0
         if (editable) {
             btnAddEdtItem?.text = getString(R.string.str_edt)
@@ -276,7 +279,7 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
 
     public override fun onSaveInstanceState(savedInstanceState: Bundle) {
         try {
-            savedInstanceState.putInt(LOGTIME_STATE_KEY, logTime)
+            savedInstanceState.putInt(Consts.Extras.LOGTIME_STATE_KEY, logTime)
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -285,14 +288,14 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
 
     override fun onResume() {
         super.onResume()
-        val id = getIntentExtra<Int>(intent, Consts.DB.COLUMN_ID)
+        val id = getIntentExtra<Long>(intent, Consts.DB.COLUMN_ID)
         mPresenter.initState(id)
-        fillInputs()
+//        fillInputs()
     }
 
     public override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        logTime = savedInstanceState.getInt(LOGTIME_STATE_KEY)
+        logTime = savedInstanceState.getInt(Consts.Extras.LOGTIME_STATE_KEY)
         fillEdtTime(logTime)
     }
 
@@ -417,7 +420,7 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
             logTime = setLogTimefromMoto(mMotoResult)
             logHours = logTime / 60
             logMinutes = logTime % 60
-            edtTime?.setText(String.format("%s:%s", MathUtils.pad(logHours), MathUtils.pad(logMinutes)))
+            edtTime?.setText(String.format("%s:%s", DateTimeUtils.pad(logHours), DateTimeUtils.pad(logMinutes)))
         }.setNegativeButton(getString(R.string.str_cancel)) { dialog, id -> dialog.cancel() }
         alertDialog.show()
     }
@@ -443,7 +446,7 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
                 logHours = 1
                 logMinutes -= 60
             }
-            edtTime.setText(String.format("%s:%s", MathUtils.pad(logHours), MathUtils.pad(logMinutes)))
+            edtTime.setText(String.format("%s:%s", DateTimeUtils.pad(logHours), DateTimeUtils.pad(logMinutes)))
         } else if (inputLogtime.length > 2) {
             if (inputLogtime.contains(":")) {
                 logMinutes = Integer.parseInt(edtTime!!.text.toString().substring(inputLogtime.length - 2, inputLogtime.length))
@@ -453,11 +456,11 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
                 logHours = Integer.parseInt(edtTime!!.text.toString().substring(0, inputLogtime.length - 2))
             }
             if (logMinutes > 59) {
-                logHours = logHours + 1
-                logMinutes = logMinutes - 60
+                logHours += 1
+                logMinutes -= 60
             }
             logTime = logHours * 60 + logMinutes
-            edtTime!!.setText(String.format("%s:%s", MathUtils.pad(logHours), MathUtils.pad(logMinutes)))
+            edtTime.setText(String.format("%s:%s", DateTimeUtils.pad(logHours), DateTimeUtils.pad(logMinutes)))
         }
     }
 
@@ -476,15 +479,15 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
     }
 
     private fun AddAirplaneTypes() {
-        DroidUtils.simpleInputDialog(this@AddEditActivity, getString(R.string.str_add_airplane_types), getString(R.string.str_ok), getString(R.string.str_cancel), InputType.TYPE_CLASS_TEXT, object : InputDialogListener {
-            override fun onConfirm(content: String) {
+        inputDialog(this, getString(R.string.str_add_airplane_types), inputType = InputType.TYPE_CLASS_TEXT, dialogListener = object : InputDialogListener {
+            override fun onCancel() {
+
+            }
+
+            override fun onConfirm(content: String?) {
                 airplane_type = content
                 Local.addType(airplane_type, this@AddEditActivity)
                 fillInputs()
-            }
-
-            override fun onError(error: String) {
-                ToastMaker.toastError(this@AddEditActivity, error)
             }
         })
     }
@@ -500,27 +503,27 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
                 }
                 strDesc = flight.description
                 edtDesc?.setText(strDesc)
-                mDateTime = flight.datetime
-                strDate = DateTimeUtils.getDateTime(flight.datetime, "dd.MM.yyyy")
+                mDateTime = flight.datetime ?: 0
+                strDate = DateTimeUtils.getDateTime(flight.datetime ?: 0, "dd.MM.yyyy")
                 edtDate?.setText(strDate)
-                logTime = flight!!.logtime
-                reg_no = flight!!.reg_no
-                edtRegNo!!.setText(reg_no)
-                edtTime!!.setText(DateTimeUtils.strLogTime(logTime))
-                airplane_type_id = flight!!.airplanetypeid
-                var airplanetypetitle = flight!!.airplanetypetitle
+                logTime = flight.logtime ?: 0
+                reg_no = flight.reg_no
+                edtRegNo.setText(reg_no)
+                edtTime.setText(DateTimeUtils.strLogTime(logTime))
+                airplane_type_id = flight.aircraft_id ?: 0
+                var airplanetypetitle = flight.airplanetypetitle
                 if (Utility.empty(airplanetypetitle)) {
                     val aircraftTypeItem = Local.getTypeItem(airplane_type_id, this@AddEditActivity)
                     val airplType = aircraftTypeItem?.typeName
                     airplanetypetitle = if (Utility.empty(airplType)) getString(R.string.str_type_empty) else getString(R.string.str_type) + " " + airplType
                 }
-                tvAirplaneType!!.setText(airplanetypetitle)
-                day_night = flight!!.daynight
-                spinDayNight!!.setSelection(day_night)
-                ifr_vfr = flight!!.ifrvfr
-                spinVfrIfr!!.setSelection(ifr_vfr)
-                flight_type = flight!!.flighttype
-                spinFlightType!!.setSelection(flight_type)
+                tvAirplaneType.text = airplanetypetitle
+                day_night = flight.daynight ?: 0
+                spinDayNight.setSelection(day_night)
+                ifr_vfr = flight.ifrvfr ?: 0
+                spinVfrIfr.setSelection(ifr_vfr)
+                flight_type = flight.flighttype ?: 0
+                spinFlightType.setSelection(flight_type)
             }, { throwable -> ToastMaker.toastError(this, throwable.message) }))
         } else {
             initEmptyflight()
@@ -584,10 +587,5 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
         }
 
         edtDate!!.setText(DateTimeUtils.getDateTime(mDateTime, "dd.MM.yyyy"))
-    }
-
-    companion object {
-        private val LOGTIME_STATE_KEY = "com.arny.flightlogbook.extra.instance.time"
-        private val FRAG_TAG_DATE_PICKER = "fragment_date_picker_name"
     }
 }

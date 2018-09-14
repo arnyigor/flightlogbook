@@ -9,27 +9,28 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
-import android.view.*;
-
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
-import com.arny.arnylib.adapters.SimpleBindableAdapter;
-import com.arny.arnylib.interfaces.InputDialogListener;
-import com.arny.arnylib.utils.DroidUtils;
-import com.arny.arnylib.utils.Utility;
+
 import com.arny.flightlogbook.R;
-import com.arny.flightlogbook.adapter.TypeListHolder;
+import com.arny.flightlogbook.adapter.FlightTypesAdapter;
 import com.arny.flightlogbook.data.Local;
 import com.arny.flightlogbook.data.models.AircraftType;
-import io.reactivex.Observable;
+import com.arny.flightlogbook.utils.Utility;
+import com.arny.flightlogbook.utils.dialogs.ConfirmDialogListener;
+import com.arny.flightlogbook.utils.dialogs.DialogsKt;
+import com.arny.flightlogbook.utils.dialogs.InputDialogListener;
+
 import io.reactivex.disposables.CompositeDisposable;
 
-import java.util.List;
-
-public class TypeListFragment extends Fragment implements TypeListHolder.SimpleActionListener, View.OnClickListener {
+public class TypeListFragment extends Fragment implements View.OnClickListener {
 	private Context context;
-	private List<AircraftType> aircraftTypes;
-	private SimpleBindableAdapter<AircraftType, TypeListHolder> typeListAdapter;
+	private FlightTypesAdapter adapter;
 	private Button removeall;
 	private final CompositeDisposable disposable = new CompositeDisposable();
 
@@ -61,9 +62,23 @@ public class TypeListFragment extends Fragment implements TypeListHolder.SimpleA
 		RecyclerView recyclerView = view.findViewById(R.id.typelistView);
 		recyclerView.setLayoutManager(new LinearLayoutManager(context));
 		recyclerView.setItemAnimator(new DefaultItemAnimator());
-		typeListAdapter = new SimpleBindableAdapter<>(context, R.layout.typeitem, TypeListHolder.class);
-		typeListAdapter.setActionListener(this);
-		recyclerView.setAdapter(typeListAdapter);
+		adapter = new FlightTypesAdapter(context, new FlightTypesAdapter.FlightTypesListener() {
+			@Override
+			public void onTypeEdit(int position) {
+				DlgEdtType(position);
+			}
+
+			@Override
+			public void onTypeDelete(int position) {
+				DlgRemoveType(position);
+			}
+
+			@Override
+			public void onHolderItemClick(View view, int position, Object item) {
+
+			}
+		});
+		recyclerView.setAdapter(adapter);
 		removeall.setOnClickListener(this);
 		add.setOnClickListener(this);
 	}
@@ -81,29 +96,14 @@ public class TypeListFragment extends Fragment implements TypeListHolder.SimpleA
 	}
 
 	@Override
-	public void onItemClick(int position, Object Item) {
-
-	}
-
-	@Override
-	public void OnTypeEdit(int position) {
-		DlgEdtType(position);
-	}
-
-	@Override
-	public void OnTypeDelete(int position) {
-		DlgRemoveType(position);
-	}
-
-	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
 			case R.id.removeallTypes:
-				DroidUtils.alertConfirmDialog(context, getString(R.string.str_delete), () -> {
-					Local.removeAllTypes(context);
-					loadList();
-					setVisbltyBtnRemAll();
-				});
+//				DroidUtils.alertConfirmDialog(context, getString(R.string.str_delete), () -> {
+//					Local.removeAllTypes(context);
+//					loadList();
+//					setVisbltyBtnRemAll();
+//				});
 				break;
 			case R.id.addType:
 				DlgAddType();
@@ -113,14 +113,13 @@ public class TypeListFragment extends Fragment implements TypeListHolder.SimpleA
 
 	//str_add_airplane_types
 	public void DlgAddType() {
-		DroidUtils.simpleInputDialog(context, getString(R.string.str_add_airplane_types), getString(R.string.str_ok), getString(R.string.str_cancel), InputType.TYPE_CLASS_TEXT, new InputDialogListener() {
+		DialogsKt.inputDialog(context, getString(R.string.str_add_airplane_types), "", "", getString(R.string.str_ok), getString(R.string.str_cancel), false, InputType.TYPE_CLASS_TEXT, new InputDialogListener() {
 			@Override
 			public void onConfirm(String content) {
 				if (!Utility.empty(content)) {
 					int id = (int) Local.addType(content, context);
 					AircraftType aircraftType = Local.getTypeItem(id, context);
-					aircraftTypes.add(aircraftType);
-					typeListAdapter.add(aircraftType);
+					adapter.add(aircraftType);
 					setVisbltyBtnRemAll();
 				} else {
 					Toast.makeText(context, R.string.str_alarm_add_airplane_type, Toast.LENGTH_LONG).show();
@@ -128,15 +127,16 @@ public class TypeListFragment extends Fragment implements TypeListHolder.SimpleA
 			}
 
 			@Override
-			public void onError(String error) {
-				Toast.makeText(context, R.string.str_alarm_add_airplane_type, Toast.LENGTH_LONG).show();
+			public void onCancel() {
+
 			}
+
 		});
 	}
 
 	public void DlgEdtType(final int pos) {
-		final AircraftType aircraftType = Local.getTypeItem(aircraftTypes.get(pos).getTypeId(), context);
-		DroidUtils.simpleInputDialog(context, getString(R.string.str_edt_airplane_types), "", aircraftType.getTypeName(), getString(R.string.str_ok), getString(R.string.str_cancel), InputType.TYPE_CLASS_TEXT, new InputDialogListener() {
+		final AircraftType aircraftType = Local.getTypeItem(adapter.getItem(pos).getTypeId(), context);
+		DialogsKt.inputDialog(context, getString(R.string.str_edt_airplane_types), "", aircraftType.getTypeName(), getString(R.string.str_ok), getString(R.string.str_cancel), false, InputType.TYPE_CLASS_TEXT, new InputDialogListener() {
 			@Override
 			public void onConfirm(String content) {
 				if (!Utility.empty(content)) {
@@ -144,48 +144,51 @@ public class TypeListFragment extends Fragment implements TypeListHolder.SimpleA
 					t.setTypeId(aircraftType.getTypeId());
 					t.setTypeName(content);
 					Local.updateType(content, aircraftType.getTypeId());
-					aircraftTypes.set(pos, t);
-					typeListAdapter.set(pos, t);
+					adapter.add(pos, t);
 				} else {
 					Toast.makeText(context, R.string.str_alarm_add_airplane_type, Toast.LENGTH_LONG).show();
 				}
 			}
 
 			@Override
-			public void onError(String error) {
-				Toast.makeText(context, R.string.str_alarm_add_airplane_type, Toast.LENGTH_LONG).show();
+			public void onCancel() {
+
 			}
 		});
 	}
 
-	public void DlgRemoveType(final int pos) {
-		final AircraftType aircraftType = Local.getTypeItem(aircraftTypes.get(pos).getTypeId(), context);
-		DroidUtils.alertConfirmDialog(context, getString(R.string.str_remove_airplane_types), () -> {
-			Local.removeType(aircraftType.getTypeId(), context);
-			aircraftTypes.remove(pos);
-			typeListAdapter.removeChild(pos);
-			setVisbltyBtnRemAll();
+	public void DlgRemoveType(int pos) {
+		final AircraftType aircraftType = Local.getTypeItem(adapter.getItem(pos).getTypeId(), context);
+		DialogsKt.confirmDialog(context, "", null, "Да", "Нет", false, new ConfirmDialogListener() {
+			@Override
+			public void onConfirm() {
+				Local.removeType(aircraftType.getTypeId(), context);
+				adapter.remove(pos);
+				setVisbltyBtnRemAll();
+			}
+
+			@Override
+			public void onCancel() {
+
+			}
 		});
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-		loadList();
 	}
 
 	private void loadList() {
-		disposable.add(Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getTypeList(context))).subscribe(types1 -> {
-			aircraftTypes = types1;
-			typeListAdapter.clear();
-			typeListAdapter.addAll(aircraftTypes);
-			setVisbltyBtnRemAll();
-		}));
+//		disposable.add(Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getTypeList(context))).subscribe(types1 -> {
+//			aircraftTypes = types1;
+//			adapter.clear();
+//			adapter.addAll(aircraftTypes);
+//			setVisbltyBtnRemAll();
+//		}));
 	}
 
 	private void setVisbltyBtnRemAll() {
-		if (aircraftTypes != null) {
-			removeall.setVisibility(aircraftTypes.size() >= 1 ? View.VISIBLE : View.GONE);
-		}
+		removeall.setVisibility(adapter.getItems().size() >= 1 ? View.VISIBLE : View.GONE);
 	}
 }

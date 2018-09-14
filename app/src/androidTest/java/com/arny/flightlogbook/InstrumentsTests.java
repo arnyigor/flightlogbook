@@ -1,13 +1,15 @@
 package com.arny.flightlogbook;
+
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
-import com.arny.arnylib.utils.DateTimeUtils;
-import com.arny.arnylib.utils.MathUtils;
-import com.arny.arnylib.utils.generators.Generator;
+
 import com.arny.flightlogbook.data.Local;
 import com.arny.flightlogbook.data.models.Flight;
+import com.arny.flightlogbook.utils.DateTimeUtils;
+import com.arny.flightlogbook.utils.MathUtils;
+
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +42,13 @@ public class InstrumentsTests {
 				String dateTime = DateTimeUtils.getDateTime(dateFormat);
 				flight.setDatetime(DateTimeUtils.getDateTime(dateTime, dateFormat).getMillis());
 				flight.setLogtime(MathUtils.randInt(10, 60));
-				long addFlight = Local.addFlight(flight.getDatetime(), flight.getLogtime(), flight.getReg_no(), flight.getAirplanetypeid(), flight.getDaynight(), flight.getIfrvfr(), flight.getFlighttype(), flight.getDescription(), context);
+				Integer airplanetypeid = flight.getAircraft_id() == null ? 0 : flight.getAircraft_id();
+				Integer daynight = flight.getDaynight() == null ? 0 : flight.getDaynight();
+				Integer ifrvfr = flight.getIfrvfr() == null ? 0 : flight.getIfrvfr();
+				Integer flighttype = flight.getFlighttype() == null ? 0 : flight.getFlighttype();
+				Long datetime = flight.getDatetime() == null ? 0 : flight.getDatetime();
+				Integer logtime = flight.getLogtime() == null ? 0 : flight.getLogtime();
+				long addFlight = Local.addFlight(datetime, logtime, flight.getReg_no(), airplanetypeid, daynight, ifrvfr, flighttype, flight.getDescription(), context);
 				Log.i(InstrumentsTests.class.getSimpleName(), "ab_generateObjects iter " + i + ":  = " + flight);
 				if (addFlight > 0) {
 					flights.add(flight);

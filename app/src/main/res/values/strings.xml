@@ -3,7 +3,7 @@
 	<string name="str_add">Добавить</string>
 	<string name="str_edt">Редактировать</string>
     <string name="str_delete">Удалить</string>
-    <string name="str_clearall">Очистить все</string>
+    <string name="str_clearall">Очистить все?</string>
 	<string name="str_ok">OK</string>
     <string name="str_cancel">Отмена</string>
 	<string name="str_desc">Описание</string>
@@ -131,9 +131,10 @@
 	<string name="dropbox_sync_warning_content">Включена настройка сохранения базы данных при загрузке файла Dropbox.Загрузить?
 	</string>
 	<string name="item_updated">Запись обновлена</string>
-	<string name="loading_totals">Обновление данных...</string>
+	<string name="loading_totals">Обновление данных…</string>
 	<string name="total_records">Всего записей:</string>
 	<string name="record_not_found">Запись не найдена</string>
+    <string name="choose_action">Выберите действие</string>
 
 
 </resources>

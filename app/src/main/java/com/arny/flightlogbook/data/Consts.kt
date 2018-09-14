@@ -4,7 +4,8 @@ object Consts {
 
     object DB {
         const val DB_NAME = "PilotDB"
-        const val DB_VERSION = 12
+        const val DB_VERSION = 14
+        const val DB_VERSION_OLD = 12
         //Table Name
         const val MAIN_TABLE = "main_table"
         const val TYPE_TABLE = "type_table"
@@ -25,7 +26,7 @@ object Consts {
         const val EXEL_FILE_NAME = "PilotLogBook.xls"
     }
 
-    object Prefs {
+    object PrefsConsts {
         const val DROPBOX_AUTOIMPORT_TO_DB = "dropbox_autoimport_to_db"
         const val CONFIG_USER_FILTER_FLIGHTS = "config_user_filter_flights"
     }
@@ -33,5 +34,9 @@ object Consts {
     object RequestCodes {
         const val REQUEST_EXTERNAL_STORAGE_XLS = 110
         const val REQUEST_DBX_EXTERNAL_STORAGE = 101
+    }
+
+    object Extras {
+        const val LOGTIME_STATE_KEY = "com.arny.flightlogbook.extra.instance.time"
     }
 }

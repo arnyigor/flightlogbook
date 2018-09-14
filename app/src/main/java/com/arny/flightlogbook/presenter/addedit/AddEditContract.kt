@@ -1,9 +1,9 @@
 package com.arny.flightlogbook.presenter.addedit
 
-import com.arny.arnylib.presenter.base.BaseMvpPresenter
-import com.arny.arnylib.presenter.base.BaseMvpView
 import com.arny.flightlogbook.data.models.AircraftType
 import com.arny.flightlogbook.data.models.Flight
+import com.arny.flightlogbook.presenter.base.BaseMvpPresenter
+import com.arny.flightlogbook.presenter.base.BaseMvpView
 
 object AddEditContract {
     interface View : BaseMvpView {
@@ -21,9 +21,9 @@ object AddEditContract {
     }
 
     interface Presenter : BaseMvpPresenter<View> {
-        fun initState(id: Int?)
+        fun initState(id: Long?)
         fun initEmptyUI()
-        fun initUIFromId(id: Int)
+        fun initUIFromId(id: Long?)
         fun setUIFromFlight(flight: Flight)
     }
 }

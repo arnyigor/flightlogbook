@@ -3,20 +3,20 @@ package com.arny.flightlogbook
 import android.app.Application
 import android.content.Context
 import android.support.multidex.MultiDex
-import com.arny.arnylib.database.DBProvider
+import android.util.Log
 import com.arny.flightlogbook.data.Consts
-import com.arny.flightlogbook.di.components.ApplicationComponent
-import com.arny.flightlogbook.di.components.DaggerApplicationComponent
-import com.arny.flightlogbook.di.modules.AndroidModule
+import com.arny.flightlogbook.data.db.MainDB
+import com.arny.flightlogbook.utils.DBProvider
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.core.CrashlyticsCore
 import com.facebook.stetho.Stetho
 import io.fabric.sdk.android.Fabric
 
 class FlightApp : Application() {
+
     companion object {
-        //platformStatic allow access it from java code
-        @JvmStatic lateinit var applicationComponent: ApplicationComponent
+        @JvmStatic
+        lateinit var appContext: Context
     }
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(base)
@@ -25,14 +25,14 @@ class FlightApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        appContext = applicationContext
         val crashlyticsKit = Crashlytics.Builder()
                 .core(CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
                 .build()
-        // Инициализируем Fabric с выключенным crashlytics.
         Fabric.with(this, crashlyticsKit)
-        DBProvider.initDB(applicationContext, Consts.DB.DB_NAME, Consts.DB.DB_VERSION)
-        applicationComponent = DaggerApplicationComponent.builder().androidModule(AndroidModule(this)).build()
-        applicationComponent.inject(this)
+        val version = MainDB.getInstance(appContext).openHelper.readableDatabase.version
+        Log.i(FlightApp::class.java.simpleName, "onCreate: $version");
+        DBProvider.initDB(appContext, Consts.DB.DB_NAME, version)
         Stetho.initializeWithDefaults(this)
     }
 }

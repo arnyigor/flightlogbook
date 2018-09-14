@@ -1,2 +1,1 @@
-include ':app',':arnylib'
-project(':arnylib').projectDir = new File(rootProject.projectDir, 'modules/arnylib')
+include ':app'
