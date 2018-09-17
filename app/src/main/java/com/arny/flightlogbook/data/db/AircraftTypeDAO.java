@@ -13,10 +13,10 @@ import java.util.List;
 @Dao
 public interface AircraftTypeDAO {
 	@Query("SELECT * FROM type_table")
-	List<AircraftType> getTypes();
+	List<AircraftType> queryAircraftTypes();
 
 	@Query("SELECT * FROM type_table WHERE type_id=:id")
-	AircraftType getType(long id);
+	AircraftType queryAircraftType(long id);
 
 	@Query("SELECT COUNT(*) FROM type_table")
 	Cursor queryAirplaneTypesCount();

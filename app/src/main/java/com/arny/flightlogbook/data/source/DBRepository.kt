@@ -7,7 +7,6 @@ import io.reactivex.Observable
 
 interface DBRepository {
     fun getDb(): MainDB
-    fun getDbTypeList(where: String? = null): Observable<List<AircraftType>>?
     fun getDbFlights(order: String): Observable<ArrayList<Flight>>? {
         return Observable.fromCallable { getDb().flightDAO.queryFlightsWithOrder(order) }.map { it -> it as ArrayList<Flight> }
     }
@@ -15,11 +14,15 @@ interface DBRepository {
     fun getFlight(id: Long): Observable<Flight> {
         return Observable.fromCallable { getDb().flightDAO.queryFlight(id) }
                 .map {
-                    val type = getDb().aircraftTypeDAO.getType(it.aircraft_id?.toLong()
+                    val type = getDb().aircraftTypeDAO.queryAircraftType(it.aircraft_id?.toLong()
                             ?: 0)
                     it.airplanetypetitle = type.typeName
                     it
                 }
+    }
+
+    fun getAircraftTypes(): Observable<ArrayList<AircraftType>>? {
+        return Observable.fromCallable { getDb().aircraftTypeDAO.queryAircraftTypes() }.map { it -> it as ArrayList<AircraftType> }
     }
 
     fun getFlightsTime(): Observable<Int> {

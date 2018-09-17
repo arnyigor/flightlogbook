@@ -4,7 +4,7 @@ object Consts {
 
     object DB {
         const val DB_NAME = "PilotDB"
-        const val DB_VERSION = 14
+        const val DB_VERSION = 15
         const val DB_VERSION_OLD = 12
         //Table Name
         const val MAIN_TABLE = "main_table"
@@ -29,6 +29,7 @@ object Consts {
     object PrefsConsts {
         const val DROPBOX_AUTOIMPORT_TO_DB = "dropbox_autoimport_to_db"
         const val CONFIG_USER_FILTER_FLIGHTS = "config_user_filter_flights"
+        const val PREF_MOTO_TIME = "motoCheckPref"
     }
 
     object RequestCodes {

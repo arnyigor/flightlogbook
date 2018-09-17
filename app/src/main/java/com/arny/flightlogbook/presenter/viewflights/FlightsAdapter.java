@@ -31,10 +31,6 @@ public class FlightsAdapter extends AbstractRecyclerViewAdapter<Flight> {
             TextView logTime = (TextView) viewHolder.getView(R.id.tvLogTime);
             TextView tvType = (TextView) viewHolder.getView(R.id.tvType);
             RelativeLayout llItemBlock = (RelativeLayout) viewHolder.getView(R.id.itemBlock);
-//            int colorbg = ContextCompat.getColor(getContext(), R.color.colorTextGrayBg);
-//            int colorTransparent = ContextCompat.getColor(getContext(), R.color.colorTransparent);
-//            int color = viewHolder.getAdapterPosition() % 2 == 0 ? colorbg : colorTransparent;
-//            llItemBlock.setBackgroundColor(color);
             long datetime = item.getDatetime() == null ? 0 : item.getDatetime();
             if (datetime > 0) {
                 date.setText(DateTimeUtils.getDateTime(datetime, "dd MMM yyyy"));

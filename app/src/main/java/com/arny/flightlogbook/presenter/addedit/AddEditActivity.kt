@@ -11,7 +11,10 @@ import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
 import android.util.Log
-import android.view.*
+import android.view.KeyEvent
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import com.arny.flightlogbook.R
@@ -70,6 +73,7 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
     }
 
     override fun updateAircaftTypes(types: List<AircraftType>) {
+
     }
 
     override fun setDateTime(mDateTime: String) {
@@ -102,7 +106,7 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
         toolbar.setTitle(R.string.str_edt)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         initUI()
-        if (Prefs.getBoolean("motoCheckPref", false, this@AddEditActivity)) {
+        if (Prefs.getBoolean(Consts.PrefsConsts.PREF_MOTO_TIME, false, this@AddEditActivity)) {
             showMotoBtn()
         }
     }
@@ -184,10 +188,10 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
         mRowId = getIntentExtra<Long>(intent, Consts.DB.COLUMN_ID)?.toInt() ?: 0
         editable = mRowId != 0
         if (editable) {
-            btnAddEdtItem?.text = getString(R.string.str_edt)
+//            btnAddEdtItem?.text = getString(R.string.str_edt)
             title = getString(R.string.str_edt)
         } else {
-            btnAddEdtItem?.text = getString(R.string.str_add)
+//            btnAddEdtItem?.text = getString(R.string.str_add)
             title = getString(R.string.str_add)
         }
         edtTime?.setOnFocusChangeListener { view, inside ->
@@ -215,47 +219,23 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
             }
             false
         }
-        btnAddEdtItem?.setOnClickListener { v ->
-            var canEdit: Boolean
-            try {
-                if (!edtTime?.text.toString().contains(":")) {
-                    correctLogTime()
-                }
-                canEdit = true
-            } catch (e: Exception) {
-                ToastMaker.toastError(this, e.message)
-                canEdit = false
-            }
-
-            if (!canEdit) {
-                return@setOnClickListener
-            }
-            disposable.add(Utility.mainThreadObservable(Observable.fromCallable { saveState(edtDesc?.text.toString(), edtTime?.text.toString(), edtRegNo?.text.toString()) })
-                    .subscribe({ b ->
-                        val res = b ?: false
-                        if (res) {
-                            ToastMaker.toastSuccess(this, getString(R.string.item_updated))
-                            finish()
-                        }
-                    }, { throwable -> ToastMaker.toastError(this, throwable.message) }))
-        }
-        spinDayNight?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>,
-                                        itemSelected: View, selectedItemPosition: Int, selectedId: Long) {
-                day_night = selectedItemPosition
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>) {}
-        }
-        spinVfrIfr?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>,
-                                        itemSelected: View, selectedItemPosition: Int, selectedId: Long) {
-                ifr_vfr = selectedItemPosition
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>) {}
-        }
-        btnAddAirplaneTypes?.setOnClickListener { view -> AddAirplaneTypes() }
+//        spinDayNight?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+//            override fun onItemSelected(parent: AdapterView<*>,
+//                                        itemSelected: View, selectedItemPosition: Int, selectedId: Long) {
+//                day_night = selectedItemPosition
+//            }
+//
+//            override fun onNothingSelected(parent: AdapterView<*>) {}
+//        }
+//        spinVfrIfr?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+//            override fun onItemSelected(parent: AdapterView<*>,
+//                                        itemSelected: View, selectedItemPosition: Int, selectedId: Long) {
+//                ifr_vfr = selectedItemPosition
+//            }
+//
+//            override fun onNothingSelected(parent: AdapterView<*>) {}
+//        }
+//        btnAddAirplaneTypes?.setOnClickListener { view -> AddAirplaneTypes() }
         tvAirplaneType?.setOnClickListener { view ->
             disposable.add(Utility.mainThreadObservable(Observable.fromCallable { Local.getTypeList(this@AddEditActivity) })
                     .subscribe { types ->
@@ -270,6 +250,31 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
                         }
                     })
         }
+    }
+
+    fun addEdit() {
+        var canEdit: Boolean
+        try {
+            if (!edtTime?.text.toString().contains(":")) {
+                correctLogTime()
+            }
+            canEdit = true
+        } catch (e: Exception) {
+            ToastMaker.toastError(this, e.message)
+            canEdit = false
+        }
+
+        if (!canEdit) {
+            return
+        }
+        disposable.add(Utility.mainThreadObservable(Observable.fromCallable { saveState(edtDesc?.text.toString(), edtTime?.text.toString(), edtRegNo?.text.toString()) })
+                .subscribe({ b ->
+                    val res = b ?: false
+                    if (res) {
+                        ToastMaker.toastSuccess(this, getString(R.string.item_updated))
+                        finish()
+                    }
+                }, { throwable -> ToastMaker.toastError(this, throwable.message) }))
     }
 
     private fun setDayToday() {
@@ -288,9 +293,7 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
 
     override fun onResume() {
         super.onResume()
-        val id = getIntentExtra<Long>(intent, Consts.DB.COLUMN_ID)
-        mPresenter.initState(id)
-//        fillInputs()
+        mPresenter.initState(getIntentExtra<Long>(intent, Consts.DB.COLUMN_ID))
     }
 
     public override fun onRestoreInstanceState(savedInstanceState: Bundle) {
@@ -519,11 +522,11 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
                 }
                 tvAirplaneType.text = airplanetypetitle
                 day_night = flight.daynight ?: 0
-                spinDayNight.setSelection(day_night)
+//                spinDayNight.setSelection(day_night)
                 ifr_vfr = flight.ifrvfr ?: 0
-                spinVfrIfr.setSelection(ifr_vfr)
+//                spinVfrIfr.setSelection(ifr_vfr)
                 flight_type = flight.flighttype ?: 0
-                spinFlightType.setSelection(flight_type)
+//                spinFlightType.setSelection(flight_type)
             }, { throwable -> ToastMaker.toastError(this, throwable.message) }))
         } else {
             initEmptyflight()
@@ -555,9 +558,9 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
                 tvAirplaneType!!.text = getString(R.string.str_no_types)
             }
         }, { throwable -> ToastMaker.toastError(this, throwable.message) }))
-        spinDayNight!!.setSelection(day_night)
-        spinVfrIfr!!.setSelection(ifr_vfr)
-        spinFlightType!!.setSelection(flight_type)
+//        spinDayNight!!.setSelection(day_night)
+//        spinVfrIfr!!.setSelection(ifr_vfr)
+//        spinFlightType!!.setSelection(flight_type)
     }
 
     @Throws(Exception::class)
@@ -566,9 +569,9 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
         this.strDesc = strDesc
         this.strTime = strTime
         this.reg_no = reg_no
-        day_night = spinDayNight!!.selectedItemId.toInt()
-        ifr_vfr = spinVfrIfr!!.selectedItemId.toInt()
-        flight_type = spinFlightType!!.selectedItemId.toInt()
+//        day_night = spinDayNight!!.selectedItemId.toInt()
+//        ifr_vfr = spinVfrIfr!!.selectedItemId.toInt()
+//        flight_type = spinFlightType!!.selectedItemId.toInt()
         if (mRowId == 0) {
             val res = Local.addFlight(mDateTime, logTime, this.reg_no, airplane_type_id, day_night, ifr_vfr, flight_type, this.strDesc, this@AddEditActivity)
             return res > 0

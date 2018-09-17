@@ -5,13 +5,10 @@ import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
 import android.content.Context
 import com.arny.flightlogbook.data.Consts
-import com.arny.flightlogbook.data.models.AircraftType
-import com.arny.flightlogbook.data.models.Flight
-import com.arny.flightlogbook.data.models.FlightType
-import com.arny.flightlogbook.data.models.Migrations
+import com.arny.flightlogbook.data.models.*
 import com.arny.flightlogbook.utils.SingletonHolder
 
-@Database(entities = [Flight::class, AircraftType::class, FlightType::class, Migrations::class], version = Consts.DB.DB_VERSION, exportSchema = false)
+@Database(entities = [Flight::class, AircraftType::class, FlightType::class, FlightTypeValue::class, Migrations::class], version = Consts.DB.DB_VERSION, exportSchema = false)
 abstract class MainDB : RoomDatabase() {
     companion object : SingletonHolder<MainDB, Context>({
         Room.databaseBuilder(it.applicationContext,
@@ -20,7 +17,8 @@ abstract class MainDB : RoomDatabase() {
                 .build()
     })
     abstract val flightDAO: FlightDAO
-//    abstract val flightTypeDAO: FlightTypeDAO
+    abstract val flightTypeDAO: FlightTypeDAO
+    abstract val aircraftTypeValueDAO: FlightTypeValueDAO
     abstract val aircraftTypeDAO: AircraftTypeDAO
 
 }

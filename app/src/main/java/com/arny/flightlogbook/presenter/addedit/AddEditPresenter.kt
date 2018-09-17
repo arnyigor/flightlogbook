@@ -25,7 +25,6 @@ class AddEditPresenter : BaseMvpPresenterImpl<AddEditContract.View>(), AddEditCo
         mView?.setSpinIfrVfr(flight.ifrvfr ?: 0)
         mView?.setFlightType(flight.flighttype ?: 0)
     }
-
     override fun initUIFromId(id: Long?) {
         Utility.mainThreadObservable(repository.getFlight(id ?: 0))
                 .subscribe({
@@ -46,7 +45,7 @@ class AddEditPresenter : BaseMvpPresenterImpl<AddEditContract.View>(), AddEditCo
         mView?.setDate("")
     }
     private fun loadPLaneTypes() {
-        Utility.mainThreadObservable(repository.getDbTypeList())
+        Utility.mainThreadObservable(repository.getAircraftTypes())
                 .subscribe({
                     if (it != null) {
                         mView?.updateAircaftTypes(it)
@@ -58,10 +57,9 @@ class AddEditPresenter : BaseMvpPresenterImpl<AddEditContract.View>(), AddEditCo
                     it.printStackTrace()
                 })
     }
-
     override fun initState(id: Long?) {
         loadPLaneTypes()
-        if (id != null) {
+        if (id != null && id != 0L) {
             initUIFromId(id)
         } else {
             initEmptyUI()
