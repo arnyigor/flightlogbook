@@ -1,11 +1,13 @@
 package com.arny.flightlogbook.presenter.addedit
 
+import android.annotation.SuppressLint
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.data.models.Flight
 import com.arny.flightlogbook.data.source.MainRepositoryImpl
 import com.arny.flightlogbook.presenter.base.BaseMvpPresenterImpl
 import com.arny.flightlogbook.utils.DateTimeUtils
 import com.arny.flightlogbook.utils.Utility
+import com.arny.flightlogbook.utils.observeOnMain
 
 
 class AddEditPresenter : BaseMvpPresenterImpl<AddEditContract.View>(), AddEditContract.Presenter {
@@ -25,11 +27,14 @@ class AddEditPresenter : BaseMvpPresenterImpl<AddEditContract.View>(), AddEditCo
         mView?.setSpinIfrVfr(flight.ifrvfr ?: 0)
         mView?.setFlightType(flight.flighttype ?: 0)
     }
+
+    @SuppressLint("CheckResult")
     override fun initUIFromId(id: Long?) {
-        Utility.mainThreadObservable(repository.getFlight(id ?: 0))
-                .subscribe({
-                    if (it != null) {
-                        setUIFromFlight(it)
+        repository.getFlight(id ?: 0).observeOnMain()
+                .subscribe({ nulable ->
+                    val flight = nulable.value
+                    if (flight != null) {
+                        setUIFromFlight(flight)
                     } else {
                         mView?.toastError(repository.getString(R.string.record_not_found))
                         initEmptyUI()
@@ -40,12 +45,16 @@ class AddEditPresenter : BaseMvpPresenterImpl<AddEditContract.View>(), AddEditCo
                     mView?.toastError(repository.getString(R.string.record_not_found) + ":" + it.message)
                 }
     }
+
     override fun initEmptyUI() {
         mView?.setDescription("")
         mView?.setDate("")
     }
+
+    @SuppressLint("CheckResult")
     private fun loadPLaneTypes() {
-        Utility.mainThreadObservable(repository.getAircraftTypes())
+        val observable = repository.getAircraftTypes()
+        observable.observeOnMain()
                 .subscribe({
                     if (it != null) {
                         mView?.updateAircaftTypes(it)
@@ -57,6 +66,7 @@ class AddEditPresenter : BaseMvpPresenterImpl<AddEditContract.View>(), AddEditCo
                     it.printStackTrace()
                 })
     }
+
     override fun initState(id: Long?) {
         loadPLaneTypes()
         if (id != null && id != 0L) {

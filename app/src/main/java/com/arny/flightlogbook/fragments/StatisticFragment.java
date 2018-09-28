@@ -9,7 +9,7 @@ import android.support.v4.app.Fragment;
 import android.view.*;
 import android.widget.*;
 import com.arny.flightlogbook.utils.DateTimeUtils;
-import com.arny.flightlogbook.utils.Utility;
+import com.arny.flightlogbook.utils.RxUtilsKt;
 import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.data.Local;
 import com.arny.flightlogbook.data.models.Flight;
@@ -105,7 +105,7 @@ public class StatisticFragment extends Fragment {
 
 	//функция статистики
 	private void getStatistic() {
-		disposable.add(Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getStatistic(getFilterQuery(), ctx)))
+		disposable.add(RxUtilsKt.mainThreadObservable(Observable.fromCallable(() -> Local.getStatistic(getFilterQuery(), ctx)))
 				.subscribe(result -> {
 					statistics = result;
 					refreshAdapter();
@@ -114,7 +114,7 @@ public class StatisticFragment extends Fragment {
 
 	//начальные данные времени
 	private void startInitDateTime() {
-		disposable.add(Utility.mainThreadObservable(Observable.fromCallable(() -> Local.getFlightListByDate(ctx))).subscribe(flights -> {
+		disposable.add(RxUtilsKt.mainThreadObservable(Observable.fromCallable(() -> Local.getFlightListByDate(ctx))).subscribe(flights -> {
 			FlightData = flights;
 			if (FlightData.size() > 0) {
 				startdatetime = FlightData.get(0).getDatetime();

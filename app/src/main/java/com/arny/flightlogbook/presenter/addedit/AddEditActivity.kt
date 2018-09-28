@@ -237,7 +237,7 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
 //        }
 //        btnAddAirplaneTypes?.setOnClickListener { view -> AddAirplaneTypes() }
         tvAirplaneType?.setOnClickListener { view ->
-            disposable.add(Utility.mainThreadObservable(Observable.fromCallable { Local.getTypeList(this@AddEditActivity) })
+            disposable.add( mainThreadObservable(Observable.fromCallable { Local.getTypeList(this@AddEditActivity) })
                     .subscribe { types ->
                         typeList.clear()
                         for (aircraftType in types) {
@@ -267,7 +267,7 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
         if (!canEdit) {
             return
         }
-        disposable.add(Utility.mainThreadObservable(Observable.fromCallable { saveState(edtDesc?.text.toString(), edtTime?.text.toString(), edtRegNo?.text.toString()) })
+        disposable.add(mainThreadObservable(Observable.fromCallable { saveState(edtDesc?.text.toString(), edtTime?.text.toString(), edtRegNo?.text.toString()) })
                 .subscribe({ b ->
                     val res = b ?: false
                     if (res) {
@@ -497,7 +497,7 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
 
     private fun fillInputs() {
         if (mRowId != 0) {
-            disposable.add(Utility.mainThreadObservable<Flight>(Observable.fromCallable<Flight> { Local.getFlightItem(mRowId, this@AddEditActivity) }).subscribe({ flight ->
+            disposable.add(mainThreadObservable<Flight>(Observable.fromCallable<Flight> { Local.getFlightItem(mRowId, this@AddEditActivity) }).subscribe({ flight ->
                 Log.d(AddEditActivity::class.java.simpleName, "fillInputs: flight:" + flight!!)
                 if (flight == null) {
                     initEmptyflight()
@@ -545,7 +545,7 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
         day_night = 0
         ifr_vfr = 0
         flight_type = 0
-        disposable.add(Utility.mainThreadObservable(Observable.fromCallable { Local.getTypeList(this@AddEditActivity) }).subscribe({ types ->
+        disposable.add(mainThreadObservable(Observable.fromCallable { Local.getTypeList(this@AddEditActivity) }).subscribe({ types ->
             typeList.clear()
             for (aircraftType in types) {
                 typeList.add(aircraftType.typeName ?: "")

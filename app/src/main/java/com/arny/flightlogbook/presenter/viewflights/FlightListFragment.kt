@@ -24,6 +24,7 @@ import com.arny.flightlogbook.utils.dialogs.ConfirmDialogListener
 import com.arny.flightlogbook.utils.dialogs.ListDialogListener
 import com.arny.flightlogbook.utils.dialogs.confirmDialog
 import com.arny.flightlogbook.utils.dialogs.listDialog
+import com.arny.flightlogbook.utils.observeOnMain
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.fragment_flight_list.*
@@ -84,9 +85,7 @@ class FlightListFragment : BaseMvpFragment<ViewFlightsContract.View, ViewFlights
         filter.addCategory(Intent.CATEGORY_DEFAULT)
         context?.let { ctx ->
             LocalBroadcastManager.getInstance(ctx).registerReceiver(broadcastReceiver, filter)
-            Utility.mainThreadObservable(Observable.fromCallable {
-                Utility.isMyServiceRunning(BackgroundIntentService::class.java, ctx)
-            }).subscribe({ running ->
+            Observable.fromCallable { Utility.isMyServiceRunning(BackgroundIntentService::class.java, ctx) }.observeOnMain().subscribe({ running ->
                 if (!running) {
                     initFlights()
                 }

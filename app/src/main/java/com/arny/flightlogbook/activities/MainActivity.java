@@ -33,9 +33,10 @@ import com.arny.flightlogbook.fragments.StatisticFragment;
 import com.arny.flightlogbook.presenter.types.AirplaneTypesActivity;
 import com.arny.flightlogbook.presenter.types.TypeListFragment;
 import com.arny.flightlogbook.presenter.viewflights.FlightListFragment;
-import com.arny.flightlogbook.utils.AppCompatActivityExtKt;
+import com.arny.flightlogbook.utils.ExtentionsKt;
 import com.arny.flightlogbook.utils.BasePermissions;
 import com.arny.flightlogbook.utils.Prefs;
+import com.arny.flightlogbook.utils.RxUtilsKt;
 import com.arny.flightlogbook.utils.ToastMaker;
 import com.arny.flightlogbook.utils.Utility;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
@@ -61,7 +62,6 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 	private static final int MENU_TYPES = 1;
 	private static final int MENU_STATS = 2;
 	private static final String DRAWER_SELECTION = "drawer_selection";
-	private int mOperation;
 	private String mOperationResult, notif;
 	private Drawer drawer = null;
 	private Toolbar toolbar;
@@ -222,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 				break;
 		}
 		if (fragment != null) {
-			AppCompatActivityExtKt.replaceFragmentInActivity(this, fragment, R.id.container);
+			ExtentionsKt.replaceFragmentInActivity(this, fragment, R.id.container);
 			drawer.closeDrawer();
 		}
 	}
@@ -266,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 		IntentFilter filter = new IntentFilter(BackgroundIntentService.ACTION);
 		filter.addCategory(Intent.CATEGORY_DEFAULT);
 		LocalBroadcastManager.getInstance(context).registerReceiver(broadcastReceiver, filter);
-		Utility.mainThreadObservable(Observable.fromCallable(() ->
+		RxUtilsKt.mainThreadObservable(Observable.fromCallable(() ->
 				Utility.isMyServiceRunning(BackgroundIntentService.class, MainActivity.this)))
 				.subscribe(aBoolean -> {
 					if (aBoolean) {
@@ -391,7 +391,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 				break;
 			case SAVE_FILE_RESULT_CODE:
 				if (resultCode == RESULT_OK && data != null && data.getData() != null) {
-					String theFilePath = data.getData().getPath();
+					 data.getData().getPath();
 				}
 				break;
 		}
@@ -416,7 +416,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 		public void onReceive(Context context, Intent intent) {
 			try {
 				finishOperation = intent.getBooleanExtra(BackgroundIntentService.EXTRA_KEY_FINISH, false);
-				mOperation = intent.getIntExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_IMPORT_SD);
+			 intent.getIntExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_IMPORT_SD);
 				mOperationResult = intent.getStringExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_RESULT);
 				operationSuccess = intent.getBooleanExtra(BackgroundIntentService.EXTRA_KEY_FINISH_SUCCESS, false);
 			} catch (Exception e) {
@@ -491,14 +491,14 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerLi
 	public void updateNavDrawerCounts() {
 		PrimaryDrawerItem itemNewTask = (PrimaryDrawerItem) drawer.getDrawerItem(MENU_FLIGHTS);
 		PrimaryDrawerItem itemCompleteTask = (PrimaryDrawerItem) drawer.getDrawerItem(MENU_TYPES);
-		disposable.add(Utility.mainThreadObservable(repository.getFlightsCount())
+		disposable.add(RxUtilsKt.mainThreadObservable(repository.getFlightsCount())
 				.subscribe(flights -> {
 					if (itemNewTask != null && drawer != null) {
 						itemNewTask.withBadge(String.valueOf(flights)).withBadgeStyle(new BadgeStyle().withTextColorRes(R.color.colorAccent));
 						drawer.updateItem(itemNewTask);
 					}
 				}));
-		disposable.add(Utility.mainThreadObservable(repository.getAircraftTypesCount())
+		disposable.add(RxUtilsKt.mainThreadObservable(repository.getAircraftTypesCount())
 				.subscribe(types -> {
 					if (itemCompleteTask != null && drawer != null) {
 						itemCompleteTask.withBadge(String.valueOf(types)).withBadgeStyle(new BadgeStyle().withTextColorRes(R.color.colorAccent));

@@ -6,7 +6,7 @@ import com.arny.flightlogbook.data.models.Flight
 import com.arny.flightlogbook.data.source.MainRepositoryImpl
 import com.arny.flightlogbook.presenter.base.BaseMvpPresenterImpl
 import com.arny.flightlogbook.utils.DateTimeUtils
-import com.arny.flightlogbook.utils.Utility
+import com.arny.flightlogbook.utils.observeOnMain
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 
@@ -15,7 +15,7 @@ class ViewFlightsPresenter : BaseMvpPresenterImpl<ViewFlightsContract.View>(), V
     private val repository = MainRepositoryImpl.instance
 
     private fun getTotals() {
-        Utility.mainThreadObservable(Observable.zip<Int, Int, String>(
+        val disposable = Observable.zip<Int, Int, String>(
                 repository.getFlightsTime(),
                 repository.getFlightsCount(),
                 BiFunction { time: Int, cnt: Int ->
@@ -24,7 +24,7 @@ class ViewFlightsPresenter : BaseMvpPresenterImpl<ViewFlightsContract.View>(), V
                             DateTimeUtils.strLogTime(time),
                             repository.getString(R.string.total_records),
                             cnt)
-                }))
+                }).observeOnMain()
                 .subscribe({ time ->
                     getView()?.displayTotalTime(time)
                 }, {
@@ -35,7 +35,7 @@ class ViewFlightsPresenter : BaseMvpPresenterImpl<ViewFlightsContract.View>(), V
     override fun loadFlights() {
         val order = getFilterflights(repository.getPrefInt(Consts.PrefsConsts.CONFIG_USER_FILTER_FLIGHTS)
                 ?: 0)
-        Utility.mainThreadObservable(repository.getDbFlights(order))
+        val disposable = repository.getDbFlights(order).observeOnMain()
                 .subscribe({ flights ->
                     if (flights.isNotEmpty()) {
                         getView()?.updateAdapter(flights)
@@ -47,7 +47,7 @@ class ViewFlightsPresenter : BaseMvpPresenterImpl<ViewFlightsContract.View>(), V
     }
 
     override fun removeAllFlights() {
-        Utility.mainThreadObservable(repository.removeAllFlights())
+        val subscribe = repository.removeAllFlights().observeOnMain()
                 .subscribe({ removed ->
                     if (removed) {
                         loadFlights()
@@ -61,7 +61,8 @@ class ViewFlightsPresenter : BaseMvpPresenterImpl<ViewFlightsContract.View>(), V
 
     override fun removeItem(item: Flight?) {
         if (item?.id != null) {
-            Utility.mainThreadObservable(repository.removeFlight(item.id!!))
+            val disposable = repository.removeFlight(item.id!!)
+                    .observeOnMain()
                     .subscribe({
                         loadFlights()
                     }, {

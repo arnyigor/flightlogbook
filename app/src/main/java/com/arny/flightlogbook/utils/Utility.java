@@ -487,44 +487,6 @@ public class Utility {
         return DatabaseUtils.dumpCursorToString(cursor);
     }
 
-
-    public static <T> Observable<T> IOThreadObservable(Observable<T> observable) {
-        return observable.subscribeOn(Schedulers.io());
-    }
-
-    public static <T> Observable<T> IOThreadObservable(Scheduler scheduler, Observable<T> observable) {
-        return observable.subscribeOn(scheduler);
-    }
-
-    public static <T> Observable<T> observeOnMainThread(Observable<T> observable) {
-        return observable.observeOn(AndroidSchedulers.mainThread());
-    }
-
-    public static <T> Observable<T> mainThreadObservable(Observable<T> observable) {
-        return observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
-    }
-
-    public static <T> Single<T> mainThreadObservable(Single<T> observable) {
-        return mainThreadObservable(Schedulers.io(), observable);
-    }
-
-    public static <T> Single<T> mainThreadObservable(Scheduler scheduler, Single<T> observable) {
-        return observable.subscribeOn(scheduler).observeOn(AndroidSchedulers.mainThread());
-    }
-
-    public static <T> Observable<T> mainThreadObservable(Scheduler scheduler, Observable<T> observable) {
-        return observable.subscribeOn(scheduler).observeOn(AndroidSchedulers.mainThread());
-    }
-
-    public static <T> Flowable<T> mainThreadObservable(Flowable<T> flowable) {
-        return flowable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
-    }
-
-    public static <T> Flowable<T> mainThreadObservable(Scheduler scheduler, Flowable<T> flowable) {
-        return flowable.subscribeOn(scheduler).observeOn(AndroidSchedulers.mainThread());
-    }
-
-
     @NonNull
     public static <T> ArrayList<T> getListCopy(List<T> list) {
         ArrayList<T> arrayList = new ArrayList<>();

@@ -1,6 +1,8 @@
 package com.arny.flightlogbook.utils
 
 
+import android.content.Intent
+import android.os.Bundle
 import android.support.annotation.IdRes
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
@@ -60,4 +62,12 @@ private inline fun FragmentManager.transact(action: FragmentTransaction.() -> Un
     beginTransaction().apply {
         action()
     }.commit()
+}
+
+fun <T> Intent?.getExtra(extraName: String): T? {
+    return this?.extras?.get(extraName) as? T
+}
+
+fun <T> Bundle?.getExtra(extraName: String): T? {
+    return this?.get(extraName) as? T
 }
