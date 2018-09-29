@@ -2,6 +2,7 @@ package com.arny.flightlogbook.presenter.addedit
 
 import android.annotation.SuppressLint
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.data.models.AircraftType
 import com.arny.flightlogbook.data.models.Flight
 import com.arny.flightlogbook.data.source.MainRepositoryImpl
 import com.arny.flightlogbook.presenter.base.BaseMvpPresenterImpl
@@ -13,6 +14,9 @@ import com.arny.flightlogbook.utils.observeOnMain
 class AddEditPresenter : BaseMvpPresenterImpl<AddEditContract.View>(), AddEditContract.Presenter {
     private var logTime: Int = 0
     private val repository = MainRepositoryImpl.instance
+    private var aircraftType: AircraftType? = null
+    private var flight: Flight? = null
+
     override fun setUIFromFlight(flight: Flight) {
         mView?.setDescription(flight.description ?: "")
         mView?.setDateTime(DateTimeUtils.getDateTime(flight.datetime ?: 0, "dd.MM.yyyy"))
@@ -28,11 +32,17 @@ class AddEditPresenter : BaseMvpPresenterImpl<AddEditContract.View>(), AddEditCo
         mView?.setFlightType(flight.flighttype ?: 0)
     }
 
+    override fun setAircraftType(aircraftType: AircraftType?) {
+        this.aircraftType = aircraftType
+        this.flight?.aircraft_id = aircraftType?.typeId
+    }
+
     @SuppressLint("CheckResult")
     override fun initUIFromId(id: Long?) {
         repository.getFlight(id ?: 0).observeOnMain()
                 .subscribe({ nulable ->
                     val flight = nulable.value
+                    this.flight = flight
                     if (flight != null) {
                         setUIFromFlight(flight)
                     } else {

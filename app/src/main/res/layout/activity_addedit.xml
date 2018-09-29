@@ -56,23 +56,38 @@
 		app:layout_constraintTop_toTopOf="@+id/tilDate"
 		tools:text="1500" />
 
+	<Spinner
+		android:id="@+id/spin_aircraft_types"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="8dp"
+		android:layout_marginLeft="8dp"
+		android:layout_marginTop="8dp"
+		android:layout_marginEnd="8dp"
+		android:layout_marginRight="8dp"
+		app:layout_constraintEnd_toStartOf="@+id/iv_add_type"
+		app:layout_constraintHorizontal_bias="0.0"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/edtRegNoLayout" />
+
 	<TextView
 		android:id="@+id/tvAirplaneType"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_marginEnd="8dp"
-		android:layout_marginLeft="8dp"
-		android:layout_marginRight="8dp"
 		android:layout_marginStart="8dp"
+		android:layout_marginLeft="8dp"
 		android:layout_marginTop="8dp"
+		android:layout_marginEnd="8dp"
+		android:layout_marginRight="8dp"
 		android:layout_weight="1"
 		android:gravity="center_vertical"
 		android:hint="@string/str_type"
 		android:textColor="@android:color/black"
 		android:textSize="16sp"
 		app:layout_constraintEnd_toStartOf="@+id/iv_add_type"
+		app:layout_constraintHorizontal_bias="0.0"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/edtRegNoLayout" />
+		app:layout_constraintTop_toBottomOf="@+id/spin_aircraft_types" />
 
 	<android.support.design.widget.TextInputLayout
 		android:id="@+id/textInputLayout"
@@ -156,13 +171,11 @@
 		android:id="@+id/iv_add_type"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_marginBottom="8dp"
 		android:layout_marginEnd="8dp"
 		android:layout_marginRight="8dp"
-		android:layout_marginTop="8dp"
-		app:layout_constraintBottom_toBottomOf="@+id/tvAirplaneType"
+		app:layout_constraintBottom_toBottomOf="@+id/spin_aircraft_types"
 		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintTop_toTopOf="@+id/tvAirplaneType"
+		app:layout_constraintTop_toTopOf="@+id/spin_aircraft_types"
 		app:srcCompat="@android:drawable/ic_menu_add" />
 
 	<ImageView

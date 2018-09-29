@@ -11,13 +11,11 @@ import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
 import android.util.Log
-import android.view.KeyEvent
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuItem
+import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.adapter.AircraftSpinnerAdapter
 import com.arny.flightlogbook.data.Consts
 import com.arny.flightlogbook.data.Local
 import com.arny.flightlogbook.data.models.AircraftType
@@ -66,10 +64,11 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
     }
 
     override fun setDescription(desc: String) {
-
+        edtDesc.setText(desc)
     }
 
     override fun setDate(date: String) {
+        edtDate.setText(date)
     }
 
     override fun updateAircaftTypes(types: List<AircraftType>) {
@@ -108,6 +107,23 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
         initUI()
         if (Prefs.getBoolean(Consts.PrefsConsts.PREF_MOTO_TIME, false, this@AddEditActivity)) {
             showMotoBtn()
+        }
+        val aAdapter = AircraftSpinnerAdapter(this)
+        spin_aircraft_types.adapter = aAdapter
+        spin_aircraft_types.setOnClickListener {
+            val items = aAdapter.items
+            if (items.size == 0) {
+                Toast.makeText(this@AddEditActivity, R.string.str_no_types, Toast.LENGTH_SHORT).show()
+            }
+        }
+        spin_aircraft_types.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                mPresenter.setAircraftType(aAdapter.items.getOrNull(position))
+            }
         }
     }
 
@@ -237,7 +253,7 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
 //        }
 //        btnAddAirplaneTypes?.setOnClickListener { view -> AddAirplaneTypes() }
         tvAirplaneType?.setOnClickListener { view ->
-            disposable.add( mainThreadObservable(Observable.fromCallable { Local.getTypeList(this@AddEditActivity) })
+            disposable.add(mainThreadObservable(Observable.fromCallable { Local.getTypeList(this@AddEditActivity) })
                     .subscribe { types ->
                         typeList.clear()
                         for (aircraftType in types) {

@@ -25,5 +25,6 @@ object AddEditContract {
         fun initEmptyUI()
         fun initUIFromId(id: Long?)
         fun setUIFromFlight(flight: Flight)
+        fun setAircraftType(aircraftType: AircraftType?)
     }
 }
