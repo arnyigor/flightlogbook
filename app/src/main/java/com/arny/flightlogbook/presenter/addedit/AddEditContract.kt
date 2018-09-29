@@ -10,14 +10,13 @@ object AddEditContract {
         fun setDescription(desc: String)
         fun setDate(date: String)
         fun updateAircaftTypes(types: List<AircraftType>)
-        fun setDateTime(mDateTime: String)
         fun setLogTime(strLogTime: String?)
         fun setRegNo(regNo: String?)
-        fun setPlaneType(airplanetypetitle: String?)
         fun setSpinDayNight(daynight: Int)
         fun setSpinIfrVfr(ifrvfr: Int)
         fun setFlightType(flighttype: Int)
-
+        fun setEdtTimeText(strLogTime: String?)
+        fun setMotoTimeResult(motoTime: String?)
     }
 
     interface Presenter : BaseMvpPresenter<View> {
@@ -26,5 +25,9 @@ object AddEditContract {
         fun initUIFromId(id: Long?)
         fun setUIFromFlight(flight: Flight)
         fun setAircraftType(aircraftType: AircraftType?)
+        fun correctLogTime(stringTime: String)
+        fun onMotoTimeChange(startTime: String, finishTime: String)
+        fun setMotoResult()
+        fun addAircraftType(name: String)
     }
 }

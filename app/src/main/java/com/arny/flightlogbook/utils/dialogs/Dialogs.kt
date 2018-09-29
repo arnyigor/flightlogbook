@@ -3,6 +3,7 @@ package com.arny.flightlogbook.utils.dialogs
 import android.annotation.SuppressLint
 import android.content.Context
 import android.support.annotation.ArrayRes
+import android.support.v7.app.AppCompatActivity
 import android.text.InputType
 import com.afollestad.materialdialogs.MaterialDialog
 
@@ -78,6 +79,7 @@ fun confirmDialog(context: Context, title: String, content: String? = null, btnO
 
 @JvmOverloads
 fun inputDialog(context: Context, title: String, hint: String? = null, prefill: String? = null, btnOkText: String? = null, btnCancelText: String? = null, cancelable: Boolean? = null, inputType: Int? = null, dialogListener: InputDialogListener? = null): MaterialDialog? {
+    if (context !is AppCompatActivity) return null
     val dlg = MaterialDialog.Builder(context)
             .title(title)
             .cancelable(cancelable ?: false)
@@ -89,7 +91,6 @@ fun inputDialog(context: Context, title: String, hint: String? = null, prefill: 
                 dialogListener?.onCancel()
             }
             .input(hint ?: "", prefill ?: "") { dialog, input ->
-                dialog.dismiss()
                 dialogListener?.onConfirm(input.toString())
             }
             .build()
