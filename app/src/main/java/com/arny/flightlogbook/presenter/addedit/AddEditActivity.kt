@@ -385,6 +385,7 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
         })
     }
 
+
     private fun fillInputs() {
         if (mRowId != 0) {
             disposable.add(mainThreadObservable<Flight>(Observable.fromCallable<Flight> { Local.getFlightItem(mRowId, this@AddEditActivity) }).subscribe({ flight ->
@@ -429,7 +430,6 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
         strDesc = ""
         strDate = ""
         reg_no = ""
-        airplane_type = ""
         mDateTime = DateTime.now().withTimeAtStartOfDay().millis
         logTime = 0
         day_night = 0
@@ -459,14 +459,11 @@ class AddEditActivity : BaseMvpActivity<AddEditContract.View, AddEditPresenter>(
         this.strDesc = strDesc
         this.strTime = strTime
         this.reg_no = reg_no
-//        day_night = spinDayNight!!.selectedItemId.toInt()
-//        ifr_vfr = spinVfrIfr!!.selectedItemId.toInt()
-//        flight_type = spinFlightType!!.selectedItemId.toInt()
         if (mRowId == 0) {
             val res = Local.addFlight(mDateTime, logTime, this.reg_no, airplane_type_id, day_night, ifr_vfr, flight_type, this.strDesc, this@AddEditActivity)
             return res > 0
         } else {
-            return Local.updateFlight(mDateTime, logTime, this.reg_no, airplane_type_id, day_night, ifr_vfr, flight_type, this.strDesc, mRowId, this@AddEditActivity)//тут тоже делаем сужение типа,странно,что для вставки нужен int,а выдает long
+            return Local.updateFlight(mDateTime, logTime, this.reg_no, airplane_type_id, day_night, ifr_vfr, flight_type, this.strDesc, mRowId, this@AddEditActivity)
         }
     }
 

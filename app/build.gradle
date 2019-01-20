@@ -52,7 +52,6 @@ android {
             debuggable false
             minifyEnabled true
             useProguard true
-            ext.enableCrashlytics = false
             signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguardTest-rules.pro'
@@ -84,15 +83,15 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    compile "com.android.support:multidex:1.0.3"
+    implementation "com.android.support:multidex:1.0.3"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     // Tests
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.assertj:assertj-core:3.6.2'
     androidTestImplementation 'com.squareup.assertj:assertj-android:1.2.0'
     androidTestImplementation 'com.squareup.assertj:assertj-android-support-v4:1.2.0'
-    testImplementation 'org.mockito:mockito-core:2.15.0'
-    androidTestImplementation 'org.mockito:mockito-android:2.7.22'
+    testImplementation 'org.mockito:mockito-core:2.19.0'
+    androidTestImplementation 'org.mockito:mockito-android:2.8.47'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
     /*support*/
