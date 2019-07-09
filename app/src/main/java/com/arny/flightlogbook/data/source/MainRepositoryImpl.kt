@@ -6,15 +6,12 @@ import com.arny.flightlogbook.data.db.AircraftTypeDAO
 import com.arny.flightlogbook.data.db.FlightDAO
 import com.arny.flightlogbook.data.db.MainDB
 import com.arny.flightlogbook.data.source.base.BaseRepository
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class MainRepositoryImpl : BaseRepository, MainRepository, DBRepository {
-    private object Holder {
-        val INSTANCE = MainRepositoryImpl()
-    }
 
-    companion object {
-        val instance: MainRepositoryImpl by lazy { Holder.INSTANCE }
-    }
+@Singleton
+class MainRepositoryImpl @Inject constructor() : BaseRepository, MainRepository, FlightsRepository ,TypesRepository{
 
     override fun getFlightDAO(): FlightDAO {
         return getDb().flightDAO

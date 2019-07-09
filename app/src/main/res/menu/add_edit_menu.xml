@@ -3,12 +3,12 @@
     <item
         android:id="@+id/action_save"
         android:icon="@android:drawable/ic_menu_save"
-        android:title="Сохранить"
+        android:title="@string/save"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_remove"
         android:icon="@android:drawable/ic_menu_delete"
-        android:title="Удалить"
+        android:title="@string/remove"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_type_edit"

@@ -5,50 +5,61 @@ import android.support.annotation.ColorRes
 import android.support.annotation.StringRes
 import android.support.v4.content.ContextCompat
 import com.arny.flightlogbook.utils.Prefs
+import com.arny.flightlogbook.utils.Utility
 
 interface BaseRepository {
     fun getContext(): Context
-    fun getString(@StringRes resId: Int): String? {
-        return getContext().getString(resId)
-    }
 
     fun getPrefString(key: String, default: String? = null): String? {
-        if (default != null) {
-            return getContext().let { Prefs.getString(key, it, default) }
-        }
-        return getContext().let { Prefs.getString(key, it) }
+        return Prefs.getInstance(getContext()).get(key) ?: default
     }
 
-    fun getPrefFloat(key: String): Float? {
-        return getContext().let { Prefs.getFloat(key, 0f, it) }
+    fun getPrefInt(key: String, default: Int = 0): Int {
+        return Prefs.getInstance(getContext()).get<Int>(key) ?: default
     }
 
-    fun setPrefFloat(key: String, value: Float) {
-        getContext().let { Prefs.setFloat(key, value, it) }
-    }
-
-    fun getPrefInt(key: String): Int? {
-        return getContext().let { Prefs.getInt(key, it) }
-    }
-
-    fun setPrefString(key: String, value: String?) {
-        getContext().let { Prefs.setString(key, value, it) }
-    }
-
-    fun setPrefInt(key: String, value: Int) {
-        getContext().let { Prefs.setInt(key, value, it) }
+    fun getPrefLong(key: String, default: Long = 0L): Long {
+        return Prefs.getInstance(getContext()).get<Long>(key) ?: default
     }
 
     fun setPrefBoolean(key: String, value: Boolean) {
-        getContext().let { Prefs.setBoolean(key, value, it) }
+        Prefs.getInstance(getContext()).put(key, value)
+    }
+
+    fun setPref(key: String, value: Any) {
+        Prefs.getInstance(getContext()).put(key, value)
+    }
+
+    fun setPrefInt(key: String, value: Int) {
+        Prefs.getInstance(getContext()).put(key, value)
+    }
+
+    fun setPrefLong(key: String, value: Long) {
+        Prefs.getInstance(getContext()).put(key, value)
     }
 
     fun getPrefBoolean(key: String, default: Boolean): Boolean {
-        return getContext().let { Prefs.getBoolean(key, default, it) } ?: default
+        return Prefs.getInstance(getContext()).get<Boolean>(key) ?: false
     }
 
-    fun removePref(key: String) {
-        return getContext().let { Prefs.remove(key, it) } ?: Unit
+    fun isDebugApi(): Boolean {
+        return Prefs.getInstance(getContext()).get<Boolean>("debug_api_requests") ?: false
+    }
+
+    fun removePref(vararg key: String) {
+        Prefs.getInstance(getContext()).remove(*key)
+    }
+
+    fun setPrefString(key: String?, value: String?) {
+        Prefs.getInstance(getContext()).put(key, value)
+    }
+
+    fun isConnected(): Boolean {
+        return Utility.isConnected(getContext())
+    }
+
+    fun getString(res: Int): String {
+        return getContext().getString(res) ?: ""
     }
 
     fun getColor(@ColorRes id: Int): Int {

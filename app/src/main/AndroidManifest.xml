@@ -1,6 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.arny.flightlogbook">
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -40,10 +41,6 @@
             android:screenOrientation="portrait"
             android:label="@string/str_add" />
         <activity
-            android:name=".presenter.types.AirplaneTypesActivity"
-            android:screenOrientation="portrait"
-            android:label="@string/str_airplane_types" />
-        <activity
             android:name=".activities.AboutActivity"
             android:screenOrientation="portrait"
             android:label="@string/str_about" />
@@ -69,6 +66,9 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity android:name=".presenter.common.FragmentContainerActivity"
+            android:screenOrientation="portrait"/>
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="8bd3520e90d7d645d3151ea3044114aab59429c0" />

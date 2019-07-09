@@ -13,11 +13,12 @@ import com.arny.flightlogbook.data.Consts;
 import com.arny.flightlogbook.data.Local;
 import com.arny.flightlogbook.data.models.AircraftType;
 import com.arny.flightlogbook.data.models.Flight;
+import com.arny.flightlogbook.data.source.MainRepositoryImpl;
 import com.arny.flightlogbook.data.sync.dropbox.DropboxClientFactory;
 import com.arny.flightlogbook.utils.BasePermissions;
 import com.arny.flightlogbook.utils.DateTimeUtils;
 import com.arny.flightlogbook.utils.FileUtils;
-import com.arny.flightlogbook.utils.Prefs;
+import com.arny.flightlogbook.utils.RxUtilsKt;
 import com.arny.flightlogbook.utils.Utility;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.DbxClientV2;
@@ -44,557 +45,581 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import io.reactivex.Observable;
+import io.reactivex.disposables.CompositeDisposable;
+
 public class BackgroundIntentService extends IntentService {
-	/*Extras*/
-	public static final String ACTION = "com.arny.flightlogbook.data.service.BackgroundIntentService";
-	public static final String EXTRA_KEY_OPERATION_CODE = "BackgroundIntentService.operation.code";
-	public static final String EXTRA_KEY_OPERATION_RESULT = "BackgroundIntentService.operation.result";
-	public static final String EXTRA_KEY_FINISH = "BackgroundIntentService.operation.finish";
-	public static final String EXTRA_KEY_FINISH_SUCCESS = "BackgroundIntentService.operation.success";
-	public static final String EXTRA_KEY_IMPORT_SD_FILENAME = "BackgroundIntentService.operation.import.sd.filename";
-	public static final String EXTRA_KEY_OPERATION_DATA = "BackgroundIntentService.operation.data";
-	public static final String EXTRA_KEY_OPERATION_DATA_REMOTE_DATE = "BackgroundIntentService.operation.data.remote.date";
-	public static final String EXTRA_KEY_OPERATION_DATA_LOCAL_DATE = "BackgroundIntentService.operation.data.local.date";
-	/*Opearations*/
-	public static final int OPERATION_IMPORT_SD = 100;
-	public static final int OPERATION_DBX_SYNC = 102;
-	public static final int OPERATION_EXPORT = 101;
-	public static final int OPERATION_DBX_DOWNLOAD = 103;
-	public static final int OPERATION_DBX_UPLOAD = 104;
-	/*other*/
-	private static final String LOG_SHEET_MAIN = "Timelog";
-	private static int operation;
-	private List<Flight> ExportData;
-	private boolean mIsSuccess;
-	private boolean mIsStopped;
-	private int airplane_type_id;
-	private DbxClientV2 client;
-	private File syncFolder;
-	private FileMetadata remoteMetadata;
-	private HashMap<String, String> hashMap;
-	private int startId;
+    /*Extras*/
+    public static final String ACTION = "com.arny.flightlogbook.data.service.BackgroundIntentService";
+    public static final String EXTRA_KEY_OPERATION_CODE = "BackgroundIntentService.operation.code";
+    public static final String EXTRA_KEY_OPERATION_RESULT = "BackgroundIntentService.operation.result";
+    public static final String EXTRA_KEY_FINISH = "BackgroundIntentService.operation.finish";
+    public static final String EXTRA_KEY_FINISH_SUCCESS = "BackgroundIntentService.operation.success";
+    public static final String EXTRA_KEY_IMPORT_SD_FILENAME = "BackgroundIntentService.operation.import.sd.filename";
+    public static final String EXTRA_KEY_OPERATION_DATA = "BackgroundIntentService.operation.data";
+    public static final String EXTRA_KEY_OPERATION_DATA_REMOTE_DATE = "BackgroundIntentService.operation.data.remote.date";
+    public static final String EXTRA_KEY_OPERATION_DATA_LOCAL_DATE = "BackgroundIntentService.operation.data.local.date";
+    /*Opearations*/
+    public static final int OPERATION_IMPORT_SD = 100;
+    public static final int OPERATION_DBX_SYNC = 102;
+    public static final int OPERATION_EXPORT = 101;
+    public static final int OPERATION_DBX_DOWNLOAD = 103;
+    public static final int OPERATION_DBX_UPLOAD = 104;
+    /*other*/
+    private static final String LOG_SHEET_MAIN = "Timelog";
+    private static int operation;
+    private List<Flight> ExportData;
+    private boolean mIsSuccess;
+    private boolean mIsStopped;
+    private long airplane_type_id;
+    private DbxClientV2 client;
+    private File syncFolder;
+    private FileMetadata remoteMetadata;
+    private HashMap<String, String> hashMap;
+    private int startId;
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
-	public static int getOperation() {
-		return operation;
-	}
+    @Inject
+    MainRepositoryImpl mainRepository;
 
-	private void setOperation(int operation) {
-		BackgroundIntentService.operation = operation;
-	}
+    public static int getOperation() {
+        return operation;
+    }
 
-	public BackgroundIntentService() {
-		super("BackgroundIntentService");
-		mIsSuccess = false;
-		mIsStopped = false;
-	}
+    private void setOperation(int operation) {
+        BackgroundIntentService.operation = operation;
+    }
 
-	@Override
-	public void onCreate() {
-		super.onCreate();
-	}
+    public BackgroundIntentService() {
+        super("BackgroundIntentService");
+        mIsSuccess = false;
+        mIsStopped = false;
+    }
 
-	@Override
-	public void onDestroy() {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+    }
+
+    @Override
+    public void onDestroy() {
         onServiceDestroy();
         super.onDestroy();
     }
 
     private void onServiceDestroy() {
-		mIsStopped = true;
-		sendBroadcastIntent(getResultNotif());
-		stopSelf(startId);
-		super.onDestroy();
-	}
+        mIsStopped = true;
+        compositeDisposable.clear();
+        sendBroadcastIntent(getResultNotif());
+        stopSelf(startId);
+        super.onDestroy();
+    }
 
 
-	private String getResultNotif() {
-		String notice;
-		if (mIsSuccess) {
-			notice = getApplicationContext().getString(R.string.service_operation_success);
-			switch (operation) {
-				case OPERATION_IMPORT_SD:
-					notice = getApplicationContext().getString(R.string.str_import_success);
-					break;
-				case OPERATION_DBX_SYNC:
-					notice = getApplicationContext().getString(R.string.dropbox_sync_complete);
-					break;
-				case OPERATION_DBX_DOWNLOAD:
-					notice = getApplicationContext().getString(R.string.service_file_download_success);
-					break;
-				case OPERATION_DBX_UPLOAD:
-					notice = getApplicationContext().getString(R.string.service_file_upload_success);
-					break;
-				case OPERATION_EXPORT:
-					notice = getApplicationContext().getString(R.string.str_export_success);
-					break;
-			}
-		} else {
-			notice = getApplicationContext().getString(R.string.service_operation_fail);
-			switch (operation) {
-				case OPERATION_IMPORT_SD:
-					notice = getApplicationContext().getString(R.string.service_import_fail);
-					break;
-				case OPERATION_DBX_SYNC:
-					notice = getApplicationContext().getString(R.string.service_sync_fail);
-					break;
-				case OPERATION_DBX_DOWNLOAD:
-					notice = getApplicationContext().getString(R.string.service_download_fail);
-					break;
-				case OPERATION_DBX_UPLOAD:
-					notice = getApplicationContext().getString(R.string.service_upload_fail);
-					break;
-				case OPERATION_EXPORT:
-					notice = getApplicationContext().getString(R.string.service_export_fail);
-					break;
-			}
-		}
-		return notice;
-	}
+    private String getResultNotif() {
+        String notice;
+        if (mIsSuccess) {
+            notice = getApplicationContext().getString(R.string.service_operation_success);
+            switch (operation) {
+                case OPERATION_IMPORT_SD:
+                    notice = getApplicationContext().getString(R.string.str_import_success);
+                    break;
+                case OPERATION_DBX_SYNC:
+                    notice = getApplicationContext().getString(R.string.dropbox_sync_complete);
+                    break;
+                case OPERATION_DBX_DOWNLOAD:
+                    notice = getApplicationContext().getString(R.string.service_file_download_success);
+                    break;
+                case OPERATION_DBX_UPLOAD:
+                    notice = getApplicationContext().getString(R.string.service_file_upload_success);
+                    break;
+                case OPERATION_EXPORT:
+                    notice = getApplicationContext().getString(R.string.str_export_success);
+                    break;
+            }
+        } else {
+            notice = getApplicationContext().getString(R.string.service_operation_fail);
+            switch (operation) {
+                case OPERATION_IMPORT_SD:
+                    notice = getApplicationContext().getString(R.string.service_import_fail);
+                    break;
+                case OPERATION_DBX_SYNC:
+                    notice = getApplicationContext().getString(R.string.service_sync_fail);
+                    break;
+                case OPERATION_DBX_DOWNLOAD:
+                    notice = getApplicationContext().getString(R.string.service_download_fail);
+                    break;
+                case OPERATION_DBX_UPLOAD:
+                    notice = getApplicationContext().getString(R.string.service_upload_fail);
+                    break;
+                case OPERATION_EXPORT:
+                    notice = getApplicationContext().getString(R.string.service_export_fail);
+                    break;
+            }
+        }
+        return notice;
+    }
 
-	@NonNull
-	private Intent initProadcastIntent() {
-		Intent intent = new Intent();
-		intent.setAction(ACTION);
-		intent.addCategory(Intent.CATEGORY_DEFAULT);
-		return intent;
-	}
+    @NonNull
+    private Intent initProadcastIntent() {
+        Intent intent = new Intent();
+        intent.setAction(ACTION);
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        return intent;
+    }
 
-	@Override
-	protected void onHandleIntent(Intent intent) {
-		hashMap = new HashMap<>();
-		setOperation(intent.getIntExtra(EXTRA_KEY_OPERATION_CODE, 0));
-		switch (getOperation()) {
-			case OPERATION_IMPORT_SD:
-				String mPath = intent.getStringExtra(EXTRA_KEY_IMPORT_SD_FILENAME);
-				if (Utility.empty(mPath)) {
-					readExcelFile(getApplicationContext(), Consts.Files.EXEL_FILE_NAME, true);
-				} else {
-					readExcelFile(getApplicationContext(), FileUtils.getSDFilePath(getApplicationContext(), Uri.fromFile(new File(mPath))), false);
-				}
-				break;
-			case OPERATION_DBX_SYNC:
-				try {
-					client = DropboxClientFactory.getClient();
-					if (client != null) {
-						getRemoteMetaData();
-						syncFile(remoteMetadata);
-					} else {
-						mIsSuccess = false;
-					}
-				} catch (DbxException e) {
-					e.printStackTrace();
-					mIsSuccess = false;
-				}
-				break;
-			case OPERATION_DBX_DOWNLOAD:
-				try {
-					client = DropboxClientFactory.getClient();
-					if (client != null) {
-						getRemoteMetaData();
-						downloadFile(remoteMetadata);
-					} else {
-						mIsSuccess = false;
-					}
-				} catch (DbxException e) {
-					e.printStackTrace();
-					mIsSuccess = false;
-				}
-				break;
-			case OPERATION_DBX_UPLOAD:
-				try {
-					client = DropboxClientFactory.getClient();
-					if (client != null) {
-						uploadFile();
-					} else {
-						mIsSuccess = false;
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-					mIsSuccess = false;
-				}
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        hashMap = new HashMap<>();
+        setOperation(intent.getIntExtra(EXTRA_KEY_OPERATION_CODE, 0));
+        switch (getOperation()) {
+            case OPERATION_IMPORT_SD:
+                String mPath = intent.getStringExtra(EXTRA_KEY_IMPORT_SD_FILENAME);
+                if (Utility.empty(mPath)) {
+                    readExcelFile(getApplicationContext(), Consts.Files.EXEL_FILE_NAME, true);
+                } else {
+                    readExcelFile(getApplicationContext(), FileUtils.getSDFilePath(getApplicationContext(), Uri.fromFile(new File(mPath))), false);
+                }
+                break;
+            case OPERATION_DBX_SYNC:
+                try {
+                    client = DropboxClientFactory.getClient();
+                    if (client != null) {
+                        getRemoteMetaData();
+                        syncFile(remoteMetadata);
+                    } else {
+                        mIsSuccess = false;
+                    }
+                } catch (DbxException e) {
+                    e.printStackTrace();
+                    mIsSuccess = false;
+                }
+                break;
+            case OPERATION_DBX_DOWNLOAD:
+                try {
+                    client = DropboxClientFactory.getClient();
+                    if (client != null) {
+                        getRemoteMetaData();
+                        downloadFile(remoteMetadata);
+                    } else {
+                        mIsSuccess = false;
+                    }
+                } catch (DbxException e) {
+                    e.printStackTrace();
+                    mIsSuccess = false;
+                }
+                break;
+            case OPERATION_DBX_UPLOAD:
+                try {
+                    client = DropboxClientFactory.getClient();
+                    if (client != null) {
+                        uploadFile();
+                    } else {
+                        mIsSuccess = false;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    mIsSuccess = false;
+                }
 
-				break;
-			case OPERATION_EXPORT:
-				mIsSuccess = saveExcelFile(getApplicationContext(), Consts.Files.EXEL_FILE_NAME);
-				break;
-		}
+                break;
+            case OPERATION_EXPORT:
+                mIsSuccess = saveExcelFile(getApplicationContext(), Consts.Files.EXEL_FILE_NAME);
+                break;
+        }
 
-	}
+    }
 
-	private void getRemoteMetaData() throws DbxException {
-		ListFolderResult result = client.files().listFolder("");
-		while (true) {
-			for (Metadata metadata : result.getEntries()) {
-				if (metadata.getName().compareToIgnoreCase(Consts.Files.EXEL_FILE_NAME) == 0) {
-					if (metadata instanceof FileMetadata) {
-						remoteMetadata = (FileMetadata) metadata;
-						break;
-					}
-				}
-			}
-			if (!result.getHasMore()) {
-				break;
-			}
-			result = client.files().listFolderContinue(result.getCursor());
-		}
-	}
+    private void getRemoteMetaData() throws DbxException {
+        ListFolderResult result = client.files().listFolder("");
+        while (true) {
+            for (Metadata metadata : result.getEntries()) {
+                if (metadata.getName().compareToIgnoreCase(Consts.Files.EXEL_FILE_NAME) == 0) {
+                    if (metadata instanceof FileMetadata) {
+                        remoteMetadata = (FileMetadata) metadata;
+                        break;
+                    }
+                }
+            }
+            if (!result.getHasMore()) {
+                break;
+            }
+            result = client.files().listFolderContinue(result.getCursor());
+        }
+    }
 
-	private void sendBroadcastIntent(String result) {
-		Intent intent = initProadcastIntent();
-		intent.putExtra(EXTRA_KEY_FINISH, mIsStopped);
-		intent.putExtra(EXTRA_KEY_FINISH_SUCCESS, mIsSuccess);
-		intent.putExtra(EXTRA_KEY_OPERATION_CODE, operation);
-		intent.putExtra(EXTRA_KEY_OPERATION_RESULT, result);
-		intent.putExtra(EXTRA_KEY_OPERATION_DATA, hashMap);
-		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-	}
+    private void sendBroadcastIntent(String result) {
+        Intent intent = initProadcastIntent();
+        intent.putExtra(EXTRA_KEY_FINISH, mIsStopped);
+        intent.putExtra(EXTRA_KEY_FINISH_SUCCESS, mIsSuccess);
+        intent.putExtra(EXTRA_KEY_OPERATION_CODE, operation);
+        intent.putExtra(EXTRA_KEY_OPERATION_RESULT, result);
+        intent.putExtra(EXTRA_KEY_OPERATION_DATA, hashMap);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
 
-	public boolean saveExcelFile(Context context, String fileName) {
-		Row row;
-		if (!BasePermissions.isStoragePermissonGranted(context)) {
-			return false;
-		}
-		boolean success = false;
+    public boolean saveExcelFile(Context context, String fileName) {
+        Row row;
+        if (!BasePermissions.isStoragePermissonGranted(context)) {
+            return false;
+        }
+        boolean success = false;
 
-		//New Workbook
-		Workbook wb = new HSSFWorkbook();
+        //New Workbook
+        Workbook wb = new HSSFWorkbook();
 
-		//Cell style for header row
-		CellStyle cs = wb.createCellStyle();
-		cs.setFillForegroundColor(HSSFColor.LIME.index);
-		cs.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+        //Cell style for header row
+        CellStyle cs = wb.createCellStyle();
+        cs.setFillForegroundColor(HSSFColor.LIME.index);
+        cs.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
 
-		Cell c;
-		//New Sheet
-		Sheet sheet_main = wb.createSheet(LOG_SHEET_MAIN);
-		//create base row
-		row = sheet_main.createRow(0);
-		c = row.createCell(0);
-		c.setCellValue(getString(R.string.str_date));
-		c = row.createCell(1);
-		c.setCellValue(getString(R.string.str_itemlogtime));
-		c = row.createCell(2);
-		c.setCellValue(getString(R.string.str_type_null));
-		c = row.createCell(3);
-		c.setCellValue(getString(R.string.str_regnum));
-		c = row.createCell(4);
-		c.setCellValue(getString(R.string.str_day_night));
-		c = row.createCell(5);
-		c.setCellValue(getString(R.string.str_vfr_ifr));
-		c = row.createCell(6);
-		c.setCellValue(getString(R.string.str_flight_type));
-		c = row.createCell(7);
-		c.setCellValue(getString(R.string.str_desc));
+        Cell c;
+        //New Sheet
+        Sheet sheet_main = wb.createSheet(LOG_SHEET_MAIN);
+        //create base row
+        row = sheet_main.createRow(0);
+        c = row.createCell(0);
+        c.setCellValue(getString(R.string.str_date));
+        c = row.createCell(1);
+        c.setCellValue(getString(R.string.str_itemlogtime));
+        c = row.createCell(2);
+        c.setCellValue(getString(R.string.str_type_null));
+        c = row.createCell(3);
+        c.setCellValue(getString(R.string.str_regnum));
+        c = row.createCell(4);
+        c.setCellValue(getString(R.string.str_day_night));
+        c = row.createCell(5);
+        c.setCellValue(getString(R.string.str_vfr_ifr));
+        c = row.createCell(6);
+        c.setCellValue(getString(R.string.str_flight_type));
+        c = row.createCell(7);
+        c.setCellValue(getString(R.string.str_desc));
 
-		ExportData = Local.getFlightListByDate(context);
-		int rows = 1;
-		for (Flight export : ExportData) {
-			airplane_type_id = export.getAircraft_id();
-			AircraftType aircraftType = Local.getTypeItem(airplane_type_id, context);
-			String airplane_type = aircraftType != null ? aircraftType.getTypeName() : "";
-			row = sheet_main.createRow(rows);
-			c = row.createCell(0);
-			c.setCellValue(DateTimeUtils.getDateTime(export.getDatetime(), "dd MMM yyyy"));
-			c = row.createCell(1);
-			c.setCellValue(DateTimeUtils.strLogTime(export.getLogtime()));
-			c = row.createCell(2);
-			c.setCellValue(airplane_type);
-			c = row.createCell(3);
-			c.setCellValue(export.getReg_no());
-			c = row.createCell(4);
-			c.setCellValue(export.getDaynight());
-			c = row.createCell(5);
-			c.setCellValue(export.getIfrvfr());
-			c = row.createCell(6);
-			c.setCellValue(export.getFlighttype());
-			c = row.createCell(7);
-			c.setCellValue(export.getDescription());
-			rows++;
-		}
+        ExportData = Local.getFlightListByDate(context);
+        int rows = 1;
+        for (Flight export : ExportData) {
+            airplane_type_id = export.getAircraft_id();
+            AircraftType aircraftType = Local.getTypeItem(airplane_type_id, context);
+            String airplane_type = aircraftType != null ? aircraftType.getTypeName() : "";
+            row = sheet_main.createRow(rows);
+            c = row.createCell(0);
+            c.setCellValue(DateTimeUtils.getDateTime(export.getDatetime(), "dd MMM yyyy"));
+            c = row.createCell(1);
+            c.setCellValue(DateTimeUtils.strLogTime(export.getLogtime()));
+            c = row.createCell(2);
+            c.setCellValue(airplane_type);
+            c = row.createCell(3);
+            c.setCellValue(export.getReg_no());
+            c = row.createCell(4);
+            c.setCellValue(export.getDaynight());
+            c = row.createCell(5);
+            c.setCellValue(export.getIfrvfr());
+            c = row.createCell(6);
+            c.setCellValue(export.getFlighttype());
+            c = row.createCell(7);
+            c.setCellValue(export.getDescription());
+            rows++;
+        }
 
-		sheet_main.setColumnWidth(0, (15 * 200));
-		sheet_main.setColumnWidth(1, (15 * 150));
-		sheet_main.setColumnWidth(2, (15 * 150));
-		sheet_main.setColumnWidth(3, (15 * 150));
-		sheet_main.setColumnWidth(4, (15 * 250));
-		sheet_main.setColumnWidth(5, (15 * 300));
-		sheet_main.setColumnWidth(6, (15 * 200));
-		sheet_main.setColumnWidth(7, (15 * 500));
+        sheet_main.setColumnWidth(0, (15 * 200));
+        sheet_main.setColumnWidth(1, (15 * 150));
+        sheet_main.setColumnWidth(2, (15 * 150));
+        sheet_main.setColumnWidth(3, (15 * 150));
+        sheet_main.setColumnWidth(4, (15 * 250));
+        sheet_main.setColumnWidth(5, (15 * 300));
+        sheet_main.setColumnWidth(6, (15 * 200));
+        sheet_main.setColumnWidth(7, (15 * 500));
 
-		// Create a path where we will place our List of objects on external storage
-		File file = new File(context.getExternalFilesDir(null), fileName);
-		FileOutputStream os = null;
+        // Create a path where we will place our List of objects on external storage
+        File file = new File(context.getExternalFilesDir(null), fileName);
+        FileOutputStream os = null;
 
-		try {
-			os = new FileOutputStream(file);
-			wb.write(os);
+        try {
+            os = new FileOutputStream(file);
+            wb.write(os);
 //            Toasty.success(context, getString(R.string.str_file_saved) + " " + file, Toast.LENGTH_SHORT).show();
 //            Toast.makeText(context, getString(R.string.str_file_saved) + " " + file, Toast.LENGTH_SHORT).show();
-			success = true;
-		} catch (Exception e) {
-			e.printStackTrace();
-			success = false;
-		} finally {
-			try {
-				if (null != os)
-					os.close();
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-		}
-		return success;
-	}
+            success = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            success = false;
+        } finally {
+            try {
+                if (null != os)
+                    os.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return success;
+    }
 
-	private void readExcelFile(Context context, String filename, boolean fromSystem) {
-		boolean hasType = false;
-		boolean checked = false;
-		HSSFWorkbook myWorkBook;
-		String strDate = null, strTime = null, airplane_type = null, reg_no = null, strDesc;
-		int airplane_type_id = 0, day_night = 0, ifr_vfr = 0, flight_type = 0, logTime = 0;
-		long mDateTime = 0;
-		List<AircraftType> aircraftTypeList;
-		File xlsfile;
-		if (!FileUtils.isExternalStorageAvailable() || FileUtils.isExternalStorageReadOnly()) {
-			return;
-		}
-		try {
-			if (fromSystem) {
-				xlsfile = new File(context.getExternalFilesDir(null), Consts.Files.EXEL_FILE_NAME);
-			} else {
-				xlsfile = new File("", filename);
-			}
-			try {
-				FileInputStream fileInputStream = new FileInputStream(xlsfile);
-				myWorkBook = new HSSFWorkbook(fileInputStream);
-			} catch (IOException e) {
-				e.printStackTrace();
-				mIsSuccess = false;
-				return;
-			}
-			// Get the first sheet from workbook
-			HSSFSheet mySheet = myWorkBook.getSheetAt(0);
-			/** We now need something to iterate through the cells.**/
-			Iterator rowIter = mySheet.rowIterator();
-			int rowCnt = 0;
-			Local.removeAllFlights(context);
-			while (rowIter.hasNext()) {
-				HSSFRow myRow = (HSSFRow) rowIter.next();
-				Iterator cellIter = myRow.cellIterator();
-				Log.d(BackgroundIntentService.class.getSimpleName(), "rowIter " + rowCnt);
-				int cellCnt = 0;
-				while (cellIter.hasNext()) {
-					HSSFCell myCell = (HSSFCell) cellIter.next();
-					Log.d(BackgroundIntentService.class.getSimpleName(), "Cell: " + cellCnt);
+    private void readExcelFile(Context context, String filename, boolean fromSystem) {
+        boolean hasType = false;
+        boolean checked = false;
+        HSSFWorkbook myWorkBook;
+        File xlsfile;
+        if (!FileUtils.isExternalStorageAvailable() || FileUtils.isExternalStorageReadOnly()) {
+            return;
+        }
+        try {
+            if (fromSystem) {
+                xlsfile = new File(context.getExternalFilesDir(null), Consts.Files.EXEL_FILE_NAME);
+            } else {
+                xlsfile = new File("", filename);
+            }
+            try {
+                FileInputStream fileInputStream = new FileInputStream(xlsfile);
+                myWorkBook = new HSSFWorkbook(fileInputStream);
+            } catch (IOException e) {
+                e.printStackTrace();
+                mIsSuccess = false;
+                return;
+            }
+            // Get the first sheet from workbook
+            HSSFSheet mySheet = myWorkBook.getSheetAt(0);
+            /** We now need something to iterate through the cells.**/
+            Local.removeAllFlights(context);
+            Iterator rowIter = mySheet.rowIterator();
+            ArrayList<Flight> flightsFromExel = getFlightsFromExcel(context, rowIter);
+            Observable<Boolean> insertFlights = mainRepository.insertFlights(flightsFromExel);
+            compositeDisposable.add(RxUtilsKt.observeOnMain(mainRepository.removeAllFlights())
+                    .flatMap(aBoolean -> insertFlights)
+                    .subscribe(aBoolean -> {
 
-					Log.d(BackgroundIntentService.class.getSimpleName(), "Cell Value: " + myCell.toString());
-					if (rowCnt > 0) {
-						switch (cellCnt) {
-							case 0:
-								try {
-									strDate = myCell.toString();
-								} catch (Exception e) {
-									strDate = DateTimeUtils.getDateTime((long) 0, "dd MMM yyyy");
-									e.printStackTrace();
-								}
+                    }, throwable -> {
 
-								Log.d(BackgroundIntentService.class.getSimpleName(), "strDate " + strDate);
-								break;
-							case 1:
-								try {
-									if (myCell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
-										strTime = Utility.match(myCell.getDateCellValue().toString(), "(\\d{2}:\\d{2})", 1);
-									} else {
-										strTime = myCell.toString();
-									}
-								} catch (Exception e) {
-									strTime = "00:00";
-									e.printStackTrace();
-								}
+                    }));
+            mIsSuccess = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            mIsSuccess = false;
 
-								Log.d(BackgroundIntentService.class.getSimpleName(), "strTime " + strTime);
-								break;
-							case 2:
-								try {
-									airplane_type = myCell.toString();
-									AircraftType aircraftType = Local.getType(airplane_type, context);
-									if (aircraftType != null) {
-										airplane_type_id = aircraftType.getTypeId();
-									} else {
-										if (!Utility.empty(airplane_type)) {
-											airplane_type_id = (int) Local.addType(airplane_type, context);
-										}
-									}
-								} catch (Exception e) {
-									airplane_type = "";
-									e.printStackTrace();
-								}
-								Log.d(BackgroundIntentService.class.getSimpleName(), "airplane_type " + airplane_type);
-								break;
-							case 3:
-								try {
-									reg_no = myCell.toString();
-								} catch (Exception e) {
-									reg_no = "";
-									e.printStackTrace();
-								}
-								Log.d(BackgroundIntentService.class.getSimpleName(), "reg_no " + reg_no);
-								break;
-							case 4:
-								try {
-									day_night = (int) Float.parseFloat(myCell.toString());
-								} catch (Exception e) {
-									day_night = 0;
-									e.printStackTrace();
-								}
-								Log.d(BackgroundIntentService.class.getSimpleName(), "day_night " + day_night);
-								break;
-							case 5:
-								try {
-									ifr_vfr = (int) Float.parseFloat(myCell.toString());
-								} catch (Exception e) {
-									ifr_vfr = 0;
-									e.printStackTrace();
-								}
-								Log.d(BackgroundIntentService.class.getSimpleName(), "ifr_vfr " + ifr_vfr);
-								break;
-							case 6:
-								try {
-									flight_type = (int) Float.parseFloat(myCell.toString());
-								} catch (Exception e) {
-									flight_type = 0;
-									e.printStackTrace();
-								}
-								Log.d(BackgroundIntentService.class.getSimpleName(), "flight_type " + flight_type);
-								break;
-							case 7:
-								try {
-									strDesc = myCell.toString();
-								} catch (Exception e) {
-									strDesc = "";
-									e.printStackTrace();
-								}
+        }
+    }//readFile
 
-								Log.d(BackgroundIntentService.class.getSimpleName(), "strDesc " + strDesc);
-								try {
-									logTime = DateTimeUtils.convertStringToTime(strTime);
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-								String format = "dd MMM yyyy";
-								strDate = strDate.replace("-", " ").replace(".", " ").replaceAll("\\s+", " ");
-								try {
-									format = DateTimeUtils.dateFormatChooser(strDate);
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-								try {
-									mDateTime = DateTimeUtils.convertTimeStringToLong(strDate, format);
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-								try {
-									Log.d(BackgroundIntentService.class.getSimpleName(), "\nstrDesc: " + strDesc);
-									Log.d(BackgroundIntentService.class.getSimpleName(), "strDate: " + strDate);
-									Log.d(BackgroundIntentService.class.getSimpleName(), "mDateTime: " + mDateTime);
-									Log.d(BackgroundIntentService.class.getSimpleName(), "strTime: " + strTime);
-									Log.d(BackgroundIntentService.class.getSimpleName(), "logTime: " + logTime);
-									Log.d(BackgroundIntentService.class.getSimpleName(), "reg_no: " + reg_no);
-									Log.d(BackgroundIntentService.class.getSimpleName(), "airplane_type_id: " + airplane_type_id);
-									Log.d(BackgroundIntentService.class.getSimpleName(), "airplane_type: " + airplane_type);
-									Log.d(BackgroundIntentService.class.getSimpleName(), "day_night: " + day_night);
-									Log.d(BackgroundIntentService.class.getSimpleName(), "ifr_vfr: " + ifr_vfr);
-									Log.d(BackgroundIntentService.class.getSimpleName(), "flight_type: " + flight_type);
-									Log.d(BackgroundIntentService.class.getSimpleName(), "strDesc: " + strDesc);
-									Log.d(BackgroundIntentService.class.getSimpleName(), "\n");
-									Local.addFlight(mDateTime, logTime, reg_no, airplane_type_id, day_night, ifr_vfr, flight_type, strDesc, context);
-									sendBroadcastIntent(null);
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-								break;
-						}//switch (cellCnt)
-					}//if (rowCnt>0)
-					cellCnt++;
-				}//cellIter.hasNext()
-				rowCnt++;
-			}//while (rowIter.hasNext())
-			//cursorExport.requery();
-			mIsSuccess = true;
+    private ArrayList<Flight> getFlightsFromExcel(Context context, Iterator rowIter) {
+        ArrayList<Flight> flights = new ArrayList<>();
+        int rowCnt = 0;
+        String strDate = null, strTime = null, airplane_type = null, reg_no = null, strDesc;
+        long airplane_type_id = 0, day_night = 0, ifr_vfr = 0, flight_type = 0, logTime = 0;
+        long mDateTime = 0;
+        while (rowIter.hasNext()) {
+            HSSFRow myRow = (HSSFRow) rowIter.next();
+            Iterator cellIter = myRow.cellIterator();
+            Log.d(BackgroundIntentService.class.getSimpleName(), "rowIter " + rowCnt);
+            int cellCnt = 0;
+            while (cellIter.hasNext()) {
+                HSSFCell myCell = (HSSFCell) cellIter.next();
+                Log.d(BackgroundIntentService.class.getSimpleName(), "Cell: " + cellCnt);
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			mIsSuccess = false;
+                Log.d(BackgroundIntentService.class.getSimpleName(), "Cell Value: " + myCell.toString());
+                if (rowCnt > 0) {
+                    switch (cellCnt) {
+                        case 0:
+                            try {
+                                strDate = myCell.toString();
+                            } catch (Exception e) {
+                                strDate = DateTimeUtils.getDateTime((long) 0, "dd MMM yyyy");
+                                e.printStackTrace();
+                            }
 
-		}
-	}//readFile
+                            Log.d(BackgroundIntentService.class.getSimpleName(), "strDate " + strDate);
+                            break;
+                        case 1:
+                            try {
+                                if (myCell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+                                    strTime = Utility.match(myCell.getDateCellValue().toString(), "(\\d{2}:\\d{2})", 1);
+                                } else {
+                                    strTime = myCell.toString();
+                                }
+                            } catch (Exception e) {
+                                strTime = "00:00";
+                                e.printStackTrace();
+                            }
 
-	private void downloadFile(FileMetadata metadata) {
-		try {
-			syncFolder = getApplicationContext().getExternalFilesDir(null);
-			File file = new File(syncFolder, Consts.Files.EXEL_FILE_NAME);
-			try {
-				OutputStream outputStream = new FileOutputStream(file);
-				client.files().download(metadata.getPathLower(), metadata.getRev()).download(outputStream);
-				// Tell android about the file
-				Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-				intent.setData(Uri.fromFile(file));
-				getApplicationContext().sendBroadcast(intent);
-				mIsSuccess = file.length() > 0;
-			} catch (DbxException | IOException e) {
-				e.printStackTrace();
-				mIsSuccess = false;
+                            Log.d(BackgroundIntentService.class.getSimpleName(), "strTime " + strTime);
+                            break;
+                        case 2:
+                            try {
+                                airplane_type = myCell.toString();
+                                AircraftType aircraftType = Local.getType(airplane_type, context);
+                                if (aircraftType != null) {
+                                    airplane_type_id = aircraftType.getTypeId();
+                                } else {
+                                    if (!Utility.empty(airplane_type)) {
+                                        airplane_type_id = (int) Local.addType(airplane_type, context);
+                                    }
+                                }
+                            } catch (Exception e) {
+                                airplane_type = "";
+                                e.printStackTrace();
+                            }
+                            Log.d(BackgroundIntentService.class.getSimpleName(), "airplane_type " + airplane_type);
+                            break;
+                        case 3:
+                            try {
+                                reg_no = myCell.toString();
+                            } catch (Exception e) {
+                                reg_no = "";
+                                e.printStackTrace();
+                            }
+                            Log.d(BackgroundIntentService.class.getSimpleName(), "reg_no " + reg_no);
+                            break;
+                        case 4:
+                            try {
+                                day_night = (int) Float.parseFloat(myCell.toString());
+                            } catch (Exception e) {
+                                day_night = 0;
+                                e.printStackTrace();
+                            }
+                            Log.d(BackgroundIntentService.class.getSimpleName(), "day_night " + day_night);
+                            break;
+                        case 5:
+                            try {
+                                ifr_vfr = (int) Float.parseFloat(myCell.toString());
+                            } catch (Exception e) {
+                                ifr_vfr = 0;
+                                e.printStackTrace();
+                            }
+                            Log.d(BackgroundIntentService.class.getSimpleName(), "ifr_vfr " + ifr_vfr);
+                            break;
+                        case 6:
+                            try {
+                                flight_type = (int) Float.parseFloat(myCell.toString());
+                            } catch (Exception e) {
+                                flight_type = 0;
+                                e.printStackTrace();
+                            }
+                            Log.d(BackgroundIntentService.class.getSimpleName(), "flight_type " + flight_type);
+                            break;
+                        case 7:
+                            try {
+                                strDesc = myCell.toString();
+                            } catch (Exception e) {
+                                strDesc = "";
+                                e.printStackTrace();
+                            }
 
-			}
-			if (Prefs.getBoolean(Consts.PrefsConsts.DROPBOX_AUTOIMPORT_TO_DB, false, getApplicationContext())) {
-				readExcelFile(getApplicationContext(), Consts.Files.EXEL_FILE_NAME, true);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			mIsSuccess = false;
+                            Log.d(BackgroundIntentService.class.getSimpleName(), "strDesc " + strDesc);
+                            try {
+                                logTime = DateTimeUtils.convertStringToTime(strTime);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            String format = "dd MMM yyyy";
+                            strDate = strDate.replace("-", " ").replace(".", " ").replaceAll("\\s+", " ");
+                            try {
+                                format = DateTimeUtils.dateFormatChooser(strDate);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            try {
+                                mDateTime = DateTimeUtils.convertTimeStringToLong(strDate, format);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            try {
+                                Log.d(BackgroundIntentService.class.getSimpleName(), "\nstrDesc: " + strDesc);
+                                Log.d(BackgroundIntentService.class.getSimpleName(), "strDate: " + strDate);
+                                Log.d(BackgroundIntentService.class.getSimpleName(), "mDateTime: " + mDateTime);
+                                Log.d(BackgroundIntentService.class.getSimpleName(), "strTime: " + strTime);
+                                Log.d(BackgroundIntentService.class.getSimpleName(), "logTime: " + logTime);
+                                Log.d(BackgroundIntentService.class.getSimpleName(), "reg_no: " + reg_no);
+                                Log.d(BackgroundIntentService.class.getSimpleName(), "airplane_type_id: " + airplane_type_id);
+                                Log.d(BackgroundIntentService.class.getSimpleName(), "airplane_type: " + airplane_type);
+                                Log.d(BackgroundIntentService.class.getSimpleName(), "day_night: " + day_night);
+                                Log.d(BackgroundIntentService.class.getSimpleName(), "ifr_vfr: " + ifr_vfr);
+                                Log.d(BackgroundIntentService.class.getSimpleName(), "flight_type: " + flight_type);
+                                Log.d(BackgroundIntentService.class.getSimpleName(), "strDesc: " + strDesc);
+                                Log.d(BackgroundIntentService.class.getSimpleName(), "\n");
+                                Flight flight = new Flight();
+                                flights.add(flight);
+                                sendBroadcastIntent(null);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            break;
+                    }//switch (cellCnt)
+                }//if (rowCnt>0)
+                cellCnt++;
+            }//cellIter.hasNext()
+            rowCnt++;
+        }//while (rowIter.hasNext())
+        return flights;
+    }
 
-		}
-	}
+    private void downloadFile(FileMetadata metadata) {
+        try {
+            syncFolder = getApplicationContext().getExternalFilesDir(null);
+            File file = new File(syncFolder, Consts.Files.EXEL_FILE_NAME);
+            try {
+                OutputStream outputStream = new FileOutputStream(file);
+                client.files().download(metadata.getPathLower(), metadata.getRev()).download(outputStream);
+                // Tell android about the file
+                Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                intent.setData(Uri.fromFile(file));
+                getApplicationContext().sendBroadcast(intent);
+                mIsSuccess = file.length() > 0;
+            } catch (DbxException | IOException e) {
+                e.printStackTrace();
+                mIsSuccess = false;
 
-	private void uploadFile() {
-		try {
-			File localFile = new File(getApplicationContext().getExternalFilesDir(null), Consts.Files.EXEL_FILE_NAME);
-			String remoteFileName = localFile.getName();
-			InputStream inputStream = new FileInputStream(localFile);
-			FileMetadata result = client.files().uploadBuilder("/" + remoteFileName).withMode(WriteMode.OVERWRITE).uploadAndFinish(inputStream);
-			mIsSuccess = result != null;
-		} catch (DbxException | IOException e) {
-			e.printStackTrace();
-			mIsSuccess = false;
-		}
-	}
+            }
+            boolean autoimport = mainRepository.getPrefBoolean(Consts.PrefsConsts.DROPBOX_AUTOIMPORT_TO_DB, false);
+            if (autoimport) {
+                readExcelFile(getApplicationContext(), Consts.Files.EXEL_FILE_NAME, true);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            mIsSuccess = false;
 
-	private void syncFile(FileMetadata remoteFile) {
-		File localFile = new File(getApplicationContext().getExternalFilesDir(null), Consts.Files.EXEL_FILE_NAME);
-		String remoteVal, localVal;
-		try {
-			if (remoteFile == null) {
-				remoteVal = null;
-			} else {
-				remoteVal =  DateTimeUtils.getDateTime(remoteFile.getClientModified(), "dd MM yyyy HH:mm:ss");
-			}
-			if (localFile.length() == 0) {
-				localVal = null;
-			} else {
-				localVal = DateTimeUtils.getDateTime(new Date(localFile.lastModified()), "dd MM yyyy HH:mm:ss");
-			}
-			hashMap.put(EXTRA_KEY_OPERATION_DATA_REMOTE_DATE, remoteVal);
-			hashMap.put(EXTRA_KEY_OPERATION_DATA_LOCAL_DATE, localVal);
-			mIsSuccess = true;
-		} catch (Exception e) {
-			e.printStackTrace();
-			mIsSuccess = false;
+        }
+    }
 
-		}
-	}
+    private void uploadFile() {
+        try {
+            File localFile = new File(getApplicationContext().getExternalFilesDir(null), Consts.Files.EXEL_FILE_NAME);
+            String remoteFileName = localFile.getName();
+            InputStream inputStream = new FileInputStream(localFile);
+            FileMetadata result = client.files().uploadBuilder("/" + remoteFileName).withMode(WriteMode.OVERWRITE).uploadAndFinish(inputStream);
+            mIsSuccess = result != null;
+        } catch (DbxException | IOException e) {
+            e.printStackTrace();
+            mIsSuccess = false;
+        }
+    }
+
+    private void syncFile(FileMetadata remoteFile) {
+        File localFile = new File(getApplicationContext().getExternalFilesDir(null), Consts.Files.EXEL_FILE_NAME);
+        String remoteVal, localVal;
+        try {
+            if (remoteFile == null) {
+                remoteVal = null;
+            } else {
+                remoteVal = DateTimeUtils.getDateTime(remoteFile.getClientModified(), "dd MM yyyy HH:mm:ss");
+            }
+            if (localFile.length() == 0) {
+                localVal = null;
+            } else {
+                localVal = DateTimeUtils.getDateTime(new Date(localFile.lastModified()), "dd MM yyyy HH:mm:ss");
+            }
+            hashMap.put(EXTRA_KEY_OPERATION_DATA_REMOTE_DATE, remoteVal);
+            hashMap.put(EXTRA_KEY_OPERATION_DATA_LOCAL_DATE, localVal);
+            mIsSuccess = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            mIsSuccess = false;
+
+        }
+    }
 
 }

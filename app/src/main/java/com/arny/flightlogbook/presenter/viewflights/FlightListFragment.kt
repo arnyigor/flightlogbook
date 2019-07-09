@@ -11,15 +11,18 @@ import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
 import android.view.*
 import com.afollestad.materialdialogs.MaterialDialog
+import com.arellomobile.mvp.MvpAppCompatFragment
+import com.arellomobile.mvp.presenter.InjectPresenter
+import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.data.Consts
 import com.arny.flightlogbook.data.models.Flight
 import com.arny.flightlogbook.data.service.BackgroundIntentService
 import com.arny.flightlogbook.presenter.addedit.AddEditActivity
-import com.arny.flightlogbook.presenter.base.BaseMvpFragment
 import com.arny.flightlogbook.utils.Prefs
+import com.arny.flightlogbook.utils.ToastMaker
 import com.arny.flightlogbook.utils.Utility
-import com.arny.flightlogbook.utils.adapters.AbstractRecyclerViewAdapter
+import com.arny.flightlogbook.utils.adapters.SimpleAbstractAdapter
 import com.arny.flightlogbook.utils.dialogs.ConfirmDialogListener
 import com.arny.flightlogbook.utils.dialogs.ListDialogListener
 import com.arny.flightlogbook.utils.dialogs.confirmDialog
@@ -29,7 +32,7 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.fragment_flight_list.*
 
-class FlightListFragment : BaseMvpFragment<ViewFlightsContract.View, ViewFlightsPresenter>(), ViewFlightsContract.View {
+class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
     private var adapter: FlightsAdapter? = null
     private var finishOperation = true
     private val disposable = CompositeDisposable()
@@ -37,8 +40,16 @@ class FlightListFragment : BaseMvpFragment<ViewFlightsContract.View, ViewFlights
     private var mLayoutManager: LinearLayoutManager? = null
     private var topView: Int = 0
 
-    override fun initPresenter(): ViewFlightsPresenter {
-        return ViewFlightsPresenter()
+    @InjectPresenter
+    lateinit var viewFlightsPresenter: ViewFlightsPresenterImpl
+
+    @ProvidePresenter
+    fun provideMainPresenter(): ViewFlightsPresenterImpl {
+        return ViewFlightsPresenterImpl()
+    }
+
+    override fun toastError(msg: String?) {
+        ToastMaker.toastError(context, msg)
     }
 
     companion object {
@@ -61,10 +72,15 @@ class FlightListFragment : BaseMvpFragment<ViewFlightsContract.View, ViewFlights
         }
         tvTotalTime.setText(R.string.loading_totals)
         mLayoutManager = LinearLayoutManager(context)
-        listView.layoutManager = mLayoutManager
-        listView.itemAnimator = DefaultItemAnimator()
-        adapter = FlightsAdapter(context, AbstractRecyclerViewAdapter.OnViewHolderListener { view, position, item -> showMenuDialog(position) })
-        listView.adapter = adapter
+        rv_flights.layoutManager = mLayoutManager
+        rv_flights.itemAnimator = DefaultItemAnimator()
+        adapter = FlightsAdapter()
+        adapter?.setViewHolderListener(object : SimpleAbstractAdapter.OnViewHolderListener<Flight> {
+            override fun onItemClick(position: Int, item: Flight) {
+                showMenuDialog(item)
+            }
+        })
+        rv_flights.adapter = adapter
         restoreListPosition()
     }
 
@@ -111,7 +127,7 @@ class FlightListFragment : BaseMvpFragment<ViewFlightsContract.View, ViewFlights
     }
 
     private fun initFlights() {
-        mPresenter.loadFlights()
+        viewFlightsPresenter.loadFlights()
     }
 
     private fun restoreListPosition() {
@@ -122,20 +138,20 @@ class FlightListFragment : BaseMvpFragment<ViewFlightsContract.View, ViewFlights
 
     private fun saveListPosition() {
         positionIndex = mLayoutManager?.findFirstVisibleItemPosition() ?: 0
-        val startView = listView.getChildAt(0)
+        val startView = rv_flights.getChildAt(0)
         topView = if (startView == null) 0 else {
-            val paddingTop = listView.paddingTop
+            val paddingTop = rv_flights.paddingTop
             startView.top - paddingTop
         }
     }
 
-    private fun showMenuDialog(position: Int) {
+    private fun showMenuDialog(item: Flight) {
         context?.let { ctx ->
             listDialog(ctx, R.array.flights_edit_items, getString(R.string.choose_action), cancelable = true, dialogListener = ListDialogListener { selected ->
                 when (selected) {
                     0 -> try {
                         val intent = Intent(context, AddEditActivity::class.java)
-                        intent.putExtra(Consts.DB.COLUMN_ID, adapter?.getItem(position)?.id)
+                        intent.putExtra(Consts.DB.COLUMN_ID, item.id)
                         startActivity(intent)
                         activity?.overridePendingTransition(0, 0)
                     } catch (e: Exception) {
@@ -148,7 +164,7 @@ class FlightListFragment : BaseMvpFragment<ViewFlightsContract.View, ViewFlights
                         }
 
                         override fun onConfirm() {
-                            mPresenter.removeItem(adapter?.getItem(position))
+                            viewFlightsPresenter.removeItem(item)
                         }
                     })
                     2 -> {
@@ -158,7 +174,7 @@ class FlightListFragment : BaseMvpFragment<ViewFlightsContract.View, ViewFlights
                             }
 
                             override fun onConfirm() {
-                                mPresenter.removeAllFlights()
+                                viewFlightsPresenter.removeAllFlights()
                             }
                         })
 
@@ -173,18 +189,16 @@ class FlightListFragment : BaseMvpFragment<ViewFlightsContract.View, ViewFlights
         when (item.itemId) {
             R.id.action_filter -> {
                 val filters = resources.getStringArray(R.array.flights_filers)
-                context?.let {
-                    val filterPos = Prefs.getInt(Consts.PrefsConsts.CONFIG_USER_FILTER_FLIGHTS, it)
-                    val filter = filters[filterPos]
-                    MaterialDialog.Builder(it)
-                            .title(getString(R.string.str_sort_by) + " " + filter)
-                            .items(R.array.flights_filers)
-                            .autoDismiss(true)
-                            .itemsCallback { dialog, view, which, text ->
-                                Prefs.setInt(Consts.PrefsConsts.CONFIG_USER_FILTER_FLIGHTS, which, it)
-                                initFlights()
-                            }.show()
-                }
+                val filterPos = Prefs.getInstance(activity as Context).get<Int>(Consts.PrefsConsts.CONFIG_USER_FILTER_FLIGHTS)?:0
+                val filter = filters[filterPos]
+                MaterialDialog.Builder(activity as Context)
+                        .title(getString(R.string.str_sort_by) + " " + filter)
+                        .items(R.array.flights_filers)
+                        .autoDismiss(true)
+                        .itemsCallback { _, _, which, _ ->
+                            Prefs.getInstance(activity as Context).put(Consts.PrefsConsts.CONFIG_USER_FILTER_FLIGHTS, which)
+                            initFlights()
+                        }.show()
                 return true
             }
         }

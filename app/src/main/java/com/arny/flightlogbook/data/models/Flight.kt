@@ -7,9 +7,7 @@ import android.arch.persistence.room.PrimaryKey
 import com.arny.flightlogbook.utils.Utility
 
 @Entity(tableName = "main_table")
-data class Flight(@PrimaryKey()
-                  @ColumnInfo(name = "_id")
-                  var id: Long? = null) {
+data class Flight(@PrimaryKey() @ColumnInfo(name = "_id") var id: Long? = null) {
     var date: String? = null
     var datetime: Long? = null
     @ColumnInfo(name = "log_time")
@@ -18,7 +16,7 @@ data class Flight(@PrimaryKey()
     @Ignore
     var airplanetypetitle: String? = null
     @ColumnInfo(name = "airplane_type")
-    var aircraft_id: Int? = null
+    var aircraft_id: Long? = null
     @ColumnInfo(name = "day_night")
     var daynight: Int? = null
     @ColumnInfo(name = "ifr_vfr")

@@ -9,7 +9,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'io.fabric.tools:gradle:1.25.4'
+        classpath 'io.fabric.tools:gradle:1.27.0'
     }
 }
 
@@ -27,12 +27,12 @@ android {
             storePassword KEYSTORE_PASSWORD
         }
     }
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdkVersion versions.compileSdk
+    buildToolsVersion versions.buildTools
     defaultConfig {
+        minSdkVersion versions.minSdk
+        targetSdkVersion versions.targetSdk
         applicationId "com.arny.flightlogbook"
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 619
         versionName "6.1.9"
         vectorDrawables.useSupportLibrary = true
@@ -41,7 +41,6 @@ android {
     }
     buildTypes {
         debug {
-            applicationIdSuffix '.debug'
             minifyEnabled false
             useProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -84,53 +83,45 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "com.android.support:multidex:1.0.3"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    // Tests
-    testImplementation 'junit:junit:4.12'
-    testImplementation 'org.assertj:assertj-core:3.6.2'
-    androidTestImplementation 'com.squareup.assertj:assertj-android:1.2.0'
-    androidTestImplementation 'com.squareup.assertj:assertj-android-support-v4:1.2.0'
-    testImplementation 'org.mockito:mockito-core:2.19.0'
-    androidTestImplementation 'org.mockito:mockito-android:2.8.47'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test:rules:1.0.2'
+    implementation deps.kotlin.stdlib
+    implementation deps.kotlin.coroutinesCore
+    implementation deps.kotlin.coroutinesAndroid
     /*support*/
-    implementation "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
-    implementation "com.android.support:design:$rootProject.supportLibraryVersion"
-    implementation "com.android.support:recyclerview-v7:$rootProject.supportLibraryVersion"
-    implementation "com.android.support:preference-v7:$rootProject.supportLibraryVersion"
-    implementation "com.android.support:cardview-v7:$rootProject.supportLibraryVersion"
-    implementation "com.android.support:support-v4:$rootProject.supportLibraryVersion"
-    implementation "com.android.support.constraint:constraint-layout:$rootProject.constraintVersion"
-    implementation "com.android.support:support-vector-drawable:$rootProject.supportLibraryVersion"
-    //rx
-    implementation "io.reactivex.rxjava2:rxandroid:$rootProject.rxandroidVersion"
-    implementation "io.reactivex.rxjava2:rxjava:$rootProject.rxjavaVersion"
+    implementation deps.support.appCompat
+    implementation deps.support.design
+    implementation deps.support.recyclerView
+    implementation deps.support.preference
+    implementation deps.support.cardView
+    implementation deps.support.support
+    implementation deps.support.constraint
+    implementation deps.support.vector
     /*ROOM DB*/
-    implementation "android.arch.persistence.room:runtime:$rootProject.archRoomVersion"
-    androidTestImplementation "android.arch.persistence.room:testing:$rootProject.archRoomVersion"
-    kapt "android.arch.persistence.room:compiler:$rootProject.archRoomVersion"
-    implementation "android.arch.persistence.room:rxjava2:$rootProject.archRoomVersion"
-    /*Livecycle*/
-    implementation "android.arch.lifecycle:extensions:$lifecycle_version"
-    implementation "android.arch.lifecycle:viewmodel:$lifecycle_version" // use -ktx for Kotlin
-    implementation "android.arch.lifecycle:livedata:$lifecycle_version"
-    implementation "android.arch.lifecycle:runtime:$lifecycle_version"
-    annotationProcessor "android.arch.lifecycle:compiler:$lifecycle_version" // use kapt for Kotlin
-    kapt "android.arch.lifecycle:compiler:$lifecycle_version" // use kapt for Kotlin
-    implementation "android.arch.lifecycle:common-java8:$lifecycle_version"
-    implementation "android.arch.lifecycle:reactivestreams:$lifecycle_version"
-    testImplementation "android.arch.core:core-testing:$lifecycle_version"
-
-    implementation 'com.google.code.gson:gson:2.8.5'
-    implementation 'com.github.GrenderG:Toasty:1.1.4'
-    implementation 'com.github.tbruyelle:rxpermissions:0.10.2'
+    implementation deps.android.roomRuntime
+    kapt deps.android.roomCompiler
+    implementation deps.android.roomRx
+    //rx2
+    implementation deps.reactivex.rxJava
+    implementation deps.reactivex.rxAndroid
+    implementation deps.reactivex.rxKotlin
+    //mvp
+    implementation deps.additional.moxy
+    kapt deps.additional.moxyCompiler
+    implementation deps.additional.moxyAppCompat
+    implementation deps.additional.moxyAndroid
+    //di
+    implementation deps.google.dagger
+    kapt deps.google.daggerCompiler
+    //custom
+    implementation deps.google.gson
+    implementation deps.additional.toasty
+    implementation deps.additional.rxpermissions
+    implementation deps.additional.jodaTime
     implementation("com.mikepenz:materialdrawer:6.0.9@aar") {
         transitive = true
     }
-    implementation 'joda-time:joda-time:2.10'
     implementation 'com.mikepenz:google-material-typeface:3.0.1.2.original@aar'
     implementation 'com.mikepenz:material-design-iconic-typeface:2.2.0.4@aar'
+    implementation 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
     implementation 'com.dropbox.core:dropbox-core-sdk:2.1.1'
     implementation 'org.apache.poi:poi:3.9'
     implementation('com.crashlytics.sdk.android:crashlytics:2.8.0@aar') {
@@ -138,7 +129,8 @@ dependencies {
     }
     implementation 'com.code-troopers.betterpickers:library:3.1.0'
     implementation 'com.afollestad.material-dialogs:commons:0.9.6.0'
-    implementation 'com.facebook.stetho:stetho:1.5.0'
-    implementation 'com.facebook.stetho:stetho-okhttp3:1.5.0'
-    implementation 'com.redmadrobot:inputmask:3.4.4'
+    //interсept
+    implementation deps.facebook.stetho
+    implementation deps.facebook.networkInterceptor
+    implementation 'com.redmadrobot:inputmask:4.0.0'
 }

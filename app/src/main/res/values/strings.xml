@@ -16,6 +16,12 @@
     <string name="str_regnum">Рег.№</string>
     <string name="str_no_regnum">Нет рег.№</string>
     <string name="str_type_null">Тип ВС</string>
+    <string name="str_type_change_succesfull">Тип ВС изменен</string>
+    <string name="str_type_change_fail">Тип ВС не изменен</string>
+    <string name="str_type_remove_succesfull">Тип ВС удален</string>
+    <string name="str_type_remove_fail">Тип ВС не удален</string>
+    <string name="str_type_add_succesfull">Тип ВС добавлен</string>
+    <string name="str_type_add_fail">Тип ВС не добавлен</string>
     <string name="str_day_night">День/Ночь</string>
     <string name="str_vfr_ifr">визуально/по приборам</string>
     <string name="str_flight_type">круги/зона/маршрут</string>
@@ -136,6 +142,7 @@
 	<string name="record_not_found">Запись не найдена</string>
     <string name="choose_action">Выберите действие</string>
     <string name="aircraft_type_not_correct">Название типа некорректно</string>
-
+    <string name="save">Сохранить</string>
+    <string name="remove">Удалить</string>
 
 </resources>

@@ -36,7 +36,7 @@ public class Local {
 
 
 	//Insert Value
-    public static long addFlight(long datetime, int logtime, String reg_no, int airplanetypeid, int daynight, int ifr_vfr, int flighttype, String description, Context context) {
+    public static long addFlight(long datetime, int logtime, String reg_no, long airplanetypeid, int daynight, int ifr_vfr, int flighttype, String description, Context context) {
         ContentValues values = new ContentValues();
         values.put(COLUMN_DATETIME, datetime);
         values.put(COLUMN_LOG_TIME, logtime);
@@ -68,7 +68,7 @@ public class Local {
         return context.getResources().getText(R.string.no_type).toString();
     }
 
-    public static AircraftType getTypeItem(int iditem, Context context) {
+    public static AircraftType getTypeItem(long iditem, Context context) {
 	    Cursor cursor = DBProvider.selectDB(TYPE_TABLE, null, COLUMN_TYPE_ID + "=?",new String[]{String.valueOf(iditem)},null, context);
         return new AircraftType();
     }
@@ -245,19 +245,6 @@ public class Local {
     }
 
     //Get FavList
-    public static Flight getFlightItem(int id, Context context) {
-        Cursor cursor = DBProvider.queryDB( "SELECT _id,date,datetime,log_time,str_time,reg_no,day_night,ifr_vfr,flight_type,description,main_table.airplane_type as airplane_type,type_table.airplane_type as airplane_type_title FROM main_table LEFT JOIN type_table ON type_table.type_id=main_table.airplane_type WHERE _id = ?",new String[]{String.valueOf(id)}, context);
-        Flight cursorObject = new Flight();
-        if (cursorObject != null) {
-            AircraftType aircraftTypeItem = getTypeItem(cursorObject.getAircraft_id(), context);
-            if (aircraftTypeItem != null) {
-                cursorObject.setAirplanetypetitle(aircraftTypeItem.getTypeName());
-            }
-        }
-        return cursorObject;
-    }
-
-    //Get FavList
     public static List<Flight> getFlightListByDate(Context context) {
         return getFlightListByDate(context, null);
     }
@@ -276,47 +263,6 @@ public class Local {
         return cursorObjectList;
     }
 
-    //Get FavList
-    public static List<Flight> getFlightListFilter(long dateTimeFrom, long dateTimeTo, String filterQuery, Context context) {
-
-        String query = "SELECT  * FROM " + MAIN_TABLE;
-        if ((dateTimeFrom != 0) && (dateTimeTo != 0)) {
-            query += " WHERE " + COLUMN_DATETIME + ">=" + dateTimeFrom + " AND " + COLUMN_DATETIME + "<=" + dateTimeTo;
-        } else if (dateTimeFrom != 0) {
-            query += " WHERE " + COLUMN_DATETIME + ">=" + dateTimeFrom;
-        } else if (dateTimeTo != 0) {
-            query += " WHERE " + COLUMN_DATETIME + "<=" + dateTimeTo;
-        }
-        if (filterQuery != null) {
-            query += " AND " + filterQuery;
-        }
-        Cursor cursor = DBProvider.queryDB(query, null, context);
-        ArrayList<Flight> cursorObjectList = new ArrayList<>();
-        for (Flight flight : cursorObjectList) {
-            AircraftType aircraftTypeItem = getTypeItem(flight.getAircraft_id(), context);
-            if (aircraftTypeItem != null) {
-                flight.setAirplanetypetitle(aircraftTypeItem.getTypeName());
-            }
-        }
-        return cursorObjectList;
-    }
-
-    //Get FavList
-    public static List<Flight> getFlightListByPlaineType(String mPlanetype, Context context) {
-        String selectQuery = "SELECT MAIN.* FROM " + MAIN_TABLE + " as MAIN "
-                + " JOIN " + TYPE_TABLE + " as TYPE"
-                + " ON " + "MAIN." + COLUMN_AIRPLANE_TYPE + " = TYPE." + COLUMN_TYPE_ID
-                + " WHERE TYPE." + COLUMN_AIRPLANE_TYPE + " LIKE '%" + mPlanetype + "%'";
-        Cursor cursor = DBProvider.queryDB(selectQuery, null, context);
-        ArrayList<Flight> cursorObjectList = new ArrayList<>();
-        for (Flight flight : cursorObjectList) {
-            AircraftType aircraftTypeItem = getTypeItem(flight.getAircraft_id(), context);
-            if (aircraftTypeItem != null) {
-                flight.setAirplanetypetitle(aircraftTypeItem.getTypeName());
-            }
-        }
-        return cursorObjectList;
-    }
 
     //Get FavList
     public static AircraftType getType(String title, Context context) {

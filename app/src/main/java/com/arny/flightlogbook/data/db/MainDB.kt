@@ -11,9 +11,8 @@ import com.arny.flightlogbook.utils.SingletonHolder
 @Database(entities = [Flight::class, AircraftType::class, FlightType::class, FlightTypeValue::class, Migrations::class], version = Consts.DB.DB_VERSION, exportSchema = false)
 abstract class MainDB : RoomDatabase() {
     companion object : SingletonHolder<MainDB, Context>({
-        Room.databaseBuilder(it.applicationContext,
-                MainDB::class.java, Consts.DB.DB_NAME)
-                .fallbackToDestructiveMigration()
+        Room.databaseBuilder(it.applicationContext, MainDB::class.java, Consts.DB.DB_NAME)
+//                .fallbackToDestructiveMigration()
                 .build()
     })
     abstract val flightDAO: FlightDAO

@@ -1,10 +1,9 @@
 package com.arny.flightlogbook.utils
 
-import io.reactivex.Flowable
-import io.reactivex.Observable
-import io.reactivex.Scheduler
-import io.reactivex.Single
+import io.reactivex.*
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
@@ -27,6 +26,10 @@ fun <T> subscribeOnFunctionValue(onLoadFunc: () -> T): Observable<T> {
     }
 }
 
+fun Disposable.addTo(compositeDisposable: CompositeDisposable) {
+    compositeDisposable.add(this)
+}
+
 fun <T> IOThreadObservable(observable: Observable<T>): Observable<T> {
     return observable.subscribeOn(Schedulers.io())
 }
@@ -40,6 +43,19 @@ fun <T> observeOnMainThread(observable: Observable<T>): Observable<T> {
 }
 
 fun <T> Observable<T>.observeOnMain(): Observable<T> {
+    return this.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+}
+
+fun <T> Observable<T>.observeOnIO(): Observable<T> {
+    return this.subscribeOn(Schedulers.io())
+}
+
+
+fun <T> Single<T>.observeOnMain(): Single<T> {
+    return this.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+}
+
+fun <T> Maybe<T>.observeOnMain(): Maybe<T> {
     return this.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
 }
 
