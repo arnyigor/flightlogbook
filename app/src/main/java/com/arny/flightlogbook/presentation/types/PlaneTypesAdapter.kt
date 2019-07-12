@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.presenter.types
+package com.arny.flightlogbook.presentation.types
 
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.data.models.PlaneType

@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.presenter.about
+package com.arny.flightlogbook.presentation.about
 
 import android.os.Build
 import android.os.Bundle

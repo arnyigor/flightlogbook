@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.presenter.addedit
+package com.arny.flightlogbook.presentation.addedit
 
 import android.content.Context
 import com.arny.flightlogbook.data.models.PlaneType

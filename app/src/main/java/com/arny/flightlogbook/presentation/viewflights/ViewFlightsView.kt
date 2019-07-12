@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.presenter.viewflights
+package com.arny.flightlogbook.presentation.viewflights
 
 import com.arellomobile.mvp.MvpView
 import com.arellomobile.mvp.viewstate.strategy.OneExecutionStateStrategy

@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.presenter.addedit
+package com.arny.flightlogbook.presentation.addedit
 
 import android.annotation.SuppressLint
 import com.arellomobile.mvp.InjectViewState

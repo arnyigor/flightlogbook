@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.presenter.types
+package com.arny.flightlogbook.presentation.types
 
 import android.content.Context
 import android.os.Bundle
@@ -40,10 +40,6 @@ class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickL
         }
     }
 
-    override fun toastError(msg: String?) {
-        ToastMaker.toastError(context, msg)
-    }
-
     override fun onAttach(context: Context?) {
         super.onAttach(context)
         val parent = activity
@@ -55,27 +51,6 @@ class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickL
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        super.onCreateOptionsMenu(menu, inflater)
-        menu?.clear()
-    }
-
-    override fun setAdapterVisible(vis: Boolean) {
-
-    }
-
-    override fun setEmptyViewVisible(vis: Boolean) {
-
-    }
-
-    override fun itemRemoved(position: Int) {
-
-    }
-
-    override fun clearAdapter() {
-
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -102,6 +77,36 @@ class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickL
         rv_plane_types.adapter = adapter
         btn_remove_all_plane_types.setOnClickListener(this)
         btn_add_plane_type.setOnClickListener(this)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        typeListPresenter.loadTypes()
+    }
+
+    override fun toastError(msg: String?) {
+        ToastMaker.toastError(context, msg)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        super.onCreateOptionsMenu(menu, inflater)
+        menu?.clear()
+    }
+
+    override fun setAdapterVisible(vis: Boolean) {
+        rv_plane_types.setVisible(vis)
+    }
+
+    override fun setEmptyViewVisible(vis: Boolean) {
+        tv_no_plane_types.setVisible(vis)
+    }
+
+    override fun itemRemoved(position: Int) {
+        adapter?.remove(position)
+    }
+
+    override fun clearAdapter() {
+        adapter?.clear(true)
     }
 
     override fun onClick(v: View) {

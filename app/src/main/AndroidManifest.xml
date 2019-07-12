@@ -14,9 +14,8 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
-        <activity android:name=".presenter.types.PlaneTypesActivity"></activity>
         <activity
-            android:name=".presenter.main.MainActivity"
+            android:name=".presentation.main.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -25,39 +24,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <receiver
-            android:name=".data.additional.AppWidget"
-            android:icon="@drawable/ic_launcher"
-            android:label="@string/app_name">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_provider" />
-        </receiver>
-
         <activity
-            android:name=".presenter.addedit.AddEditActivity"
+            android:name=".presentation.addedit.AddEditActivity"
             android:label="@string/str_add"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".presenter.about.AboutActivity"
+            android:name=".presentation.about.AboutActivity"
             android:label="@string/str_about"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".presenter.settings.Preferences"
+            android:name=".presentation.settings.Preferences"
             android:label="@string/str_settings" />
-
-        <service
-            android:name=".data.service.BackgroundIntentService"
-            android:enabled="true"
-            android:exported="false"
-            android:label="BackgroundIntentService" />
-
+        <activity
+            android:name=".presentation.types.PlaneTypesActivity"
+            android:label="@string/str_airplane_types"
+            android:screenOrientation="portrait" />
         <activity
             android:name="com.dropbox.core.android.AuthActivity"
             android:configChanges="orientation|keyboard"
@@ -74,12 +56,28 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".presenter.common.FragmentContainerActivity"
+            android:name=".presentation.common.FragmentContainerActivity"
             android:screenOrientation="portrait" />
-
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="8bd3520e90d7d645d3151ea3044114aab59429c0" />
+        <receiver
+            android:name=".data.additional.AppWidget"
+            android:icon="@drawable/ic_launcher"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_provider" />
+        </receiver>
+        <service
+            android:name=".data.service.BackgroundIntentService"
+            android:enabled="true"
+            android:exported="false"
+            android:label="BackgroundIntentService" />
     </application>
 
 </manifest>

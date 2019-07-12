@@ -1,8 +1,7 @@
-package com.arny.flightlogbook.presenter.settings
+package com.arny.flightlogbook.presentation.settings
 
 import android.os.Bundle
 import android.preference.PreferenceActivity
-import android.support.v7.app.ActionBar
 import android.support.v7.widget.Toolbar
 import android.view.LayoutInflater
 import android.view.View

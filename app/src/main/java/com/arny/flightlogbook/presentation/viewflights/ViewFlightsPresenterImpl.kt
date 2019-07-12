@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.presenter.viewflights
+package com.arny.flightlogbook.presentation.viewflights
 
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter

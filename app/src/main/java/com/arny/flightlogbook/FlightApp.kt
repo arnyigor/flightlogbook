@@ -1,7 +1,9 @@
 package com.arny.flightlogbook
 
+//import android.support.multidex.MultiDex
 import android.app.Application
 import android.content.Context
+import android.support.multidex.MultiDex
 import com.arny.flightlogbook.di.AppComponent
 import com.arny.flightlogbook.di.AppModule
 import com.arny.flightlogbook.di.DaggerAppComponent
@@ -17,6 +19,10 @@ class FlightApp : Application() {
         lateinit var appContext: Context
         @JvmStatic
         lateinit var appComponent: AppComponent
+    }
+    override fun attachBaseContext(base: Context) {
+        super.attachBaseContext(base)
+        MultiDex.install(this)
     }
 
     override fun onCreate() {

@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.presenter.main
+package com.arny.flightlogbook.presentation.main
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -24,16 +24,16 @@ import android.view.View
 import android.widget.Toast
 import com.arny.flightlogbook.BuildConfig
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.presenter.settings.Preferences
+import com.arny.flightlogbook.presentation.settings.Preferences
 import com.arny.flightlogbook.data.Consts
 import com.arny.flightlogbook.data.Local
 import com.arny.flightlogbook.data.service.BackgroundIntentService
-import com.arny.flightlogbook.fragments.DropboxSyncFragment
-import com.arny.flightlogbook.fragments.StatisticFragment
-import com.arny.flightlogbook.presenter.about.AboutActivity
-import com.arny.flightlogbook.presenter.common.FragmentContainerActivity
-import com.arny.flightlogbook.presenter.types.PlaneTypesFragment
-import com.arny.flightlogbook.presenter.viewflights.FlightListFragment
+import com.arny.flightlogbook.presentation.sync.DropboxSyncFragment
+import com.arny.flightlogbook.presentation.statistic.StatisticFragment
+import com.arny.flightlogbook.presentation.about.AboutActivity
+import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
+import com.arny.flightlogbook.presentation.types.PlaneTypesFragment
+import com.arny.flightlogbook.presentation.viewflights.FlightListFragment
 import com.arny.flightlogbook.utils.*
 import com.mikepenz.google_material_typeface_library.GoogleMaterial
 import com.mikepenz.materialdrawer.Drawer

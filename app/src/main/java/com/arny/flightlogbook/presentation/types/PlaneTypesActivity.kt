@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.presenter.types
+package com.arny.flightlogbook.presentation.types
 
 import android.os.Bundle
 import android.support.v7.widget.DefaultItemAnimator

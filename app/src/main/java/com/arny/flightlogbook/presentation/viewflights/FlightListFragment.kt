@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.presenter.viewflights
+package com.arny.flightlogbook.presentation.viewflights
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -18,7 +18,7 @@ import com.arny.flightlogbook.R
 import com.arny.flightlogbook.data.Consts
 import com.arny.flightlogbook.data.models.Flight
 import com.arny.flightlogbook.data.service.BackgroundIntentService
-import com.arny.flightlogbook.presenter.addedit.AddEditActivity
+import com.arny.flightlogbook.presentation.addedit.AddEditActivity
 import com.arny.flightlogbook.utils.Prefs
 import com.arny.flightlogbook.utils.ToastMaker
 import com.arny.flightlogbook.utils.Utility

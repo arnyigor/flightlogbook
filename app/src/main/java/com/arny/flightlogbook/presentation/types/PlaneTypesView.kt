@@ -1,7 +1,6 @@
-package com.arny.flightlogbook.presenter.types
+package com.arny.flightlogbook.presentation.types
 
 import com.arellomobile.mvp.MvpView
-import com.arellomobile.mvp.viewstate.strategy.AddToEndSingleStrategy
 import com.arellomobile.mvp.viewstate.strategy.OneExecutionStateStrategy
 import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
 import com.arny.flightlogbook.data.models.PlaneType

@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.presenter.addedit
+package com.arny.flightlogbook.presentation.addedit
 
 import android.app.Activity
 import android.app.AlertDialog
@@ -19,8 +19,8 @@ import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.data.Consts
 import com.arny.flightlogbook.data.models.PlaneType
-import com.arny.flightlogbook.presenter.common.FragmentContainerActivity
-import com.arny.flightlogbook.presenter.types.PlaneTypesActivity
+import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
+import com.arny.flightlogbook.presentation.types.PlaneTypesActivity
 import com.arny.flightlogbook.utils.*
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment
 import com.redmadrobot.inputmask.MaskedTextChangedListener
