@@ -2,10 +2,9 @@ package com.arny.flightlogbook.data.source.base
 
 import android.content.Context
 import android.support.annotation.ColorRes
-import android.support.annotation.StringRes
 import android.support.v4.content.ContextCompat
-import com.arny.flightlogbook.utils.Prefs
-import com.arny.flightlogbook.utils.Utility
+import com.arny.flightlogbook.data.utils.Prefs
+import com.arny.flightlogbook.data.utils.Utility
 
 interface BaseRepository {
     fun getContext(): Context

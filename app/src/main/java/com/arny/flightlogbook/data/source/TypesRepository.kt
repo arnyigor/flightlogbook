@@ -1,6 +1,6 @@
 package com.arny.flightlogbook.data.source
 
-import com.arny.flightlogbook.data.db.AircraftTypeDAO
+import com.arny.flightlogbook.data.db.daos.AircraftTypeDAO
 import com.arny.flightlogbook.data.models.PlaneType
 import com.arny.flightlogbook.data.source.base.BaseRepository
 
@@ -19,7 +19,7 @@ interface TypesRepository : BaseRepository {
     fun addType(name: String): Boolean {
         val type = PlaneType()
         type.typeName = name
-        return getCraftTypeDAO().insert(type) > 0
+        return getCraftTypeDAO().insertReplace(type) > 0
     }
 
     fun removeType(type: PlaneType?): Boolean {
@@ -31,7 +31,7 @@ interface TypesRepository : BaseRepository {
     }
 
     fun updateType(type: PlaneType?): Boolean {
-        return getCraftTypeDAO().update(type) > 0
+        return type?.let { getCraftTypeDAO().updateReplace(type) > 0 } ?: false
     }
 
     fun updatePlaneTypeTitle(type: PlaneType?, title: String?): Boolean {

@@ -13,11 +13,11 @@ import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.data.models.PlaneType
-import com.arny.flightlogbook.utils.*
-import com.arny.flightlogbook.utils.dialogs.ConfirmDialogListener
-import com.arny.flightlogbook.utils.dialogs.InputDialogListener
-import com.arny.flightlogbook.utils.dialogs.confirmDialog
-import com.arny.flightlogbook.utils.dialogs.inputDialog
+import com.arny.flightlogbook.data.utils.*
+import com.arny.flightlogbook.data.utils.dialogs.ConfirmDialogListener
+import com.arny.flightlogbook.data.utils.dialogs.InputDialogListener
+import com.arny.flightlogbook.data.utils.dialogs.confirmDialog
+import com.arny.flightlogbook.data.utils.dialogs.inputDialog
 import kotlinx.android.synthetic.main.types_layout.btn_add_plane_type
 import kotlinx.android.synthetic.main.types_layout.btn_remove_all_plane_types
 import kotlinx.android.synthetic.main.types_layout.rv_plane_types

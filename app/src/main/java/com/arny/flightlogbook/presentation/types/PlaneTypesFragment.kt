@@ -13,13 +13,13 @@ import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.data.interfaces.FragmentResultListener
 import com.arny.flightlogbook.data.models.PlaneType
-import com.arny.flightlogbook.utils.ToastMaker
-import com.arny.flightlogbook.utils.dialogs.ConfirmDialogListener
-import com.arny.flightlogbook.utils.dialogs.InputDialogListener
-import com.arny.flightlogbook.utils.dialogs.confirmDialog
-import com.arny.flightlogbook.utils.dialogs.inputDialog
-import com.arny.flightlogbook.utils.empty
-import com.arny.flightlogbook.utils.setVisible
+import com.arny.flightlogbook.data.utils.ToastMaker
+import com.arny.flightlogbook.data.utils.dialogs.ConfirmDialogListener
+import com.arny.flightlogbook.data.utils.dialogs.InputDialogListener
+import com.arny.flightlogbook.data.utils.dialogs.confirmDialog
+import com.arny.flightlogbook.data.utils.dialogs.inputDialog
+import com.arny.flightlogbook.data.utils.empty
+import com.arny.flightlogbook.data.utils.setVisible
 import kotlinx.android.synthetic.main.types_layout.*
 
 class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickListener {

@@ -2,7 +2,7 @@ package com.arny.flightlogbook.presentation.types
 
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.data.models.PlaneType
-import com.arny.flightlogbook.utils.adapters.SimpleAbstractAdapter
+import com.arny.flightlogbook.data.utils.adapters.SimpleAbstractAdapter
 import kotlinx.android.synthetic.main.typeitem.view.*
 
 class PlaneTypesAdapter(private val flightTypesListener: FlightTypesListener? = null) : SimpleAbstractAdapter<PlaneType>() {

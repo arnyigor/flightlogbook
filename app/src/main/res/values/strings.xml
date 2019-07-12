@@ -146,5 +146,7 @@
     <string name="aircraft_type_not_correct">Название типа некорректно</string>
     <string name="save">Сохранить</string>
     <string name="remove">Удалить</string>
+    <string name="str_time_add_to_flight_time">Добавить к налету</string>
+    <string name="str_time_remove_from_flight_time">Убрать из налета</string>
 
 </resources>

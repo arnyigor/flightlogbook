@@ -1,8 +1,8 @@
 package com.arny.flightlogbook.di
 
-import com.arny.flightlogbook.presentation.addedit.AddEditPresenterImpl
+import com.arny.flightlogbook.presentation.flights.addedit.AddEditPresenterImpl
 import com.arny.flightlogbook.presentation.types.PlaneTypesPresenter
-import com.arny.flightlogbook.presentation.viewflights.ViewFlightsPresenterImpl
+import com.arny.flightlogbook.presentation.flights.viewflights.ViewFlightsPresenterImpl
 import dagger.Component
 import javax.inject.Singleton
 

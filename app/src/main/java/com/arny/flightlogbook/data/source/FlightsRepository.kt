@@ -1,13 +1,12 @@
 package com.arny.flightlogbook.data.source
 
-import com.arny.flightlogbook.data.db.AircraftTypeDAO
-import com.arny.flightlogbook.data.db.FlightDAO
+import com.arny.flightlogbook.data.db.daos.AircraftTypeDAO
+import com.arny.flightlogbook.data.db.daos.FlightDAO
 import com.arny.flightlogbook.data.models.Flight
-import com.arny.flightlogbook.data.source.base.BaseRepository
-import com.arny.flightlogbook.utils.OptionalNull
+import com.arny.flightlogbook.data.utils.OptionalNull
 import io.reactivex.Observable
 
-interface FlightsRepository : BaseRepository {
+interface FlightsRepository {
     fun getFlightDAO(): FlightDAO
     fun getCraftTypeDAO(): AircraftTypeDAO
     fun getDbFlights(order: String): ArrayList<Flight> {
@@ -15,15 +14,15 @@ interface FlightsRepository : BaseRepository {
     }
 
     fun updateFlight(flight: Flight): Observable<Boolean> {
-        return Observable.fromCallable { getFlightDAO().update(flight) > 0 }
+        return Observable.fromCallable { getFlightDAO().updateReplace(flight) > 0 }
     }
 
     fun insertFlight(flight: Flight): Observable<Boolean> {
-        return Observable.fromCallable { getFlightDAO().insert(flight) > 0 }
+        return Observable.fromCallable { getFlightDAO().insertReplace(flight) > 0 }
     }
 
     fun insertFlights(flights: ArrayList<Flight>): Observable<Boolean> {
-        return Observable.fromCallable { getFlightDAO().insertAll(flights) }
+        return Observable.fromCallable { getFlightDAO().insertReplace(flights) }
                 .map { it.any { it > 0 } }
     }
 

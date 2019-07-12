@@ -12,9 +12,9 @@ import com.arny.flightlogbook.R;
 import com.arny.flightlogbook.data.models.PlaneType;
 import com.arny.flightlogbook.data.models.Flight;
 import com.arny.flightlogbook.data.models.Statistic;
-import com.arny.flightlogbook.utils.BasePermissions;
-import com.arny.flightlogbook.utils.DBProvider;
-import com.arny.flightlogbook.utils.DateTimeUtils;
+import com.arny.flightlogbook.data.utils.BasePermissions;
+import com.arny.flightlogbook.data.utils.DBProvider;
+import com.arny.flightlogbook.data.utils.DateTimeUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -81,7 +81,7 @@ public class Local {
         return DBProvider.insertDB(TYPE_TABLE, values, context);
     }
 
-    // update Item
+    // updateReplace Item
     public static boolean updateFlight(long datetime, int logtime, String reg_no, int airplanetypeid, int daynight, int ifr_vfr, int flighttype, String description, int keyId, Context context) {
         ContentValues values = new ContentValues();
         values.put(COLUMN_ID, keyId);
@@ -106,7 +106,7 @@ public class Local {
         return DBProvider.updateDB(MAIN_TABLE, values, "_id=?", new String[]{String.valueOf(keyId)}, context)>0;
     }
 
-    // update Item
+    // updateReplace Item
     public static void updateType(String airplane_type, int keyId) {
         ContentValues values = new ContentValues();
         values.put(COLUMN_TYPE_ID, keyId);

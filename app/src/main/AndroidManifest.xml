@@ -25,7 +25,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".presentation.addedit.AddEditActivity"
+            android:name="com.arny.flightlogbook.presentation.flights.addedit.AddEditActivity"
             android:label="@string/str_add"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden" />

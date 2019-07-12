@@ -4,7 +4,7 @@ import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.ForeignKey
 import android.arch.persistence.room.PrimaryKey
-import com.arny.flightlogbook.utils.Utility
+import com.arny.flightlogbook.data.utils.Utility
 
 @Entity(tableName = "flight_type_values",
         foreignKeys = [ForeignKey(entity = FlightType::class, parentColumns = ["_id"], childColumns = ["type"], onDelete = ForeignKey.CASCADE)])

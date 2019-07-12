@@ -7,8 +7,8 @@ import android.util.Log;
 
 import com.arny.flightlogbook.data.Local;
 import com.arny.flightlogbook.data.models.Flight;
-import com.arny.flightlogbook.utils.DateTimeUtils;
-import com.arny.flightlogbook.utils.MathUtils;
+import com.arny.flightlogbook.data.utils.DateTimeUtils;
+import com.arny.flightlogbook.data.utils.MathUtils;
 
 import org.junit.FixMethodOrder;
 import org.junit.Test;

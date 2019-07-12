@@ -6,9 +6,9 @@ import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.data.models.PlaneType
 import com.arny.flightlogbook.data.source.MainRepositoryImpl
-import com.arny.flightlogbook.utils.addTo
-import com.arny.flightlogbook.utils.fromCallable
-import com.arny.flightlogbook.utils.observeOnMain
+import com.arny.flightlogbook.data.utils.addTo
+import com.arny.flightlogbook.data.utils.fromCallable
+import com.arny.flightlogbook.data.utils.observeOnMain
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 

@@ -4,10 +4,10 @@ import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.Ignore
 import android.arch.persistence.room.PrimaryKey
-import com.arny.flightlogbook.utils.Utility
+import com.arny.flightlogbook.data.utils.Utility
 
 @Entity(tableName = "main_table")
-data class Flight(@PrimaryKey() @ColumnInfo(name = "_id") var id: Long? = null) {
+data class Flight(@PrimaryKey(autoGenerate = true) @ColumnInfo(name = "_id") var id: Long? = null) {
     var date: String? = null
     var datetime: Long? = null
     @ColumnInfo(name = "log_time")

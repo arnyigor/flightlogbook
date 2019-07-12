@@ -33,8 +33,8 @@ import com.arny.flightlogbook.presentation.statistic.StatisticFragment
 import com.arny.flightlogbook.presentation.about.AboutActivity
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
 import com.arny.flightlogbook.presentation.types.PlaneTypesFragment
-import com.arny.flightlogbook.presentation.viewflights.FlightListFragment
-import com.arny.flightlogbook.utils.*
+import com.arny.flightlogbook.presentation.flights.viewflights.FlightListFragment
+import com.arny.flightlogbook.data.utils.*
 import com.mikepenz.google_material_typeface_library.GoogleMaterial
 import com.mikepenz.materialdrawer.Drawer
 import com.mikepenz.materialdrawer.DrawerBuilder

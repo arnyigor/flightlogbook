@@ -18,10 +18,10 @@ import com.arny.flightlogbook.data.service.BackgroundIntentService
 import com.arny.flightlogbook.data.source.MainRepositoryImpl
 import com.arny.flightlogbook.data.sync.dropbox.DropboxClientFactory
 import com.arny.flightlogbook.data.sync.dropbox.GetCurrentAccountTask
-import com.arny.flightlogbook.utils.DateTimeUtils
-import com.arny.flightlogbook.utils.Utility
-import com.arny.flightlogbook.utils.launchAsync
-import com.arny.flightlogbook.utils.setVisible
+import com.arny.flightlogbook.data.utils.DateTimeUtils
+import com.arny.flightlogbook.data.utils.Utility
+import com.arny.flightlogbook.data.utils.launchAsync
+import com.arny.flightlogbook.data.utils.setVisible
 import com.dropbox.core.android.Auth
 import com.dropbox.core.v2.users.FullAccount
 import es.dmoral.toasty.Toasty

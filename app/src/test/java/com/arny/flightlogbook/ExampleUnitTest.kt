@@ -1,6 +1,6 @@
 package com.arny.flightlogbook
 
-import com.arny.flightlogbook.utils.Utility.getTimeDiff
+import com.arny.flightlogbook.data.utils.Utility.getTimeDiff
 import org.assertj.core.api.Assertions.assertThat
 import org.joda.time.DateTime
 import org.junit.FixMethodOrder
