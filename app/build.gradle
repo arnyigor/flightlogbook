@@ -37,7 +37,6 @@ android {
         versionName "6.1.9"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-//        multiDexEnabled true
     }
     buildTypes {
         debug {
@@ -82,7 +81,6 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-//    implementation "com.android.support:multidex:1.0.3"
     implementation deps.kotlin.stdlib
     implementation deps.kotlin.coroutinesCore
     implementation deps.kotlin.coroutinesAndroid
