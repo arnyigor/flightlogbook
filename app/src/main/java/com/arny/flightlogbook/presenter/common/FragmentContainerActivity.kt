@@ -7,7 +7,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.data.interfaces.FragmentResultListener
-import com.arny.flightlogbook.presenter.types.TypeListFragment
+import com.arny.flightlogbook.presenter.types.PlaneTypesFragment
 import com.arny.flightlogbook.utils.getExtra
 import com.arny.flightlogbook.utils.replaceFragmentInActivity
 
@@ -24,11 +24,16 @@ class FragmentContainerActivity : AppCompatActivity(), FragmentResultListener {
             when (tag) {
                 "type_list" -> {
                     supportActionBar?.title = getString(R.string.str_airplane_types)
-                    fragment = TypeListFragment.getInstance()
+                    fragment = PlaneTypesFragment.getInstance()
                 }
             }
             fragment?.let { replaceFragmentInActivity(it, R.id.fragment_container) }
         }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_out_right)
     }
 
     override fun onSuccess(map: HashMap<String, String>) {

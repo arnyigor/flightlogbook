@@ -6,13 +6,10 @@ import com.arellomobile.mvp.MvpPresenter
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.data.Consts
-import com.arny.flightlogbook.data.models.AircraftType
 import com.arny.flightlogbook.data.models.Flight
+import com.arny.flightlogbook.data.models.PlaneType
 import com.arny.flightlogbook.data.source.MainRepositoryImpl
-import com.arny.flightlogbook.utils.DateTimeUtils
-import com.arny.flightlogbook.utils.MathUtils
-import com.arny.flightlogbook.utils.empty
-import com.arny.flightlogbook.utils.observeOnMain
+import com.arny.flightlogbook.utils.*
 import io.reactivex.disposables.CompositeDisposable
 import org.joda.time.DateTime
 import javax.inject.Inject
@@ -24,7 +21,7 @@ class AddEditPresenterImpl : MvpPresenter<AddEditView>(), AddEditPresenter {
     lateinit var repository: MainRepositoryImpl
     private var id: Long? = null
     private var logTime: Int = 0
-    private var aircraftType: AircraftType? = null
+    private var aircraftType: PlaneType? = null
     private var flight: Flight? = null
     private var mDateTime: Long = 0
     private var logHours: Int = 0
@@ -145,7 +142,7 @@ class AddEditPresenterImpl : MvpPresenter<AddEditView>(), AddEditPresenter {
         }
     }
 
-    override fun setAircraftType(aircraftType: AircraftType?) {
+    override fun setAircraftType(aircraftType: PlaneType?) {
         this.aircraftType = aircraftType
         this.flight?.aircraft_id = aircraftType?.typeId
     }
@@ -176,16 +173,19 @@ class AddEditPresenterImpl : MvpPresenter<AddEditView>(), AddEditPresenter {
     }
 
     override fun loadPlaneTypes() {
-        repository.loadTypes({
-            if (!it.empty()) {
-                viewState?.updateAircaftTypes(it)
-            } else {
-                viewState?.updateAircaftTypes(arrayListOf())
-            }
-        }, {
-            viewState?.updateAircaftTypes(arrayListOf())
-            it.printStackTrace()
-        })
+        fromCallable { repository.loadPlaneTypes() }
+                .observeOnMain()
+                .subscribe({
+                    if (it.isNotEmpty()) {
+                        viewState?.updateAircaftTypes(it)
+                    } else {
+                        viewState?.updateAircaftTypes(arrayListOf())
+                    }
+                }, {
+                    viewState?.updateAircaftTypes(arrayListOf())
+                    it.printStackTrace()
+                })
+                .addTo(compositeDisposable)
     }
 
     override fun initState(id: Long?) {

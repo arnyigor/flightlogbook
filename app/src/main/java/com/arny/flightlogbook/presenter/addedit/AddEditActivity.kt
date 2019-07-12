@@ -17,14 +17,11 @@ import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.adapter.AircraftSpinnerAdapter
 import com.arny.flightlogbook.data.Consts
-import com.arny.flightlogbook.data.models.AircraftType
+import com.arny.flightlogbook.data.models.PlaneType
 import com.arny.flightlogbook.presenter.common.FragmentContainerActivity
-import com.arny.flightlogbook.utils.ToastMaker
-import com.arny.flightlogbook.utils.Utility
-import com.arny.flightlogbook.utils.getExtra
-import com.arny.flightlogbook.utils.getIntentExtra
+import com.arny.flightlogbook.presenter.types.PlaneTypesActivity
+import com.arny.flightlogbook.utils.*
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment
 import com.redmadrobot.inputmask.MaskedTextChangedListener
 import kotlinx.android.synthetic.main.activity_addedit.*
@@ -191,7 +188,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         edtDate.setText(date)
     }
 
-    override fun updateAircaftTypes(types: List<AircraftType>) {
+    override fun updateAircaftTypes(types: List<PlaneType>) {
         aAdapter?.clear()
         aAdapter?.addAll(types)
     }
@@ -225,9 +222,8 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
                 return true
             }
             R.id.action_type_edit -> {
-                val i = Intent(this, FragmentContainerActivity::class.java)
-                i.putExtra("fragment_tag", "type_list")
-                startActivity(i)
+                launchActivity<PlaneTypesActivity> {}
+                overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
             }
         }
         return super.onOptionsItemSelected(item)

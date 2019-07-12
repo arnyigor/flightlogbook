@@ -1,79 +1,50 @@
 package com.arny.flightlogbook.data.source
 
 import com.arny.flightlogbook.data.db.AircraftTypeDAO
-import com.arny.flightlogbook.data.models.AircraftType
+import com.arny.flightlogbook.data.models.PlaneType
 import com.arny.flightlogbook.data.source.base.BaseRepository
-import com.arny.flightlogbook.utils.launchAsync
 
 
 interface TypesRepository : BaseRepository {
     fun getCraftTypeDAO(): AircraftTypeDAO
 
-    fun loadTypes(onComplete: (ArrayList<AircraftType>) -> Unit? = {}, onError: (Throwable) -> Unit? = {}) {
-        launchAsync({
-            getCraftTypeDAO().queryAircraftTypes()
-        }, {
-            onComplete.invoke(ArrayList(it))
-        }, {
-            onError.invoke(it)
-        })
+    fun loadPlaneTypes(): List<PlaneType> {
+        return getCraftTypeDAO().queryAircraftTypes()
     }
 
-    fun loadType(id: Long, onComplete: (AircraftType?) -> Unit? = {}, onError: (Throwable) -> Unit? = {}) {
-        launchAsync({
-            getCraftTypeDAO().queryAircraftType(id)
-        }, {
-            onComplete.invoke(it)
-        }, {
-            onError.invoke(it)
-        })
+    fun loadType(id: Long): PlaneType? {
+        return getCraftTypeDAO().queryAircraftType(id)
     }
 
-    fun addType(name: String, onComplete: (Boolean) -> Unit? = {}, onError: (Throwable) -> Unit? = {}) {
-        val type = AircraftType()
+    fun addType(name: String): Boolean {
+        val type = PlaneType()
         type.typeName = name
-        launchAsync({
-            getCraftTypeDAO().insert(type)
-        }, {
-            onComplete.invoke(it > 0)
-        }, {
-            onError.invoke(it)
-        })
+        return getCraftTypeDAO().insert(type) > 0
     }
 
-    fun removeType(type: AircraftType, onComplete: (Boolean) -> Unit? = {}, onError: (Throwable) -> Unit? = {}) {
-        launchAsync({
-            getCraftTypeDAO().delete(type.typeId)
-        }, {
-            onComplete.invoke(it > 0)
-        }, {
-            onError.invoke(it)
-        })
+    fun removeType(type: PlaneType?): Boolean {
+        return getCraftTypeDAO().delete(type?.typeId) > 0
     }
 
-    fun updateType(type: AircraftType, onComplete: (Boolean) -> Unit? = {}, onError: (Throwable) -> Unit? = {}) {
-        launchAsync({
-            getCraftTypeDAO().update(type)
-        }, {
-            onComplete.invoke(it > 0)
-        }, {
-            onError.invoke(it)
-        })
+    fun removeTypes(): Boolean {
+        return getCraftTypeDAO().delete() > 0
     }
 
-    fun getAircraftTypesCount(onComplete: (Int) -> Unit? = {}, onError: (Throwable) -> Unit? = {}) {
-        launchAsync({
-            val cursor = getCraftTypeDAO().queryAirplaneTypesCount()
-            var count = 0
-            if (cursor.moveToFirst()) {
-                count = cursor.getInt(0)
-                cursor.close()
-            }
-            count
-        }, {
-            onComplete.invoke(it)
-        }, {
-            onError.invoke(it)
-        })
+    fun updateType(type: PlaneType?): Boolean {
+        return getCraftTypeDAO().update(type) > 0
+    }
+
+    fun updatePlaneTypeTitle(type: PlaneType?, title: String?): Boolean {
+        return getCraftTypeDAO().setTitle(type?.typeId, title) > 0
+    }
+
+    fun getAircraftTypesCount(): Int {
+        val cursor = getCraftTypeDAO().queryAirplaneTypesCount()
+        var count = 0
+        if (cursor.moveToFirst()) {
+            count = cursor.getInt(0)
+            cursor.close()
+        }
+        return count
     }
 }

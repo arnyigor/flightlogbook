@@ -190,21 +190,6 @@ fun AppCompatActivity.resetFragmentsInManager() {
     }
 }
 
-fun <T> launchAsync(block: suspend () -> T, onComplete: (T) -> Unit = {}, onError: (Throwable) -> Unit = {}, context: CoroutineDispatcher = Dispatchers.Main, dispatcher: CoroutineDispatcher = Dispatchers.IO, onCanceled: () -> Unit = {}): Job {
-    return CoroutineScope(context).launch {
-        try {
-            val result = CoroutineScope(dispatcher).async { block.invoke() }.await()
-            onComplete.invoke(result)
-        } catch (e: CancellationException) {
-            Log.e("Execute Async", "canceled by user")
-            onCanceled()
-        } catch (e: Exception) {
-            onError(e)
-        }
-    }
-}
-
-
 /**
  * return items from second array wich not includes in first by custom diff in predicate
  * @param first ArrayList of  T
@@ -268,14 +253,18 @@ fun Cursor?.toItem(onCursor: (c: Cursor) -> Unit) {
     }
 }
 
-fun <T : Any> dumpArray(collection: List<T>?, predicate: (cls: T) -> String?): String {
-    var res = "dumpArray "
+fun <T : Any> Collection<T>?.dump(predicate: (cls: T) -> String?): String {
+    return dumpArray(this,predicate)
+}
+
+fun <T : Any> dumpArray(collection: Collection<T>?, predicate: (cls: T) -> String?): String {
+    var res = ""
     if (collection == null) {
-        res += "is null"
+        res += "Collection is null"
         return res
     }
     if (collection.isEmpty()) {
-        res += "is empty"
+        res += "Collection is empty"
         return res
     }
     for (ind in collection.withIndex()) {

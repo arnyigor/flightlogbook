@@ -30,6 +30,19 @@ fun Disposable.addTo(compositeDisposable: CompositeDisposable) {
     compositeDisposable.add(this)
 }
 
+fun <T> T.toObservable(): Observable<T> {
+    return Observable.just(this)
+}
+
+fun <T> fromCallable(callable: () -> T): Observable<T> {
+    return Observable.fromCallable(callable)
+}
+
+fun <T> fromNullable(callable: () -> T?): Observable<OptionalNull<T?>> {
+    val invoke = callable.invoke().toOptionalNull()
+    return Observable.just(invoke)
+}
+
 fun <T> IOThreadObservable(observable: Observable<T>): Observable<T> {
     return observable.subscribeOn(Schedulers.io())
 }
@@ -49,7 +62,6 @@ fun <T> Observable<T>.observeOnMain(): Observable<T> {
 fun <T> Observable<T>.observeOnIO(): Observable<T> {
     return this.subscribeOn(Schedulers.io())
 }
-
 
 fun <T> Single<T>.observeOnMain(): Single<T> {
     return this.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())

@@ -89,7 +89,7 @@ abstract class SimpleAbstractAdapter<T>(private var items: ArrayList<T> = arrayL
     fun addAll(list: List<T>, useDiffUtils: Boolean = true) {
         if (useDiffUtils) {
             val diffCallback = getDiffCallback()
-            if (diffCallback != null && !items.isEmpty()) {
+            if (diffCallback != null && items.isNotEmpty()) {
                 diffCallback.setItems(items, list)
                 val diffResult = DiffUtil.calculateDiff(diffCallback)
                 items.clear()

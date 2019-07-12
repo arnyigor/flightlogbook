@@ -9,7 +9,7 @@ import android.widget.Toast;
 
 import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
-import com.arny.flightlogbook.data.models.AircraftType;
+import com.arny.flightlogbook.data.models.PlaneType;
 import com.arny.flightlogbook.data.models.Flight;
 import com.arny.flightlogbook.data.models.Statistic;
 import com.arny.flightlogbook.utils.BasePermissions;
@@ -61,16 +61,16 @@ public class Local {
     }
 
     public static String getPlaneType(int airplane_type_id, Context context) {
-        AircraftType aircraftType = getTypeItem(airplane_type_id, context);
-        if (aircraftType != null) {
-            return aircraftType.getTypeName();
+        PlaneType planeType = getTypeItem(airplane_type_id, context);
+        if (planeType != null) {
+            return planeType.getTypeName();
         }
         return context.getResources().getText(R.string.no_type).toString();
     }
 
-    public static AircraftType getTypeItem(long iditem, Context context) {
+    public static PlaneType getTypeItem(long iditem, Context context) {
 	    Cursor cursor = DBProvider.selectDB(TYPE_TABLE, null, COLUMN_TYPE_ID + "=?",new String[]{String.valueOf(iditem)},null, context);
-        return new AircraftType();
+        return new PlaneType();
     }
 
     //Insert Value
@@ -111,7 +111,7 @@ public class Local {
         ContentValues values = new ContentValues();
         values.put(COLUMN_TYPE_ID, keyId);
         values.put(COLUMN_AIRPLANE_TYPE, airplane_type);
-        if (BuildConfig.DEBUG) Log.d(Local.class.getSimpleName(), "updateType" + "\n"
+        if (BuildConfig.DEBUG) Log.d(Local.class.getSimpleName(), "updatePlaneTypeTitle" + "\n"
                 + "keyId = " + keyId + "\n"
                 + "airplane_type_title = " + airplane_type);
 
@@ -265,13 +265,13 @@ public class Local {
 
 
     //Get FavList
-    public static AircraftType getType(String title, Context context) {
+    public static PlaneType getType(String title, Context context) {
         Cursor cursor = DBProvider.selectDB(TYPE_TABLE, null, COLUMN_AIRPLANE_TYPE + " = ?", new String[]{title},null, context);
-        return new AircraftType();
+        return new PlaneType();
     }
 
     //Get FavList
-    public static List<AircraftType> getTypeList(Context context) {
+    public static List<PlaneType> getTypeList(Context context) {
         String selectQuery = "SELECT type_id,airplane_type FROM " + TYPE_TABLE + " ORDER BY " + COLUMN_TYPE_ID;
         Cursor cursor = DBProvider.queryDB(selectQuery, null, context);
         return new ArrayList<>();

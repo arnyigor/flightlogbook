@@ -11,34 +11,32 @@ import com.arellomobile.mvp.MvpAppCompatFragment
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.adapter.FlightTypesAdapter
 import com.arny.flightlogbook.data.interfaces.FragmentResultListener
-import com.arny.flightlogbook.data.models.AircraftType
+import com.arny.flightlogbook.data.models.PlaneType
 import com.arny.flightlogbook.utils.ToastMaker
-import com.arny.flightlogbook.utils.Utility
 import com.arny.flightlogbook.utils.dialogs.ConfirmDialogListener
 import com.arny.flightlogbook.utils.dialogs.InputDialogListener
 import com.arny.flightlogbook.utils.dialogs.confirmDialog
 import com.arny.flightlogbook.utils.dialogs.inputDialog
 import com.arny.flightlogbook.utils.empty
 import com.arny.flightlogbook.utils.setVisible
-import kotlinx.android.synthetic.main.fragment_type_list.*
+import kotlinx.android.synthetic.main.types_layout.*
 
-class TypeListFragment : MvpAppCompatFragment(), TypeListView, View.OnClickListener {
-    private var adapter: FlightTypesAdapter? = null
+class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickListener {
+    private var adapter: PlaneTypesAdapter? = null
     private var fragmentResultListener: FragmentResultListener? = null
 
     @InjectPresenter
-    lateinit var typeListPresenter: TypeListPresenterImpl
+    lateinit var typeListPresenter: PlaneTypesPresenter
 
     @ProvidePresenter
-    fun provideTypeListPresenter(): TypeListPresenterImpl {
-        return TypeListPresenterImpl()
+    fun provideTypeListPresenter(): PlaneTypesPresenter {
+        return PlaneTypesPresenter()
     }
 
     companion object {
-        fun getInstance(): TypeListFragment {
-            return TypeListFragment()
+        fun getInstance(): PlaneTypesFragment {
+            return PlaneTypesFragment()
         }
     }
 
@@ -64,37 +62,65 @@ class TypeListFragment : MvpAppCompatFragment(), TypeListView, View.OnClickListe
         menu?.clear()
     }
 
+    override fun setAdapterVisible(vis: Boolean) {
+
+    }
+
+    override fun setEmptyViewVisible(vis: Boolean) {
+
+    }
+
+    override fun itemRemoved(position: Int) {
+
+    }
+
+    override fun clearAdapter() {
+
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_type_list, container, false)
+        return inflater.inflate(R.layout.types_layout, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        typelistView.layoutManager = LinearLayoutManager(context)
-        typelistView.itemAnimator = DefaultItemAnimator()
-        adapter = FlightTypesAdapter(object : FlightTypesAdapter.FlightTypesListener {
-            override fun onTypeEdit(position: Int, item: AircraftType) {
-                typeListPresenter.confirmEditType(item)
+        rv_plane_types.layoutManager = LinearLayoutManager(context)
+        rv_plane_types.itemAnimator = DefaultItemAnimator()
+        adapter = PlaneTypesAdapter(object : PlaneTypesAdapter.FlightTypesListener {
+            override fun onTypeEdit(position: Int, item: PlaneType) {
+                showEditDialog(item, position)
             }
 
-            override fun onTypeDelete(position: Int, item: AircraftType) {
-                typeListPresenter.confirmDeleteType(item)
+            override fun onTypeDelete(position: Int, item: PlaneType) {
+                showRemoveDialog(item, position)
             }
 
-            override fun onItemClick(position: Int, item: AircraftType) {
+            override fun onItemClick(position: Int, item: PlaneType) {
 
             }
         })
-        typelistView.adapter = adapter
-        removeallTypes.setOnClickListener(this)
-        addType.setOnClickListener(this)
+        rv_plane_types.adapter = adapter
+        btn_remove_all_plane_types.setOnClickListener(this)
+        btn_add_plane_type.setOnClickListener(this)
     }
 
     override fun onClick(v: View) {
         when (v.id) {
-            R.id.removeallTypes -> {
+            R.id.btn_remove_all_plane_types -> {
+                context?.let { ctx ->
+                    confirmDialog(ctx, getString(R.string.str_remove_all) + "?", null, getString(R.string.str_ok), getString(R.string.str_cancel), true, object : ConfirmDialogListener {
+                        override fun onConfirm() {
+                            typeListPresenter.removeAllPlaneTypes()
+                        }
+
+                        override fun onCancel() {
+
+                        }
+
+                    })
+                }
             }
-            R.id.addType -> {
+            R.id.btn_add_plane_type -> {
                 context?.let { ctx ->
                     inputDialog(ctx, getString(R.string.str_add_airplane_types), "", "", getString(R.string.str_ok), getString(R.string.str_cancel), false, InputType.TYPE_CLASS_TEXT, object : InputDialogListener {
                         override fun onConfirm(name: String) {
@@ -116,16 +142,11 @@ class TypeListFragment : MvpAppCompatFragment(), TypeListView, View.OnClickListe
         }
     }
 
-    override fun showEditDialog(type: AircraftType) {
+    override fun showEditDialog(type: PlaneType, position: Int) {
         context?.let { ctx ->
             inputDialog(ctx, getString(R.string.str_edt_airplane_types), "", type.typeName, getString(R.string.str_ok), getString(R.string.str_cancel), false, InputType.TYPE_CLASS_TEXT, object : InputDialogListener {
                 override fun onConfirm(newName: String) {
-                    if (!Utility.empty(newName)) {
-                        type.typeName = newName
-                        typeListPresenter.updateType(type)
-                    } else {
-                        Toast.makeText(ctx, R.string.str_alarm_add_airplane_type, Toast.LENGTH_LONG).show()
-                    }
+                    typeListPresenter.updatePlaneTypeTitle(type, newName, position)
                 }
 
                 override fun onCancel() {
@@ -135,7 +156,7 @@ class TypeListFragment : MvpAppCompatFragment(), TypeListView, View.OnClickListe
         }
     }
 
-    override fun showRemoveDialog(item: AircraftType) {
+    override fun showRemoveDialog(item: PlaneType, position: Int) {
         context?.let { ctx ->
             confirmDialog(ctx, "Вы хотите удалить ${item.typeName}", null, "Да", "Нет", false, object : ConfirmDialogListener {
                 override fun onConfirm() {
@@ -149,12 +170,19 @@ class TypeListFragment : MvpAppCompatFragment(), TypeListView, View.OnClickListe
         }
     }
 
-    override fun updateAdapter(list: ArrayList<AircraftType>) {
+    override fun notifyItemChanged(position: Int) {
+        adapter?.notifyItemChanged(position)
+    }
+
+    override fun updateAdapter(list: List<PlaneType>) {
         adapter?.addAll(list)
-        removeallTypes.setVisible(!adapter?.getItems().isNullOrEmpty())
     }
 
     override fun toastSuccess(string: String) {
         ToastMaker.toastSuccess(activity, string)
+    }
+
+    override fun setBtnRemoveAllVisible(vis: Boolean) {
+        btn_remove_all_plane_types.setVisible(vis)
     }
 }

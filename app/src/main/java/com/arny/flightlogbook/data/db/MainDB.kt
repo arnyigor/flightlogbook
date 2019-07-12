@@ -8,7 +8,7 @@ import com.arny.flightlogbook.data.Consts
 import com.arny.flightlogbook.data.models.*
 import com.arny.flightlogbook.utils.SingletonHolder
 
-@Database(entities = [Flight::class, AircraftType::class, FlightType::class, FlightTypeValue::class, Migrations::class], version = Consts.DB.DB_VERSION, exportSchema = false)
+@Database(entities = [Flight::class, PlaneType::class, FlightType::class, FlightTypeValue::class, Migrations::class], version = Consts.DB.DB_VERSION, exportSchema = false)
 abstract class MainDB : RoomDatabase() {
     companion object : SingletonHolder<MainDB, Context>({
         Room.databaseBuilder(it.applicationContext, MainDB::class.java, Consts.DB.DB_NAME)

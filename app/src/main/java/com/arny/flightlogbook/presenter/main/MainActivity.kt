@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.activities
+package com.arny.flightlogbook.presenter.main
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -24,14 +24,15 @@ import android.view.View
 import android.widget.Toast
 import com.arny.flightlogbook.BuildConfig
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.presenter.settings.Preferences
 import com.arny.flightlogbook.data.Consts
 import com.arny.flightlogbook.data.Local
 import com.arny.flightlogbook.data.service.BackgroundIntentService
-import com.arny.flightlogbook.data.source.MainRepositoryImpl
 import com.arny.flightlogbook.fragments.DropboxSyncFragment
 import com.arny.flightlogbook.fragments.StatisticFragment
+import com.arny.flightlogbook.presenter.about.AboutActivity
 import com.arny.flightlogbook.presenter.common.FragmentContainerActivity
-import com.arny.flightlogbook.presenter.types.TypeListFragment
+import com.arny.flightlogbook.presenter.types.PlaneTypesFragment
 import com.arny.flightlogbook.presenter.viewflights.FlightListFragment
 import com.arny.flightlogbook.utils.*
 import com.mikepenz.google_material_typeface_library.GoogleMaterial
@@ -174,7 +175,7 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
                 toolbar!!.title = getString(R.string.fragment_logbook)
             }
             MENU_TYPES -> {
-                fragment = TypeListFragment.getInstance()
+                fragment = PlaneTypesFragment.getInstance()
                 toolbar!!.title = getString(R.string.str_airplane_types)
             }
             MENU_STATS -> {

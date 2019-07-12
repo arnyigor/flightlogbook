@@ -1,6 +1,6 @@
 package com.arny.flightlogbook.presenter.addedit
 
-import com.arny.flightlogbook.data.models.AircraftType
+import com.arny.flightlogbook.data.models.PlaneType
 import com.arny.flightlogbook.data.models.Flight
 
 /**
@@ -11,7 +11,7 @@ interface AddEditPresenter {
     fun initEmptyUI()
     fun initUIFromId(id: Long?)
     fun setUIFromFlight(flight: Flight)
-    fun setAircraftType(aircraftType: AircraftType?)
+    fun setAircraftType(aircraftType: PlaneType?)
     fun correctLogTime(stringTime: String)
     fun onMotoTimeChange(startTime: String, finishTime: String)
     fun setMotoResult()
