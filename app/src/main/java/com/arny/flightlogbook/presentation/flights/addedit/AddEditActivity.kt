@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.support.annotation.NonNull
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.Toolbar
 import android.text.Editable
@@ -18,6 +19,7 @@ import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.data.Consts
+import com.arny.flightlogbook.data.db.intities.TimeToFlightEntity
 import com.arny.flightlogbook.data.models.PlaneType
 import com.arny.flightlogbook.data.utils.*
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
@@ -25,9 +27,11 @@ import com.arny.flightlogbook.presentation.types.PlaneTypesActivity
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment
 import com.redmadrobot.inputmask.MaskedTextChangedListener
 import kotlinx.android.synthetic.main.activity_addedit.*
+import kotlinx.android.synthetic.main.time_input_dialog_layout.view.*
 import java.util.*
 
 class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerDialogFragment.OnDateSetListener {
+    private var timesAdapter: FlightTimesAdapter? = null
     private var tvMotoResult: TextView? = null
     private var imm: InputMethodManager? = null
     private var aAdapter: AircraftSpinnerAdapter? = null
@@ -45,11 +49,45 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_addedit)
         val toolbar = findViewById<Toolbar>(R.id.edit_toolbar)
-        toolbar.setTitleTextColor(ContextCompat.getColor(this@AddEditActivity, R.color.colorText))
+//        toolbar.setTitleTextColor(ContextCompat.getColor(this@AddEditActivity, R.color.colorText))
         setupActionBar(toolbar) {
             title = getString(R.string.str_edt)
             this?.setDisplayHomeAsUpEnabled(true)
         }
+        val customRVLayoutManager = CustomRVLayoutManager(this)
+        customRVLayoutManager.setScrollEnabled(false)
+        timesAdapter = FlightTimesAdapter()
+
+        timesAdapter?.setViewHolderListener(object : FlightTimesAdapter.FlightTimesClickListener {
+            override fun onTimeIncludeToflight(position: Int, item: TimeToFlightEntity) {
+                addEditPresenter.onTimeItemAddToFlightTime(position, item)
+            }
+
+            override fun onTimeExcludeflight(position: Int, item: TimeToFlightEntity) {
+                addEditPresenter.onTimeExcludeFromFlightTime(position, item)
+            }
+
+            override fun onItemClick(position: Int, item: TimeToFlightEntity) {
+                createCustomLayoutDialog(R.layout.time_input_dialog_layout,{
+                    val listener = MaskedTextChangedListener.installOn(
+                            edt_time,
+                            "[00]:[00]",
+                            object : MaskedTextChangedListener.ValueListener {
+                                override fun onTextChanged(maskFilled: Boolean, @NonNull extractedValue: String, @NonNull formattedValue: String) {
+                                    Log.d("TAG", extractedValue)
+                                    Log.d("TAG", maskFilled.toString())
+                                }
+                            }
+                    )
+                    edt_time.setHint(listener.placeholder())
+                    edt_time.text.toString()
+                })
+                //addEditPresenter.onAddTimeChange(position, item)
+            }
+
+        })
+        rv_time_types.layoutManager = customRVLayoutManager
+        rv_time_types.adapter = timesAdapter
         initUI()
         initTypes()
         addEditPresenter.initState(getIntentExtra<Long>(intent, Consts.DB.COLUMN_ID))
@@ -124,7 +162,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
                         }
                     }
                 }, object : MaskedTextChangedListener.ValueListener {
-            override fun onTextChanged(maskFilled: Boolean, extractedValue: String) {
+            override fun onTextChanged(maskFilled: Boolean, extractedValue: String, formattedValue: String) {
                 if (maskFilled) {
                     addEditPresenter.initDateFromMask(maskFilled, extractedValue)
                 }

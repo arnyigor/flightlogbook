@@ -133,5 +133,5 @@ dependencies {
     //interсept
     implementation deps.facebook.stetho
     implementation deps.facebook.networkInterceptor
-    implementation 'com.redmadrobot:inputmask:4.0.0'
+    implementation deps.additional.inputmask
 }

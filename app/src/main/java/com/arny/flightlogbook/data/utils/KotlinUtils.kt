@@ -893,20 +893,9 @@ fun listDialog(context: Context, title: String, items: List<String>, cancelable:
 }
 
 
-fun <T : View> ContextThemeWrapper.createCustomViewDialog(title: String? = null,
-                                                          viewCreator: (Context) -> T,
-                                                          positivePair: Pair<String, (() -> Unit)?>? = null,
-                                                          negativePair: Pair<String, (() -> Unit)?>? = null,
-                                                          cancelable: Boolean = true, theme: Int? = null): AlertDialog {
-    val builder = if (theme != null) {
-        AlertDialog.Builder(this, theme)
-    } else {
-        AlertDialog.Builder(this)
-    }
-    title?.let { builder.setTitle(title) }
-    builder.setView(viewCreator(this))
-    positivePair?.let { builder.setPositiveButton(it.first) { _, _ -> it.second?.invoke() } }
-    negativePair?.let { builder.setNegativeButton(it.first) { _, _ -> it.second?.invoke() } }
+fun Activity.createCustomLayoutDialog(@LayoutRes layout: Int, initView: View.() -> Unit, cancelable: Boolean = true): AlertDialog? {
+    val builder = AlertDialog.Builder(this)
+    builder.setView(LayoutInflater.from(this).inflate(layout, null, false).apply(initView))
     if (!cancelable) {
         builder.setCancelable(false)
     }

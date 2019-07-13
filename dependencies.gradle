@@ -72,7 +72,7 @@ ext.deps = [
         ],
         kotlin    : [
                 'gradlePlugin'     : "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}",
-                'stdlib'           : "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin}",
+                'stdlib'           : "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versions.kotlin}",
                 'coroutinesCore'   : "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.coroutines}",
                 'coroutinesAndroid': "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.coroutines}",
         ],
@@ -116,7 +116,8 @@ ext.deps = [
                 'moxySupport'          : "com.android.support:appcompat-v7:${versions.supportLibrary}",
                 'moxyAndroid'          : "com.arello-mobile:moxy-android:${versions.moxy}",
                 'moxyCompiler'         : "com.arello-mobile:moxy-compiler:${versions.moxy}",
-                'rxpermissions'         : 'com.github.tbruyelle:rxpermissions:0.10.2'
+                'rxpermissions'        : 'com.github.tbruyelle:rxpermissions:0.10.2',
+                'inputmask'            : 'com.redmadrobot:input-mask-android:4.3.1'
         ],
         test      : [
                 'junit'          : "junit:junit:${versions.junit}",
