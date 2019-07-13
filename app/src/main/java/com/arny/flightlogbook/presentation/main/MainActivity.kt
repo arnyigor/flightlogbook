@@ -24,17 +24,17 @@ import android.view.View
 import android.widget.Toast
 import com.arny.flightlogbook.BuildConfig
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.presentation.settings.Preferences
-import com.arny.flightlogbook.data.Consts
+import com.arny.flightlogbook.data.CONSTS
 import com.arny.flightlogbook.data.Local
 import com.arny.flightlogbook.data.service.BackgroundIntentService
-import com.arny.flightlogbook.presentation.sync.DropboxSyncFragment
-import com.arny.flightlogbook.presentation.statistic.StatisticFragment
+import com.arny.flightlogbook.data.utils.*
 import com.arny.flightlogbook.presentation.about.AboutActivity
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
-import com.arny.flightlogbook.presentation.types.PlaneTypesFragment
 import com.arny.flightlogbook.presentation.flights.viewflights.FlightListFragment
-import com.arny.flightlogbook.data.utils.*
+import com.arny.flightlogbook.presentation.settings.Preferences
+import com.arny.flightlogbook.presentation.statistic.StatisticFragment
+import com.arny.flightlogbook.presentation.sync.DropboxSyncFragment
+import com.arny.flightlogbook.presentation.types.PlaneTypesFragment
 import com.mikepenz.google_material_typeface_library.GoogleMaterial
 import com.mikepenz.materialdrawer.Drawer
 import com.mikepenz.materialdrawer.DrawerBuilder
@@ -297,7 +297,7 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
-            Consts.RequestCodes.REQUEST_EXTERNAL_STORAGE_XLS -> if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            CONSTS.REQUESTS.REQUEST_EXTERNAL_STORAGE_XLS -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 fileintent = Intent()
                 fileintent!!.action = Intent.ACTION_GET_CONTENT
                 fileintent!!.addCategory(Intent.CATEGORY_OPENABLE)
@@ -306,7 +306,7 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
             } else {
                 Toast.makeText(context, R.string.str_storage_permission_denied, Toast.LENGTH_SHORT).show()
             }
-            Consts.RequestCodes.REQUEST_DBX_EXTERNAL_STORAGE -> if (BasePermissions.permissionGranted(grantResults)) {
+            CONSTS.REQUESTS.REQUEST_DBX_EXTERNAL_STORAGE -> if (BasePermissions.permissionGranted(grantResults)) {
                 val dropboxSyncFragment = supportFragmentManager.findFragmentById(R.id.container)
                 if (dropboxSyncFragment is DropboxSyncFragment) {
                     dropboxSyncFragment.getFileData()
@@ -356,7 +356,7 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
         try {
             val myIntent = Intent(Intent.ACTION_VIEW)
             val sdPath = Environment.getExternalStorageDirectory()
-            val file = File(sdPath.toString() + "/Android/data/com.arny.flightlogbook/files", Consts.Files.EXEL_FILE_NAME)
+            val file = File(sdPath.toString() + "/Android/data/com.arny.flightlogbook/files", CONSTS.FILES.EXEL_FILE_NAME)
             val extension = android.webkit.MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(file).toString())
             val mimetype = android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
             myIntent.setDataAndType(Uri.fromFile(file), mimetype)

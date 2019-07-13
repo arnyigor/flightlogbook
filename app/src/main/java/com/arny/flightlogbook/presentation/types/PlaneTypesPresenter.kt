@@ -120,7 +120,4 @@ class PlaneTypesPresenter : MvpPresenter<PlaneTypesView>() {
                 .addTo(compositeDisposable)
     }
 
-    fun editTypeDlg(item: PlaneType, position: Int) {
-        viewState?.showEditDialog(item, position)
-    }
 }

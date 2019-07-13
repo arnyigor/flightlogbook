@@ -18,10 +18,7 @@ import com.arny.flightlogbook.data.utils.dialogs.ConfirmDialogListener
 import com.arny.flightlogbook.data.utils.dialogs.InputDialogListener
 import com.arny.flightlogbook.data.utils.dialogs.confirmDialog
 import com.arny.flightlogbook.data.utils.dialogs.inputDialog
-import kotlinx.android.synthetic.main.types_layout.btn_add_plane_type
-import kotlinx.android.synthetic.main.types_layout.btn_remove_all_plane_types
-import kotlinx.android.synthetic.main.types_layout.rv_plane_types
-import kotlinx.android.synthetic.main.types_layout.tv_no_plane_types
+import kotlinx.android.synthetic.main.types_layout.*
 
 class PlaneTypesActivity : MvpAppCompatActivity(), PlaneTypesView, View.OnClickListener {
     private var adapter: PlaneTypesAdapter? = null
@@ -46,7 +43,7 @@ class PlaneTypesActivity : MvpAppCompatActivity(), PlaneTypesView, View.OnClickL
         rv_plane_types.itemAnimator = DefaultItemAnimator()
         adapter = PlaneTypesAdapter(object : PlaneTypesAdapter.FlightTypesListener {
             override fun onTypeEdit(position: Int, item: PlaneType) {
-                typeListPresenter.editTypeDlg(item, position)
+                showEditDialog(item, position)
             }
 
             override fun onTypeDelete(position: Int, item: PlaneType) {

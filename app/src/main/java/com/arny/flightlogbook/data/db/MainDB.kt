@@ -4,17 +4,17 @@ import android.arch.persistence.room.Database
 import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
 import android.content.Context
-import com.arny.flightlogbook.data.Consts
+import com.arny.flightlogbook.data.CONSTS
 import com.arny.flightlogbook.data.db.daos.*
 import com.arny.flightlogbook.data.db.intities.TimeToFlightEntity
 import com.arny.flightlogbook.data.db.intities.TimeTypeEntity
 import com.arny.flightlogbook.data.models.*
 import com.arny.flightlogbook.data.utils.SingletonHolder
 
-@Database(entities = [Flight::class, PlaneType::class, FlightType::class, FlightTypeValue::class, Migrations::class, TimeTypeEntity::class, TimeToFlightEntity::class], version = Consts.DB.DB_VERSION, exportSchema = false)
+@Database(entities = [Flight::class, PlaneType::class, FlightType::class, FlightTypeValue::class, Migrations::class, TimeTypeEntity::class, TimeToFlightEntity::class], version = CONSTS.DB.DB_VERSION, exportSchema = false)
 abstract class MainDB : RoomDatabase() {
     companion object : SingletonHolder<MainDB, Context>({
-        Room.databaseBuilder(it.applicationContext, MainDB::class.java, Consts.DB.DB_NAME)
+        Room.databaseBuilder(it.applicationContext, MainDB::class.java, CONSTS.DB.DB_NAME)
 //                .fallbackToDestructiveMigration()
                 .build()
     })

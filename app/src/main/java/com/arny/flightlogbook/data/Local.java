@@ -9,8 +9,8 @@ import android.widget.Toast;
 
 import com.arny.flightlogbook.BuildConfig;
 import com.arny.flightlogbook.R;
-import com.arny.flightlogbook.data.models.PlaneType;
 import com.arny.flightlogbook.data.models.Flight;
+import com.arny.flightlogbook.data.models.PlaneType;
 import com.arny.flightlogbook.data.models.Statistic;
 import com.arny.flightlogbook.data.utils.BasePermissions;
 import com.arny.flightlogbook.data.utils.DBProvider;
@@ -20,18 +20,18 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.arny.flightlogbook.data.Consts.DB.COLUMN_AIRPLANE_TYPE;
-import static com.arny.flightlogbook.data.Consts.DB.COLUMN_DATETIME;
-import static com.arny.flightlogbook.data.Consts.DB.COLUMN_DAY_NIGHT;
-import static com.arny.flightlogbook.data.Consts.DB.COLUMN_DESCRIPTION;
-import static com.arny.flightlogbook.data.Consts.DB.COLUMN_FLIGHT_TYPE;
-import static com.arny.flightlogbook.data.Consts.DB.COLUMN_ID;
-import static com.arny.flightlogbook.data.Consts.DB.COLUMN_IFR_VFR;
-import static com.arny.flightlogbook.data.Consts.DB.COLUMN_LOG_TIME;
-import static com.arny.flightlogbook.data.Consts.DB.COLUMN_REG_NO;
-import static com.arny.flightlogbook.data.Consts.DB.COLUMN_TYPE_ID;
-import static com.arny.flightlogbook.data.Consts.DB.MAIN_TABLE;
-import static com.arny.flightlogbook.data.Consts.DB.TYPE_TABLE;
+import static com.arny.flightlogbook.data.CONSTS.DB.COLUMN_AIRPLANE_TYPE;
+import static com.arny.flightlogbook.data.CONSTS.DB.COLUMN_DATETIME;
+import static com.arny.flightlogbook.data.CONSTS.DB.COLUMN_DAY_NIGHT;
+import static com.arny.flightlogbook.data.CONSTS.DB.COLUMN_DESCRIPTION;
+import static com.arny.flightlogbook.data.CONSTS.DB.COLUMN_FLIGHT_TYPE;
+import static com.arny.flightlogbook.data.CONSTS.DB.COLUMN_ID;
+import static com.arny.flightlogbook.data.CONSTS.DB.COLUMN_IFR_VFR;
+import static com.arny.flightlogbook.data.CONSTS.DB.COLUMN_LOG_TIME;
+import static com.arny.flightlogbook.data.CONSTS.DB.COLUMN_REG_NO;
+import static com.arny.flightlogbook.data.CONSTS.DB.COLUMN_TYPE_ID;
+import static com.arny.flightlogbook.data.CONSTS.DB.MAIN_TABLE;
+import static com.arny.flightlogbook.data.CONSTS.DB.TYPE_TABLE;
 public class Local {
 
 
@@ -282,7 +282,7 @@ public class Local {
             Toast.makeText(context, R.string.storage_not_avalable, Toast.LENGTH_LONG).show();
             return false;
         }
-        File file = new File(Environment.getExternalStorageDirectory() + "/Android/data/com.arny.flightlogbook/files", Consts.Files.EXEL_FILE_NAME);
+        File file = new File(Environment.getExternalStorageDirectory() + "/Android/data/com.arny.flightlogbook/files", CONSTS.FILES.EXEL_FILE_NAME);
         return file.exists() && file.isFile();
     }
 }

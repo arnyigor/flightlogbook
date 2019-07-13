@@ -85,6 +85,23 @@
                     tools:text="00:00" />
             </android.support.design.widget.TextInputLayout>
 
+            <TextView
+                android:id="@+id/tv_add_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:textColor="@color/md_white_1000"
+                android:background="@drawable/btn_bg_primary"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:text="@string/add_time"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/barrier" />
+
             <android.support.constraint.Barrier
                 android:id="@+id/barrier"
                 android:layout_width="wrap_content"
@@ -96,6 +113,7 @@
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/rv_time_types"
                 android:layout_width="match_parent"
+                android:visibility="gone"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
@@ -103,8 +121,9 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/barrier"
+                app:layout_constraintTop_toBottomOf="@+id/tv_add_time"
                 tools:itemCount="2"
                 tools:listitem="@layout/flight_times_item_layout" />
 
@@ -131,11 +150,7 @@
                 android:id="@+id/til_descr"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
@@ -162,8 +177,6 @@
                     android:id="@+id/edtRegNo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="8dp"
                     android:hint="@string/str_regnum" />
 
             </android.support.design.widget.TextInputLayout>

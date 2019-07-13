@@ -148,5 +148,10 @@
     <string name="remove">Удалить</string>
     <string name="str_time_add_to_flight_time">Добавить к налету</string>
     <string name="str_time_remove_from_flight_time">Убрать из налета</string>
+    <string name="add_time">Добавить время</string>
+    <string name="empty_list">Список пуст</string>
+    <string name="str_edt_time_type">Название времени</string>
+    <string name="confirm_delete_time_type">Удалить тип времени?</string>
+    <string name="str_add_time_type">Добавить тип времени</string>
 
 </resources>

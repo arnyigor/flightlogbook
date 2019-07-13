@@ -15,16 +15,16 @@ import com.arellomobile.mvp.MvpAppCompatFragment
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.data.Consts
+import com.arny.flightlogbook.data.CONSTS
 import com.arny.flightlogbook.data.models.Flight
 import com.arny.flightlogbook.data.service.BackgroundIntentService
 import com.arny.flightlogbook.data.utils.*
-import com.arny.flightlogbook.presentation.flights.addedit.AddEditActivity
 import com.arny.flightlogbook.data.utils.adapters.SimpleAbstractAdapter
 import com.arny.flightlogbook.data.utils.dialogs.ConfirmDialogListener
 import com.arny.flightlogbook.data.utils.dialogs.ListDialogListener
 import com.arny.flightlogbook.data.utils.dialogs.confirmDialog
 import com.arny.flightlogbook.data.utils.dialogs.listDialog
+import com.arny.flightlogbook.presentation.flights.addedit.AddEditActivity
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.fragment_flight_list.*
@@ -148,7 +148,7 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
                 when (selected) {
                     0 -> {
                         launchActivity<AddEditActivity> {
-                            putExtra(Consts.DB.COLUMN_ID, item.id)
+                            putExtra(CONSTS.DB.COLUMN_ID, item.id)
                         }
                         activity?.overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
                     }
@@ -183,14 +183,14 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
         when (item.itemId) {
             R.id.action_filter -> {
                 val filters = resources.getStringArray(R.array.flights_filers)
-                val filterPos = Prefs.getInstance(activity as Context).get<Int>(Consts.PrefsConsts.CONFIG_USER_FILTER_FLIGHTS)?:0
+                val filterPos = Prefs.getInstance(activity as Context).get<Int>(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS)?:0
                 val filter = filters[filterPos]
                 MaterialDialog.Builder(activity as Context)
                         .title(getString(R.string.str_sort_by) + " " + filter)
                         .items(R.array.flights_filers)
                         .autoDismiss(true)
                         .itemsCallback { _, _, which, _ ->
-                            Prefs.getInstance(activity as Context).put(Consts.PrefsConsts.CONFIG_USER_FILTER_FLIGHTS, which)
+                            Prefs.getInstance(activity as Context).put(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS, which)
                             initFlights()
                         }.show()
                 return true

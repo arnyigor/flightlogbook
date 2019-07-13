@@ -4,7 +4,7 @@ import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.data.Consts
+import com.arny.flightlogbook.data.CONSTS
 import com.arny.flightlogbook.data.models.Flight
 import com.arny.flightlogbook.data.source.MainRepositoryImpl
 import com.arny.flightlogbook.data.utils.DateTimeUtils
@@ -50,15 +50,15 @@ class ViewFlightsPresenterImpl : MvpPresenter<ViewFlightsView>(), ViewFlightsPre
     }
 
     private fun getFilterflights(filtertype: Int): String = when (filtertype) {
-        0 -> Consts.DB.COLUMN_DATETIME + " ASC"
-        1 -> Consts.DB.COLUMN_DATETIME + " DESC"
-        3 -> Consts.DB.COLUMN_LOG_TIME + " DESC"
-        2 -> Consts.DB.COLUMN_LOG_TIME + " ASC"
-        else -> Consts.DB.COLUMN_DATETIME + " ASC"
+        0 -> CONSTS.DB.COLUMN_DATETIME + " ASC"
+        1 -> CONSTS.DB.COLUMN_DATETIME + " DESC"
+        3 -> CONSTS.DB.COLUMN_LOG_TIME + " DESC"
+        2 -> CONSTS.DB.COLUMN_LOG_TIME + " ASC"
+        else -> CONSTS.DB.COLUMN_DATETIME + " ASC"
     }
 
     override fun loadFlights() {
-        Observable.fromCallable { getFilterflights(repository.getPrefInt(Consts.PrefsConsts.CONFIG_USER_FILTER_FLIGHTS)) }
+        Observable.fromCallable { getFilterflights(repository.getPrefInt(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS)) }
                 .map { repository.getDbFlights(it) }
                 .observeOnMain()
                 .subscribe({ flights ->

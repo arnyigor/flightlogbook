@@ -9,10 +9,10 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.arny.flightlogbook.R;
-import com.arny.flightlogbook.data.Consts;
+import com.arny.flightlogbook.data.CONSTS;
 import com.arny.flightlogbook.data.Local;
-import com.arny.flightlogbook.data.models.PlaneType;
 import com.arny.flightlogbook.data.models.Flight;
+import com.arny.flightlogbook.data.models.PlaneType;
 import com.arny.flightlogbook.data.source.MainRepositoryImpl;
 import com.arny.flightlogbook.data.sync.dropbox.DropboxClientFactory;
 import com.arny.flightlogbook.data.utils.BasePermissions;
@@ -57,7 +57,7 @@ import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
 
 public class BackgroundIntentService extends IntentService {
-    /*Extras*/
+    /*EXTRAS*/
     public static final String ACTION = "com.arny.flightlogbook.data.service.BackgroundIntentService";
     public static final String EXTRA_KEY_OPERATION_CODE = "BackgroundIntentService.operation.code";
     public static final String EXTRA_KEY_OPERATION_RESULT = "BackgroundIntentService.operation.result";
@@ -184,7 +184,7 @@ public class BackgroundIntentService extends IntentService {
             case OPERATION_IMPORT_SD:
                 String mPath = intent.getStringExtra(EXTRA_KEY_IMPORT_SD_FILENAME);
                 if (Utility.empty(mPath)) {
-                    readExcelFile(getApplicationContext(), Consts.Files.EXEL_FILE_NAME, true);
+                    readExcelFile(getApplicationContext(), CONSTS.FILES.EXEL_FILE_NAME, true);
                 } else {
                     readExcelFile(getApplicationContext(), FileUtils.getSDFilePath(getApplicationContext(), Uri.fromFile(new File(mPath))), false);
                 }
@@ -232,7 +232,7 @@ public class BackgroundIntentService extends IntentService {
 
                 break;
             case OPERATION_EXPORT:
-                mIsSuccess = saveExcelFile(getApplicationContext(), Consts.Files.EXEL_FILE_NAME);
+                mIsSuccess = saveExcelFile(getApplicationContext(), CONSTS.FILES.EXEL_FILE_NAME);
                 break;
         }
 
@@ -242,7 +242,7 @@ public class BackgroundIntentService extends IntentService {
         ListFolderResult result = client.files().listFolder("");
         while (true) {
             for (Metadata metadata : result.getEntries()) {
-                if (metadata.getName().compareToIgnoreCase(Consts.Files.EXEL_FILE_NAME) == 0) {
+                if (metadata.getName().compareToIgnoreCase(CONSTS.FILES.EXEL_FILE_NAME) == 0) {
                     if (metadata instanceof FileMetadata) {
                         remoteMetadata = (FileMetadata) metadata;
                         break;
@@ -372,7 +372,7 @@ public class BackgroundIntentService extends IntentService {
         }
         try {
             if (fromSystem) {
-                xlsfile = new File(context.getExternalFilesDir(null), Consts.Files.EXEL_FILE_NAME);
+                xlsfile = new File(context.getExternalFilesDir(null), CONSTS.FILES.EXEL_FILE_NAME);
             } else {
                 xlsfile = new File("", filename);
             }
@@ -560,7 +560,7 @@ public class BackgroundIntentService extends IntentService {
     private void downloadFile(FileMetadata metadata) {
         try {
             syncFolder = getApplicationContext().getExternalFilesDir(null);
-            File file = new File(syncFolder, Consts.Files.EXEL_FILE_NAME);
+            File file = new File(syncFolder, CONSTS.FILES.EXEL_FILE_NAME);
             try {
                 OutputStream outputStream = new FileOutputStream(file);
                 client.files().download(metadata.getPathLower(), metadata.getRev()).download(outputStream);
@@ -574,9 +574,9 @@ public class BackgroundIntentService extends IntentService {
                 mIsSuccess = false;
 
             }
-            boolean autoimport = mainRepository.getPrefBoolean(Consts.PrefsConsts.DROPBOX_AUTOIMPORT_TO_DB, false);
+            boolean autoimport = mainRepository.getPrefBoolean(CONSTS.PREFS.PREF_DROPBOX_AUTOIMPORT_TO_DB, false);
             if (autoimport) {
-                readExcelFile(getApplicationContext(), Consts.Files.EXEL_FILE_NAME, true);
+                readExcelFile(getApplicationContext(), CONSTS.FILES.EXEL_FILE_NAME, true);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -587,7 +587,7 @@ public class BackgroundIntentService extends IntentService {
 
     private void uploadFile() {
         try {
-            File localFile = new File(getApplicationContext().getExternalFilesDir(null), Consts.Files.EXEL_FILE_NAME);
+            File localFile = new File(getApplicationContext().getExternalFilesDir(null), CONSTS.FILES.EXEL_FILE_NAME);
             String remoteFileName = localFile.getName();
             InputStream inputStream = new FileInputStream(localFile);
             FileMetadata result = client.files().uploadBuilder("/" + remoteFileName).withMode(WriteMode.OVERWRITE).uploadAndFinish(inputStream);
@@ -599,7 +599,7 @@ public class BackgroundIntentService extends IntentService {
     }
 
     private void syncFile(FileMetadata remoteFile) {
-        File localFile = new File(getApplicationContext().getExternalFilesDir(null), Consts.Files.EXEL_FILE_NAME);
+        File localFile = new File(getApplicationContext().getExternalFilesDir(null), CONSTS.FILES.EXEL_FILE_NAME);
         String remoteVal, localVal;
         try {
             if (remoteFile == null) {

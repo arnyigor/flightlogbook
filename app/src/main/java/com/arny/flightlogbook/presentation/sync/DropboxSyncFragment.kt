@@ -13,7 +13,7 @@ import android.view.*
 import android.widget.Toast
 import com.afollestad.materialdialogs.MaterialDialog
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.data.Consts
+import com.arny.flightlogbook.data.CONSTS
 import com.arny.flightlogbook.data.service.BackgroundIntentService
 import com.arny.flightlogbook.data.source.MainRepositoryImpl
 import com.arny.flightlogbook.data.sync.dropbox.DropboxClientFactory
@@ -104,7 +104,7 @@ class DropboxSyncFragment : Fragment() {
         dbxName = repository.getPrefString(PREF_DBX_NAME, "")
         tvDpxEmail.text = String.format(getString(R.string.dropbox_email), dbxEmail)
         tvDpxName.text = String.format(getString(R.string.dropbox_name), dbxName)
-        val autoImport = repository.getPrefBoolean(Consts.PrefsConsts.DROPBOX_AUTOIMPORT_TO_DB, false)
+        val autoImport = repository.getPrefBoolean(CONSTS.PREFS.PREF_DROPBOX_AUTOIMPORT_TO_DB, false)
         checkBoxAutoImport.isChecked = autoImport
         setSyncDataFileDateTime()
     }
@@ -128,7 +128,7 @@ class DropboxSyncFragment : Fragment() {
             }
         }
         btnSyncDown.setOnClickListener {
-            val autoImport = repository.getPrefBoolean(Consts.PrefsConsts.DROPBOX_AUTOIMPORT_TO_DB, false)
+            val autoImport = repository.getPrefBoolean(CONSTS.PREFS.PREF_DROPBOX_AUTOIMPORT_TO_DB, false)
             if (autoImport) {
                 context?.let { it1 ->
                     MaterialDialog.Builder(it1)
@@ -151,7 +151,7 @@ class DropboxSyncFragment : Fragment() {
                 }
             }
         }
-        checkBoxAutoImport.setOnCheckedChangeListener { _, b -> repository.setPrefBoolean(Consts.PrefsConsts.DROPBOX_AUTOIMPORT_TO_DB, b) }
+        checkBoxAutoImport.setOnCheckedChangeListener { _, b -> repository.setPrefBoolean(CONSTS.PREFS.PREF_DROPBOX_AUTOIMPORT_TO_DB, b) }
     }
 
     private fun setSyncDataFileDateTime() {

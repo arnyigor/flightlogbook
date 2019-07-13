@@ -18,11 +18,12 @@ import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.data.Consts
+import com.arny.flightlogbook.data.CONSTS
 import com.arny.flightlogbook.data.db.intities.TimeToFlightEntity
 import com.arny.flightlogbook.data.models.PlaneType
 import com.arny.flightlogbook.data.utils.*
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
+import com.arny.flightlogbook.presentation.times.TimesListActivity
 import com.arny.flightlogbook.presentation.types.PlaneTypesActivity
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment
 import com.redmadrobot.inputmask.MaskedTextChangedListener
@@ -38,11 +39,11 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
     private var needRealodTypes = false
 
     @InjectPresenter
-    lateinit var addEditPresenter: AddEditPresenterImpl
+    lateinit var addEditPresenter: AddEditPresenter
 
     @ProvidePresenter
-    fun provideAddEditPresenter(): AddEditPresenterImpl {
-        return AddEditPresenterImpl()
+    fun provideAddEditPresenter(): AddEditPresenter {
+        return AddEditPresenter()
     }
 
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,10 +55,10 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
             title = getString(R.string.str_edt)
             this?.setDisplayHomeAsUpEnabled(true)
         }
+        val flightId = getExtra<Long>(CONSTS.DB.COLUMN_ID)
         val customRVLayoutManager = CustomRVLayoutManager(this)
         customRVLayoutManager.setScrollEnabled(false)
         timesAdapter = FlightTimesAdapter()
-
         timesAdapter?.setViewHolderListener(object : FlightTimesAdapter.FlightTimesClickListener {
             override fun onTimeIncludeToflight(position: Int, item: TimeToFlightEntity) {
                 addEditPresenter.onTimeItemAddToFlightTime(position, item)
@@ -68,7 +69,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
             }
 
             override fun onItemClick(position: Int, item: TimeToFlightEntity) {
-                createCustomLayoutDialog(R.layout.time_input_dialog_layout,{
+                createCustomLayoutDialog(R.layout.time_input_dialog_layout, {
                     val listener = MaskedTextChangedListener.installOn(
                             edt_time,
                             "[00]:[00]",
@@ -86,15 +87,20 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
             }
 
         })
+        tv_add_time.setOnClickListener {
+            launchActivity<TimesListActivity>(CONSTS.REQUESTS.REQUEST_ADD_TIME) {
+                putExtra(CONSTS.DB.COLUMN_ID, flightId)
+            }
+        }
         rv_time_types.layoutManager = customRVLayoutManager
         rv_time_types.adapter = timesAdapter
         initUI()
         initTypes()
-        addEditPresenter.initState(getIntentExtra<Long>(intent, Consts.DB.COLUMN_ID))
+        addEditPresenter.initState(flightId)
     }
 
     override fun toastError(msg: String?) {
-
+        ToastMaker.toastError(this, msg)
     }
 
     override fun onResume() {
@@ -104,6 +110,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
             addEditPresenter.loadPlaneTypes()
         }
     }
+
 
     private fun initTypes() {
         aAdapter = AircraftSpinnerAdapter(this)
@@ -182,7 +189,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
                 addEditPresenter.correctLogTime(edtTime.text.toString())
             }
         }
-        edtTime.setOnClickListener { _ -> edtTime.setText("") }
+        edtTime.setOnClickListener { edtTime.setText("") }
         edtTime.setOnKeyListener { _, i, keyEvent ->
             if (keyEvent.action == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
                 addEditPresenter.correctLogTime(edtTime.text.toString())
@@ -192,9 +199,10 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
             false
         }
         add_type.setOnClickListener {
-            val i = Intent(this, FragmentContainerActivity::class.java)
-            i.putExtra("fragment_tag", "type_list")
-            startActivityForResult(i, 101)
+            launchActivity<FragmentContainerActivity>(CONSTS.REQUESTS.REQUEST_ADD_TYPE) {
+                putExtra(CONSTS.FRAGMENTS.FRAGMENT_TAG, CONSTS.FRAGMENTS.FRAGMENT_TAG_TYPE_LIST)
+            }
+            overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
         }
     }
 
@@ -203,9 +211,12 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         Log.i(AddEditActivity::class.java.simpleName, "onActivityResult: requestCode:$requestCode;resultCode:$resultCode;data:" + Utility.dumpIntent(data))
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
-                101 -> {
+                CONSTS.REQUESTS.REQUEST_ADD_TYPE -> {
                     val id = data.getExtra<Long>("id")
                     needRealodTypes = true
+                }
+                CONSTS.REQUESTS.REQUEST_ADD_TIME -> {
+                    val extra = data.getExtra<Long>(CONSTS.EXTRAS.EXTRA_ADD_TIME_ID)
                 }
             }
         }
@@ -280,7 +291,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
     override fun showMotoBtn() {
         val lButtonParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         val btn = Button(this)
-        btn.background = ContextCompat.getDrawable(this, R.drawable.btn_bg_green)
+        btn.background = ContextCompat.getDrawable(this, R.drawable.btn_bg_accent)
         btn.setTextColor(ContextCompat.getColor(this, R.color.bpWhite))
         btn.layoutParams = lButtonParams
         btn.setOnClickListener { showMoto() }
