@@ -12,8 +12,4 @@ data class TimeTypeEntity(
         @PrimaryKey(autoGenerate = true)
         @ColumnInfo(name = "_id")
         var id: Long? = null,
-        var flight: Long? = null,
-        var time: Long = 0,//minutes
-        @ColumnInfo(name = "add_flight_time")
-        var addToFlightTime: Boolean = false,
         var title: String? = null)

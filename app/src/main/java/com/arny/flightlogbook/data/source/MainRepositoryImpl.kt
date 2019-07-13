@@ -5,21 +5,26 @@ import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.data.db.MainDB
 import com.arny.flightlogbook.data.db.daos.AircraftTypeDAO
 import com.arny.flightlogbook.data.db.daos.FlightDAO
-import com.arny.flightlogbook.data.db.daos.TimeTypeDAO
+import com.arny.flightlogbook.data.db.daos.TimeToFlightsDAO
+import com.arny.flightlogbook.data.db.daos.TimeTypesDAO
 import com.arny.flightlogbook.data.source.base.BaseRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
 
 @Singleton
-class MainRepositoryImpl @Inject constructor() : BaseRepository, FlightsRepository, TypesRepository, TimeRepository {
+class MainRepositoryImpl @Inject constructor() : BaseRepository, FlightsRepository, TypesRepository, TimesRepository {
 
     override fun getFlightDAO(): FlightDAO {
         return getDb().flightDAO
     }
 
-    override fun getTimeTipeDAO(): TimeTypeDAO {
-         return getDb().timeTypeDAO
+    override fun getTimeTypeDAO(): TimeTypesDAO {
+         return getDb().timeTypesDAO
+    }
+
+    override fun getTimeToFlightsDAO(): TimeToFlightsDAO {
+         return getDb().timeToFlightsDAO
     }
 
     override fun getCraftTypeDAO(): AircraftTypeDAO {

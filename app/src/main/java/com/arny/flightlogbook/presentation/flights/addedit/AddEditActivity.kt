@@ -19,9 +19,9 @@ import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.data.Consts
 import com.arny.flightlogbook.data.models.PlaneType
+import com.arny.flightlogbook.data.utils.*
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
 import com.arny.flightlogbook.presentation.types.PlaneTypesActivity
-import com.arny.flightlogbook.data.utils.*
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment
 import com.redmadrobot.inputmask.MaskedTextChangedListener
 import kotlinx.android.synthetic.main.activity_addedit.*
@@ -45,10 +45,11 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_addedit)
         val toolbar = findViewById<Toolbar>(R.id.edit_toolbar)
-        toolbar.setTitleTextColor(ContextCompat.getColor(this, R.color.colorText))
-        setSupportActionBar(toolbar)
-        supportActionBar?.title = getString(R.string.str_edt)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        toolbar.setTitleTextColor(ContextCompat.getColor(this@AddEditActivity, R.color.colorText))
+        setupActionBar(toolbar) {
+            title = getString(R.string.str_edt)
+            this?.setDisplayHomeAsUpEnabled(true)
+        }
         initUI()
         initTypes()
         addEditPresenter.initState(getIntentExtra<Long>(intent, Consts.DB.COLUMN_ID))
