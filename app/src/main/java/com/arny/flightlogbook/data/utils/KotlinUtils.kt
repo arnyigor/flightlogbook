@@ -531,8 +531,12 @@ fun Fragment.putExtras(args: Bundle?) {
     this.arguments = args
 }
 
-fun Activity.putExtras(resultCode: Int? = null, init: Intent.() -> Unit = {}) {
-    val i = this.intent ?: Intent()
+fun Activity.putExtras(resultCode: Int? = null,clear:Boolean = true, init: Intent.() -> Unit = {}) {
+    val i = if (clear) {
+        Intent()
+    }else{
+        this.intent ?: Intent()
+    }
     i.init()
     this.intent = i
     if (resultCode != null) {
@@ -911,6 +915,10 @@ fun Context.getSizeDP(size: Int): Int {
 @ColorInt
 fun Context.getIntColor(@ColorRes res: Int): Int {
     return ContextCompat.getColor(this, res)
+}
+
+fun Context.getResDrawable(@DrawableRes res: Int): Drawable? {
+    return ContextCompat.getDrawable(this, res)
 }
 
 fun ImageView?.setSrcTintColor(@DrawableRes src: Int, @ColorInt color: Int) {

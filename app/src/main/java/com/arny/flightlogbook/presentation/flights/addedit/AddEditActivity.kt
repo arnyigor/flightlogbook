@@ -7,7 +7,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.annotation.NonNull
 import android.support.v4.content.ContextCompat
-import android.support.v7.widget.Toolbar
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -49,9 +48,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_addedit)
-        val toolbar = findViewById<Toolbar>(R.id.edit_toolbar)
-//        toolbar.setTitleTextColor(ContextCompat.getColor(this@AddEditActivity, R.color.colorText))
-        setupActionBar(toolbar) {
+        setupActionBar(R.id.edit_toolbar) {
             title = getString(R.string.str_edt)
             this?.setDisplayHomeAsUpEnabled(true)
         }
@@ -91,6 +88,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
             launchActivity<TimesListActivity>(CONSTS.REQUESTS.REQUEST_ADD_TIME) {
                 putExtra(CONSTS.DB.COLUMN_ID, flightId)
             }
+            overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
         }
         rv_time_types.layoutManager = customRVLayoutManager
         rv_time_types.adapter = timesAdapter
@@ -208,7 +206,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        Log.i(AddEditActivity::class.java.simpleName, "onActivityResult: requestCode:$requestCode;resultCode:$resultCode;data:" + Utility.dumpIntent(data))
+        Log.i(AddEditActivity::class.java.simpleName, "onActivityResult: requestCode:$requestCode;resultCode:$resultCode;data:" + Utility.dumpIntent(data) )
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
                 CONSTS.REQUESTS.REQUEST_ADD_TYPE -> {
@@ -216,7 +214,6 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
                     needRealodTypes = true
                 }
                 CONSTS.REQUESTS.REQUEST_ADD_TIME -> {
-                    val extra = data.getExtra<Long>(CONSTS.EXTRAS.EXTRA_ADD_TIME_ID)
                 }
             }
         }

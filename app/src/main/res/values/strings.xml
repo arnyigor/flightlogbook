@@ -152,6 +152,7 @@
     <string name="empty_list">Список пуст</string>
     <string name="str_edt_time_type">Название времени</string>
     <string name="confirm_delete_time_type">Удалить тип времени?</string>
-    <string name="str_add_time_type">Добавить тип времени</string>
+    <string name="str_add_time_type">Добавить время</string>
+    <string name="str_select">Выбрать</string>
 
 </resources>

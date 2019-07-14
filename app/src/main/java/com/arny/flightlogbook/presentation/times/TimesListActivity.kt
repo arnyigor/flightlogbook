@@ -1,24 +1,23 @@
 package com.arny.flightlogbook.presentation.times
 
+import android.app.Activity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.text.InputType
+import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.data.CONSTS
-import com.arny.flightlogbook.data.db.intities.TimeToFlightEntity
 import com.arny.flightlogbook.data.db.intities.TimeTypeEntity
-import com.arny.flightlogbook.data.utils.ToastMaker
+import com.arny.flightlogbook.data.utils.*
 import com.arny.flightlogbook.data.utils.dialogs.ConfirmDialogListener
 import com.arny.flightlogbook.data.utils.dialogs.InputDialogListener
 import com.arny.flightlogbook.data.utils.dialogs.confirmDialog
 import com.arny.flightlogbook.data.utils.dialogs.inputDialog
-import com.arny.flightlogbook.data.utils.getExtra
-import com.arny.flightlogbook.data.utils.setVisible
-import com.arny.flightlogbook.data.utils.setupActionBar
 import kotlinx.android.synthetic.main.activity_times_list.*
 
 class TimesListActivity : MvpAppCompatActivity(), TimesListView, View.OnClickListener {
@@ -41,15 +40,37 @@ class TimesListActivity : MvpAppCompatActivity(), TimesListView, View.OnClickLis
         initAdapter()
         fab_add_time_type.setOnClickListener(this)
         val flightId = getExtra<Long>(CONSTS.DB.COLUMN_ID)
-        timesListPresenter.loadTimes(flightId)
+        timesListPresenter.loadTimes()
+        btn_confirm_selected.setOnClickListener(this)
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val callingClass = callingActivity?.toString()
+        Log.i(TimesListActivity::class.java.simpleName, "onBackPressed: $callingClass");
+        overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_out_right)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    override fun notifyItemChanged(position: Int) {
+        adapter?.notifyItemChanged(position)
     }
 
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.fab_add_time_type -> {
-                inputDialog(this, getString(R.string.str_add_time_type), dialogListener =  object: InputDialogListener {
+                inputDialog(this, getString(R.string.str_add_time_type), dialogListener = object : InputDialogListener {
                     override fun onConfirm(title: String?) {
-                         timesListPresenter.addTimeType(title)
+                        timesListPresenter.addTimeType(title)
                     }
 
                     override fun onCancel() {
@@ -57,7 +78,9 @@ class TimesListActivity : MvpAppCompatActivity(), TimesListView, View.OnClickLis
                     }
                 })
             }
-            else -> {
+            R.id.btn_confirm_selected -> {
+                val items = adapter?.getItems()
+                timesListPresenter.onConfirmSelected(items)
             }
         }
     }
@@ -73,7 +96,7 @@ class TimesListActivity : MvpAppCompatActivity(), TimesListView, View.OnClickLis
             }
 
             override fun onItemClick(position: Int, item: TimeTypeEntity) {
-
+                timesListPresenter.onItemSelect(item, position, adapter?.getItems())
             }
 
         })
@@ -117,9 +140,18 @@ class TimesListActivity : MvpAppCompatActivity(), TimesListView, View.OnClickLis
         ToastMaker.toastError(this, msg)
     }
 
-    override fun updateAdapter(timeTypes: List<TimeToFlightEntity>) {
-
+    override fun updateAdapter(timeTypes: List<TimeTypeEntity>) {
+        adapter?.addAll(timeTypes)
     }
 
+    override fun setBtnConfirmSelectVisible(vis: Boolean) {
+        btn_confirm_selected.setVisible(vis)
+    }
 
+    override fun onConfirmSelectedTimes(selected: String?) {
+        putExtras(Activity.RESULT_OK) {
+            putExtra(CONSTS.EXTRAS.EXTRA_ADD_TIME_IDS,selected)
+        }
+        onBackPressed()
+    }
 }

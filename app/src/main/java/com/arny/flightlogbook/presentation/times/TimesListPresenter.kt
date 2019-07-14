@@ -31,8 +31,8 @@ class TimesListPresenter : MvpPresenter<TimesListView>() {
         compositeDisposable.clear()
     }
 
-    fun loadTimes(flightId: Long?) {
-        fromCallable { repository.queryDBFlightTimes(flightId) }
+    fun loadTimes() {
+        fromCallable { repository.queryDBTimeTypes() }
                 .observeOnMain()
                 .subscribe({
                     if (it.isNotEmpty()) {
@@ -53,14 +53,64 @@ class TimesListPresenter : MvpPresenter<TimesListView>() {
     }
 
     fun editTimeTypeTitle(item: TimeTypeEntity, newName: String, position: Int) {
-
+        fromCallable { repository.updateDBTimeType(item.id, newName) }
+                .observeOnMain()
+                .subscribe({
+                    if (it) {
+                        item.title = newName
+                        viewState?.notifyItemChanged(position)
+                    } else {
+                        viewState?.toastError("Название времени не изменено")
+                    }
+                }, {
+                    it.printStackTrace()
+                    viewState?.toastError(it.message)
+                })
+                .addTo(compositeDisposable)
     }
 
     fun removeTimeType(item: TimeTypeEntity) {
-
+        fromCallable { repository.removeDBTimeType(item.id) }
+                .observeOnMain()
+                .subscribe({
+                    if (it) {
+                        loadTimes()
+                    } else {
+                        viewState?.toastError("Время не удалено")
+                    }
+                }, {
+                    it.printStackTrace()
+                    viewState?.toastError(it.message)
+                })
+                .addTo(compositeDisposable)
     }
 
     fun addTimeType(title: String?) {
+        fromCallable { repository.addDBTimeType(title) }
+                .observeOnMain()
+                .subscribe({
+                    if (it) {
+                        loadTimes()
+                    } else {
+                        viewState?.toastError("Время не добавлено")
+                    }
+                }, {
+                    it.printStackTrace()
+                    viewState?.toastError(it.message)
+                })
+                .addTo(compositeDisposable)
+    }
 
+    fun onItemSelect(item: TimeTypeEntity, position: Int, items: ArrayList<TimeTypeEntity>?) {
+        item.selected = !item.selected
+        viewState?.notifyItemChanged(position)
+        items?.let { list ->
+            viewState?.setBtnConfirmSelectVisible(list.any { it.selected })
+        }
+    }
+
+    fun onConfirmSelected(items: ArrayList<TimeTypeEntity>?) {
+        val selected = items?.filter { it.selected }?.map { it.id }?.joinToString()
+        viewState?.onConfirmSelectedTimes(selected)
     }
 }

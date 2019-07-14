@@ -18,7 +18,7 @@ class AboutActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.about_layout)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        toolbar.setTitleTextColor(ContextCompat.getColor(this, R.color.colorText))
+        toolbar.setTitleTextColor(ContextCompat.getColor(this, R.color.colorTextWhite))
         setSupportActionBar(toolbar)
         toolbar.setTitle(R.string.str_about)
         val textView = findViewById<TextView>(R.id.tvAboutInfo)

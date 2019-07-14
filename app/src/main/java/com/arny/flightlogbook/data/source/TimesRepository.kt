@@ -12,11 +12,19 @@ interface TimesRepository {
     fun getTimeTypeDAO(): TimeTypesDAO
     fun getTimeToFlightsDAO(): TimeToFlightsDAO
 
+    fun queryDBTimeTypes(): List<TimeTypeEntity> {
+        return getTimeTypeDAO().queryTimeTypes()
+    }
+
     fun addDBTimeType(title: String?): Boolean {
         return getTimeTypeDAO().insertReplace(TimeTypeEntity(null, title)) > 0
     }
 
-    fun removeDBFlightTime(_id: Long?): Boolean {
+    fun updateDBTimeType(typeId: Long?, title: String?): Boolean {
+        return getTimeTypeDAO().setTitle(typeId, title) > 0
+    }
+
+    fun removeDBTimeType(_id: Long?): Boolean {
         return getTimeTypeDAO().delete(_id) > 0
     }
 

@@ -10,6 +10,7 @@
     app:cardUseCompatPadding="true">
 
     <android.support.constraint.ConstraintLayout
+        android:id="@+id/cl_time_type_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -23,6 +24,7 @@
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginBottom="8dp"
+            android:textColor="@color/colorTextSecondary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/iv_time_type_edit"
             app:layout_constraintStart_toStartOf="parent"
@@ -35,9 +37,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            android:padding="4dp"
             android:layout_marginRight="8dp"
             android:layout_marginBottom="8dp"
+            android:padding="4dp"
+            android:tint="@color/colorTextPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/iv_time_type_delete"
             app:layout_constraintTop_toTopOf="parent"
@@ -48,10 +51,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:padding="4dp"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginBottom="8dp"
+            android:padding="4dp"
+            android:tint="@color/colorTextPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"

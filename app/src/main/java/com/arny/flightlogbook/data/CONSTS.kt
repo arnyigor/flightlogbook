@@ -43,6 +43,6 @@ object CONSTS {
 
     object EXTRAS {
         const val LOGTIME_STATE_KEY = "com.arny.flightlogbook.extra.instance.time"
-        const val EXTRA_ADD_TIME_ID = "extra_add_time_id"
+        const val EXTRA_ADD_TIME_IDS = "extra_add_time_ids"
     }
 }
