@@ -1,0 +1,48 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android'
+android {
+    compileSdkVersion versions.compileSdk
+    buildToolsVersion versions.buildTools
+    defaultConfig {
+        minSdkVersion versions.minSdk
+        targetSdkVersion versions.targetSdk
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+        }
+        release {
+            debuggable false
+        }
+    }
+
+    compileOptions {
+        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    api deps.kotlin.stdlib
+    api deps.kotlin.coroutinesCore
+    api deps.kotlin.coroutinesAndroid
+    //di
+    implementation deps.google.dagger
+    kapt deps.google.daggerCompiler
+    /*ROOM DB*/
+    implementation deps.android.roomRuntime
+    kapt deps.android.roomCompiler
+    implementation deps.android.roomRx
+    //interсept
+    implementation deps.facebook.stetho
+    //network
+    api 'com.dropbox.core:dropbox-core-sdk:2.1.1'
+    implementation project(path: ':helpers')
+    implementation project(path: ':constants')
+}

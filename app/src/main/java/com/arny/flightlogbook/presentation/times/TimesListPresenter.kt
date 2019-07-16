@@ -2,12 +2,12 @@ package com.arny.flightlogbook.presentation.times
 
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
+import com.arny.data.db.intities.TimeTypeEntity
+import com.arny.data.repositories.MainRepositoryImpl
 import com.arny.flightlogbook.FlightApp
-import com.arny.flightlogbook.data.db.intities.TimeTypeEntity
-import com.arny.flightlogbook.data.source.MainRepositoryImpl
-import com.arny.flightlogbook.data.utils.addTo
-import com.arny.flightlogbook.data.utils.fromCallable
-import com.arny.flightlogbook.data.utils.observeOnMain
+import com.arny.helpers.utils.addTo
+import com.arny.helpers.utils.fromCallable
+import com.arny.helpers.utils.observeOnMain
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 

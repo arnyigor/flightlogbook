@@ -6,20 +6,31 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.view.*;
-import android.widget.*;
-import com.arny.flightlogbook.data.utils.DateTimeUtils;
-import com.arny.flightlogbook.data.utils.RxUtilsKt;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.DatePicker;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.arny.domain.Local;
+import com.arny.domain.models.Flight;
+import com.arny.domain.models.Statistic;
 import com.arny.flightlogbook.R;
-import com.arny.flightlogbook.data.Local;
-import com.arny.flightlogbook.data.models.Flight;
-import com.arny.flightlogbook.data.models.Statistic;
-import io.reactivex.Observable;
-import io.reactivex.disposables.CompositeDisposable;
+import com.arny.helpers.utils.DateTimeUtils;
+import com.arny.helpers.utils.RxUtilsKt;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
+import io.reactivex.Observable;
+import io.reactivex.disposables.CompositeDisposable;
 
 public class StatisticFragment extends Fragment {
 	private List<Flight> FlightData;

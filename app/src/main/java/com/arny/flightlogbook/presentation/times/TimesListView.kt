@@ -3,7 +3,7 @@ package com.arny.flightlogbook.presentation.times
 import com.arellomobile.mvp.MvpView
 import com.arellomobile.mvp.viewstate.strategy.OneExecutionStateStrategy
 import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
-import com.arny.flightlogbook.data.db.intities.TimeTypeEntity
+import com.arny.data.db.intities.TimeTypeEntity
 
 
 @StateStrategyType(value = OneExecutionStateStrategy::class)

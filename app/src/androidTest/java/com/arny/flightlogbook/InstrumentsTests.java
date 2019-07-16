@@ -6,9 +6,9 @@ import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
 import com.arny.flightlogbook.data.Local;
-import com.arny.flightlogbook.data.models.Flight;
-import com.arny.flightlogbook.data.utils.DateTimeUtils;
-import com.arny.flightlogbook.data.utils.MathUtils;
+import com.arny.data.models.Flight;
+import com.arny.data.utils.DateTimeUtils;
+import com.arny.data.utils.MathUtils;
 
 import org.junit.FixMethodOrder;
 import org.junit.Test;

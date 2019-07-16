@@ -2,13 +2,11 @@ package com.arny.flightlogbook.presentation.types
 
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
+import com.arny.domain.common.CommonUseCase
+import com.arny.domain.models.PlaneType
+import com.arny.domain.planetypes.PlaneTypesUseCase
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.data.models.PlaneType
-import com.arny.flightlogbook.data.source.MainRepositoryImpl
-import com.arny.flightlogbook.data.utils.addTo
-import com.arny.flightlogbook.data.utils.fromCallable
-import com.arny.flightlogbook.data.utils.observeOnMain
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
@@ -16,7 +14,9 @@ import javax.inject.Inject
 class PlaneTypesPresenter : MvpPresenter<PlaneTypesView>() {
     private val compositeDisposable = CompositeDisposable()
     @Inject
-    lateinit var repository: MainRepositoryImpl
+    lateinit var planeTypesUseCase: PlaneTypesUseCase
+    @Inject
+    lateinit var commonUseCase: CommonUseCase
 
     init {
         FlightApp.appComponent.inject(this)
@@ -25,99 +25,80 @@ class PlaneTypesPresenter : MvpPresenter<PlaneTypesView>() {
     override fun detachView(view: PlaneTypesView?) {
         super.detachView(view)
         compositeDisposable.clear()
+        planeTypesUseCase.clearCompositJob()
     }
 
     fun loadTypes() {
-        fromCallable { repository.loadPlaneTypes() }
-                .observeOnMain()
-                .subscribe({
-                    if (it.isNotEmpty()) {
-                        viewState?.setAdapterVisible(true)
-                        viewState?.setEmptyViewVisible(false)
-                        viewState?.setBtnRemoveAllVisible(true)
-                        viewState?.updateAdapter(it)
-                    } else {
-                        viewState?.clearAdapter()
-                        viewState?.setAdapterVisible(false)
-                        viewState?.setEmptyViewVisible(true)
-                        viewState?.setBtnRemoveAllVisible(false)
-                    }
-                }, {
-                    viewState?.setAdapterVisible(false)
-                    viewState?.setEmptyViewVisible(true)
-                    viewState?.setBtnRemoveAllVisible(false)
-                    viewState?.toastError(it.message)
-                    it.printStackTrace()
-                })
-                .addTo(compositeDisposable)
+        planeTypesUseCase.loadPlaneTypes({
+            if (it.isNotEmpty()) {
+                viewState?.setAdapterVisible(true)
+                viewState?.setEmptyViewVisible(false)
+                viewState?.setBtnRemoveAllVisible(true)
+                viewState?.updateAdapter(it)
+            } else {
+                viewState?.clearAdapter()
+                viewState?.setAdapterVisible(false)
+                viewState?.setEmptyViewVisible(true)
+                viewState?.setBtnRemoveAllVisible(false)
+            }
+        }, {
+            viewState?.setAdapterVisible(false)
+            viewState?.setEmptyViewVisible(true)
+            viewState?.setBtnRemoveAllVisible(false)
+            viewState?.toastError(it)
+        })
     }
 
     fun addType(name: String) {
-        fromCallable { repository.addType(name) }
-                .observeOnMain()
-                .subscribe({
-                    if (it) {
-                        loadTypes()
-                    } else {
-                        viewState?.toastError(repository.getString(R.string.str_type_add_fail))
-                    }
-                }, {
-                    it.printStackTrace()
-                    viewState?.toastError(it.message)
-                })
-                .addTo(compositeDisposable)
+        planeTypesUseCase.addType(name, {
+            if (it) {
+                loadTypes()
+            } else {
+                viewState?.toastError(commonUseCase.getString(R.string.str_type_add_fail))
+            }
+        }, {
+            viewState?.toastError(it)
+        })
     }
 
     fun removeType(item: PlaneType) {
-        fromCallable { repository.removeType(item) }
-                .observeOnMain()
-                .subscribe({
-                    if (it) {
-                        loadTypes()
-                    } else {
-                        viewState?.toastError(repository.getString(R.string.str_type_remove_fail))
-                    }
-                }, {
-                    it.printStackTrace()
-                    viewState?.toastError(it.message)
-                })
-                .addTo(compositeDisposable)
+        planeTypesUseCase.removeType(item, {
+            if (it) {
+                loadTypes()
+            } else {
+                viewState?.toastError(commonUseCase.getString(R.string.str_type_remove_fail))
+            }
+        }, {
+            viewState?.toastError(it)
+        })
     }
 
     fun removeAllPlaneTypes() {
-        fromCallable { repository.removeTypes() }
-                .observeOnMain()
-                .subscribe({
-                    if (it) {
-                        viewState?.clearAdapter()
-                        viewState?.setAdapterVisible(false)
-                        viewState?.setEmptyViewVisible(true)
-                        viewState?.setBtnRemoveAllVisible(false)
-                    } else {
-                        viewState?.toastError(repository.getString(R.string.str_types_removes_fail))
-                    }
-                }, {
-                    it.printStackTrace()
-                    viewState?.toastError(it.message)
-                })
-                .addTo(compositeDisposable)
+        planeTypesUseCase.removeTypes({
+            if (it) {
+                viewState?.clearAdapter()
+                viewState?.setAdapterVisible(false)
+                viewState?.setEmptyViewVisible(true)
+                viewState?.setBtnRemoveAllVisible(false)
+            } else {
+                viewState?.toastError(commonUseCase.getString(R.string.str_types_removes_fail))
+            }
+        }, {
+            viewState?.toastError(it)
+        })
     }
 
     fun updatePlaneTypeTitle(type: PlaneType, title: String?, position: Int) {
-        fromCallable { repository.updatePlaneTypeTitle(type, title) }
-                .observeOnMain()
-                .subscribe({
-                    if (it) {
-                        type.typeName = title
-                        viewState?.notifyItemChanged(position)
-                    } else {
-                        viewState?.toastError(repository.getString(R.string.str_type_change_fail))
-                    }
-                }, {
-                    it.printStackTrace()
-                    viewState?.toastError(it.message)
-                })
-                .addTo(compositeDisposable)
+        planeTypesUseCase.updatePlaneTypeTitle(type, title, {
+            if (it) {
+                type.typeName = title
+                viewState?.notifyItemChanged(position)
+            } else {
+                viewState?.toastError(commonUseCase.getString(R.string.str_type_change_fail))
+            }
+        }, {
+            viewState?.toastError(it)
+        })
     }
 
 }

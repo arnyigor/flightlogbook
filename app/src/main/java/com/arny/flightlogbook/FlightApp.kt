@@ -1,6 +1,5 @@
 package com.arny.flightlogbook
 
-//import android.support.multidex.MultiDex
 import android.app.Application
 import android.content.Context
 import android.support.multidex.MultiDex
@@ -28,7 +27,8 @@ class FlightApp : Application() {
     override fun onCreate() {
         super.onCreate()
         appContext = applicationContext
-        appComponent =  DaggerAppComponent.builder()
+        appComponent = DaggerAppComponent
+                .builder()
                 .appModule(AppModule(this))
                 .build()
         val crashlyticsKit = Crashlytics.Builder()

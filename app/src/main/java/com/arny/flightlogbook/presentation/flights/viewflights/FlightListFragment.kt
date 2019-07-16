@@ -14,18 +14,13 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.arellomobile.mvp.MvpAppCompatFragment
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
+import com.arny.adapters.SimpleAbstractAdapter
+import com.arny.constants.CONSTS
+import com.arny.domain.models.Flight
+import com.arny.domain.service.BackgroundIntentService
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.data.CONSTS
-import com.arny.flightlogbook.data.models.Flight
-import com.arny.flightlogbook.data.service.BackgroundIntentService
-import com.arny.flightlogbook.data.utils.*
-import com.arny.flightlogbook.data.utils.adapters.SimpleAbstractAdapter
-import com.arny.flightlogbook.data.utils.dialogs.ConfirmDialogListener
-import com.arny.flightlogbook.data.utils.dialogs.ListDialogListener
-import com.arny.flightlogbook.data.utils.dialogs.confirmDialog
-import com.arny.flightlogbook.data.utils.dialogs.listDialog
 import com.arny.flightlogbook.presentation.flights.addedit.AddEditActivity
-import io.reactivex.Observable
+import com.arny.helpers.utils.*
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.fragment_flight_list.*
 
@@ -38,11 +33,11 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
     private var topView: Int = 0
 
     @InjectPresenter
-    lateinit var viewFlightsPresenter: ViewFlightsPresenterImpl
+    lateinit var viewFlightsPresenter: ViewFlightsPresenter
 
     @ProvidePresenter
-    fun provideMainPresenter(): ViewFlightsPresenterImpl {
-        return ViewFlightsPresenterImpl()
+    fun provideMainPresenter(): ViewFlightsPresenter {
+        return ViewFlightsPresenter()
     }
 
     override fun toastError(msg: String?) {
@@ -98,13 +93,15 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
         filter.addCategory(Intent.CATEGORY_DEFAULT)
         context?.let { ctx ->
             LocalBroadcastManager.getInstance(ctx).registerReceiver(broadcastReceiver, filter)
-            Observable.fromCallable { Utility.isMyServiceRunning(BackgroundIntentService::class.java, ctx) }.observeOnMain().subscribe({ running ->
-                if (!running) {
-                    initFlights()
-                }
-            }, {
-                it.printStackTrace()
-            })
+            fromCallable { Utility.isMyServiceRunning(BackgroundIntentService::class.java, ctx) }
+                    .observeOnMain()
+                    .subscribe({ running ->
+                        if (!running) {
+                            initFlights()
+                        }
+                    }, {
+                        it.printStackTrace()
+                    })
 
         }
     }
@@ -118,8 +115,7 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
         inflater?.inflate(R.menu.flights_menu, menu)
     }
 
-    override fun updateAdapter(flights: ArrayList<Flight>) {
-        adapter?.clear()
+    override fun updateAdapter(flights: List<Flight>) {
         adapter?.addAll(flights)
     }
 

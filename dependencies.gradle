@@ -15,7 +15,7 @@ ext.versions = [
         'realm'            : '5.8.0',
         'dagger'           : '2.23.2',
         'gson'             : '2.8.0',
-        'retrofit'         : '2.5.0',
+        'retrofit'         : '2.6.0',
         'retrofitRxAdapter': '1.0.0',
         'okhttp'           : '3.9.0',
         'okhttpDownloader' : '1.1.0',
@@ -28,7 +28,7 @@ ext.versions = [
         'atsl'             : '1.0.1',
         'mockitoKotlin'    : '1.5.0',
         'robolectric'      : '3.6.1',
-        'moxy'             : '1.5.5',
+        'moxy'             : '1.5.6',
         'sourceCompat'     : JavaVersion.VERSION_1_8,
         'targetCompat'     : JavaVersion.VERSION_1_8
 ]
@@ -90,7 +90,7 @@ ext.deps = [
                 'daggerCompiler' : "com.google.dagger:dagger-compiler:${versions.dagger}",
                 'gson'           : "com.google.code.gson:gson:${versions.gson}",
         ],
-        square    : [
+        network  : [
                 'retrofit'         : "com.squareup.retrofit2:retrofit:${versions.retrofit}",
                 'rxAdapter'        : "com.squareup.retrofit2:adapter-rxjava2:${versions.retrofit}",
                 'coroutinsAdapter' : 'com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2',

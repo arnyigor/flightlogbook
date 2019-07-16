@@ -3,14 +3,18 @@ package com.arny.flightlogbook.presentation.flights.addedit
 import android.annotation.SuppressLint
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
+import com.arny.domain.common.CommonUseCase
+import com.arny.domain.common.PrefsUseCase
+import com.arny.domain.flights.FlightsUseCase
+import com.arny.domain.models.Flight
+import com.arny.domain.models.PlaneType
+import com.arny.domain.models.TimeToFlight
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.data.CONSTS
-import com.arny.flightlogbook.data.db.intities.TimeToFlightEntity
-import com.arny.flightlogbook.data.models.Flight
-import com.arny.flightlogbook.data.models.PlaneType
-import com.arny.flightlogbook.data.source.MainRepositoryImpl
-import com.arny.flightlogbook.data.utils.*
+import com.arny.helpers.utils.DateTimeUtils
+import com.arny.helpers.utils.MathUtils
+import com.arny.helpers.utils.addTo
+import com.arny.helpers.utils.observeOnMain
 import io.reactivex.disposables.CompositeDisposable
 import org.joda.time.DateTime
 import javax.inject.Inject
@@ -19,7 +23,11 @@ import javax.inject.Inject
 @InjectViewState
 class AddEditPresenter : MvpPresenter<AddEditView>() {
     @Inject
-    lateinit var repository: MainRepositoryImpl
+    lateinit var flightsUseCase: FlightsUseCase
+    @Inject
+    lateinit var commonUseCase: CommonUseCase
+    @Inject
+    lateinit var prefsUseCase: PrefsUseCase
     private var id: Long? = null
     private var logTime: Int = 0
     private var aircraftType: PlaneType? = null
@@ -36,7 +44,6 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
         FlightApp.appComponent.inject(this)
     }
 
-
     override fun detachView(view: AddEditView?) {
         super.detachView(view)
         compositeDisposable.clear()
@@ -50,7 +57,6 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
         try {
             mDateTime = DateTimeUtils.convertTimeStringToLong(extractedValue, "ddMMyyyy")
             val dateTime = convertDateTime()
-            viewState?.setDate(dateTime)
         } catch (e: Exception) {
             val time = DateTimeUtils.getDateTime("ddMMyyyy")
             val long = DateTimeUtils.convertTimeStringToLong(time, "ddMMyyyy")
@@ -76,12 +82,19 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
         if (flight != null) {
             flight?.logtime = logTime
             flight?.datetime = mDateTime
-            repository.updateFlight(flight!!)
+            flightsUseCase.updateFlight(flight!!)
+                    .observeOnMain()
+                    .subscribe({
+
+                    },{
+
+                    })
+                    .addTo(compositeDisposable)
         } else {
             flight = Flight()
             flight?.logtime = logTime
             flight?.datetime = mDateTime
-            compositeDisposable.add(repository.insertFlight(flight!!)
+            compositeDisposable.add(flightsUseCase.insertFlight(flight!!)
                     .observeOnMain()
                     .subscribe({
 
@@ -101,7 +114,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
         viewState?.setSpinDayNight(flight.daynight ?: 0)
         viewState?.setSpinIfrVfr(flight.ifrvfr ?: 0)
         viewState?.setFlightType(flight.flighttype ?: 0)
-        viewState?.setToolbarTitle(repository.getString(R.string.str_edt))
+        viewState?.setToolbarTitle(commonUseCase.getString(R.string.str_edt))
     }
 
     fun correctLogTime(stringTime: String) {
@@ -151,31 +164,32 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
 
     @SuppressLint("CheckResult")
     fun initUIFromId(id: Long?) {
-        repository.getFlight(id ?: 0).observeOnMain()
+        flightsUseCase.getFlight(id ?: 0)
+                .observeOnMain()
                 .subscribe({ nulable ->
                     val flight = nulable.value
                     this.flight = flight
                     if (flight != null) {
                         setUIFromFlight(flight)
                     } else {
-                        viewState?.toastError(repository.getString(R.string.record_not_found))
+                        viewState?.toastError(commonUseCase.getString(R.string.record_not_found))
                         initEmptyUI()
                     }
                 }) {
                     it.printStackTrace()
                     initEmptyUI()
-                    viewState?.toastError(repository.getString(R.string.record_not_found) + ":" + it.message)
+                    viewState?.toastError(commonUseCase.getString(R.string.record_not_found) + ":" + it.message)
                 }
     }
 
     fun initEmptyUI() {
         viewState?.setDescription("")
         viewState?.setDate("")
-        viewState?.setToolbarTitle(repository.getString(R.string.str_add))
+        viewState?.setToolbarTitle(commonUseCase.getString(R.string.str_add))
     }
 
     fun loadPlaneTypes() {
-        fromCallable { repository.loadPlaneTypes() }
+        flightsUseCase.loadPlaneTypes()
                 .observeOnMain()
                 .subscribe({
                     if (it.isNotEmpty()) {
@@ -198,7 +212,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
         } else {
             initEmptyUI()
         }
-        val showMoto = repository.getPrefBoolean(CONSTS.PREFS.PREF_MOTO_TIME, false)
+        val showMoto = prefsUseCase.isShowMoto()
         if (showMoto) {
             viewState?.showMotoBtn()
         }
@@ -264,11 +278,11 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
         }
     }
 
-    fun onTimeItemAddToFlightTime(position: Int, item: TimeToFlightEntity) {
+    fun onTimeItemAddToFlightTime(position: Int, item: TimeToFlight) {
 
     }
 
-    fun onTimeExcludeFromFlightTime(position: Int, item: TimeToFlightEntity) {
+    fun onTimeExcludeFromFlightTime(position: Int, item: TimeToFlight) {
 
     }
 }

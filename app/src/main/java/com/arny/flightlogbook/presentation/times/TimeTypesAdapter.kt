@@ -1,10 +1,10 @@
 package com.arny.flightlogbook.presentation.times
 
+import com.arny.adapters.SimpleAbstractAdapter
+import com.arny.data.db.intities.TimeTypeEntity
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.data.db.intities.TimeTypeEntity
-import com.arny.flightlogbook.data.utils.adapters.SimpleAbstractAdapter
-import com.arny.flightlogbook.data.utils.getIntColor
-import com.arny.flightlogbook.data.utils.setSrcTintColor
+import com.arny.helpers.utils.getIntColor
+import com.arny.helpers.utils.setSrcTintColor
 import kotlinx.android.synthetic.main.time_type_list_item_layout.view.*
 
 class TimeTypesAdapter(private val timeTypesListener: TimeTypesListener? = null) : SimpleAbstractAdapter<TimeTypeEntity>() {

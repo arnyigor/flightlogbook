@@ -10,14 +10,10 @@ import android.view.View
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
+import com.arny.constants.CONSTS
+import com.arny.data.db.intities.TimeTypeEntity
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.data.CONSTS
-import com.arny.flightlogbook.data.db.intities.TimeTypeEntity
-import com.arny.flightlogbook.data.utils.*
-import com.arny.flightlogbook.data.utils.dialogs.ConfirmDialogListener
-import com.arny.flightlogbook.data.utils.dialogs.InputDialogListener
-import com.arny.flightlogbook.data.utils.dialogs.confirmDialog
-import com.arny.flightlogbook.data.utils.dialogs.inputDialog
+import com.arny.helpers.utils.*
 import kotlinx.android.synthetic.main.activity_times_list.*
 
 class TimesListActivity : MvpAppCompatActivity(), TimesListView, View.OnClickListener {

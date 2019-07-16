@@ -3,7 +3,7 @@ package com.arny.flightlogbook.presentation.flights.addedit
 import com.arellomobile.mvp.MvpView
 import com.arellomobile.mvp.viewstate.strategy.OneExecutionStateStrategy
 import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
-import com.arny.flightlogbook.data.models.PlaneType
+import com.arny.domain.models.PlaneType
 
 @StateStrategyType(value = OneExecutionStateStrategy::class)
 interface AddEditView : MvpView {

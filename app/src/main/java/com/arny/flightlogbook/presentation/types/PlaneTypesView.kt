@@ -3,7 +3,7 @@ package com.arny.flightlogbook.presentation.types
 import com.arellomobile.mvp.MvpView
 import com.arellomobile.mvp.viewstate.strategy.OneExecutionStateStrategy
 import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
-import com.arny.flightlogbook.data.models.PlaneType
+import com.arny.domain.models.PlaneType
 
 /**
  *Created by Sedoy on 09.07.2019

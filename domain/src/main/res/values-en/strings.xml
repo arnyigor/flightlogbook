@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="service_file_download_success">Download complete</string>
+    <string name="service_download_fail">Download fail</string>
+    <string name="service_export_fail">Export fail</string>
+    <string name="service_file_upload_success">Upload successful</string>
+    <string name="service_import_fail">Import fail</string>
+    <string name="service_operation_fail">Operation fail</string>
+    <string name="service_operation_success">Operation complete</string>
+    <string name="service_sync_fail">Sync fail</string>
+    <string name="service_upload_fail">Upload fail</string>
+    <string name="str_export_success">Экспорт завершен</string>
+    <string name="str_import_success">Import completed</string>
+    <string name="dropbox_auth_error">Authorisation Error</string>
+    <string name="dropbox_email">Email:%s</string>
+    <string name="dropbox_login">Log in to Dropbox</string>
+    <string name="dropbox_name">Name:%s</string>
+    <string name="dropbox_sync_complete">Sync complete</string>
+    <string name="dropbox_sync_download">Download</string>
+    <string name="dropbox_sync_downloading">Downloading file</string>
+    <string name="dropbox_sync_files">Sync</string>
+    <string name="dropbox_sync_upload">Upload</string>
+    <string name="dropbox_sync_uploading">Uploading file</string>
+    <string name="dropbox_sync_files_local">Local file:</string>
+    <string name="dropbox_sync_files_no_data">no data</string>
+    <string name="dropbox_sync_files_remote">Remote file:</string>
+    <string name="str_date">Date</string>
+    <string name="str_itemlogtime">Time</string>
+    <string name="str_type_null">Aircraft Type</string>
+    <string name="str_regnum">Reg №</string>
+    <string name="str_vfr_ifr">visual / instrument</string>
+    <string name="str_day_night">Day/Night</string>
+    <string name="str_flight_type">circles/area/route</string>
+    <string name="str_desc">Description</string>
+    <string name="str_totaltime">Total time:</string>
+    <string name="total_records">Total items:</string>
+</resources>

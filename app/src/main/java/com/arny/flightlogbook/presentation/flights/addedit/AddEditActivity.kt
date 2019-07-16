@@ -5,7 +5,6 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.annotation.NonNull
 import android.support.v4.content.ContextCompat
 import android.text.Editable
 import android.text.TextWatcher
@@ -16,14 +15,15 @@ import android.widget.*
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
+import com.arny.adapters.CustomRVLayoutManager
+import com.arny.constants.CONSTS
+import com.arny.data.db.intities.TimeToFlightEntity
+import com.arny.domain.models.PlaneType
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.data.CONSTS
-import com.arny.flightlogbook.data.db.intities.TimeToFlightEntity
-import com.arny.flightlogbook.data.models.PlaneType
-import com.arny.flightlogbook.data.utils.*
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
 import com.arny.flightlogbook.presentation.times.TimesListActivity
 import com.arny.flightlogbook.presentation.types.PlaneTypesActivity
+import com.arny.helpers.utils.*
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment
 import com.redmadrobot.inputmask.MaskedTextChangedListener
 import kotlinx.android.synthetic.main.activity_addedit.*
@@ -58,25 +58,21 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         timesAdapter = FlightTimesAdapter()
         timesAdapter?.setViewHolderListener(object : FlightTimesAdapter.FlightTimesClickListener {
             override fun onTimeIncludeToflight(position: Int, item: TimeToFlightEntity) {
-                addEditPresenter.onTimeItemAddToFlightTime(position, item)
+//                addEditPresenter.onTimeItemAddToFlightTime(position, item)
             }
 
             override fun onTimeExcludeflight(position: Int, item: TimeToFlightEntity) {
-                addEditPresenter.onTimeExcludeFromFlightTime(position, item)
+//                addEditPresenter.onTimeExcludeFromFlightTime(position, item)
             }
 
             override fun onItemClick(position: Int, item: TimeToFlightEntity) {
                 createCustomLayoutDialog(R.layout.time_input_dialog_layout, {
-                    val listener = MaskedTextChangedListener.installOn(
-                            edt_time,
-                            "[00]:[00]",
-                            object : MaskedTextChangedListener.ValueListener {
-                                override fun onTextChanged(maskFilled: Boolean, @NonNull extractedValue: String, @NonNull formattedValue: String) {
-                                    Log.d("TAG", extractedValue)
-                                    Log.d("TAG", maskFilled.toString())
-                                }
-                            }
-                    )
+                    val listener = MaskedTextChangedListener.installOn(edt_time, "[00]:[00]", object : MaskedTextChangedListener.ValueListener {
+                        override fun onTextChanged(maskFilled: Boolean, extractedValue: String, formattedValue: String) {
+                            Log.d("TAG", extractedValue)
+                            Log.d("TAG", maskFilled.toString())
+                        }
+                    })
                     edt_time.setHint(listener.placeholder())
                     edt_time.text.toString()
                 })

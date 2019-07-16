@@ -10,16 +10,10 @@ import android.widget.Toast
 import com.arellomobile.mvp.MvpAppCompatFragment
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
+import com.arny.domain.models.PlaneType
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.data.interfaces.FragmentResultListener
-import com.arny.flightlogbook.data.models.PlaneType
-import com.arny.flightlogbook.data.utils.ToastMaker
-import com.arny.flightlogbook.data.utils.dialogs.ConfirmDialogListener
-import com.arny.flightlogbook.data.utils.dialogs.InputDialogListener
-import com.arny.flightlogbook.data.utils.dialogs.confirmDialog
-import com.arny.flightlogbook.data.utils.dialogs.inputDialog
-import com.arny.flightlogbook.data.utils.empty
-import com.arny.flightlogbook.data.utils.setVisible
+import com.arny.helpers.utils.*
 import kotlinx.android.synthetic.main.types_layout.*
 
 class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickListener {
@@ -129,7 +123,7 @@ class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickL
                 context?.let { ctx ->
                     inputDialog(ctx, getString(R.string.str_add_airplane_types), "", "", getString(R.string.str_ok), getString(R.string.str_cancel), false, InputType.TYPE_CLASS_TEXT, object : InputDialogListener {
                         override fun onConfirm(name: String) {
-                            if (!name.empty()) {
+                            if (!name.isBlank()) {
                                 typeListPresenter.addType(name)
                             } else {
                                 Toast.makeText(ctx, R.string.str_alarm_add_airplane_type, Toast.LENGTH_LONG).show()

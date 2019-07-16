@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">data</string>
+    <string name="storage_not_avalable">Память не доступна</string>
+</resources>

@@ -22,12 +22,11 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import com.arny.constants.CONSTS
+import com.arny.domain.Local
+import com.arny.domain.service.BackgroundIntentService
 import com.arny.flightlogbook.BuildConfig
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.data.CONSTS
-import com.arny.flightlogbook.data.Local
-import com.arny.flightlogbook.data.service.BackgroundIntentService
-import com.arny.flightlogbook.data.utils.*
 import com.arny.flightlogbook.presentation.about.AboutActivity
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
 import com.arny.flightlogbook.presentation.flights.viewflights.FlightListFragment
@@ -35,6 +34,7 @@ import com.arny.flightlogbook.presentation.settings.Preferences
 import com.arny.flightlogbook.presentation.statistic.StatisticFragment
 import com.arny.flightlogbook.presentation.sync.DropboxSyncFragment
 import com.arny.flightlogbook.presentation.types.PlaneTypesFragment
+import com.arny.helpers.utils.*
 import com.mikepenz.google_material_typeface_library.GoogleMaterial
 import com.mikepenz.materialdrawer.Drawer
 import com.mikepenz.materialdrawer.DrawerBuilder

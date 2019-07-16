@@ -1,17 +1,22 @@
 package com.arny.flightlogbook.di
 
+import android.app.Application
 import android.content.Context
-import com.arny.flightlogbook.data.source.MainRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
 
 @Module
-class AppModule(private val context: Context) {
+class AppModule(private val application: Application)  {
     @Provides
     @Singleton
-    fun provideContext(): Context {
-        return context
+    fun application(): Application {
+        return application
     }
 
+    @Provides
+    @Singleton
+    fun provideApplicationContext(): Context {
+        return application
+    }
 }

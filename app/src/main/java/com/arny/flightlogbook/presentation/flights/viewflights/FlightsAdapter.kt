@@ -1,9 +1,8 @@
 package com.arny.flightlogbook.presentation.flights.viewflights
 
+import com.arny.adapters.SimpleAbstractAdapter
+import com.arny.domain.models.Flight
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.data.models.Flight
-import com.arny.flightlogbook.data.utils.DateTimeUtils
-import com.arny.flightlogbook.data.utils.adapters.SimpleAbstractAdapter
 import kotlinx.android.synthetic.main.flight_list_item.view.*
 
 class FlightsAdapter: SimpleAbstractAdapter<Flight>() {
@@ -15,10 +14,9 @@ class FlightsAdapter: SimpleAbstractAdapter<Flight>() {
         viewHolder.itemView.apply {
             val datetime = item.datetime ?: 0
             if (datetime > 0) {
-                tvDate.text = DateTimeUtils.getDateTime(datetime, "dd MMM yyyy")
+                tvDate.text = item.datetimeFormatted
             }
-            val logtime = item.logtime ?: 0
-            tvLogTime.text = DateTimeUtils.strLogTime(logtime)
+            tvLogTime.text = item.logtimeFormatted
             tvType.text = item.airplanetypetitle
             setOnClickListener {
                 listener?.onItemClick(viewHolder.adapterPosition, item)
@@ -29,12 +27,11 @@ class FlightsAdapter: SimpleAbstractAdapter<Flight>() {
     override fun getDiffCallback(): DiffCallback<Flight>? {
         return object : DiffCallback<Flight>() {
             override fun areItemsTheSame(oldItem: Flight, newItem: Flight): Boolean {
-                return oldItem.id == newItem.id
+                return oldItem == newItem
             }
 
             override fun areContentsTheSame(oldItem: Flight, newItem: Flight): Boolean {
-                val equals = oldItem.logtime == newItem.logtime && oldItem.datetime == newItem.datetime && oldItem.aircraft_id == newItem.aircraft_id
-                return equals
+                return oldItem == newItem
             }
         }
     }

@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">domain</string>
+    <!--service-->
+    <string name="service_file_download_success">Загрузка файла завершена</string>
+    <string name="service_file_upload_success">Выгрузка файла завершена</string>
+    <string name="service_operation_success">Операция завершена</string>
+    <string name="service_operation_fail">Операция не завершена</string>
+    <string name="service_import_fail">Импорт не завершен</string>
+    <string name="service_sync_fail">Синхронизация не завершена</string>
+    <string name="service_download_fail">Загрузка файла не завершена</string>
+    <string name="service_upload_fail">Выгрузка файла не завершена</string>
+    <string name="service_export_fail">Экспорт не завершен</string>
+    <string name="str_export_success">Экспорт завершен</string>
+    <string name="str_import_success">Импорт завершен</string>
+    <string name="str_date">Дата</string>
+    <string name="str_itemlogtime">Налет</string>
+    <string name="str_type_null">Тип ВС</string>
+    <string name="str_regnum">Рег.№</string>
+    <string name="str_day_night">День/Ночь</string>
+    <string name="str_vfr_ifr">визуально/по приборам</string>
+    <string name="str_flight_type">круги/зона/маршрут</string>
+    <string name="str_desc">Описание</string>
+    <string name="dropbox_login">Войти в Dropbox</string>
+    <string name="dropbox_app_key" translatable="false">rzzuhol6y1aibdx</string>
+    <string name="dropbox_sync_files">Синхронизация:</string>
+    <string name="dropbox_sync_files_no_data">нет данных</string>
+    <string name="dropbox_sync_files_local">Локальный файл:</string>
+    <string name="dropbox_sync_files_remote">Удаленный файл:</string>
+    <string name="dropbox_sync_upload">Выгрузить</string>
+    <string name="dropbox_sync_download">Загрузить</string>
+    <string name="dropbox_sync_uploading">Выгрузка файла</string>
+    <string name="dropbox_sync_downloading">Загрузка файла</string>
+    <string name="dropbox_email">Email:%s</string>
+    <string name="dropbox_name">Имя:%s</string>
+    <string name="dropbox_sync_complete">Синхронизация завершена</string>
+    <string name="dropbox_auth_error">Ошибка авторизации</string>
+    <string name="str_totaltime">Общее время:</string>
+    <string name="total_records">Всего записей:</string>
+</resources>
