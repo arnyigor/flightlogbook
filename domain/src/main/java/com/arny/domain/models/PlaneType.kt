@@ -24,6 +24,7 @@ class PlaneType(var typeId: Long = 0) {
         return result
     }
 
+
 }
 
 fun PlaneTypeEntity.toPlaneType(): PlaneType {

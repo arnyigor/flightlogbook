@@ -19,12 +19,15 @@ class PlaneTypesAdapter(private val flightTypesListener: FlightTypesListener? = 
     override fun bindView(item: PlaneType, viewHolder: VH) {
         viewHolder.itemView.apply {
             val position = viewHolder.adapterPosition
-            typeTitle.text = item.typeName
-            edit.setOnClickListener {
+            tv_plane_title.text = item.typeName
+            iv_edit_plane_type_title.setOnClickListener {
                 flightTypesListener?.onTypeEdit(position, item)
             }
-            delete.setOnClickListener {
+            iv_delete_plane_type_title.setOnClickListener {
                 flightTypesListener?.onTypeDelete(position, item)
+            }
+            setOnClickListener {
+                flightTypesListener?.onItemClick(position, item)
             }
         }
     }

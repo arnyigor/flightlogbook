@@ -20,4 +20,5 @@ interface AddEditView : MvpView {
     fun showMotoBtn()
     fun setToolbarTitle(string: String)
     fun toastError(msg: String?)
+    fun setPlaneTypeTitle(title: String?)
 }

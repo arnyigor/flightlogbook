@@ -1,5 +1,7 @@
 package com.arny.flightlogbook.presentation.types
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
@@ -11,6 +13,7 @@ import android.widget.Toast
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
+import com.arny.constants.CONSTS
 import com.arny.domain.models.PlaneType
 import com.arny.flightlogbook.R
 import com.arny.helpers.utils.*
@@ -47,7 +50,10 @@ class PlaneTypesActivity : MvpAppCompatActivity(), PlaneTypesView, View.OnClickL
             }
 
             override fun onItemClick(position: Int, item: PlaneType) {
-
+                val intent = Intent()
+                intent.putExtra(CONSTS.EXTRAS.EXTRA_PLANE_TYPE,item.typeId)
+                setResult(Activity.RESULT_OK,intent)
+                onBackPressed()
             }
         })
         rv_plane_types.adapter = adapter
@@ -148,7 +154,6 @@ class PlaneTypesActivity : MvpAppCompatActivity(), PlaneTypesView, View.OnClickL
 
                     }
                 })
-
             }
         }
     }

@@ -39,10 +39,12 @@ object CONSTS {
         const val REQUEST_DBX_EXTERNAL_STORAGE = 101
         const val REQUEST_ADD_TIME = 102
         const val REQUEST_ADD_TYPE = 103
+        const val REQUEST_SELECT_TYPE = 104
     }
 
     object EXTRAS {
         const val LOGTIME_STATE_KEY = "com.arny.flightlogbook.extra.instance.time"
         const val EXTRA_ADD_TIME_IDS = "extra_add_time_ids"
+        const val EXTRA_PLANE_TYPE = "extra_plane_type_id"
     }
 }

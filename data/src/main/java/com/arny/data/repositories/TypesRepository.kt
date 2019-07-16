@@ -12,7 +12,7 @@ interface TypesRepository : BaseRepository {
         return getCraftTypeDAO().queryAircraftTypes()
     }
 
-    fun loadType(id: Long): PlaneTypeEntity? {
+    fun loadPlaneType(id: Long?): PlaneTypeEntity? {
         return getCraftTypeDAO().queryAircraftType(id)
     }
 

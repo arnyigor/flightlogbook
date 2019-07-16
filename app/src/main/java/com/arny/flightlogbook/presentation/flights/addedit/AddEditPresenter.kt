@@ -285,4 +285,17 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
     fun onTimeExcludeFromFlightTime(position: Int, item: TimeToFlight) {
 
     }
+
+    fun setFlightPlaneType(planetypeId: Long?) {
+         flightsUseCase.loadPlaneType(planetypeId)
+                 .observeOnMain()
+                 .subscribe({
+                     this.aircraftType = it.value
+                     val title = "${commonUseCase.getString(R.string.str_type)}${aircraftType?.typeName}"
+                     viewState?.setPlaneTypeTitle(title)
+                 },{
+                     it.printStackTrace()
+                 })
+                 .addTo(compositeDisposable)
+    }
 }

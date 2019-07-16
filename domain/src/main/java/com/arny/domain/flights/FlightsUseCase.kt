@@ -39,6 +39,11 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
         return fromCallable { repository.loadPlaneTypes().map { it.toPlaneType() } }
     }
 
+    fun loadPlaneType(id: Long?): Observable<OptionalNull<PlaneType?>> {
+        return fromNullable { repository.loadPlaneType(id)?.toPlaneType() }
+    }
+
+
     private fun getFormattedFlightTimes(): String {
         val flightsTime = repository.getFlightsTime()
         val flightsCount = repository.getFlightsCount()
@@ -72,5 +77,4 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
     fun removeFlight(id: Long?): Observable<Boolean> {
         return fromCallable { repository.removeFlight(id) }
     }
-
 }

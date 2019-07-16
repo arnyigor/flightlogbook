@@ -9,9 +9,15 @@ import android.support.v4.content.ContextCompat
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.*
+import android.view.KeyEvent
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
 import android.view.inputmethod.InputMethodManager
-import android.widget.*
+import android.widget.Button
+import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.TextView
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
@@ -20,7 +26,6 @@ import com.arny.constants.CONSTS
 import com.arny.data.db.intities.TimeToFlightEntity
 import com.arny.domain.models.PlaneType
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
 import com.arny.flightlogbook.presentation.times.TimesListActivity
 import com.arny.flightlogbook.presentation.types.PlaneTypesActivity
 import com.arny.helpers.utils.*
@@ -89,7 +94,6 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         rv_time_types.layoutManager = customRVLayoutManager
         rv_time_types.adapter = timesAdapter
         initUI()
-        initTypes()
         addEditPresenter.initState(flightId)
     }
 
@@ -107,7 +111,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
 
 
     private fun initTypes() {
-        aAdapter = AircraftSpinnerAdapter(this)
+     /*   aAdapter = AircraftSpinnerAdapter(this)
         spin_aircraft_types.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(p0: AdapterView<*>?) {
 
@@ -117,7 +121,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
                 addEditPresenter.setAircraftType(aAdapter?.items?.getOrNull(position))
             }
         }
-        spin_aircraft_types.adapter = aAdapter
+        spin_aircraft_types.adapter = aAdapter*/
     }
 
     private fun initUI() {
@@ -192,8 +196,8 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
             }
             false
         }
-        add_type.setOnClickListener {
-            launchActivity<FragmentContainerActivity>(CONSTS.REQUESTS.REQUEST_ADD_TYPE) {
+        select_plane_type.setOnClickListener {
+            launchActivity<PlaneTypesActivity>(CONSTS.REQUESTS.REQUEST_SELECT_TYPE) {
                 putExtra(CONSTS.FRAGMENTS.FRAGMENT_TAG, CONSTS.FRAGMENTS.FRAGMENT_TAG_TYPE_LIST)
             }
             overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
@@ -205,14 +209,19 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         Log.i(AddEditActivity::class.java.simpleName, "onActivityResult: requestCode:$requestCode;resultCode:$resultCode;data:" + Utility.dumpIntent(data) )
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
-                CONSTS.REQUESTS.REQUEST_ADD_TYPE -> {
-                    val id = data.getExtra<Long>("id")
-                    needRealodTypes = true
+                CONSTS.REQUESTS.REQUEST_SELECT_TYPE -> {
+                    val planetypeId = data.getExtra<Long>(CONSTS.EXTRAS.EXTRA_PLANE_TYPE)
+                    addEditPresenter.setFlightPlaneType(planetypeId)
                 }
                 CONSTS.REQUESTS.REQUEST_ADD_TIME -> {
+
                 }
             }
         }
+    }
+
+    override fun setPlaneTypeTitle(title: String?) {
+        tvAirplaneType.setText(title)
     }
 
     override fun setToolbarTitle(string: String) {
@@ -270,7 +279,9 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
                 return true
             }
             R.id.action_type_edit -> {
-                launchActivity<PlaneTypesActivity> {}
+                launchActivity<PlaneTypesActivity>(CONSTS.REQUESTS.REQUEST_SELECT_TYPE) {
+
+                }
                 overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
             }
         }

@@ -10,11 +10,12 @@
     app:cardUseCompatPadding="true">
 
     <android.support.constraint.ConstraintLayout
+        android:id="@+id/cl_types_item_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/typeTitle"
+            android:id="@+id/tv_plane_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -26,13 +27,13 @@
             android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/edit"
+            app:layout_constraintEnd_toStartOf="@+id/iv_edit_plane_type_title"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="B-737-800" />
 
         <ImageView
-            android:id="@+id/edit"
+            android:id="@+id/iv_edit_plane_type_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -45,11 +46,11 @@
             android:src="@drawable/ic_icon_edit"
             android:tint="@color/colorAccent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/delete"
+            app:layout_constraintEnd_toStartOf="@+id/iv_delete_plane_type_title"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:id="@+id/delete"
+            android:id="@+id/iv_delete_plane_type_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
