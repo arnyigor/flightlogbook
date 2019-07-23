@@ -53,7 +53,7 @@
             android:value="8bd3520e90d7d645d3151ea3044114aab59429c0" />
 
         <receiver
-            android:name=".data.additional.AppWidget"
+            android:name=".presentation.widget.AppWidget"
             android:icon="@drawable/ic_launcher"
             android:label="@string/app_name">
             <intent-filter>

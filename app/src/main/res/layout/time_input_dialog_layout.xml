@@ -15,7 +15,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:gravity="center_horizontal"
-        android:text="Введите время"
+        android:text="@string/enter_time"
         android:textColor="@color/default_text_color_holo_light"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -39,6 +39,20 @@
         app:layout_constraintTop_toBottomOf="@+id/tv_dlg_title"
         tools:text="00:00" />
 
+    <CheckBox
+        android:id="@+id/chbox_add_flight_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:text="@string/str_time_add_to_flight_time"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edt_time" />
+
     <Button
         android:id="@+id/btn_time_dlg_ok"
         android:layout_width="wrap_content"
@@ -51,7 +65,7 @@
         android:text="@android:string/ok"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edt_time" />
+        app:layout_constraintTop_toBottomOf="@+id/chbox_add_flight_time" />
 
     <ImageView
         android:id="@+id/iv_close"

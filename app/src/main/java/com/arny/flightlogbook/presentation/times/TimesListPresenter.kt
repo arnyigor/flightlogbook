@@ -101,16 +101,15 @@ class TimesListPresenter : MvpPresenter<TimesListView>() {
                 .addTo(compositeDisposable)
     }
 
-    fun onItemSelect(item: TimeTypeEntity, position: Int, items: ArrayList<TimeTypeEntity>?) {
-        item.selected = !item.selected
-        viewState?.notifyItemChanged(position)
-        items?.let { list ->
-            viewState?.setBtnConfirmSelectVisible(list.any { it.selected })
-        }
+    fun onItemClick(item: TimeTypeEntity) {
+        viewState?.showDialogSetTime(item)
     }
 
-    fun onConfirmSelected(items: ArrayList<TimeTypeEntity>?) {
-        val selected = items?.filter { it.selected }?.map { it.id }?.joinToString()
-        viewState?.onConfirmSelectedTimes(selected)
+    fun addFlightTime(id: Long?, title: String?, totalTime: Int, addToFlight: Boolean) {
+//        val splittedTime = value.split(":")
+//        val hh = splittedTime.getOrNull(0)?.parseInt() ?: 0
+//        val mm = splittedTime.getOrNull(1).parseInt() ?: 0
+//        val totalTime = (hh * 60) + mm
+        viewState?.confirmSelectedTimeFlight(id, title, totalTime, addToFlight)
     }
 }

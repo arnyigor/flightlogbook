@@ -248,6 +248,10 @@ public class DateTimeUtils {
         return pad(h) + TIME_SEPARATOR_TWICE_DOT + pad(m);
     }
 
+    public static int logTimeMinutes(int hh, int mm) {
+        return (hh * 60) + mm;
+    }
+
     public static int convertStringToTime(String time) {
         int hours = 0;
         int mins = 0;

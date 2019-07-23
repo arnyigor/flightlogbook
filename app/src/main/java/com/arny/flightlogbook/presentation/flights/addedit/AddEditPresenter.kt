@@ -3,18 +3,18 @@ package com.arny.flightlogbook.presentation.flights.addedit
 import android.annotation.SuppressLint
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
+import com.arny.data.db.intities.TimeToFlightEntity
+import com.arny.data.db.intities.TimeTypeEntity
 import com.arny.domain.common.CommonUseCase
 import com.arny.domain.common.PrefsUseCase
+import com.arny.domain.correctLogTime
 import com.arny.domain.flights.FlightsUseCase
 import com.arny.domain.models.Flight
 import com.arny.domain.models.PlaneType
 import com.arny.domain.models.TimeToFlight
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
-import com.arny.helpers.utils.DateTimeUtils
-import com.arny.helpers.utils.MathUtils
-import com.arny.helpers.utils.addTo
-import com.arny.helpers.utils.observeOnMain
+import com.arny.helpers.utils.*
 import io.reactivex.disposables.CompositeDisposable
 import org.joda.time.DateTime
 import javax.inject.Inject
@@ -33,8 +33,6 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
     private var aircraftType: PlaneType? = null
     private var flight: Flight? = null
     private var mDateTime: Long = 0
-    private var logHours: Int = 0
-    private var logMinutes: Int = 0
     private var mMotoStart: Float = 0.toFloat()
     private var mMotoFinish: Float = 0.toFloat()
     private var mMotoResult: Float = 0.toFloat()
@@ -47,10 +45,6 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
     override fun detachView(view: AddEditView?) {
         super.detachView(view)
         compositeDisposable.clear()
-    }
-
-    fun addAircraftType(name: String) {
-
     }
 
     fun setExtractedDateTime(extractedValue: String) {
@@ -69,7 +63,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
     fun saveState(time: String, descr: String, regno: String) {
         val canEdit = try {
             if (!time.contains(":")) {
-                correctLogTime(time)
+                correctingLogTime(time)
             }
             true
         } catch (e: Exception) {
@@ -105,7 +99,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
         }
     }
 
-    fun setUIFromFlight(flight: Flight) {
+    private fun setUIFromFlight(flight: Flight) {
         viewState?.setDescription(flight.description ?: "")
         viewState?.setDate(DateTimeUtils.getDateTime(flight.datetime ?: 0, "dd.MM.yyyy"))
         logTime = flight.logtime ?: 0
@@ -115,46 +109,53 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
         viewState?.setSpinIfrVfr(flight.ifrvfr ?: 0)
         viewState?.setFlightType(flight.flighttype ?: 0)
         viewState?.setToolbarTitle(commonUseCase.getString(R.string.str_edt))
+        viewState?.timeSummChange()
     }
 
-    fun correctLogTime(stringTime: String) {
-        val inputLogtime = stringTime
-        if (inputLogtime.isBlank()) {
+    fun correctingLogTime(stringTime: String) {
+        correctLogTime(stringTime,logTime) { time, timeText ->
+            logTime = time
+            viewState?.setEdtTimeText(timeText)
+            viewState?.timeSummChange()
+        }
+        /*var logMinutes = 0
+        var logHours = 0
+        if (stringTime.isBlank()) {
             if (logTime != 0) {
                 val strLogTime = DateTimeUtils.strLogTime(logTime)
                 viewState?.setEdtTimeText(strLogTime)
             } else {
                 viewState?.setEdtTimeText("00:00")
             }
-        } else if (inputLogtime.length == 1) {
-            logTime = Integer.parseInt(inputLogtime)
+        } else if (stringTime.length == 1) {
+            logTime = Integer.parseInt(stringTime)
             val format = String.format("00:0%d", logTime)
             viewState?.setEdtTimeText(format)
-        } else if (inputLogtime.length == 2) {
-            logMinutes = Integer.parseInt(inputLogtime)
-            logTime = Integer.parseInt(inputLogtime)
+        } else if (stringTime.length == 2) {
+            logMinutes = Integer.parseInt(stringTime)
+            logTime = Integer.parseInt(stringTime)
             if (logMinutes > 59) {
                 logHours = 1
                 logMinutes -= 60
             }
             val format = String.format("%s:%s", DateTimeUtils.pad(logHours), DateTimeUtils.pad(logMinutes))
             viewState?.setEdtTimeText(format)
-        } else if (inputLogtime.length > 2) {
-            if (inputLogtime.contains(":")) {
-                logMinutes = Integer.parseInt(inputLogtime.substring(inputLogtime.length - 2, inputLogtime.length))
-                logHours = Integer.parseInt(inputLogtime.substring(0, inputLogtime.length - 3))
+        } else if (stringTime.length > 2) {
+            if (stringTime.contains(":")) {
+                logMinutes = Integer.parseInt(stringTime.substring(stringTime.length - 2, stringTime.length))
+                logHours = Integer.parseInt(stringTime.substring(0, stringTime.length - 3))
             } else {
-                logMinutes = Integer.parseInt(inputLogtime.substring(inputLogtime.length - 2, inputLogtime.length))
-                logHours = Integer.parseInt(inputLogtime.substring(0, inputLogtime.length - 2))
+                logMinutes = Integer.parseInt(stringTime.substring(stringTime.length - 2, stringTime.length))
+                logHours = Integer.parseInt(stringTime.substring(0, stringTime.length - 2))
             }
             if (logMinutes > 59) {
                 logHours += 1
                 logMinutes -= 60
             }
-            logTime = logHours * 60 + logMinutes
-            val format = String.format("%s:%s", DateTimeUtils.pad(logHours), DateTimeUtils.pad(logMinutes))
-            viewState?.setEdtTimeText(format)
-        }
+            logTime = DateTimeUtils.logTimeMinutes(logHours, logMinutes)
+            viewState?.setEdtTimeText(DateTimeUtils.strLogTime(logTime))
+            viewState?.timeSummChange()
+        }*/
     }
 
     fun setAircraftType(aircraftType: PlaneType?) {
@@ -182,10 +183,11 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
                 }
     }
 
-    fun initEmptyUI() {
+    private fun initEmptyUI() {
         viewState?.setDescription("")
         viewState?.setDate("")
         viewState?.setToolbarTitle(commonUseCase.getString(R.string.str_add))
+        viewState?.timeSummChange()
     }
 
     fun loadPlaneTypes() {
@@ -212,10 +214,6 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
         } else {
             initEmptyUI()
         }
-        val showMoto = prefsUseCase.isShowMoto()
-        if (showMoto) {
-            viewState?.showMotoBtn()
-        }
     }
 
     fun onMotoTimeChange(startTime: String, finishTime: String) {
@@ -230,10 +228,11 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
 
     fun setMotoResult() {
         logTime = setLogTimefromMoto(mMotoResult)
-        logHours = logTime / 60
-        logMinutes = logTime % 60
+        val logHours = logTime / 60
+        val logMinutes = logTime % 60
         val format = String.format("%s:%s", DateTimeUtils.pad(logHours), DateTimeUtils.pad(logMinutes))
         viewState?.setEdtTimeText(format)
+        viewState?.timeSummChange()
     }
 
     private fun setLogTimefromMoto(motoTime: Float): Int {
@@ -245,7 +244,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
         if (mMoto < 0) {
             return 0f
         }
-        mMoto = java.lang.Float.parseFloat(MathUtils.round(mMoto.toDouble(), 3).toString())
+        mMoto = MathUtils.round(mMoto.toDouble(), 3).toFloat()
         return mMoto
     }
 
@@ -269,7 +268,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
 
     private fun convertDateTime() = DateTimeUtils.getDateTime(mDateTime, "dd.MM.yyyy")
 
-    fun initDateFromMask(maskFilled: Boolean, extractedValue: String) {
+    fun initDateFromMask(extractedValue: String) {
         try {
             mDateTime = DateTimeUtils.getDateTime(extractedValue, "ddMMyyyy").withTimeAtStartOfDay().millis
         } catch (e: Exception) {
@@ -297,5 +296,31 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
                      it.printStackTrace()
                  })
                  .addTo(compositeDisposable)
+    }
+
+    fun addFlightTime(timeId: Long?, timeTitle: String?, time: Int?, addToFlight: Boolean?) {
+        if (timeId != null) {
+            val timeTypeEntity = TimeTypeEntity(timeId, timeTitle)
+            val timeFlightEntity = TimeToFlightEntity(null, id, timeId, timeTypeEntity, time
+                    ?: 0, addToFlight ?: false)
+            viewState?.addFlightTimeToAdapter(timeFlightEntity)
+            viewState?.timeSummChange()
+        }
+    }
+
+    fun onAddTimeChanged(timeValue: String, addTiFlight: Boolean, item: TimeToFlightEntity, position: Int) {
+        val splittedTime = timeValue.split(":")
+        val hh = splittedTime.getOrNull(0)?.parseInt() ?: 0
+        val mm = splittedTime.getOrNull(1).parseInt() ?: 0
+        val totalTime = (hh * 60) + mm
+        item.time = totalTime
+        item.addToFlightTime = addTiFlight
+        viewState?.notifyAddTimeItemChanged(position)
+    }
+
+    fun onTimeSummChange(sumByAddTime: Int?) {
+        val totalTime = logTime + (sumByAddTime ?: 0)
+        val strLogTime = DateTimeUtils.strLogTime(totalTime)
+        viewState?.setTotalTime("${commonUseCase.getString(R.string.str_totaltime)} $strLogTime")
     }
 }

@@ -40,12 +40,12 @@ interface TimesRepository {
         return getTimeToFlightsDAO().queryTimesOfFlight(flightId)
     }
 
-    fun addDBFlightTime(flightId: Long?, timeType: Long?, time: Long, addToFlight: Boolean = false): Boolean {
+    fun addDBFlightTime(flightId: Long?, timeType: Long?, time: Int, addToFlight: Boolean = false): Boolean {
         val entity = TimeToFlightEntity(null, flightId, timeType, null, time, addToFlight)
         return getTimeToFlightsDAO().insertReplace(entity) > 0
     }
 
-    fun updateDBFlightTime(flightId: Long?, timeType: Long?, time: Long, addToFlight: Boolean = false): Boolean {
+    fun updateDBFlightTime(flightId: Long?, timeType: Long?, time: Int, addToFlight: Boolean = false): Boolean {
         return getTimeToFlightsDAO().setFlightTime(flightId, timeType, time, addToFlight) > 0
     }
 

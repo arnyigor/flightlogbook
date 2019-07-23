@@ -14,7 +14,7 @@ data class TimeToFlightEntity(
         var timeType: Long? = null,
         @Ignore
         var timeTypeEntity: TimeTypeEntity? = null,
-        var time: Long = 0,//minutes
+        var time: Int = 0,//minutes
         @ColumnInfo(name = "add_flight_time")
         var addToFlightTime: Boolean = false) {
 

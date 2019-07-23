@@ -1,6 +1,8 @@
 package com.arny.flightlogbook.presentation.times
 
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.text.InputType
@@ -12,9 +14,12 @@ import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.arny.constants.CONSTS
 import com.arny.data.db.intities.TimeTypeEntity
+import com.arny.domain.correctLogTime
 import com.arny.flightlogbook.R
 import com.arny.helpers.utils.*
+import com.redmadrobot.inputmask.MaskedTextChangedListener
 import kotlinx.android.synthetic.main.activity_times_list.*
+import kotlinx.android.synthetic.main.time_input_dialog_layout.view.*
 
 class TimesListActivity : MvpAppCompatActivity(), TimesListView, View.OnClickListener {
     private var adapter: TimeTypesAdapter? = null
@@ -35,15 +40,11 @@ class TimesListActivity : MvpAppCompatActivity(), TimesListView, View.OnClickLis
         }
         initAdapter()
         fab_add_time_type.setOnClickListener(this)
-        val flightId = getExtra<Long>(CONSTS.DB.COLUMN_ID)
         timesListPresenter.loadTimes()
-        btn_confirm_selected.setOnClickListener(this)
     }
 
     override fun onBackPressed() {
         super.onBackPressed()
-        val callingClass = callingActivity?.toString()
-        Log.i(TimesListActivity::class.java.simpleName, "onBackPressed: $callingClass");
         overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_out_right)
     }
 
@@ -74,10 +75,6 @@ class TimesListActivity : MvpAppCompatActivity(), TimesListView, View.OnClickLis
                     }
                 })
             }
-            R.id.btn_confirm_selected -> {
-                val items = adapter?.getItems()
-                timesListPresenter.onConfirmSelected(items)
-            }
         }
     }
 
@@ -92,12 +89,49 @@ class TimesListActivity : MvpAppCompatActivity(), TimesListView, View.OnClickLis
             }
 
             override fun onItemClick(position: Int, item: TimeTypeEntity) {
-                timesListPresenter.onItemSelect(item, position, adapter?.getItems())
+                timesListPresenter.onItemClick(item)
             }
 
         })
         rv_time_types.layoutManager = LinearLayoutManager(this)
         rv_time_types.adapter = adapter
+    }
+
+    @SuppressLint("SetTextI18n")
+    override fun showDialogSetTime(item: TimeTypeEntity) {
+        var cDialog: AlertDialog? = null
+        var value = ""
+        cDialog = createCustomLayoutDialog(R.layout.time_input_dialog_layout, {
+            var logTime = 0
+            MaskedTextChangedListener.installOn(edt_time, "[00]:[00]", object : MaskedTextChangedListener.ValueListener {
+                override fun onTextChanged(maskFilled: Boolean, extractedValue: String, formattedValue: String) {
+                    Log.i(TimesListActivity::class.java.simpleName, "onTextChanged: extractedValue:$extractedValue,formattedValue:$formattedValue");
+                    value = extractedValue
+                }
+            })
+
+            tv_dlg_title.text = getString(R.string.enter_time) + " \"${item.title}\""
+            edt_time.hint = "чч:мм"
+            edt_time.setOnFocusChangeListener { _, hasFocus ->
+                if (!hasFocus) {
+                    correctLogTime(value, logTime) { time, timeText ->
+                        logTime = time
+                        edt_time.setText(timeText)
+                    }
+                }
+            }
+            iv_close.setOnClickListener {
+                cDialog?.dismiss()
+            }
+            btn_time_dlg_ok.setOnClickListener {
+                correctLogTime(value, logTime) { time, timeText ->
+                    logTime = time
+                    edt_time.setText(timeText)
+                }
+                timesListPresenter.addFlightTime(item.id, item.title, logTime, chbox_add_flight_time.isChecked)
+                cDialog?.dismiss()
+            }
+        }, false)
     }
 
     private fun showConfirmDeleteDialog(item: TimeTypeEntity) {
@@ -140,13 +174,12 @@ class TimesListActivity : MvpAppCompatActivity(), TimesListView, View.OnClickLis
         adapter?.addAll(timeTypes)
     }
 
-    override fun setBtnConfirmSelectVisible(vis: Boolean) {
-        btn_confirm_selected.setVisible(vis)
-    }
-
-    override fun onConfirmSelectedTimes(selected: String?) {
+    override fun confirmSelectedTimeFlight(id: Long?, title: String?, totalTime: Int, addToFlight: Boolean) {
         putExtras(Activity.RESULT_OK) {
-            putExtra(CONSTS.EXTRAS.EXTRA_ADD_TIME_IDS,selected)
+            putExtra(CONSTS.EXTRAS.EXTRA_TIME_FLIGHT_ID, id)
+            putExtra(CONSTS.EXTRAS.EXTRA_TIME_FLIGHT_TITLE, title)
+            putExtra(CONSTS.EXTRAS.EXTRA_TIME_FLIGHT, totalTime)
+            putExtra(CONSTS.EXTRAS.EXTRA_TIME_FLIGHT_ADD, addToFlight)
         }
         onBackPressed()
     }

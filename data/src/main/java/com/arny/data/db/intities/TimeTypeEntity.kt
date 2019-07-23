@@ -2,7 +2,6 @@ package com.arny.data.db.intities
 
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
-import android.arch.persistence.room.Ignore
 import android.arch.persistence.room.PrimaryKey
 
 /**
@@ -13,6 +12,4 @@ data class TimeTypeEntity(
         @PrimaryKey(autoGenerate = true)
         @ColumnInfo(name = "_id")
         var id: Long? = null,
-        var title: String? = null,
-        @Ignore
-        var selected: Boolean = false)
+        var title: String? = null)

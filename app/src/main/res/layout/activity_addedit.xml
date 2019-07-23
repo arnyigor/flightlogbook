@@ -17,59 +17,64 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <android.support.constraint.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-            <LinearLayout
-                android:id="@+id/motoContainer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/iv_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintBottom_toBottomOf="@+id/tilDate"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/tilDate"
-                app:srcCompat="@drawable/ic_datetime" />
+                <ImageView
+                    android:id="@+id/iv_date"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_date" />
 
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/tilDate"
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
-                app:layout_constraintStart_toEndOf="@+id/iv_date"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <android.support.design.widget.TextInputEditText
-                    android:id="@+id/edtDate"
-                    android:layout_width="match_parent"
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/tilDate"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:focusable="true"
-                    android:hint="@string/str_date"
-                    android:imeOptions="flagNoExtractUi"
-                    android:inputType="date"
-                    tools:text="22.05.2005" />
-            </android.support.design.widget.TextInputLayout>
+                    android:layout_marginStart="8dp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginBottom="8dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/iv_date"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <android.support.design.widget.TextInputEditText
+                        android:id="@+id/edtDate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:focusable="true"
+                        android:gravity="center_horizontal"
+                        android:hint="@string/str_date"
+                        android:imeOptions="flagNoExtractUi"
+                        android:inputType="date"
+                        tools:text="" />
+                </android.support.design.widget.TextInputLayout>
+            </android.support.constraint.ConstraintLayout>
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/til_edt_time"
-                android:layout_width="0dp"
-                android:layout_height="54dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
-                app:layout_constraintEnd_toStartOf="@+id/motoContainer"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/tilDate"
                 app:layout_constraintTop_toTopOf="parent">
 
@@ -77,10 +82,10 @@
                     android:id="@+id/edtTime"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
                     android:hint="@string/str_itemlogtime"
                     android:imeOptions="flagNoExtractUi"
-                    android:inputType="numberSigned"
-                    android:maxWidth="100dp"
+                    android:inputType="time"
                     android:textSize="18sp"
                     tools:text="00:00" />
             </android.support.design.widget.TextInputLayout>
@@ -89,81 +94,50 @@
                 android:id="@+id/tv_add_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:textColor="@color/md_white_1000"
-                android:background="@drawable/btn_bg_primary"
+                android:layout_gravity="right"
                 android:layout_marginTop="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
+                android:background="@drawable/btn_bg_primary"
+                android:minHeight="25dp"
+                android:padding="4dp"
                 android:text="@string/add_time"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/barrier" />
-
-            <android.support.constraint.Barrier
-                android:id="@+id/barrier"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:barrierDirection="bottom"
-                app:constraint_referenced_ids="til_edt_time,tilDate,motoContainer"
-                tools:layout_editor_absoluteY="480dp" />
+                android:textAllCaps="false"
+                android:textColor="@color/md_white_1000" />
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/rv_time_types"
-                android:layout_width="match_parent"
-                android:visibility="gone"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_add_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 tools:itemCount="2"
                 tools:listitem="@layout/flight_times_item_layout" />
 
             <TextView
-                android:id="@+id/tvAirplaneType"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:id="@+id/tv_total_time"
+                android:layout_width="wrap_content"
                 android:layout_marginLeft="8dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginBottom="8dp"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:hint="@string/str_type"
-                android:textColor="@android:color/black"
-                android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="@+id/select_plane_type"
-                app:layout_constraintEnd_toStartOf="@+id/select_plane_type"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/edtRegNoLayout" />
+                android:layout_height="wrap_content"
+                android:text="Общее время:"
+                android:textSize="20sp" />
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/til_descr"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/rv_time_types">
+                android:layout_marginLeft="8dp">
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/edtDesc"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:ellipsize="end"
                     android:hint="@string/str_desc"
-                    android:inputType="textMultiLine" />
+                    android:inputType="textMultiLine"
+                    android:maxLines="5"
+                    tools:text="@tools:sample/lorem" />
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
@@ -171,11 +145,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/til_descr">
+                android:layout_marginLeft="8dp">
 
-                <EditText
+                <android.support.design.widget.TextInputEditText
                     android:id="@+id/edtRegNo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -183,23 +155,45 @@
 
             </android.support.design.widget.TextInputLayout>
 
-            <Button
-                android:id="@+id/select_plane_type"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/btn_bg_primary"
-                android:minHeight="35dp"
-                android:text="Выбрать"
-                android:textAllCaps="false"
-                android:textColor="@color/colorTextWhite"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/edtRegNoLayout" />
-        </android.support.constraint.ConstraintLayout>
+                android:layout_marginLeft="8dp"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:id="@+id/tvAirplaneType"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:hint="@string/str_type"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/select_plane_type"
+                    app:layout_constraintEnd_toStartOf="@+id/select_plane_type"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/select_plane_type" />
+
+                <Button
+                    android:id="@+id/select_plane_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="@drawable/btn_bg_primary"
+                    android:minHeight="25dp"
+                    android:text="@string/str_select"
+                    android:textAllCaps="false"
+                    android:textColor="@color/colorTextWhite"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </android.support.constraint.ConstraintLayout>
+        </LinearLayout>
     </ScrollView>
 
 </LinearLayout>

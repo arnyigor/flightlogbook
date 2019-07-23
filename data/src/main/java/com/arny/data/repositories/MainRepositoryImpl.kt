@@ -34,8 +34,7 @@ class MainRepositoryImpl @Inject constructor(private val appContext: Context) : 
         return appContext
     }
 
-    private fun getDb(): MainDB {
+    override fun getDb(): MainDB {
         return MainDB.getInstance(getContext())
     }
-
 }

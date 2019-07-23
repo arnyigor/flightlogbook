@@ -15,4 +15,9 @@
         android:title="@string/str_airplane_types"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/action_moto"
+        android:title="@string/str_moto"
+        app:showAsAction="never" />
+
 </menu>

@@ -13,6 +13,6 @@ interface TimesListView : MvpView {
     fun toastError(msg: String?)
     fun updateAdapter(timeTypes: List<TimeTypeEntity>)
     fun notifyItemChanged(position: Int)
-    fun setBtnConfirmSelectVisible(vis: Boolean)
-    fun onConfirmSelectedTimes(selected: String?)
+    fun showDialogSetTime(item: TimeTypeEntity)
+    fun confirmSelectedTimeFlight(id: Long?, title: String?, totalTime: Int, addToFlight: Boolean)
 }

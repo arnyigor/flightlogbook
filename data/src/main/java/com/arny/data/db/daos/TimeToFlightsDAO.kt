@@ -16,7 +16,7 @@ interface TimeToFlightsDAO : BaseDao<TimeToFlightEntity> {
     fun queryTimeToFlight(id: Long): TimeToFlightEntity?
 
     @Query("UPDATE times_to_flights SET time=:time,add_flight_time=:addToFlightTime WHERE flight=:flightId AND time_type=:timeTypeId ")
-    fun setFlightTime(flightId: Long?, timeTypeId: Long?, time: Long, addToFlightTime: Boolean): Long
+    fun setFlightTime(flightId: Long?, timeTypeId: Long?, time: Int, addToFlightTime: Boolean): Long
 
     @Query("UPDATE times_to_flights SET time_type=:timeType, flight=:flight,time=:time,add_flight_time =:addToFlightTime  WHERE _id=:id")
     fun setTimeToFlight(id: Long?, timeType: Long?, flight: Long?, time: Long, addToFlightTime: Boolean): Long

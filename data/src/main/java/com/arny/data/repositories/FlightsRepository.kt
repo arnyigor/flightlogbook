@@ -4,7 +4,7 @@ import com.arny.data.db.daos.AircraftTypeDAO
 import com.arny.data.db.daos.FlightDAO
 import com.arny.data.models.FlightEntity
 
-interface FlightsRepository {
+interface FlightsRepository:BaseDBRepository {
     fun getFlightDAO(): FlightDAO
     fun getCraftTypeDAO(): AircraftTypeDAO
     fun getDbFlights(order: String): ArrayList<FlightEntity> {

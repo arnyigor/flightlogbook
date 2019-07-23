@@ -3,6 +3,7 @@ package com.arny.flightlogbook.presentation.flights.addedit
 import com.arellomobile.mvp.MvpView
 import com.arellomobile.mvp.viewstate.strategy.OneExecutionStateStrategy
 import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
+import com.arny.data.db.intities.TimeToFlightEntity
 import com.arny.domain.models.PlaneType
 
 @StateStrategyType(value = OneExecutionStateStrategy::class)
@@ -17,8 +18,11 @@ interface AddEditView : MvpView {
     fun setFlightType(flighttype: Int)
     fun setEdtTimeText(strLogTime: String?)
     fun setMotoTimeResult(motoTime: String?)
-    fun showMotoBtn()
     fun setToolbarTitle(string: String)
     fun toastError(msg: String?)
     fun setPlaneTypeTitle(title: String?)
+    fun addFlightTimeToAdapter(timeFlightEntity: TimeToFlightEntity)
+    fun notifyAddTimeItemChanged(position: Int)
+    fun setTotalTime(total: String)
+    fun timeSummChange()
 }

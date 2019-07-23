@@ -9,6 +9,11 @@ import java.util.Random;
 
 public class MathUtils {
 
+	public static int fib(int n) {
+		if (n <= 1) return n;
+		else return fib(n - 1) + fib(n - 2);
+	}
+
 	public static double getPercent(double iter, double total) {
 		return round((iter / total) * 100, 2);
 	}

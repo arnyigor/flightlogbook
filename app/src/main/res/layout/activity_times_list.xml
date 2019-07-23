@@ -46,24 +46,6 @@
         tools:listitem="@layout/time_type_list_item_layout"
         tools:visibility="visible" />
 
-    <Button
-        android:id="@+id/btn_confirm_selected"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/btn_bg_primary"
-        android:text="@string/str_select"
-        android:textColor="@color/colorTextWhite"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:visibility="visible" />
-
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_add_time_type"
         android:layout_width="wrap_content"

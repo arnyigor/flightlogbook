@@ -3,6 +3,7 @@ package com.arny.flightlogbook
 import android.app.Application
 import android.content.Context
 import android.support.multidex.MultiDex
+import android.support.v7.app.AppCompatDelegate
 import com.arny.flightlogbook.di.AppComponent
 import com.arny.flightlogbook.di.AppModule
 import com.arny.flightlogbook.di.DaggerAppComponent
@@ -27,6 +28,7 @@ class FlightApp : Application() {
     override fun onCreate() {
         super.onCreate()
         appContext = applicationContext
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
         appComponent = DaggerAppComponent
                 .builder()
                 .appModule(AppModule(this))

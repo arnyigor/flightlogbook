@@ -45,6 +45,10 @@ object CONSTS {
     object EXTRAS {
         const val LOGTIME_STATE_KEY = "com.arny.flightlogbook.extra.instance.time"
         const val EXTRA_ADD_TIME_IDS = "extra_add_time_ids"
+        const val EXTRA_TIME_FLIGHT_ID = "extra_time_flight_id"
+        const val EXTRA_TIME_FLIGHT_TITLE = "extra_time_flight_title"
+        const val EXTRA_TIME_FLIGHT = "extra_time_flight"
+        const val EXTRA_TIME_FLIGHT_ADD = "extra_time_flight_add"
         const val EXTRA_PLANE_TYPE = "extra_plane_type_id"
     }
 }
