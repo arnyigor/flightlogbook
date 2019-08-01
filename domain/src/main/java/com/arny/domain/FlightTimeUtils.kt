@@ -13,12 +13,13 @@ fun correctLogTime(stringTime: String, initTime: Int, onCorrect: (logTime: Int, 
     var logTime = initTime
     when {
         stringTime.isBlank() -> {
-            val text = if (logTime != 0) DateTimeUtils.strLogTime(logTime) else "00:00"
+            val text = if (logTime != 0) DateTimeUtils.strLogTime(logTime) else ""
             onCorrect.invoke(logTime, text)
         }
         stringTime.length == 1 -> {
             logTime = stringTime.parseInt() ?: 0
-            onCorrect.invoke(logTime, String.format("00:0%d", logTime))
+            val text = if (logTime != 0) String.format("00:0%d", logTime) else ""
+            onCorrect.invoke(logTime, text)
         }
         stringTime.length == 2 -> {
             logMinutes = stringTime.parseInt() ?: 0
