@@ -11,7 +11,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
@@ -82,7 +81,9 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
             }
 
             override fun onDeleteFlightTime(position: Int, item: TimeToFlightEntity) {
-                timesAdapter?.remove(position)
+                Log.i(AddEditActivity::class.java.simpleName, "onDeleteFlightTime: $position");
+                timesAdapter?.remove(item)
+                timeSummChange()
             }
 
             override fun onItemClick(position: Int, item: TimeToFlightEntity) {
@@ -109,8 +110,11 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
     }
 
     override fun timeSummChange() {
-        val sumByAddTime = timesAdapter?.getItems()?.sumBy { it.time }
-        addEditPresenter.onTimeSummChange(sumByAddTime)
+        addEditPresenter.onTimeSummChange( timesAdapter?.getItems())
+    }
+
+    override fun setTotalFlightTime(flightTime: String) {
+        tv_total_flight_time.text = flightTime
     }
 
     override fun toastError(msg: String?) {
@@ -195,16 +199,9 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         edtTime.setOnFocusChangeListener { _, inside ->
             if (!inside) {
                 addEditPresenter.correctingLogTime(time)
-            }
-        }
-        edtTime.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                edtTime.post {
-//                    val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-//                    imm?.showSoftInput(edt_item_qty, InputMethodManager.SHOW_IMPLICIT)
-                    edtTime.requestFocus()
-                    edtTime.selectAll()
-                }
+            } else {
+                edtTime.requestFocus()
+                edtTime.selectAll()
             }
         }
 
@@ -242,7 +239,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
     }
 
     override fun setPlaneTypeTitle(title: String?) {
-        tvAirplaneType.setText(title)
+        tvAirplaneType.text = title
     }
 
     override fun setToolbarTitle(string: String) {

@@ -318,9 +318,16 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
         viewState?.notifyAddTimeItemChanged(position)
     }
 
-    fun onTimeSummChange(sumByAddTime: Int?) {
-        val totalTime = logTime + (sumByAddTime ?: 0)
-        val strLogTime = DateTimeUtils.strLogTime(totalTime)
-        viewState?.setTotalTime("${commonUseCase.getString(R.string.str_totaltime)} $strLogTime")
+    fun onTimeSummChange(items: ArrayList<TimeToFlightEntity>?) {
+        if (items != null) {
+            val totalItemsTime = items.sumBy { it.time }
+            val flightItemsTime = items.filter { it.addToFlightTime }.sumBy { it.time }
+            val totalTime = logTime + totalItemsTime
+            val totalFlightTime = logTime + flightItemsTime
+            val strLogTime = DateTimeUtils.strLogTime(totalTime)
+            val strFlightTime = DateTimeUtils.strLogTime(totalFlightTime)
+            viewState?.setTotalTime("${commonUseCase.getString(R.string.str_totaltime)} $strLogTime")
+            viewState?.setTotalFlightTime("${commonUseCase.getString(R.string.str_total_item_flight_time)} $strFlightTime")
+        }
     }
 }
