@@ -7,7 +7,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.data.interfaces.FragmentResultListener
-import com.arny.flightlogbook.presentation.types.PlaneTypesFragment
+import com.arny.flightlogbook.presentation.planetypes.PlaneTypesFragment
 import com.arny.helpers.utils.getExtra
 import com.arny.helpers.utils.replaceFragmentInActivity
 

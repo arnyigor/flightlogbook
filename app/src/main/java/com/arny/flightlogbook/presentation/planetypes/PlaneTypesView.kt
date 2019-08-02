@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.presentation.types
+package com.arny.flightlogbook.presentation.planetypes
 
 import com.arellomobile.mvp.MvpView
 import com.arellomobile.mvp.viewstate.strategy.OneExecutionStateStrategy
@@ -16,9 +16,5 @@ interface PlaneTypesView : MvpView {
     fun showRemoveDialog(item: PlaneType, position: Int)
     fun toastError(msg: String?)
     fun notifyItemChanged(position: Int)
-    fun setAdapterVisible(vis: Boolean)
     fun setEmptyViewVisible(vis: Boolean)
-    fun setBtnRemoveAllVisible(vis: Boolean)
-    fun itemRemoved(position: Int)
-    fun clearAdapter()
 }

@@ -1,12 +1,11 @@
-package com.arny.flightlogbook.presentation.times
+package com.arny.flightlogbook.presentation.timetypes
 
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
-import com.arny.data.db.intities.TimeTypeEntity
-import com.arny.data.repositories.MainRepositoryImpl
+import com.arny.domain.models.TimeType
+import com.arny.domain.times.TimeTypesUseCase
 import com.arny.flightlogbook.FlightApp
 import com.arny.helpers.utils.addTo
-import com.arny.helpers.utils.fromCallable
 import com.arny.helpers.utils.observeOnMain
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
@@ -16,15 +15,12 @@ import javax.inject.Inject
 class TimesListPresenter : MvpPresenter<TimesListView>() {
     private val compositeDisposable = CompositeDisposable()
     @Inject
-    lateinit var repository: MainRepositoryImpl
+    lateinit var timeTypesUseCase: TimeTypesUseCase
 
     init {
         FlightApp.appComponent.inject(this)
     }
 
-    private fun getView(): TimesListView? {
-        return viewState
-    }
 
     override fun detachView(view: TimesListView?) {
         super.detachView(view)
@@ -32,28 +28,26 @@ class TimesListPresenter : MvpPresenter<TimesListView>() {
     }
 
     fun loadTimes() {
-        fromCallable { repository.queryDBTimeTypes() }
+        viewState?.setEmptyView(false)
+        timeTypesUseCase.queryTimeTypes()
                 .observeOnMain()
                 .subscribe({
                     if (it.isNotEmpty()) {
-                        getView()?.setEmptyView(false)
-                        getView()?.setListVisible(true)
-                        getView()?.updateAdapter(it)
+                        viewState?.setEmptyView(false)
+                        viewState?.updateAdapter(it)
                     } else {
-                        getView()?.setEmptyView(true)
-                        getView()?.setListVisible(false)
+                        viewState?.setEmptyView(true)
                     }
                 }, {
                     it.printStackTrace()
-                    getView()?.setEmptyView(true)
-                    getView()?.setListVisible(false)
-                    getView()?.toastError(it.message)
+                    viewState?.setEmptyView(true)
+                    viewState?.toastError(it.message)
                 })
                 .addTo(compositeDisposable)
     }
 
-    fun editTimeTypeTitle(item: TimeTypeEntity, newName: String, position: Int) {
-        fromCallable { repository.updateDBTimeType(item.id, newName) }
+    fun editTimeTypeTitle(item: TimeType, newName: String, position: Int) {
+        timeTypesUseCase.updateTimeType(item.id, newName)
                 .observeOnMain()
                 .subscribe({
                     if (it) {
@@ -69,8 +63,8 @@ class TimesListPresenter : MvpPresenter<TimesListView>() {
                 .addTo(compositeDisposable)
     }
 
-    fun removeTimeType(item: TimeTypeEntity) {
-        fromCallable { repository.removeDBTimeType(item.id) }
+    fun removeTimeType(item: TimeType) {
+        timeTypesUseCase.removeTimeType(item.id)
                 .observeOnMain()
                 .subscribe({
                     if (it) {
@@ -86,7 +80,7 @@ class TimesListPresenter : MvpPresenter<TimesListView>() {
     }
 
     fun addTimeType(title: String?) {
-        fromCallable { repository.addDBTimeType(title) }
+        timeTypesUseCase.addTimeType(title)
                 .observeOnMain()
                 .subscribe({
                     if (it) {
@@ -101,15 +95,11 @@ class TimesListPresenter : MvpPresenter<TimesListView>() {
                 .addTo(compositeDisposable)
     }
 
-    fun onItemClick(item: TimeTypeEntity) {
+    fun onItemClick(item: TimeType) {
         viewState?.showDialogSetTime(item)
     }
 
     fun addFlightTime(id: Long?, title: String?, totalTime: Int, addToFlight: Boolean) {
-//        val splittedTime = value.split(":")
-//        val hh = splittedTime.getOrNull(0)?.parseInt() ?: 0
-//        val mm = splittedTime.getOrNull(1).parseInt() ?: 0
-//        val totalTime = (hh * 60) + mm
         viewState?.confirmSelectedTimeFlight(id, title, totalTime, addToFlight)
     }
 }

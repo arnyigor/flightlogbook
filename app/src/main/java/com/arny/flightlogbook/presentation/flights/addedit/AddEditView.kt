@@ -26,4 +26,5 @@ interface AddEditView : MvpView {
     fun setTotalTime(total: String)
     fun timeSummChange()
     fun setTotalFlightTime(flightTime: String)
+    fun setFligtTypeTitle(title: String)
 }

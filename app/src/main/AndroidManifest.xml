@@ -16,7 +16,6 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".presentation.times.TimesListActivity"/>
         <activity
             android:name=".presentation.main.MainActivity"
             android:label="@string/app_name"
@@ -28,10 +27,17 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".presentation.flights.addedit.AddEditActivity"
-            android:label="@string/str_add"
+            android:name=".presentation.timetypes.TimesListActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".presentation.flights.addedit.AddEditActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden" />
+
+        <activity
+            android:name=".presentation.flighttypes.FlightTypesActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".presentation.about.AboutActivity"
             android:label="@string/str_about"
@@ -40,10 +46,9 @@
             android:name=".presentation.settings.Preferences"
             android:label="@string/str_settings" />
         <activity
-            android:name=".presentation.types.PlaneTypesActivity"
+            android:name=".presentation.planetypes.PlaneTypesActivity"
             android:label="@string/str_airplane_types"
             android:screenOrientation="portrait" />
-
         <activity
             android:name=".presentation.common.FragmentContainerActivity"
             android:screenOrientation="portrait" />

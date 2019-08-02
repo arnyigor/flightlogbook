@@ -11,7 +11,6 @@ import com.arny.domain.correctLogTime
 import com.arny.domain.flights.FlightsUseCase
 import com.arny.domain.models.Flight
 import com.arny.domain.models.PlaneType
-import com.arny.domain.models.TimeToFlight
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
 import com.arny.helpers.utils.*
@@ -45,19 +44,6 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
     override fun detachView(view: AddEditView?) {
         super.detachView(view)
         compositeDisposable.clear()
-    }
-
-    fun setExtractedDateTime(extractedValue: String) {
-        try {
-            mDateTime = DateTimeUtils.convertTimeStringToLong(extractedValue, "ddMMyyyy")
-            val dateTime = convertDateTime()
-        } catch (e: Exception) {
-            val time = DateTimeUtils.getDateTime("ddMMyyyy")
-            val long = DateTimeUtils.convertTimeStringToLong(time, "ddMMyyyy")
-            mDateTime = long
-            val dateTime = convertDateTime()
-            viewState?.setDate(dateTime)
-        }
     }
 
     fun saveState(time: String, descr: String, regno: String) {
@@ -108,7 +94,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
         viewState?.setSpinDayNight(flight.daynight ?: 0)
         viewState?.setSpinIfrVfr(flight.ifrvfr ?: 0)
         viewState?.setFlightType(flight.flighttype ?: 0)
-        viewState?.setToolbarTitle(commonUseCase.getString(R.string.str_edt))
+        viewState?.setToolbarTitle(commonUseCase.getString(R.string.str_edt_flight))
         viewState?.timeSummChange()
     }
 
@@ -118,49 +104,6 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
             viewState?.setEdtTimeText(timeText)
             viewState?.timeSummChange()
         }
-        /*var logMinutes = 0
-        var logHours = 0
-        if (stringTime.isBlank()) {
-            if (logTime != 0) {
-                val strLogTime = DateTimeUtils.strLogTime(logTime)
-                viewState?.setEdtTimeText(strLogTime)
-            } else {
-                viewState?.setEdtTimeText("00:00")
-            }
-        } else if (stringTime.length == 1) {
-            logTime = Integer.parseInt(stringTime)
-            val format = String.format("00:0%d", logTime)
-            viewState?.setEdtTimeText(format)
-        } else if (stringTime.length == 2) {
-            logMinutes = Integer.parseInt(stringTime)
-            logTime = Integer.parseInt(stringTime)
-            if (logMinutes > 59) {
-                logHours = 1
-                logMinutes -= 60
-            }
-            val format = String.format("%s:%s", DateTimeUtils.pad(logHours), DateTimeUtils.pad(logMinutes))
-            viewState?.setEdtTimeText(format)
-        } else if (stringTime.length > 2) {
-            if (stringTime.contains(":")) {
-                logMinutes = Integer.parseInt(stringTime.substring(stringTime.length - 2, stringTime.length))
-                logHours = Integer.parseInt(stringTime.substring(0, stringTime.length - 3))
-            } else {
-                logMinutes = Integer.parseInt(stringTime.substring(stringTime.length - 2, stringTime.length))
-                logHours = Integer.parseInt(stringTime.substring(0, stringTime.length - 2))
-            }
-            if (logMinutes > 59) {
-                logHours += 1
-                logMinutes -= 60
-            }
-            logTime = DateTimeUtils.logTimeMinutes(logHours, logMinutes)
-            viewState?.setEdtTimeText(DateTimeUtils.strLogTime(logTime))
-            viewState?.timeSummChange()
-        }*/
-    }
-
-    fun setAircraftType(aircraftType: PlaneType?) {
-        this.aircraftType = aircraftType
-        this.flight?.aircraft_id = aircraftType?.typeId
     }
 
     @SuppressLint("CheckResult")
@@ -186,7 +129,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
     private fun initEmptyUI() {
         viewState?.setDescription("")
         viewState?.setDate("")
-        viewState?.setToolbarTitle(commonUseCase.getString(R.string.str_add))
+        viewState?.setToolbarTitle(commonUseCase.getString(R.string.str_add_flight))
         viewState?.timeSummChange()
     }
 
@@ -277,25 +220,40 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
         }
     }
 
-    fun onTimeItemAddToFlightTime(position: Int, item: TimeToFlight) {
-
-    }
-
-    fun onTimeExcludeFromFlightTime(position: Int, item: TimeToFlight) {
-
-    }
-
     fun setFlightPlaneType(planetypeId: Long?) {
          flightsUseCase.loadPlaneType(planetypeId)
                  .observeOnMain()
                  .subscribe({
-                     this.aircraftType = it.value
-                     val title = "${commonUseCase.getString(R.string.str_type)}${aircraftType?.typeName}"
-                     viewState?.setPlaneTypeTitle(title)
+                     val planeType = it.value
+                     if (planeType != null) {
+                         this.aircraftType = planeType
+                         val title = "${commonUseCase.getString(R.string.str_type)}${aircraftType?.typeName}"
+                         viewState?.setPlaneTypeTitle(title)
+                     }else{
+                         viewState?.toastError(commonUseCase.getString(R.string.err_plane_type_not_found))
+                     }
                  },{
                      it.printStackTrace()
                  })
                  .addTo(compositeDisposable)
+    }
+
+    fun setFlightType(fightTypeId: Long?) {
+        flightsUseCase.loadFlightType(fightTypeId)
+                .observeOnMain()
+                .subscribe({
+                    val flightType = it.value
+                    if (flightType != null) {
+                        this.flight?.flighttype = flightType.id?.toInt()
+                        val title = "${commonUseCase.getString(R.string.str_flight_type_title)}${flightType.typeTitle}"
+                        viewState?.setFligtTypeTitle(title)
+                    }else{
+                        viewState?.toastError(commonUseCase.getString(R.string.err_flight_type_not_found))
+                    }
+                },{
+                    it.printStackTrace()
+                })
+                .addTo(compositeDisposable)
     }
 
     fun addFlightTime(timeId: Long?, timeTitle: String?, time: Int?, addToFlight: Boolean?) {

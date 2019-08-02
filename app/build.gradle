@@ -97,6 +97,7 @@ dependencies {
     implementation deps.support.vector
     //mvp
     implementation deps.additional.moxy
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     kapt deps.additional.moxyCompiler
     implementation deps.additional.moxyAppCompat
     implementation deps.additional.moxyAndroid

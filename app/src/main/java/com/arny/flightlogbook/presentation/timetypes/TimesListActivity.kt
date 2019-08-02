@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.presentation.times
+package com.arny.flightlogbook.presentation.timetypes
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -6,15 +6,14 @@ import android.app.AlertDialog
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.text.InputType
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.arny.constants.CONSTS
-import com.arny.data.db.intities.TimeTypeEntity
 import com.arny.domain.correctLogTime
+import com.arny.domain.models.TimeType
 import com.arny.flightlogbook.R
 import com.arny.helpers.utils.*
 import com.redmadrobot.inputmask.MaskedTextChangedListener
@@ -22,7 +21,7 @@ import kotlinx.android.synthetic.main.activity_times_list.*
 import kotlinx.android.synthetic.main.time_input_dialog_layout.view.*
 
 class TimesListActivity : MvpAppCompatActivity(), TimesListView, View.OnClickListener {
-    private var adapter: TimeTypesAdapter? = null
+    private var timeTypesAdapter: TimeTypesAdapter? = null
     @InjectPresenter
     lateinit var timesListPresenter: TimesListPresenter
 
@@ -38,7 +37,11 @@ class TimesListActivity : MvpAppCompatActivity(), TimesListView, View.OnClickLis
             title = "Типы времени"
             this?.setDisplayHomeAsUpEnabled(true)
         }
-        initAdapter()
+        val request = getExtra<Boolean>("is_request")==true
+        if (request) {
+            supportActionBar?.title = "Выберите тип"
+        }
+        initAdapter(request)
         fab_add_time_type.setOnClickListener(this)
         timesListPresenter.loadTimes()
     }
@@ -59,7 +62,7 @@ class TimesListActivity : MvpAppCompatActivity(), TimesListView, View.OnClickLis
     }
 
     override fun notifyItemChanged(position: Int) {
-        adapter?.notifyItemChanged(position)
+        timeTypesAdapter?.notifyItemChanged(position)
     }
 
     override fun onClick(v: View?) {
@@ -78,34 +81,33 @@ class TimesListActivity : MvpAppCompatActivity(), TimesListView, View.OnClickLis
         }
     }
 
-    private fun initAdapter() {
-        adapter = TimeTypesAdapter(object : TimeTypesAdapter.TimeTypesListener {
-            override fun onEditTimeType(position: Int, item: TimeTypeEntity) {
+    private fun initAdapter(hideEdit: Boolean) {
+        timeTypesAdapter = TimeTypesAdapter(object : TimeTypesAdapter.TimeTypesListener {
+            override fun onEditTimeType(position: Int, item: TimeType) {
                 showEditDialog(item, position)
             }
 
-            override fun onDeleteTimeType(item: TimeTypeEntity) {
+            override fun onDeleteTimeType(item: TimeType) {
                 showConfirmDeleteDialog(item)
             }
 
-            override fun onItemClick(position: Int, item: TimeTypeEntity) {
+            override fun onItemClick(position: Int, item: TimeType) {
                 timesListPresenter.onItemClick(item)
             }
 
-        })
+        },hideEdit)
         rv_time_types.layoutManager = LinearLayoutManager(this)
-        rv_time_types.adapter = adapter
+        rv_time_types.adapter = timeTypesAdapter
     }
 
     @SuppressLint("SetTextI18n")
-    override fun showDialogSetTime(item: TimeTypeEntity) {
+    override fun showDialogSetTime(item: TimeType) {
         var cDialog: AlertDialog? = null
         var value = ""
         cDialog = createCustomLayoutDialog(R.layout.time_input_dialog_layout, {
             var logTime = 0
-            MaskedTextChangedListener.installOn(edt_time, "[00]:[00]", object : MaskedTextChangedListener.ValueListener {
+            MaskedTextChangedListener.installOn(edt_time, CONSTS.STRINGS.LOG_TIME_FORMAT, object : MaskedTextChangedListener.ValueListener {
                 override fun onTextChanged(maskFilled: Boolean, extractedValue: String, formattedValue: String) {
-                    Log.i(TimesListActivity::class.java.simpleName, "onTextChanged: extractedValue:$extractedValue,formattedValue:$formattedValue");
                     value = extractedValue
                 }
             })
@@ -134,7 +136,7 @@ class TimesListActivity : MvpAppCompatActivity(), TimesListView, View.OnClickLis
         }, false)
     }
 
-    private fun showConfirmDeleteDialog(item: TimeTypeEntity) {
+    private fun showConfirmDeleteDialog(item: TimeType) {
         confirmDialog(this, getString(R.string.confirm_delete_time_type), null, getString(android.R.string.ok), getString(android.R.string.cancel), true, object : ConfirmDialogListener {
             override fun onConfirm() {
                 timesListPresenter.removeTimeType(item)
@@ -146,7 +148,9 @@ class TimesListActivity : MvpAppCompatActivity(), TimesListView, View.OnClickLis
         })
     }
 
-    private fun showEditDialog(item: TimeTypeEntity, position: Int) {
+
+
+    private fun showEditDialog(item: TimeType, position: Int) {
         inputDialog(this, getString(R.string.str_edt_time_type), "", item.title, getString(R.string.str_ok), getString(R.string.str_cancel), false, InputType.TYPE_CLASS_TEXT, object : InputDialogListener {
             override fun onConfirm(newName: String) {
                 timesListPresenter.editTimeTypeTitle(item, newName, position)
@@ -159,7 +163,6 @@ class TimesListActivity : MvpAppCompatActivity(), TimesListView, View.OnClickLis
     }
 
     override fun setEmptyView(vis: Boolean) {
-        tv_empty_time_types.setVisible(vis)
     }
 
     override fun setListVisible(vis: Boolean) {
@@ -170,8 +173,8 @@ class TimesListActivity : MvpAppCompatActivity(), TimesListView, View.OnClickLis
         ToastMaker.toastError(this, msg)
     }
 
-    override fun updateAdapter(timeTypes: List<TimeTypeEntity>) {
-        adapter?.addAll(timeTypes)
+    override fun updateAdapter(timeTypes: List<TimeType>) {
+        timeTypesAdapter?.addAll(timeTypes)
     }
 
     override fun confirmSelectedTimeFlight(id: Long?, title: String?, totalTime: Int, addToFlight: Boolean) {

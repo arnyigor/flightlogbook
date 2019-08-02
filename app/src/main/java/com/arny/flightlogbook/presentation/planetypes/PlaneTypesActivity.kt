@@ -1,9 +1,7 @@
-package com.arny.flightlogbook.presentation.types
+package com.arny.flightlogbook.presentation.planetypes
 
 import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
-import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.Toolbar
 import android.text.InputType
@@ -17,7 +15,7 @@ import com.arny.constants.CONSTS
 import com.arny.domain.models.PlaneType
 import com.arny.flightlogbook.R
 import com.arny.helpers.utils.*
-import kotlinx.android.synthetic.main.types_layout.*
+import kotlinx.android.synthetic.main.plane_types_layout.*
 
 class PlaneTypesActivity : MvpAppCompatActivity(), PlaneTypesView, View.OnClickListener {
     private var adapter: PlaneTypesAdapter? = null
@@ -38,28 +36,34 @@ class PlaneTypesActivity : MvpAppCompatActivity(), PlaneTypesView, View.OnClickL
             this?.title = getString(R.string.str_airplane_types)
             this?.setDisplayHomeAsUpEnabled(true)
         }
+        val request = getExtra<Boolean>("is_request")==true
+        if (request) {
+            supportActionBar?.title = getString(R.string.str_select_plane_type)
+        }
+        initAdapter(request)
+        fab_add_plane_type.setOnClickListener(this)
+        typeListPresenter.loadTypes()
+    }
+
+    private fun initAdapter(request: Boolean) {
         rv_plane_types.layoutManager = LinearLayoutManager(this)
-        rv_plane_types.itemAnimator = DefaultItemAnimator()
-        adapter = PlaneTypesAdapter(object : PlaneTypesAdapter.FlightTypesListener {
-            override fun onTypeEdit(position: Int, item: PlaneType) {
+        adapter = PlaneTypesAdapter(object : PlaneTypesAdapter.PlaneTypesListener {
+            override fun onEditType(position: Int, item: PlaneType) {
                 showEditDialog(item, position)
             }
 
-            override fun onTypeDelete(position: Int, item: PlaneType) {
-                showRemoveDialog(item,position)
+            override fun onDeleteType(position: Int, item: PlaneType) {
+                showRemoveDialog(item, position)
             }
 
             override fun onItemClick(position: Int, item: PlaneType) {
-                val intent = Intent()
-                intent.putExtra(CONSTS.EXTRAS.EXTRA_PLANE_TYPE,item.typeId)
-                setResult(Activity.RESULT_OK,intent)
+                putExtras(Activity.RESULT_OK) {
+                    putExtra(CONSTS.EXTRAS.EXTRA_PLANE_TYPE, item.typeId)
+                }
                 onBackPressed()
             }
-        })
+        },request)
         rv_plane_types.adapter = adapter
-        btn_remove_all_plane_types.setOnClickListener(this)
-        btn_add_plane_type.setOnClickListener(this)
-        typeListPresenter.loadTypes()
     }
 
     override fun onBackPressed() {
@@ -70,7 +74,7 @@ class PlaneTypesActivity : MvpAppCompatActivity(), PlaneTypesView, View.OnClickL
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                super.onBackPressed()
+                onBackPressed()
                 return true
             }
         }
@@ -97,14 +101,6 @@ class PlaneTypesActivity : MvpAppCompatActivity(), PlaneTypesView, View.OnClickL
          adapter?.notifyItemChanged(position)
     }
 
-    override fun itemRemoved(position: Int) {
-        adapter?.remove(position)
-    }
-
-    override fun clearAdapter() {
-        adapter?.clear(true)
-    }
-
     override fun toastSuccess(string: String) {
         ToastMaker.toastSuccess(this, string)
     }
@@ -121,10 +117,6 @@ class PlaneTypesActivity : MvpAppCompatActivity(), PlaneTypesView, View.OnClickL
         })
     }
 
-    override fun setAdapterVisible(vis: Boolean) {
-        rv_plane_types.setVisible(vis)
-    }
-
     override fun setEmptyViewVisible(vis: Boolean) {
         tv_no_plane_types.setVisible(vis)
     }
@@ -135,12 +127,7 @@ class PlaneTypesActivity : MvpAppCompatActivity(), PlaneTypesView, View.OnClickL
 
     override fun onClick(v: View?) {
         when (v?.id) {
-            R.id.btn_remove_all_plane_types -> {
-                showAlertDialog(getString(R.string.str_remove_all) + "?",positivePair = Pair(getString(android.R.string.ok),{
-                    typeListPresenter.removeAllPlaneTypes()
-                }),negativePair = Pair(getString(android.R.string.cancel),{}))
-            }
-            R.id.btn_add_plane_type -> {
+            R.id.fab_add_plane_type -> {
                 inputDialog(this, getString(R.string.str_add_airplane_types), "", "", getString(R.string.str_ok), getString(R.string.str_cancel), false, InputType.TYPE_CLASS_TEXT, object : InputDialogListener {
                     override fun onConfirm(name: String) {
                         if (!name.empty()) {
@@ -156,9 +143,5 @@ class PlaneTypesActivity : MvpAppCompatActivity(), PlaneTypesView, View.OnClickL
                 })
             }
         }
-    }
-
-    override fun setBtnRemoveAllVisible(vis: Boolean) {
-        btn_remove_all_plane_types.setVisible(vis)
     }
 }

@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Pilot Logbook</string>
+    <string name="str_flight_types">Типы полетов</string>
+    <string name="no_flight_types">Нет типов полетов</string>
+    <string name="str_select_flight_type">Выбрать тип полета</string>
+    <string name="enter_flight_type">Введите название типа полета</string>
+    <string name="err_flight_type_not_found">Тип полета не найден</string>
+    <string name="err_plane_type_not_found">Тип самолета не найден</string>
+    <string name="str_select_plane_type">Выбрать тип ВС</string>
 </resources>

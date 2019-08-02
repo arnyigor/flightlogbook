@@ -46,7 +46,7 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
 
     companion object {
         @JvmStatic
-        fun newInstance(): FlightListFragment {
+        fun getInstance(): FlightListFragment {
             return FlightListFragment()
         }
     }

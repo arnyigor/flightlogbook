@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.presentation.types
+package com.arny.flightlogbook.presentation.planetypes
 
 import android.content.Context
 import android.os.Bundle
@@ -14,7 +14,7 @@ import com.arny.domain.models.PlaneType
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.data.interfaces.FragmentResultListener
 import com.arny.helpers.utils.*
-import kotlinx.android.synthetic.main.types_layout.*
+import kotlinx.android.synthetic.main.plane_types_layout.*
 
 class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickListener {
     private var adapter: PlaneTypesAdapter? = null
@@ -48,19 +48,19 @@ class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickL
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.types_layout, container, false)
+        return inflater.inflate(R.layout.plane_types_layout, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         rv_plane_types.layoutManager = LinearLayoutManager(context)
         rv_plane_types.itemAnimator = DefaultItemAnimator()
-        adapter = PlaneTypesAdapter(object : PlaneTypesAdapter.FlightTypesListener {
-            override fun onTypeEdit(position: Int, item: PlaneType) {
+        adapter = PlaneTypesAdapter(object : PlaneTypesAdapter.PlaneTypesListener {
+            override fun onEditType(position: Int, item: PlaneType) {
                 showEditDialog(item, position)
             }
 
-            override fun onTypeDelete(position: Int, item: PlaneType) {
+            override fun onDeleteType(position: Int, item: PlaneType) {
                 showRemoveDialog(item, position)
             }
 
@@ -69,8 +69,7 @@ class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickL
             }
         })
         rv_plane_types.adapter = adapter
-        btn_remove_all_plane_types.setOnClickListener(this)
-        btn_add_plane_type.setOnClickListener(this)
+        fab_add_plane_type.setOnClickListener(this)
     }
 
     override fun onResume() {
@@ -87,39 +86,13 @@ class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickL
         menu?.clear()
     }
 
-    override fun setAdapterVisible(vis: Boolean) {
-        rv_plane_types.setVisible(vis)
-    }
-
     override fun setEmptyViewVisible(vis: Boolean) {
         tv_no_plane_types.setVisible(vis)
     }
 
-    override fun itemRemoved(position: Int) {
-        adapter?.remove(position)
-    }
-
-    override fun clearAdapter() {
-        adapter?.clear(true)
-    }
-
     override fun onClick(v: View) {
         when (v.id) {
-            R.id.btn_remove_all_plane_types -> {
-                context?.let { ctx ->
-                    confirmDialog(ctx, getString(R.string.str_remove_all) + "?", null, getString(R.string.str_ok), getString(R.string.str_cancel), true, object : ConfirmDialogListener {
-                        override fun onConfirm() {
-                            typeListPresenter.removeAllPlaneTypes()
-                        }
-
-                        override fun onCancel() {
-
-                        }
-
-                    })
-                }
-            }
-            R.id.btn_add_plane_type -> {
+            R.id.fab_add_plane_type -> {
                 context?.let { ctx ->
                     inputDialog(ctx, getString(R.string.str_add_airplane_types), "", "", getString(R.string.str_ok), getString(R.string.str_cancel), false, InputType.TYPE_CLASS_TEXT, object : InputDialogListener {
                         override fun onConfirm(name: String) {
@@ -179,9 +152,5 @@ class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickL
 
     override fun toastSuccess(string: String) {
         ToastMaker.toastSuccess(activity, string)
-    }
-
-    override fun setBtnRemoveAllVisible(vis: Boolean) {
-        btn_remove_all_plane_types.setVisible(vis)
     }
 }

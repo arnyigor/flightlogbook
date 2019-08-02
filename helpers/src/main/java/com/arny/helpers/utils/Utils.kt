@@ -254,14 +254,21 @@ fun Intent?.hasExtra(extraName: String): Boolean {
 }
 
 fun <T> Intent?.getExtra(extraName: String): T? {
-    return this?.extras?.get(extraName) as? T
+    if (this.hasExtra(extraName)) {
+        return this?.extras?.get(extraName) as? T
+    }
+    return null
 }
 
 fun <T> Activity?.getExtra(extraName: String): T? {
-    return this?.intent?.extras?.get(extraName) as? T
+    val intent = this?.intent
+    if (intent.hasExtra(extraName)) {
+        return intent?.extras?.get(extraName) as? T
+    }
+    return null
 }
 
-fun <T> android.app.Fragment?.getExtra(extraName: String): T? {
+fun <T> Fragment?.getExtra(extraName: String): T? {
     return this?.arguments?.get(extraName) as? T
 }
 

@@ -15,7 +15,7 @@
         android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/tv_time_type_title"
+            android:id="@+id/tv_type_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -26,13 +26,13 @@
             android:layout_marginBottom="8dp"
             android:textColor="@color/colorTextSecondary"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/iv_time_type_edit"
+            app:layout_constraintEnd_toStartOf="@+id/iv_type_edit"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Рабочее" />
+            tools:text="Название типа" />
 
         <ImageView
-            android:id="@+id/iv_time_type_edit"
+            android:id="@+id/iv_type_edit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -40,14 +40,17 @@
             android:layout_marginRight="8dp"
             android:layout_marginBottom="8dp"
             android:padding="4dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground"
             android:tint="@color/colorTextPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/iv_time_type_delete"
+            app:layout_constraintEnd_toStartOf="@+id/iv_type_delete"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_icon_edit" />
 
         <ImageView
-            android:id="@+id/iv_time_type_delete"
+            android:id="@+id/iv_type_delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -55,6 +58,9 @@
             android:layout_marginRight="8dp"
             android:layout_marginBottom="8dp"
             android:padding="4dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground"
             android:tint="@color/colorTextPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

@@ -87,15 +87,18 @@ abstract class SimpleAbstractAdapter<T>(private var items: ArrayList<T> = arrayL
     }
 
     fun addAll(list: List<T>, useDiffUtils: Boolean = true) {
+        //Log.i(SimpleAbstractAdapter::class.java.simpleName, "addAll: useDiffUtils:$useDiffUtils,list:$list,items:$items");
         if (useDiffUtils) {
-            val diffCallback = getDiffCallback()
-            if (diffCallback != null && items.isNotEmpty()) {
-                diffCallback.setItems(items, list)
-                val diffResult = DiffUtil.calculateDiff(diffCallback)
-                items.clear()
-                items.addAll(list)
-                diffResult.dispatchUpdatesTo(this)
-            } else {
+            if (items.isNotEmpty()) {
+                val diffCallback = getDiffCallback()
+                if (diffCallback != null) {
+                    diffCallback.setItems(items, list)
+                    val diffResult = DiffUtil.calculateDiff(diffCallback)
+                    items.clear()
+                    items.addAll(list)
+                    diffResult.dispatchUpdatesTo(this)
+                }
+            }else{
                 items.addAll(list)
                 notifyDataSetChanged()
             }
@@ -105,11 +108,16 @@ abstract class SimpleAbstractAdapter<T>(private var items: ArrayList<T> = arrayL
     }
 
     fun add(item: T) {
-        items.add(item)
-        notifyDataSetChanged()
+        //Log.i(SimpleAbstractAdapter::class.java.simpleName, "add: position: item:$item");
+        try {
+            items.add(item)
+            notifyDataSetChanged()
+        } catch (e: Exception) {
+        }
     }
 
     fun add(position:Int, item: T) {
+        //Log.i(SimpleAbstractAdapter::class.java.simpleName, "add: position:$position,item:$item");
         try {
             items.add(position,item)
             notifyItemInserted(position)
@@ -118,6 +126,7 @@ abstract class SimpleAbstractAdapter<T>(private var items: ArrayList<T> = arrayL
     }
 
     fun remove(position: Int) {
+        //Log.i(SimpleAbstractAdapter::class.java.simpleName, "remove: position:$position");
         try {
             items.removeAt(position)
             notifyItemRemoved(position)
@@ -126,6 +135,7 @@ abstract class SimpleAbstractAdapter<T>(private var items: ArrayList<T> = arrayL
     }
 
     fun remove(item: T) {
+        //Log.i(SimpleAbstractAdapter::class.java.simpleName, "remove: item:$item");
         try {
             items.remove(item)
             notifyDataSetChanged()
@@ -134,6 +144,7 @@ abstract class SimpleAbstractAdapter<T>(private var items: ArrayList<T> = arrayL
     }
 
     fun clear(notify: Boolean=false) {
+        //Log.i(SimpleAbstractAdapter::class.java.simpleName, "clear: notify:$notify");
         items.clear()
         if (notify) {
             notifyDataSetChanged()

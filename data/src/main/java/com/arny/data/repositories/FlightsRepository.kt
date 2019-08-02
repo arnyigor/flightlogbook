@@ -6,7 +6,7 @@ import com.arny.data.models.FlightEntity
 
 interface FlightsRepository:BaseDBRepository {
     fun getFlightDAO(): FlightDAO
-    fun getCraftTypeDAO(): AircraftTypeDAO
+    fun getPlaneTypeDAO(): AircraftTypeDAO
     fun getDbFlights(order: String): ArrayList<FlightEntity> {
         return ArrayList(getFlightDAO().queryFlightsWithOrder(order))
     }
@@ -26,7 +26,7 @@ interface FlightsRepository:BaseDBRepository {
     fun getFlight(id: Long?): FlightEntity? {
         val flightEntity = getFlightDAO().queryFlight(id)
         flightEntity?.let {flight->
-            val aircraftType = getCraftTypeDAO().queryAircraftType(flight.aircraft_id ?: 0)
+            val aircraftType = getPlaneTypeDAO().queryAircraftType(flight.aircraft_id ?: 0)
             flight.airplanetypetitle = aircraftType?.typeName
             aircraftType
         }

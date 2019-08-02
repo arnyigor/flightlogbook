@@ -43,6 +43,10 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
         return fromNullable { repository.loadPlaneType(id)?.toPlaneType() }
     }
 
+    fun loadFlightType(id: Long?): Observable<OptionalNull<FlightType?>> {
+        return fromNullable { repository.loadDBFlightType(id)?.toFlightType() }
+    }
+
 
     private fun getFormattedFlightTimes(): String {
         val flightsTime = repository.getFlightsTime()

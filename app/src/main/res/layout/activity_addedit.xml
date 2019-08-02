@@ -25,6 +25,7 @@
 
             <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
+                android:visibility="visible"
                 android:layout_height="wrap_content">
 
                 <ImageView
@@ -85,7 +86,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
                     android:hint="@string/str_itemlogtime"
-                    android:imeOptions="flagNoExtractUi"
+                    android:imeOptions="actionDone"
                     android:inputType="time"
                     android:textSize="18sp"
                     tools:text="00:00" />
@@ -108,6 +109,8 @@
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/rv_time_types"
+                android:visibility="visible"
+                tools:visibility="gone"
                 android:layout_marginTop="8dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -195,8 +198,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center_vertical"
-                    android:hint="@string/str_type"
-                    android:textColor="@android:color/black"
+                    android:text="@string/str_type"
                     android:textSize="16sp"
                     app:layout_constraintBottom_toBottomOf="@+id/select_plane_type"
                     app:layout_constraintEnd_toStartOf="@+id/select_plane_type"
@@ -205,6 +207,44 @@
 
                 <Button
                     android:id="@+id/select_plane_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="@drawable/btn_bg_primary"
+                    android:minHeight="25dp"
+                    android:text="@string/str_select"
+                    android:textAllCaps="false"
+                    android:textColor="@color/colorTextWhite"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </android.support.constraint.ConstraintLayout>
+
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_marginTop="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:id="@+id/tv_flight_type"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:text="@string/str_flight_type_title"
+                    android:textSize="16sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/select_flight_type"
+                    app:layout_constraintEnd_toStartOf="@+id/select_flight_type"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/select_flight_type" />
+
+                <Button
+                    android:id="@+id/select_flight_type"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"

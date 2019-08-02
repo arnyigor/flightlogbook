@@ -30,10 +30,11 @@ import com.arny.flightlogbook.R
 import com.arny.flightlogbook.presentation.about.AboutActivity
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
 import com.arny.flightlogbook.presentation.flights.viewflights.FlightListFragment
+import com.arny.flightlogbook.presentation.flighttypes.FlightTypesFragment
 import com.arny.flightlogbook.presentation.settings.Preferences
 import com.arny.flightlogbook.presentation.statistic.StatisticFragment
 import com.arny.flightlogbook.presentation.sync.DropboxSyncFragment
-import com.arny.flightlogbook.presentation.types.PlaneTypesFragment
+import com.arny.flightlogbook.presentation.planetypes.PlaneTypesFragment
 import com.arny.helpers.utils.*
 import com.mikepenz.google_material_typeface_library.GoogleMaterial
 import com.mikepenz.materialdrawer.Drawer
@@ -79,11 +80,12 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
                 .withActionBarDrawerToggleAnimated(true)
                 .addDrawerItems(
                         PrimaryDrawerItem().withIdentifier(MENU_FLIGHTS.toLong()).withName(R.string.fragment_logbook).withIcon(GoogleMaterial.Icon.gmd_flight_takeoff),
-                        PrimaryDrawerItem().withIdentifier(MENU_TYPES.toLong()).withName(R.string.fragment_types).withIcon(GoogleMaterial.Icon.gmd_flight),
+                        PrimaryDrawerItem().withIdentifier(MENU_PLANE_TYPES.toLong()).withName(R.string.fragment_plane_types).withIcon(GoogleMaterial.Icon.gmd_flight),
+                        PrimaryDrawerItem().withIdentifier(MENU_FLIGHT_TYPES.toLong()).withName(R.string.fragment_flight_types).withIcon(GoogleMaterial.Icon.gmd_flight),
                         PrimaryDrawerItem().withIdentifier(MENU_STATS.toLong()).withName(R.string.fragment_stats).withIcon(GoogleMaterial.Icon.gmd_equalizer),
                         PrimaryDrawerItem().withIdentifier(MENU_DROPBOX_SYNC.toLong()).withName(R.string.fragment_dropbox_sync).withIcon(R.drawable.ic_dropbox_sync)
                 )
-                .withOnDrawerItemClickListener { view, position, drawerItem ->
+                .withOnDrawerItemClickListener { _, _, drawerItem ->
                     selectItem(drawerItem.identifier.toInt())
                     true
                 }
@@ -92,7 +94,7 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
             selectItem(MENU_FLIGHTS)
         } else {
             try {
-                drawer!!.setSelection(java.lang.Long.parseLong(savedInstanceState.getString(DRAWER_SELECTION)))
+                savedInstanceState.getString(DRAWER_SELECTION)?.parseLong()?.let { drawer!!.setSelection(it) }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -171,12 +173,16 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
         var fragment: Fragment? = null
         when (position) {
             MENU_FLIGHTS -> {
-                fragment = FlightListFragment.newInstance()
+                fragment = FlightListFragment.getInstance()
                 toolbar!!.title = getString(R.string.fragment_logbook)
             }
-            MENU_TYPES -> {
+            MENU_PLANE_TYPES -> {
                 fragment = PlaneTypesFragment.getInstance()
                 toolbar!!.title = getString(R.string.str_airplane_types)
+            }
+            MENU_FLIGHT_TYPES -> {
+                fragment = FlightTypesFragment.getInstance()
+                toolbar!!.title = getString(R.string.str_flight_types)
             }
             MENU_STATS -> {
                 fragment = StatisticFragment()
@@ -450,8 +456,9 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
         private val MENU_DROPBOX_SYNC = 112
         private val PICKFILE_RESULT_CODE = 1
         private val MENU_FLIGHTS = 0
-        private val MENU_TYPES = 1
-        private val MENU_STATS = 2
+        private val MENU_PLANE_TYPES = 1
+        private val MENU_FLIGHT_TYPES = 2
+        private val MENU_STATS = 3
         private val DRAWER_SELECTION = "drawer_selection"
         private val TIME_DELAY = 2000
         private var back_pressed: Long = 0

@@ -14,6 +14,7 @@
     <string name="str_import_success">Импорт завершен</string>
     <string name="str_date">Дата</string>
     <string name="str_itemlogtime">Налет</string>
+    <string name="str_itemlogtime_hint">чч:мм</string>
     <string name="str_type_null">Тип ВС</string>
     <string name="str_regnum">Рег.№</string>
     <string name="str_day_night">День/Ночь</string>
@@ -37,8 +38,8 @@
     <string name="str_totaltime">Общее время:</string>
     <string name="str_total_item_flight_time">Летное время:</string>
     <string name="total_records">Всего записей:</string>
-    <string name="str_add">Добавить</string>
-    <string name="str_edt">Редактировать</string>
+    <string name="str_add_flight">Добавить полет</string>
+    <string name="str_edt_flight">Редактировать полет</string>
     <string name="str_delete">Удалить</string>
     <string name="str_clearall">Очистить все?</string>
     <string name="str_ok">OK</string>
@@ -56,6 +57,7 @@
     <string name="str_type_add_succesfull">Тип ВС добавлен</string>
     <string name="str_type_add_fail">Тип ВС не добавлен</string>
     <string name="str_type">Тип ВС:</string>
+    <string name="str_flight_type_title">Тип полета:</string>
     <string name="str_type_empty">Тип ВС: нет</string>
     <string name="str_add_airplane_types">Добавить тип ВС</string>
     <string name="str_edt_airplane_types">Редактировать тип ВС</string>
@@ -113,12 +115,13 @@
     </string-array>
 
     <string-array name="flights_edit_items">
-        <item>@string/str_edt</item>
+        <item>@string/str_edt_flight</item>
         <item>@string/str_delete</item>
         <item>@string/str_clearall</item>
     </string-array>
     <string name="fragment_logbook">Список полетов</string>
-    <string name="fragment_types">Типы</string>
+    <string name="fragment_plane_types">Типы ВС</string>
+    <string name="fragment_flight_types">Типы полетов</string>
     <string name="fragment_stats">Статистика</string>
     <string name="fragment_dropbox_sync">Dropbox синхронизация</string>
     <string name="str_sort_by">Сортировка по</string>
@@ -151,9 +154,11 @@
     <string name="str_time_remove_from_flight_time">Убрать из налета</string>
     <string name="add_time">Добавить время</string>
     <string name="empty_list">Список пуст</string>
-    <string name="str_edt_time_type">Название времени</string>
+    <string name="str_edt_time_type">Название типа времени</string>
+    <string name="str_edt_flight_type">Название типа полета</string>
     <string name="confirm_delete_time_type">Удалить тип времени?</string>
-    <string name="str_add_time_type">Добавить время</string>
+    <string name="confirm_delete_flight_type">Удалить тип полета?</string>
+    <string name="str_add_time_type">Добавить тип времени</string>
     <string name="str_select">Выбрать</string>
     <string name="flights_not_removed">Записи не удалены</string>
     <string name="enter_time">Введите время</string>
