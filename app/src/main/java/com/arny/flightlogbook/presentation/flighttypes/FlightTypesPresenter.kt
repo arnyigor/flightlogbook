@@ -34,12 +34,8 @@ class FlightTypesPresenter : MvpPresenter<FlightTypesView>() {
         flightTypesUseCase.loadDBFlightTypes()
                 .observeOnMain()
                 .subscribe({
-                    if (it.isNotEmpty()) {
-                        viewState?.showEmptyView(false)
-                        viewState?.updateAdapter(it)
-                    } else {
-                        viewState?.showEmptyView(true)
-                    }
+                    viewState?.updateAdapter(it)
+                    viewState?.showEmptyView(it.isEmpty())
                 }, {
                     viewState?.showEmptyView(true)
                     viewState?.toastError(it.message)

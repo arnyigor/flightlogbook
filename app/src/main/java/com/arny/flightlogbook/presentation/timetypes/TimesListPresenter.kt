@@ -32,12 +32,8 @@ class TimesListPresenter : MvpPresenter<TimesListView>() {
         timeTypesUseCase.queryTimeTypes()
                 .observeOnMain()
                 .subscribe({
-                    if (it.isNotEmpty()) {
-                        viewState?.setEmptyView(false)
-                        viewState?.updateAdapter(it)
-                    } else {
-                        viewState?.setEmptyView(true)
-                    }
+                    viewState?.updateAdapter(it)
+                    viewState?.setEmptyView(it.isEmpty())
                 }, {
                     it.printStackTrace()
                     viewState?.setEmptyView(true)

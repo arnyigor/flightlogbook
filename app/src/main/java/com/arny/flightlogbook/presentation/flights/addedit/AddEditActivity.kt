@@ -126,8 +126,6 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
             needRealodTypes = false
             addEditPresenter.loadPlaneTypes()
         }
-        Log.i(AddEditActivity::class.java.simpleName, "onResume: ");
-        Utility.hideSoftKeyboard(this)
     }
 
     override fun setTotalTime(total: String) {
@@ -142,9 +140,9 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         iv_date.setOnClickListener(this)
         imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         edtDate?.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus && imm != null) {
-                imm?.showSoftInput(edtDate, InputMethodManager.SHOW_IMPLICIT)
-            }
+            /* if (hasFocus && imm != null) {
+                 imm?.showSoftInput(edtDate, InputMethodManager.SHOW_IMPLICIT)
+             }*/
             val empty = Utility.empty(edtDate?.text.toString())
             if (empty) {
                 if (hasFocus) {

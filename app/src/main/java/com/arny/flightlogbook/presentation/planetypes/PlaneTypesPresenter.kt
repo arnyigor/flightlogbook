@@ -34,12 +34,8 @@ class PlaneTypesPresenter : MvpPresenter<PlaneTypesView>() {
         planeTypesUseCase.loadPlaneTypes()
                 .observeOnMain()
                 .subscribe({
-                    if (it.isNotEmpty()) {
-                        viewState?.setEmptyViewVisible(false)
-                        viewState?.updateAdapter(it)
-                    } else {
-                        viewState?.setEmptyViewVisible(true)
-                    }
+                    viewState?.updateAdapter(it)
+                    viewState?.setEmptyViewVisible(it.isEmpty())
                 }, {
                     viewState?.setEmptyViewVisible(true)
                     viewState?.toastError(it.message)
