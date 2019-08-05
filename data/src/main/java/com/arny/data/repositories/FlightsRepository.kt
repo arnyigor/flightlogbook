@@ -19,6 +19,11 @@ interface FlightsRepository:BaseDBRepository {
         return getFlightDAO().insertReplace(flight) > 0
     }
 
+
+    fun insertFlightAndGet(flight: FlightEntity): Long {
+        return getFlightDAO().insertReplace(flight)
+    }
+
     fun insertFlights(flights: List<FlightEntity>): Boolean {
         return getFlightDAO().insertReplace(flights).any { it>0 }
     }

@@ -1,6 +1,7 @@
 package com.arny.domain.flights
 
 import com.arny.constants.CONSTS
+import com.arny.data.db.intities.TimeToFlightEntity
 import com.arny.data.repositories.MainRepositoryImpl
 import com.arny.domain.R
 import com.arny.domain.models.*
@@ -31,6 +32,10 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
         return fromCallable { repository.insertFlight(flight.toFlightEntiry()) }
     }
 
+    fun insertFlightAndGet(flight: Flight): Observable<Long> {
+        return fromCallable { repository.insertFlightAndGet(flight.toFlightEntiry()) }
+    }
+
     fun getFlight(id: Long?): Observable<OptionalNull<Flight?>> {
         return fromNullable { repository.getFlight(id)?.toFlight() }
     }
@@ -47,13 +52,42 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
         return fromNullable { repository.loadDBFlightType(id)?.toFlightType() }
     }
 
+    fun loadDBFlightsToTimes(): Observable<List<TimeToFlightEntity>> {
+        return fromCallable { repository.queryDBFlightsTimes() }
+    }
+
+    fun loadDBFlightToTimes(flightId: Long?): Observable<List<TimeToFlightEntity>> {
+        return fromCallable { repository.queryDBFlightTimes(flightId) }
+    }
+
+    fun insertDBFlightToTime(entity: TimeToFlightEntity): Observable<Boolean> {
+        return fromCallable { repository.insertDBFlightTime(entity) }
+    }
+
+    fun insertDBFlightToTimes(entities: List<TimeToFlightEntity>): Observable<Boolean> {
+        return fromCallable { repository.insertDBFlightTimes(entities) }
+    }
+
+    fun updateDBFlightToTime(flightId: Long?, timeType: Long?, time: Int, addToFlight: Boolean = false): Observable<Boolean> {
+        return fromCallable { repository.updateDBFlightTime(flightId, timeType, time, addToFlight) }
+    }
+
+    fun removeDBFlightToTime(flightId: Long?, timeType: Long?): Observable<Boolean> {
+        return fromCallable { repository.removeDBFlightTime(flightId, timeType) }
+    }
 
     private fun getFormattedFlightTimes(): String {
         val flightsTime = repository.getFlightsTime()
+        val totalTimes = repository.queryDBFlightsTimesSum(false)
+        val sumlogTime = flightsTime + totalTimes
+        val totalFlightTimes = repository.queryDBFlightsTimesSum(true)
+        val sumFlightTime = flightsTime + totalFlightTimes
         val flightsCount = repository.getFlightsCount()
-        return String.format("%s %s\n%s %d",
-                repository.getString(R.string.str_totaltime),
-                DateTimeUtils.strLogTime(flightsTime),
+        return String.format("%s %s\n%s %s\n%s %d",
+                repository.getString(R.string.str_total_time),
+                DateTimeUtils.strLogTime(sumlogTime),
+                repository.getString(R.string.str_total_flight_time),
+                DateTimeUtils.strLogTime(sumFlightTime),
                 repository.getString(R.string.total_records),
                 flightsCount)
     }
@@ -74,7 +108,12 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
     fun getFilterflights(): Observable<List<Flight>> {
         return fromCallable {
             val order = getPrefOrderflights(repository.getPrefInt(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS))
-            repository.getDbFlights(order).map { it.toFlight() }
+            repository.getDbFlights(order)
+                    .map {
+                        it.airplanetypetitle = repository.loadDBFlightType(it.aircraft_id)?.typeTitle
+                        it
+                    }
+                    .map { it.toFlight() }
         }
     }
 

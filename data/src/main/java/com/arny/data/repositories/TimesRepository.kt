@@ -40,9 +40,37 @@ interface TimesRepository {
         return getTimeToFlightsDAO().queryTimesOfFlight(flightId)
     }
 
-    fun addDBFlightTime(flightId: Long?, timeType: Long?, time: Int, addToFlight: Boolean = false): Boolean {
+    fun queryDBFlightTimesSum(flightId: Long?,addToFlight: Boolean): Int {
+        val cursor = getTimeToFlightsDAO().queryFlightTimesSum(flightId, addToFlight)
+        var count = 0
+        if (cursor.moveToFirst()) {
+            count = cursor.getInt(0)
+            cursor.close()
+        }
+        return count
+    }
+
+    fun queryDBFlightsTimesSum(addToFlight: Boolean): Int {
+        val cursor = getTimeToFlightsDAO().queryFlightTimesSum(addToFlight)
+        var count = 0
+        if (cursor.moveToFirst()) {
+            count = cursor.getInt(0)
+            cursor.close()
+        }
+        return count
+    }
+
+    fun insertDBFlightTime(flightId: Long?, timeType: Long?, time: Int, addToFlight: Boolean = false): Boolean {
         val entity = TimeToFlightEntity(null, flightId, timeType, null, time, addToFlight)
         return getTimeToFlightsDAO().insertReplace(entity) > 0
+    }
+
+    fun insertDBFlightTime(entity:TimeToFlightEntity): Boolean {
+        return getTimeToFlightsDAO().insertReplace(entity) > 0
+    }
+
+    fun insertDBFlightTimes(entities:List<TimeToFlightEntity>): Boolean {
+        return !getTimeToFlightsDAO().insertReplace(entities).contains(0)
     }
 
     fun updateDBFlightTime(flightId: Long?, timeType: Long?, time: Int, addToFlight: Boolean = false): Boolean {

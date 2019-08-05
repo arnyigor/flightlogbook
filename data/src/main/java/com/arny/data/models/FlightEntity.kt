@@ -4,7 +4,6 @@ import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.Ignore
 import android.arch.persistence.room.PrimaryKey
-import com.arny.helpers.utils.Utility
 
 @Entity(tableName = "main_table")
 data class FlightEntity(@PrimaryKey(autoGenerate = true) @ColumnInfo(name = "_id") var id: Long? = null) {
@@ -25,7 +24,5 @@ data class FlightEntity(@PrimaryKey(autoGenerate = true) @ColumnInfo(name = "_id
     var flighttype: Int? = null
     var description: String? = null
 
-    override fun toString(): String {
-        return Utility.getFields(this)
-    }
+
 }

@@ -2,6 +2,7 @@ package com.arny.data.db.daos
 
 import android.arch.persistence.room.Dao
 import android.arch.persistence.room.Query
+import android.database.Cursor
 import com.arny.data.db.intities.TimeToFlightEntity
 
 @Dao
@@ -14,6 +15,12 @@ interface TimeToFlightsDAO : BaseDao<TimeToFlightEntity> {
 
     @Query("SELECT * FROM times_to_flights WHERE _id=:id")
     fun queryTimeToFlight(id: Long): TimeToFlightEntity?
+
+    @Query("SELECT SUM(time) FROM times_to_flights WHERE flight=:flight AND add_flight_time =:addToFlight")
+    fun queryFlightTimesSum(flight: Long?, addToFlight: Boolean): Cursor
+
+    @Query("SELECT SUM(time) FROM times_to_flights WHERE add_flight_time =:addToFlight")
+    fun queryFlightTimesSum(addToFlight: Boolean): Cursor
 
     @Query("UPDATE times_to_flights SET time=:time,add_flight_time=:addToFlightTime WHERE flight=:flightId AND time_type=:timeTypeId ")
     fun setFlightTime(flightId: Long?, timeTypeId: Long?, time: Int, addToFlightTime: Boolean): Long

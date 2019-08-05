@@ -8,6 +8,8 @@ class Flight(var id: Long? = null) {
     var datetime: Long? = null
     var datetimeFormatted: String? = null
     var logtime: Int? = null
+    var sumlogTime: Int? = null
+    var sumFlightTime: Int? = null
     var logtimeFormatted: String? = null
     var reg_no: String? = null
     var airplanetypetitle: String? = null
@@ -28,6 +30,8 @@ class Flight(var id: Long? = null) {
         if (date != other.date) return false
         if (datetime != other.datetime) return false
         if (logtime != other.logtime) return false
+        if (sumlogTime != other.sumlogTime) return false
+        if (sumFlightTime != other.sumFlightTime) return false
         if (reg_no != other.reg_no) return false
         if (airplanetypetitle != other.airplanetypetitle) return false
         if (aircraft_id != other.aircraft_id) return false
@@ -44,6 +48,8 @@ class Flight(var id: Long? = null) {
         result = 31 * result + (date?.hashCode() ?: 0)
         result = 31 * result + (datetime?.hashCode() ?: 0)
         result = 31 * result + (logtime ?: 0)
+        result = 31 * result + (sumlogTime ?: 0)
+        result = 31 * result + (sumFlightTime ?: 0)
         result = 31 * result + (reg_no?.hashCode() ?: 0)
         result = 31 * result + (airplanetypetitle?.hashCode() ?: 0)
         result = 31 * result + (aircraft_id?.hashCode() ?: 0)
@@ -55,7 +61,7 @@ class Flight(var id: Long? = null) {
     }
 
     override fun toString(): String {
-        return "Flight(id=$id, date=$date, datetime=$datetime, logtime=$logtime, reg_no=$reg_no, airplanetypetitle=$airplanetypetitle, aircraft_id=$aircraft_id, daynight=$daynight, ifrvfr=$ifrvfr, flighttype=$flighttype, description=$description)"
+        return "Flight(id=$id, date=$date, datetime=$datetime, logtime=$logtime, sumlogTime=$sumlogTime,  sumFlightTime=$sumFlightTime, reg_no=$reg_no, airplanetypetitle=$airplanetypetitle, aircraft_id=$aircraft_id, daynight=$daynight, ifrvfr=$ifrvfr, flighttype=$flighttype, description=$description)"
     }
 }
 

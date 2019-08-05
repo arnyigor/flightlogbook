@@ -11,6 +11,5 @@ import com.arny.domain.models.Flight
 @StateStrategyType(value = OneExecutionStateStrategy::class)
 interface ViewFlightsView : MvpView {
     fun updateAdapter(flights: List<Flight>)
-    fun displayTotalTime(time: String)
     fun toastError(msg: String?)
 }

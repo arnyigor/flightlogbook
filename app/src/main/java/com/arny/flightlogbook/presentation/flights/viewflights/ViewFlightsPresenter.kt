@@ -30,17 +30,6 @@ class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>() {
         compositeDisposable.clear()
     }
 
-    private fun getTotals() {
-        flightsUseCase.getTotalflightsTimeInfo()
-                .observeOnMain()
-                .subscribe({
-                    viewState?.displayTotalTime(it)
-                }, {
-                    it.printStackTrace()
-                })
-                .addTo(compositeDisposable)
-    }
-
     fun loadFlights() {
         flightsUseCase.getFilterflights()
                 .observeOnMain()
@@ -48,7 +37,6 @@ class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>() {
                     if (it.isNotEmpty()) {
                         viewState?.updateAdapter(it)
                     }
-                    getTotals()
                 }, {
                     viewState?.toastError(it.message)
                 })

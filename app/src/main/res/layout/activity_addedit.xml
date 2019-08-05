@@ -133,7 +133,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
-                    android:text="@string/str_totaltime"
+                    android:text="@string/str_total_time"
                     android:textSize="16sp"
                     app:layout_constraintEnd_toStartOf="@+id/tv_total_flight_time"
                     app:layout_constraintHorizontal_bias="0.5"

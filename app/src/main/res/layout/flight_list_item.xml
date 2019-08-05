@@ -1,61 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
+	android:clickable="true"
+	android:focusable="true"
+	android:foreground="?attr/selectableItemBackground"
 	app:cardUseCompatPadding="true">
 
-	<RelativeLayout
-		android:id="@+id/itemBlock"
-		android:clickable="true"
-		android:focusable="true"
-		android:background="?android:attr/selectableItemBackground"
+	<android.support.constraint.ConstraintLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
 
 		<TextView
-			android:id="@+id/tvDate"
+			android:id="@+id/tv_date"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_alignParentLeft="true"
 			android:layout_alignParentStart="true"
+			android:layout_alignParentLeft="true"
 			android:layout_centerVertical="true"
 			android:layout_margin="8dp"
-			android:hint="@string/str_date"
+			android:layout_marginStart="8dp"
+			android:layout_marginLeft="8dp"
+			android:layout_marginTop="8dp"
 			android:padding="2dp"
-			android:textSize="@dimen/font_size" />
+			android:textSize="@dimen/font_size"
+			app:layout_constraintBottom_toTopOf="@+id/tv_plane_type"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintVertical_chainStyle="packed"
+			tools:text="22.05.2012" />
 
 		<TextView
-			android:id="@+id/tvLogTime"
+			android:id="@+id/tv_log_time"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_centerVertical="true"
-			android:layout_toEndOf="@+id/tvDate"
-			android:layout_toRightOf="@+id/tvDate"
+			android:layout_marginTop="8dp"
+			android:layout_marginEnd="8dp"
+			android:layout_marginRight="8dp"
+			android:layout_marginBottom="8dp"
+			android:layout_toEndOf="@+id/tv_date"
+			android:layout_toRightOf="@+id/tv_date"
 			android:gravity="center_horizontal"
 			android:hint="@string/str_logtime"
 			android:padding="2dp"
 			android:textSize="@dimen/font_size"
-			android:textStyle="bold" />
+			android:textStyle="bold"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toStartOf="@+id/iv_flight_edit"
+			app:layout_constraintTop_toTopOf="parent" />
 
 		<TextView
-			android:id="@+id/tvType"
-			android:layout_width="match_parent"
+			android:id="@+id/tv_plane_type"
+			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_alignParentEnd="true"
-			android:layout_alignParentRight="true"
-			android:layout_centerVertical="true"
+			android:layout_marginStart="8dp"
+			android:layout_marginLeft="8dp"
+			android:layout_marginTop="8dp"
+			android:layout_marginBottom="8dp"
+			android:textSize="18sp"
+			android:textStyle="bold"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/tv_date"
+			tools:text="B737" />
+
+		<ImageView
+			android:id="@+id/iv_flight_edit"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="8dp"
 			android:layout_marginEnd="8dp"
 			android:layout_marginRight="8dp"
-			android:layout_toEndOf="@+id/tvLogTime"
-			android:layout_toRightOf="@+id/tvLogTime"
-			android:ellipsize="end"
-			android:gravity="center_horizontal"
-			android:hint="@string/no_type"
-			android:maxLines="1"
-			android:maxWidth="80dp"
-			android:textSize="@dimen/font_size" />
+			android:layout_marginBottom="8dp"
+			android:background="?attr/selectableItemBackground"
+			android:clickable="true"
+			android:focusable="true"
+			android:padding="4dp"
+			android:tint="@color/colorTextPrimary"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toStartOf="@+id/iv_flight_delete"
+			app:layout_constraintTop_toTopOf="parent"
+			app:srcCompat="@drawable/ic_icon_edit" />
 
-	</RelativeLayout>
+		<ImageView
+			android:id="@+id/iv_flight_delete"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="8dp"
+			android:layout_marginEnd="8dp"
+			android:layout_marginRight="8dp"
+			android:layout_marginBottom="8dp"
+			android:background="?attr/selectableItemBackground"
+			android:clickable="true"
+			android:focusable="true"
+			android:padding="4dp"
+			android:tint="@color/colorTextPrimary"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			app:srcCompat="@drawable/ic_icon_remove" />
+
+	</android.support.constraint.ConstraintLayout>
 
 </android.support.v7.widget.CardView>

@@ -7,7 +7,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -19,7 +18,6 @@ import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.arny.adapters.CustomRVLayoutManager
 import com.arny.constants.CONSTS
 import com.arny.data.db.intities.TimeToFlightEntity
-import com.arny.domain.models.PlaneType
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.presentation.flighttypes.FlightTypesActivity
 import com.arny.flightlogbook.presentation.planetypes.PlaneTypesActivity
@@ -36,8 +34,6 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
     private var timesAdapter: FlightTimesAdapter? = null
     private var tvMotoResult: TextView? = null
     private var imm: InputMethodManager? = null
-    private var aAdapter: AircraftSpinnerAdapter? = null
-    private var needRealodTypes = false
     private var time = ""
 
     @InjectPresenter
@@ -91,6 +87,10 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
             override fun onDeleteFlightTime(position: Int, item: TimeToFlightEntity) {
                 timesAdapter?.remove(item)
                 timeSummChange()
+                rv_time_types.showSnackBar("Время удалено", "Отмена", 2000, action = {
+                    timesAdapter?.add(position, item)
+                    timeSummChange()
+                })
             }
 
             override fun onItemClick(position: Int, item: TimeToFlightEntity) {
@@ -103,13 +103,17 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         rv_time_types.adapter = timesAdapter
     }
 
+    override fun updateFlightTimesAdapter(items: List<TimeToFlightEntity>) {
+        timesAdapter?.addAll(items)
+    }
+
     override fun notifyAddTimeItemChanged(position: Int) {
         timesAdapter?.notifyItemChanged(position)
         timeSummChange()
     }
 
     override fun timeSummChange() {
-        addEditPresenter.onTimeSummChange( timesAdapter?.getItems())
+        addEditPresenter.onTimeSummChange(timesAdapter?.getItems())
     }
 
     override fun setTotalFlightTime(flightTime: String) {
@@ -122,10 +126,6 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
 
     override fun onResume() {
         super.onResume()
-        if (needRealodTypes) {
-            needRealodTypes = false
-            addEditPresenter.loadPlaneTypes()
-        }
     }
 
     override fun setTotalTime(total: String) {
@@ -140,9 +140,6 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         iv_date.setOnClickListener(this)
         imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         edtDate?.setOnFocusChangeListener { _, hasFocus ->
-            /* if (hasFocus && imm != null) {
-                 imm?.showSoftInput(edtDate, InputMethodManager.SHOW_IMPLICIT)
-             }*/
             val empty = Utility.empty(edtDate?.text.toString())
             if (empty) {
                 if (hasFocus) {
@@ -205,7 +202,6 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         }
         edtTime.setOnKeyListener { _, keyCode, event ->
             if (keyCode == EditorInfo.IME_ACTION_GO && event.action == KeyEvent.ACTION_UP) {
-                Log.i(AddEditActivity::class.java.simpleName, "initUI: setOnKeyListener hideSoftKeyboard");
                 Utility.hideSoftKeyboard(this@AddEditActivity)
                 addEditPresenter.correctingLogTime(time)
                 return@setOnKeyListener true
@@ -293,11 +289,6 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         edtDate.setText(date)
     }
 
-    override fun updateAircaftTypes(types: List<PlaneType>) {
-        aAdapter?.clear()
-        aAdapter?.addAll(types)
-    }
-
     override fun setLogTime(strLogTime: String?) {
         edtTime.setText(strLogTime)
         addEditPresenter.correctingLogTime(time)
@@ -331,9 +322,11 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
                 onBackPressed()
                 return true
             }
-            R.id.action_type_edit -> {
-                launchActivity<PlaneTypesActivity>(CONSTS.REQUESTS.REQUEST_SELECT_PLANE_TYPE) {}
-                overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
+            R.id.action_save -> {
+                val descr = edtDesc.text.toString()
+                val regNo = edtRegNo.text.toString()
+                val timeItems = timesAdapter?.getItems()
+                addEditPresenter.saveFlight(regNo, descr,timeItems)
             }
             R.id.action_moto -> {
                 showMotoDialog()
@@ -388,6 +381,14 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
             addEditPresenter.setMotoResult()
         }.setNegativeButton(getString(R.string.str_cancel)) { dialog, _ -> dialog.cancel() }
         alertDialog.show()
+    }
+
+    override fun toastSuccess(msg: String?) {
+        ToastMaker.toastSuccess(this,msg)
+    }
+
+    override fun onPressBack() {
+        onBackPressed()
     }
 
     override fun setFligtTypeTitle(title: String) {

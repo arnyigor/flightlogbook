@@ -33,7 +33,7 @@
     <string name="str_day_night">Day/Night</string>
     <string name="str_flight_type">circles/area/route</string>
     <string name="str_desc">Description</string>
-    <string name="str_totaltime">Total time:</string>
+    <string name="str_total_time">Total time:</string>
     <string name="total_records">Total items:</string>
     <string name="str_about">About the program</string>
     <string name="str_add_flight">Add flight</string>

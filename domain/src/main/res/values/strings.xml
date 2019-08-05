@@ -35,7 +35,7 @@
     <string name="dropbox_name">Имя:%s</string>
     <string name="dropbox_sync_complete">Синхронизация завершена</string>
     <string name="dropbox_auth_error">Ошибка авторизации</string>
-    <string name="str_totaltime">Общее время:</string>
+    <string name="str_total_time">Общее время:</string>
     <string name="str_total_item_flight_time">Летное время:</string>
     <string name="total_records">Всего записей:</string>
     <string name="str_add_flight">Добавить полет</string>
@@ -163,5 +163,7 @@
     <string name="flights_not_removed">Записи не удалены</string>
     <string name="enter_time">Введите время</string>
     <string name="date_time_input_error">Ошибка ввода даты</string>
+    <string name="empty_flight">Данные полета не найдены</string>
+    <string name="str_total_flight_time">Общее летное время:</string>
 
 </resources>

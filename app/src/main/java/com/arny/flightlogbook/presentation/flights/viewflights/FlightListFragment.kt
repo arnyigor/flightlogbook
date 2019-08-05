@@ -62,7 +62,6 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
             launchActivity<AddEditActivity> { }
             activity?.overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
         }
-        tvTotalTime.setText(R.string.loading_totals)
         mLayoutManager = LinearLayoutManager(context)
         rv_flights.layoutManager = mLayoutManager
         rv_flights.itemAnimator = DefaultItemAnimator()
@@ -195,9 +194,6 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
         return true
     }
 
-    override fun displayTotalTime(time: String) {
-        tvTotalTime?.text = time
-    }
 
     private val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {

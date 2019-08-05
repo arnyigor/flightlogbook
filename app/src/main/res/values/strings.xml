@@ -7,4 +7,7 @@
     <string name="err_flight_type_not_found">Тип полета не найден</string>
     <string name="err_plane_type_not_found">Тип самолета не найден</string>
     <string name="str_select_plane_type">Выбрать тип ВС</string>
+    <string name="flight_save_success">Полет сохранен</string>
+    <string name="flight_not_save">Полет не сохранен</string>
+    <string name="flight_save_error">Ошибка сохранения полета</string>
 </resources>
