@@ -116,13 +116,13 @@ inline fun <reified T : Any> Context.launchActivity(
 
 inline fun <reified T : Any> newIntent(context: Context): Intent = Intent(context, T::class.java)
 
-fun android.app.Fragment.putExtras(init: Bundle.() -> Unit = {}) {
+fun Fragment.putExtras(init: Bundle.() -> Unit = {}) {
     val args = Bundle()
     args.init()
     this.arguments = args
 }
 
-fun android.app.Fragment.putExtras(args: Bundle?) {
+fun  Fragment.putExtras(args: Bundle?) {
     this.arguments = args
 }
 
