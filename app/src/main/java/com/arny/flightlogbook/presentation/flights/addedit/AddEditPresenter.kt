@@ -17,6 +17,7 @@ import com.arny.helpers.coroutins.getMainScope
 import com.arny.helpers.coroutins.launch
 import com.arny.helpers.utils.*
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.zipWith
 import org.joda.time.DateTime
 import javax.inject.Inject
 
@@ -53,28 +54,53 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
     }
 
     private fun setUIFromFlight(flight: Flight) {
-        launch {
-            viewState?.setDescription(flight.description ?: "")
-            val date = async { DateTimeUtils.getDateTime(flight.datetime ?: 0, "dd.MM.yyyy") }
-            viewState?.setDate(date)
-            logTime = flight.logtime ?: 0
-            val strLogTime = async { DateTimeUtils.strLogTime(logTime) }
-            viewState?.setLogTime(strLogTime)
-            loadFlightTimes()
-            viewState?.setRegNo(flight.reg_no)
-            viewState?.setSpinDayNight(flight.daynight ?: 0)
-            viewState?.setSpinIfrVfr(flight.ifrvfr ?: 0)
-            viewState?.setFlightType(flight.flighttype ?: 0)
-            viewState?.setToolbarTitle(commonUseCase.getString(R.string.str_edt_flight))
-            viewState?.timeSummChange()
+        viewState?.setDescription(flight.description ?: "")
+        viewState?.setRegNo(flight.reg_no)
+        viewState?.setToolbarTitle(commonUseCase.getString(R.string.str_edt_flight))
+        loadDateTime(flight)
+        loadFlightTimes()
+        loadFlightTypes()
+    }
+
+    private fun loadFlightTypes() {
+        val flighttype = flight?.flighttype
+        if (flighttype != null) {
+            flightsUseCase.loadFlightType(flighttype.toLong())
+                    .observeOnMain()
+                    .subscribe({
+                        val flightType = it.value
+                        if (flightType != null) {
+                            val title = "${commonUseCase.getString(R.string.str_flight_type_title)}${flightType.typeTitle}"
+                            viewState?.setFligtTypeTitle(title)
+                        }
+                    },{
+                        it.printStackTrace()
+                    })
+                    .addTo(compositeDisposable)
         }
     }
 
-    private fun loadFlightTimes() {
-        flightsUseCase.loadDBFlightToTimes(id)
+    private fun loadDateTime(flight: Flight) {
+        fromCallable { DateTimeUtils.getDateTime(flight.datetime ?: 0, "dd.MM.yyyy") }
                 .observeOnMain()
-                .subscribe({
-                    viewState?.updateFlightTimesAdapter(it)
+                .subscribe({date->
+                    viewState?.setDate(date)
+                },{
+                    it.printStackTrace()
+                })
+                .addTo(compositeDisposable)
+    }
+
+    private fun loadFlightTimes() {
+        logTime = flight?.logtime ?: 0
+        flightsUseCase.loadDBFlightToTimes(id)
+                .zipWith(fromCallable { DateTimeUtils.strLogTime(logTime) })
+                .observeOnMain()
+                .subscribe({ pair->
+                    val list = pair.first
+                    val time = pair.second
+                    viewState?.setLogTime(time)
+                    viewState?.updateFlightTimesAdapter(list)
                     viewState?.timeSummChange()
                 }, {
                     it.printStackTrace()

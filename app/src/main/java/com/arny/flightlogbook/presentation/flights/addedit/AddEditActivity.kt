@@ -124,10 +124,6 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         ToastMaker.toastError(this, msg)
     }
 
-    override fun onResume() {
-        super.onResume()
-    }
-
     override fun setTotalTime(total: String) {
         tv_total_time.text = total
     }
@@ -295,15 +291,6 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
     }
 
     override fun setRegNo(regNo: String?) {
-    }
-
-    override fun setSpinDayNight(daynight: Int) {
-    }
-
-    override fun setSpinIfrVfr(ifrvfr: Int) {
-    }
-
-    override fun setFlightType(flighttype: Int) {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
