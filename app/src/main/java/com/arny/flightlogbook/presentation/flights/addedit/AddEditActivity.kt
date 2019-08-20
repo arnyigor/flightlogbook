@@ -17,7 +17,7 @@ import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.arny.adapters.CustomRVLayoutManager
 import com.arny.constants.CONSTS
-import com.arny.data.db.intities.TimeToFlightEntity
+import com.arny.domain.models.TimeToFlight
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.presentation.flighttypes.FlightTypesActivity
 import com.arny.flightlogbook.presentation.planetypes.PlaneTypesActivity
@@ -62,7 +62,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
 
     private fun initFlightTimesAdapter() {
         timesAdapter = FlightTimesAdapter(object : FlightTimesAdapter.FlightTimesClickListener {
-            override fun onEditFlightTime(position: Int, item: TimeToFlightEntity) {
+            override fun onEditFlightTime(position: Int, item: TimeToFlight) {
                 var timeDialog: AlertDialog? = null
                 timeDialog = createCustomLayoutDialog(R.layout.time_input_dialog_layout, {
                     var timeValue = ""
@@ -84,7 +84,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
                 })
             }
 
-            override fun onDeleteFlightTime(position: Int, item: TimeToFlightEntity) {
+            override fun onDeleteFlightTime(position: Int, item: TimeToFlight) {
                 timesAdapter?.remove(item)
                 timeSummChange()
                 rv_time_types.showSnackBar("Время удалено", "Отмена", 2000, action = {
@@ -93,7 +93,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
                 })
             }
 
-            override fun onItemClick(position: Int, item: TimeToFlightEntity) {
+            override fun onItemClick(position: Int, item: TimeToFlight) {
 
             }
         })
@@ -103,7 +103,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         rv_time_types.adapter = timesAdapter
     }
 
-    override fun updateFlightTimesAdapter(items: List<TimeToFlightEntity>) {
+    override fun updateFlightTimesAdapter(items: List<TimeToFlight>) {
         timesAdapter?.addAll(items)
     }
 
@@ -261,7 +261,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         }
     }
 
-    override fun addFlightTimeToAdapter(timeFlightEntity: TimeToFlightEntity) {
+    override fun addFlightTimeToAdapter(timeFlightEntity: TimeToFlight) {
         timesAdapter?.add(timeFlightEntity)
     }
 

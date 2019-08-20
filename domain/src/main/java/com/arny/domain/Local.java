@@ -65,7 +65,7 @@ public class Local {
                 + "datetime = " + datetime + "\n"
                 + "logtime = " + logtime + "\n"
                 + "reg_no = " + reg_no + "\n"
-                + "aircraft_id = " + airplanetypeid + "\n"
+                + "planeId = " + airplanetypeid + "\n"
                 + "daynight = " + daynight + "\n"
                 + "ifr_vfr = " + ifr_vfr + "\n"
                 + "flighttype = " + flighttype + "\n"
@@ -222,7 +222,7 @@ public class Local {
 	    Cursor cursor = DBProvider.queryDB("SELECT _id,date,datetime,log_time,str_time,reg_no,day_night,ifr_vfr,flight_type,description,main_table.airplane_type as airplane_type,type_table.airplane_type as airplane_type_title FROM main_table LEFT JOIN type_table ON type_table.type_id=main_table.airplane_type ORDER BY " + orderBy,null,context);
         ArrayList<Flight> cursorObjectList = new ArrayList<>();
 //        for (Flight flight : cursorObjectList) {
-//            AircraftType typeItem = getTypeItem(flight.getAircraft_id(), context);
+//            AircraftType typeItem = getTypeItem(flight.getPlaneId(), context);
 //            if (typeItem != null) {
 //                flight.setAirplanetypetitle(typeItem.getTypeName());
 //            }

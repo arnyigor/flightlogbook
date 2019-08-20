@@ -28,9 +28,6 @@ interface TimeToFlightsDAO : BaseDao<TimeToFlightEntity> {
     @Query("UPDATE times_to_flights SET time_type=:timeType, flight=:flight,time=:time,add_flight_time =:addToFlightTime  WHERE _id=:id")
     fun setTimeToFlight(id: Long?, timeType: Long?, flight: Long?, time: Long, addToFlightTime: Boolean): Long
 
-    @Query("DELETE FROM times_to_flights")
-    fun delete(): Int
-
     @Query("DELETE FROM times_to_flights WHERE _id=:id")
     fun delete(id: Long?): Int
 

@@ -65,10 +65,25 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
         mLayoutManager = LinearLayoutManager(context)
         rv_flights.layoutManager = mLayoutManager
         rv_flights.itemAnimator = DefaultItemAnimator()
-        adapter = FlightsAdapter()
+        adapter = FlightsAdapter(object : FlightsAdapter.FlightsAdapterListener {
+            override fun onEditDelete(position: Int, item: Flight) {
+                confirmDialog(activity as Context, getString(R.string.str_delete), dialogListener = object : ConfirmDialogListener {
+                    override fun onCancel() {
+
+                    }
+
+                    override fun onConfirm() {
+                        viewFlightsPresenter.removeItem(item)
+                    }
+                })
+            }
+        })
         adapter?.setViewHolderListener(object : SimpleAbstractAdapter.OnViewHolderListener<Flight> {
             override fun onItemClick(position: Int, item: Flight) {
-                showMenuDialog(item)
+                launchActivity<AddEditActivity> {
+                    putExtra(CONSTS.DB.COLUMN_ID, item.id)
+                }
+                activity?.overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
             }
         })
         rv_flights.adapter = adapter
@@ -118,6 +133,10 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
         adapter?.addAll(flights)
     }
 
+    override fun showEmptyView(vis: Boolean) {
+         tv_empty_view.setVisible(vis)
+    }
+
     private fun initFlights() {
         viewFlightsPresenter.loadFlights()
     }
@@ -134,43 +153,6 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
         topView = if (startView == null) 0 else {
             val paddingTop = rv_flights.paddingTop
             startView.top - paddingTop
-        }
-    }
-
-    private fun showMenuDialog(item: Flight) {
-        context?.let { ctx ->
-            listDialog(ctx, R.array.flights_edit_items, getString(R.string.choose_action), cancelable = true, dialogListener = ListDialogListener { selected ->
-                when (selected) {
-                    0 -> {
-                        launchActivity<AddEditActivity> {
-                            putExtra(CONSTS.DB.COLUMN_ID, item.id)
-                        }
-                        activity?.overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
-                    }
-                    1 -> {
-                        confirmDialog(ctx, getString(R.string.str_delete), dialogListener = object : ConfirmDialogListener {
-                            override fun onCancel() {
-
-                            }
-
-                            override fun onConfirm() {
-                                viewFlightsPresenter.removeItem(item)
-                            }
-                        })
-                    }
-                    2 -> {
-                        confirmDialog(ctx, getString(R.string.str_clearall), dialogListener = object : ConfirmDialogListener {
-                            override fun onCancel() {
-
-                            }
-
-                            override fun onConfirm() {
-                                viewFlightsPresenter.removeAllFlights()
-                            }
-                        })
-                    }
-                }
-            })
         }
     }
 
@@ -194,6 +176,9 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
         return true
     }
 
+    override fun clearAdaper() {
+         adapter?.clear()
+    }
 
     private val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {

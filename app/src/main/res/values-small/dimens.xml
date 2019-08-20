@@ -1,3 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="font_size">6sp</dimen>
+    <dimen name="font_size">10sp</dimen>
+    <dimen name="font_size_small">8sp</dimen>
+    <dimen name="font_size_xsmall">6sp</dimen>
+    <dimen name="font_size_medium">12sp</dimen>
+    <dimen name="font_size_xmedium">16sp</dimen>
+    <dimen name="font_size_xxmedium">18sp</dimen>
+    <dimen name="font_size_large">20sp</dimen>
+    <dimen name="font_size_xlarge">22sp</dimen>
+    <dimen name="font_size_xxlarge">24sp</dimen>
 </resources>

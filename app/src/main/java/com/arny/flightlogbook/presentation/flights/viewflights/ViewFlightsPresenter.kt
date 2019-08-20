@@ -6,7 +6,6 @@ import com.arny.domain.common.CommonUseCase
 import com.arny.domain.flights.FlightsUseCase
 import com.arny.domain.models.Flight
 import com.arny.flightlogbook.FlightApp
-import com.arny.flightlogbook.R
 import com.arny.helpers.utils.addTo
 import com.arny.helpers.utils.observeOnMain
 import io.reactivex.disposables.CompositeDisposable
@@ -34,28 +33,27 @@ class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>() {
         flightsUseCase.getFilterflights()
                 .observeOnMain()
                 .subscribe({
-                    if (it.isNotEmpty()) {
-                        viewState?.updateAdapter(it)
-                    }
+                    viewState?.updateAdapter(it)
+                    viewState?.showEmptyView(it.isEmpty())
                 }, {
                     viewState?.toastError(it.message)
                 })
                 .addTo(compositeDisposable)
     }
 
-    fun removeAllFlights() {
-        flightsUseCase.removeAllFlights()
-                .observeOnMain()
-                .subscribe({ removed ->
-                    if (removed) {
-                        loadFlights()
-                    } else {
-                        viewState?.toastError(commonUseCase.getString(R.string.flights_not_removed))
-                    }
-                }, {
-                    it.printStackTrace()
-                }).addTo(compositeDisposable)
-    }
+    /* fun removeAllFlights() {
+         flightsUseCase.removeAllFlights()
+                 .observeOnMain()
+                 .subscribe({ removed ->
+                     if (removed) {
+                         loadFlights()
+                     } else {
+                         viewState?.toastError(commonUseCase.getString(R.string.flights_not_removed))
+                     }
+                 }, {
+                     it.printStackTrace()
+                 }).addTo(compositeDisposable)
+     }*/
 
     fun removeItem(item: Flight?) {
         flightsUseCase.removeFlight(item?.id)

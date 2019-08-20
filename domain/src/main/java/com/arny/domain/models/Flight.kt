@@ -13,19 +13,18 @@ class Flight(var id: Long? = null) {
     var logtimeFormatted: String? = null
     var reg_no: String? = null
     var airplanetypetitle: String? = null
-    var aircraft_id: Long? = null
+    var planeId: Long? = null
     var daynight: Int? = null
     var ifrvfr: Int? = null
     var flighttype: Int? = null
     var description: String? = null
+    var times: List<TimeToFlight>?=null
 
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
-
         other as Flight
-
         if (id != other.id) return false
         if (date != other.date) return false
         if (datetime != other.datetime) return false
@@ -34,7 +33,7 @@ class Flight(var id: Long? = null) {
         if (sumFlightTime != other.sumFlightTime) return false
         if (reg_no != other.reg_no) return false
         if (airplanetypetitle != other.airplanetypetitle) return false
-        if (aircraft_id != other.aircraft_id) return false
+        if (planeId != other.planeId) return false
         if (daynight != other.daynight) return false
         if (ifrvfr != other.ifrvfr) return false
         if (flighttype != other.flighttype) return false
@@ -52,7 +51,7 @@ class Flight(var id: Long? = null) {
         result = 31 * result + (sumFlightTime ?: 0)
         result = 31 * result + (reg_no?.hashCode() ?: 0)
         result = 31 * result + (airplanetypetitle?.hashCode() ?: 0)
-        result = 31 * result + (aircraft_id?.hashCode() ?: 0)
+        result = 31 * result + (planeId?.hashCode() ?: 0)
         result = 31 * result + (daynight ?: 0)
         result = 31 * result + (ifrvfr ?: 0)
         result = 31 * result + (flighttype ?: 0)
@@ -61,7 +60,7 @@ class Flight(var id: Long? = null) {
     }
 
     override fun toString(): String {
-        return "Flight(id=$id, date=$date, datetime=$datetime, logtime=$logtime, sumlogTime=$sumlogTime,  sumFlightTime=$sumFlightTime, reg_no=$reg_no, airplanetypetitle=$airplanetypetitle, aircraft_id=$aircraft_id, daynight=$daynight, ifrvfr=$ifrvfr, flighttype=$flighttype, description=$description)"
+        return "Flight(id=$id, date=$date, datetime=$datetime, logtime=$logtime, sumlogTime=$sumlogTime,  sumFlightTime=$sumFlightTime, reg_no=$reg_no, airplanetypetitle=$airplanetypetitle, planeId=$planeId, daynight=$daynight, ifrvfr=$ifrvfr, flighttype=$flighttype, description=$description)"
     }
 }
 
@@ -74,7 +73,7 @@ fun FlightEntity.toFlight(): Flight {
     flight.logtimeFormatted = this.logtime?.let { DateTimeUtils.strLogTime(it) }
     flight.reg_no = this.reg_no
     flight.airplanetypetitle = this.airplanetypetitle
-    flight.aircraft_id = this.aircraft_id
+    flight.planeId = this.aircraft_id
     flight.daynight = this.daynight
     flight.ifrvfr = this.ifrvfr
     flight.flighttype = this.flighttype
@@ -83,14 +82,14 @@ fun FlightEntity.toFlight(): Flight {
 }
 
 
-fun Flight.toFlightEntiry(): FlightEntity {
+fun Flight.toFlightEntity(): FlightEntity {
     val flight = FlightEntity(id)
     flight.date = this.date
     flight.datetime = this.datetime
     flight.logtime = this.logtime
     flight.reg_no = this.reg_no
     flight.airplanetypetitle = this.airplanetypetitle
-    flight.aircraft_id = this.aircraft_id
+    flight.aircraft_id = this.planeId
     flight.daynight = this.daynight
     flight.ifrvfr = this.ifrvfr
     flight.flighttype = this.flighttype

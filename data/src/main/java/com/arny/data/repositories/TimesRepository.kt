@@ -40,6 +40,14 @@ interface TimesRepository {
         return getTimeToFlightsDAO().queryTimesOfFlight(flightId)
     }
 
+    fun deleteDBFlightTimesByFlight(flightId: Long?): Boolean {
+        return getTimeToFlightsDAO().deleteTimesFromFlight(flightId)>0
+    }
+
+    fun deleteDBFlightTimesByTime(timeId: Long?): Boolean {
+        return getTimeToFlightsDAO().delete(timeId)>0
+    }
+
     fun queryDBFlightTimesSum(flightId: Long?,addToFlight: Boolean): Int {
         val cursor = getTimeToFlightsDAO().queryFlightTimesSum(flightId, addToFlight)
         var count = 0

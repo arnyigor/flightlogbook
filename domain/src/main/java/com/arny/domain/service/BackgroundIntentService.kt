@@ -234,7 +234,7 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
         val exportData = Local.getFlightListByDate(context)
         var rows = 1
         for (export in exportData) {
-            val airplane_type_id = export.aircraft_id!!
+            val airplane_type_id = export.planeId!!
             val planeType = Local.getTypeItem(airplane_type_id, context)
             val airplane_type = if (planeType != null) planeType.typeName else ""
             row = sheet_main.createRow(rows)
