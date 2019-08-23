@@ -147,6 +147,10 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
         }
     }
 
+    override fun showTotalsInfo(content: String?) {
+//        tv_totals.setText(content)
+    }
+
     private fun saveListPosition() {
         positionIndex = mLayoutManager?.findFirstVisibleItemPosition() ?: 0
         val startView = rv_flights.getChildAt(0)
@@ -167,8 +171,7 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
                         .items(R.array.flights_filers)
                         .autoDismiss(true)
                         .itemsCallback { _, _, which, _ ->
-                            Prefs.getInstance(activity as Context).put(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS, which)
-                            initFlights()
+                            viewFlightsPresenter.changeOrder(which)
                         }.show()
                 return true
             }

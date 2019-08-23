@@ -43,7 +43,7 @@
 			android:gravity="center_horizontal"
 			android:padding="2dp"
 			android:textColor="@color/md_grey_600"
-			android:textSize="@dimen/font_size_medium"
+			android:textSize="@dimen/font_size_xmedium"
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintEnd_toStartOf="@+id/iv_flight_delete"
 			app:layout_constraintTop_toTopOf="parent"
@@ -60,6 +60,7 @@
 			android:layout_marginRight="8dp"
 			android:layout_marginBottom="8dp"
 			android:textSize="@dimen/font_size"
+			android:textStyle="bold"
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintEnd_toStartOf="@+id/tv_log_time"
 			app:layout_constraintStart_toStartOf="parent"
@@ -68,8 +69,8 @@
 
 		<ImageView
 			android:id="@+id/iv_flight_delete"
-			android:layout_width="45dp"
-			android:layout_height="45dp"
+			android:layout_width="35dp"
+			android:layout_height="35dp"
 			android:layout_marginEnd="8dp"
 			android:layout_marginRight="8dp"
 			android:background="?attr/selectableItemBackground"

@@ -19,8 +19,12 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
         return fromCallable { repository.insertFlights(flights.map { it.toFlightEntity() }) }
     }
 
-    fun removeAllFlights(): Observable<Boolean> {
+    fun removeAllFlightsObs(): Observable<Boolean> {
         return fromCallable { repository.removeAllFlights() }
+    }
+
+    fun removeAllFlights(): Boolean {
+        return repository.removeAllFlights()
     }
 
     fun updateFlight(flight: Flight, flightTimes: ArrayList<TimeToFlight>?): Observable<Boolean> {
@@ -80,8 +84,24 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
         return fromCallable { repository.loadPlaneTypes().map { it.toPlaneType() } }
     }
 
-    fun loadPlaneType(id: Long?): Observable<OptionalNull<PlaneType?>> {
+    fun loadPlaneTypeObs(id: Long?): Observable<OptionalNull<PlaneType?>> {
         return fromNullable { repository.loadPlaneType(id)?.toPlaneType() }
+    }
+
+    fun loadPlaneType(id: Long?): PlaneType? {
+        return repository.loadPlaneType(id)?.toPlaneType()
+    }
+
+    fun addPlaneType(name: String ): Boolean {
+        return repository.addType(name)
+    }
+    fun addPlaneTypeAndGet(name: String ): Long {
+        return repository.addTypeAndGet(name)
+    }
+
+
+    fun loadPlaneType(title: String?): PlaneType? {
+        return repository.loadPlaneType(title)?.toPlaneType()
     }
 
     fun loadFlightType(id: Long?): Observable<OptionalNull<FlightType?>> {
@@ -114,9 +134,9 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
 
     private fun getFormattedFlightTimes(): String {
         val flightsTime = repository.getFlightsTime()
-        val totalTimes = repository.queryDBFlightsTimesSum(false)
-        val sumlogTime = flightsTime + totalTimes
+        val totalTimes = repository.queryDBFlightsTimesSum()
         val totalFlightTimes = repository.queryDBFlightsTimesSum(true)
+        val sumlogTime = flightsTime + totalTimes
         val sumFlightTime = flightsTime + totalFlightTimes
         val flightsCount = repository.getFlightsCount()
         return String.format("%s %s\n%s %s\n%s %d",
@@ -133,29 +153,50 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
     }
 
     private fun getPrefOrderflights(filtertype: Int): String = when (filtertype) {
-        0 -> CONSTS.DB.COLUMN_DATETIME + " ASC"
+        0 -> CONSTS.DB.COLUMN_DATETIME
         1 -> CONSTS.DB.COLUMN_DATETIME + " DESC"
+        2 -> CONSTS.DB.COLUMN_LOG_TIME
         3 -> CONSTS.DB.COLUMN_LOG_TIME + " DESC"
-        2 -> CONSTS.DB.COLUMN_LOG_TIME + " ASC"
         else -> CONSTS.DB.COLUMN_DATETIME + " ASC"
     }
 
+    fun setFlightsOrder(orderType: Int) {
+        repository.setPrefInt(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS, orderType)
+    }
 
-    fun getFilterflights(): Observable<List<Flight>> {
+    fun loadDBFlights(): List<Flight> {
+        return repository.getDbFlights()
+                .map { it.toFlight() }
+                .map { flight ->
+                    flight.airplanetypetitle = repository.loadPlaneType(flight.planeId)?.typeName
+                    flight.times= repository.queryDBFlightTimes(flight.id).map { it.toTimeFlight() }
+                    flight.sumlogTime = (flight.logtime?:0) + (flight.times?.sumBy { it.time }?:0)
+                    flight.sumFlightTime = (flight.logtime?:0) + (flight.times?.filter { it.addToFlightTime }?.sumBy { it.time }?:0)
+                    flight
+                }
+    }
+
+    fun getFilterflightsObs(): Observable<List<Flight>> {
+        val orderType = repository.getPrefInt(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS)
         return fromCallable {
-            val order = getPrefOrderflights(repository.getPrefInt(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS))
+            val order = getPrefOrderflights(orderType)
             repository.getDbFlights(order)
-                    .map {
-                        it.airplanetypetitle = repository.loadDBFlightType(it.aircraft_id)?.typeTitle
-                        it
-                    }
                     .map { it.toFlight() }
                     .map { flight ->
+                        flight.airplanetypetitle = repository.loadPlaneType(flight.planeId)?.typeName
                         flight.times= repository.queryDBFlightTimes(flight.id).map { it.toTimeFlight() }
                         flight.sumlogTime = (flight.logtime?:0) + (flight.times?.sumBy { it.time }?:0)
                         flight.sumFlightTime = (flight.logtime?:0) + (flight.times?.filter { it.addToFlightTime }?.sumBy { it.time }?:0)
                         flight
                     }
+        }.map { flights ->
+            when (orderType) {
+                0 -> flights.sortedBy { it.datetime}
+                1 -> flights.sortedByDescending { it.datetime}
+                2 -> flights.sortedBy { it.sumlogTime}
+                3 -> flights.sortedByDescending { it.sumlogTime}
+                else -> flights
+            }
         }
     }
 

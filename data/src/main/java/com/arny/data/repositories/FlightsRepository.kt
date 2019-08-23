@@ -10,6 +10,9 @@ interface FlightsRepository:BaseDBRepository {
     fun getDbFlights(order: String): ArrayList<FlightEntity> {
         return ArrayList(getFlightDAO().queryFlightsWithOrder(order))
     }
+    fun getDbFlights( ): ArrayList<FlightEntity> {
+        return ArrayList(getFlightDAO().queryFlights())
+    }
 
     fun updateFlight(flight: FlightEntity): Boolean {
         return getFlightDAO().updateReplace(flight) > 0

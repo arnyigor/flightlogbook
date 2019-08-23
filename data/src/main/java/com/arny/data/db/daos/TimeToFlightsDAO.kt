@@ -22,6 +22,9 @@ interface TimeToFlightsDAO : BaseDao<TimeToFlightEntity> {
     @Query("SELECT SUM(time) FROM times_to_flights WHERE add_flight_time =:addToFlight")
     fun queryFlightTimesSum(addToFlight: Boolean): Cursor
 
+    @Query("SELECT SUM(time) FROM times_to_flights")
+    fun queryFlightTimesSum(): Cursor
+
     @Query("UPDATE times_to_flights SET time=:time,add_flight_time=:addToFlightTime WHERE flight=:flightId AND time_type=:timeTypeId ")
     fun setFlightTime(flightId: Long?, timeTypeId: Long?, time: Int, addToFlightTime: Boolean): Long
 

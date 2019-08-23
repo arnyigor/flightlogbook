@@ -16,10 +16,20 @@ interface PlaneTypesRepository : BaseRepository {
         return getPlaneTypeDAO().queryAircraftType(id)
     }
 
+    fun loadPlaneType(title: String?): PlaneTypeEntity? {
+        return getPlaneTypeDAO().queryAircraftType(title)
+    }
+
     fun addType(name: String): Boolean {
         val type = PlaneTypeEntity()
         type.typeName = name
         return getPlaneTypeDAO().insertReplace(type) > 0
+    }
+
+    fun addTypeAndGet(name: String): Long {
+        val type = PlaneTypeEntity()
+        type.typeName = name
+        return getPlaneTypeDAO().insertReplace(type)
     }
 
     fun removeType(type: PlaneTypeEntity?): Boolean {

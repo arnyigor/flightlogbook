@@ -58,8 +58,8 @@ interface TimesRepository {
         return count
     }
 
-    fun queryDBFlightsTimesSum(addToFlight: Boolean): Int {
-        val cursor = getTimeToFlightsDAO().queryFlightTimesSum(addToFlight)
+    fun queryDBFlightsTimesSum(addToFlight: Boolean? = null): Int {
+        val cursor = if (addToFlight != null) getTimeToFlightsDAO().queryFlightTimesSum(addToFlight) else getTimeToFlightsDAO().queryFlightTimesSum()
         var count = 0
         if (cursor.moveToFirst()) {
             count = cursor.getInt(0)

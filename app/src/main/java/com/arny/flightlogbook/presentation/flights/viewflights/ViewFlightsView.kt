@@ -14,4 +14,5 @@ interface ViewFlightsView : MvpView {
     fun toastError(msg: String?)
     fun clearAdaper()
     fun showEmptyView(vis: Boolean)
+    fun showTotalsInfo(content: String?)
 }

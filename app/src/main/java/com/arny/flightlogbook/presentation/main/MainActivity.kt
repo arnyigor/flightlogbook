@@ -23,18 +23,17 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import com.arny.constants.CONSTS
-import com.arny.domain.Local
 import com.arny.domain.service.BackgroundIntentService
-import com.arny.flightlogbook.BuildConfig
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.presentation.about.AboutActivity
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
 import com.arny.flightlogbook.presentation.flights.viewflights.FlightListFragment
 import com.arny.flightlogbook.presentation.flighttypes.FlightTypesFragment
+import com.arny.flightlogbook.presentation.planetypes.PlaneTypesFragment
 import com.arny.flightlogbook.presentation.settings.Preferences
 import com.arny.flightlogbook.presentation.statistic.StatisticFragment
 import com.arny.flightlogbook.presentation.sync.DropboxSyncFragment
-import com.arny.flightlogbook.presentation.planetypes.PlaneTypesFragment
+import com.arny.flightlogbook.presentation.timetypes.TimeTypesFragment
 import com.arny.helpers.utils.*
 import com.mikepenz.google_material_typeface_library.GoogleMaterial
 import com.mikepenz.materialdrawer.Drawer
@@ -82,6 +81,7 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
                         PrimaryDrawerItem().withIdentifier(MENU_FLIGHTS.toLong()).withName(R.string.fragment_logbook).withIcon(GoogleMaterial.Icon.gmd_flight_takeoff),
                         PrimaryDrawerItem().withIdentifier(MENU_PLANE_TYPES.toLong()).withName(R.string.fragment_plane_types).withIcon(GoogleMaterial.Icon.gmd_flight),
                         PrimaryDrawerItem().withIdentifier(MENU_FLIGHT_TYPES.toLong()).withName(R.string.fragment_flight_types).withIcon(GoogleMaterial.Icon.gmd_flight),
+                        PrimaryDrawerItem().withIdentifier(MENU_TIME_TYPES.toLong()).withName(R.string.fragment_time_types).withIcon(GoogleMaterial.Icon.gmd_access_time),
                         PrimaryDrawerItem().withIdentifier(MENU_STATS.toLong()).withName(R.string.fragment_stats).withIcon(GoogleMaterial.Icon.gmd_equalizer),
                         PrimaryDrawerItem().withIdentifier(MENU_DROPBOX_SYNC.toLong()).withName(R.string.fragment_dropbox_sync).withIcon(R.drawable.ic_dropbox_sync)
                 )
@@ -158,7 +158,7 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
                 i.putExtra("fragment_tag", "type_list")
                 startActivity(i)
             }
-            R.id.action_import_from_file -> rxPermissions!!.request(android.Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            R.id.action_import_from_file -> rxPermissions!!.request( Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     .subscribe({ permissionGranded ->
                         if (permissionGranded!!) {
                             showImportDialogSD()
@@ -183,6 +183,10 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
             MENU_FLIGHT_TYPES -> {
                 fragment = FlightTypesFragment.getInstance()
                 toolbar!!.title = getString(R.string.str_flight_types)
+            }
+            MENU_TIME_TYPES -> {
+                fragment = TimeTypesFragment.getInstance()
+                toolbar!!.title = "Типы времени"
             }
             MENU_STATS -> {
                 fragment = StatisticFragment()
@@ -250,11 +254,11 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
                     it.printStackTrace()
                 }
 
-        rxPermissions?.request(android.Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        rxPermissions?.request(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 ?.subscribe({ permissionGranded ->
                     if (permissionGranded) {
                         val menu = toolbar?.menu
-                        val fileExist = Local.isAppFileExist(context)
+                        val fileExist =  isAppFileExist(this)
                         val exelOpenAction = menu?.findItem(R.id.action_open_file)
                         val exelImportAction = menu?.findItem(R.id.action_import_excel)
                         if (exelOpenAction != null) {
@@ -267,6 +271,15 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
                 }, { throwable -> ToastMaker.toastError(this, getString(R.string.str_error_import) + ":" + throwable.message) }
                 )
 
+    }
+
+    private fun isAppFileExist(context: Context): Boolean {
+        if (!BasePermissions.isStoragePermissonGranted(context)) {
+            Toast.makeText(context, com.arny.domain.R.string.storage_not_avalable, Toast.LENGTH_LONG).show()
+            return false
+        }
+        val file = File(Environment.getExternalStorageDirectory().toString() + "/Android/data/com.arny.flightlogbook/files", CONSTS.FILES.EXEL_FILE_NAME)
+        return file.exists() && file.isFile
     }
 
     private fun hideProgress() {
@@ -333,17 +346,15 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
             fileintent!!.addCategory(Intent.CATEGORY_OPENABLE)
             fileintent!!.type = "*/*"
             startActivityForResult(fileintent, PICKFILE_RESULT_CODE)
-
         }
         alert.show()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
             PICKFILE_RESULT_CODE -> if (resultCode == Activity.RESULT_OK) {
                 val FilePath = data!!.data!!.path
-                if (BuildConfig.DEBUG)
-                    Log.d(MainActivity::class.java.simpleName, "onActivityResult: FilePath = " + FilePath!!)
                 initBgService()
                 mMyServiceIntent!!.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_IMPORT_SD)
                 mMyServiceIntent!!.putExtra(BackgroundIntentService.EXTRA_KEY_IMPORT_SD_FILENAME, FilePath)
@@ -411,9 +422,7 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
     }
 
     private fun initBgService() {
-        if (mMyServiceIntent == null) {
             mMyServiceIntent = Intent(this@MainActivity, BackgroundIntentService::class.java)
-        }
     }
 
     override fun onDrawerOpened(drawerView: View) {}
@@ -458,7 +467,8 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
         private val MENU_FLIGHTS = 0
         private val MENU_PLANE_TYPES = 1
         private val MENU_FLIGHT_TYPES = 2
-        private val MENU_STATS = 3
+        private val MENU_TIME_TYPES = 3
+        private val MENU_STATS = 4
         private val DRAWER_SELECTION = "drawer_selection"
         private val TIME_DELAY = 2000
         private var back_pressed: Long = 0

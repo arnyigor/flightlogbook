@@ -17,8 +17,8 @@ import com.arny.domain.models.TimeType
 import com.arny.flightlogbook.R
 import com.arny.helpers.utils.*
 import com.redmadrobot.inputmask.MaskedTextChangedListener
-import kotlinx.android.synthetic.main.activity_times_list.*
 import kotlinx.android.synthetic.main.time_input_dialog_layout.view.*
+import kotlinx.android.synthetic.main.time_types_list_layout.*
 
 class TimesListActivity : MvpAppCompatActivity(), TimesListView, View.OnClickListener {
     private var timeTypesAdapter: TimeTypesAdapter? = null
@@ -111,7 +111,6 @@ class TimesListActivity : MvpAppCompatActivity(), TimesListView, View.OnClickLis
                     value = extractedValue
                 }
             })
-
             tv_dlg_title.text = getString(R.string.enter_time) + " \"${item.title}\""
             edt_time.hint = "чч:мм"
             edt_time.setOnFocusChangeListener { _, hasFocus ->

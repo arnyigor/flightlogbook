@@ -1,5 +1,4 @@
 package com.arny.constants
-
 object CONSTS {
     object STRINGS {
         const val LOG_TIME_FORMAT = "[00]:[00]"

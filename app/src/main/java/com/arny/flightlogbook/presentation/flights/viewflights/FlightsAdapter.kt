@@ -25,7 +25,7 @@ class FlightsAdapter(private val flightsAdapterListener: FlightsAdapterListener?
             }
             val strLogTime = DateTimeUtils.strLogTime(item.sumlogTime ?: 0)
             val strFlightTime = DateTimeUtils.strLogTime(item.sumFlightTime ?: 0)
-            tv_log_time.text = fromHtml("Летное:<b>$strFlightTime</b><br>Обшее:<b>$strLogTime</b>")
+            tv_log_time.text = fromHtml("Летное:<b>$strFlightTime</b><br>Общее:<b>$strLogTime</b>")
             tv_plane_type.text = item.airplanetypetitle
             iv_flight_delete.setOnClickListener {
                 flightsAdapterListener?.onEditDelete(position, item)

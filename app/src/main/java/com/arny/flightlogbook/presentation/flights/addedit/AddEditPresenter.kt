@@ -218,7 +218,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
     }
 
     fun setFlightPlaneType(planetypeId: Long?) {
-         flightsUseCase.loadPlaneType(planetypeId)
+         flightsUseCase.loadPlaneTypeObs(planetypeId)
                  .observeOnMain()
                  .subscribe({
                      val planeType = it.value

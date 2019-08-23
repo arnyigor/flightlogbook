@@ -1,182 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <LinearLayout
-            android:visibility="gone"
-        android:layout_width="match_parent"
+    <Spinner
+        android:id="@+id/spin_period"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:id="@+id/llStatTop"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_weight="3"
-            android:gravity="center_vertical|center_horizontal"
-            android:text="@string/str_date"
-            android:layout_height="match_parent" />
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_weight="1"
-            android:layout_height="wrap_content">
-            <TextView
-                android:theme="@style/shadowTV"
-                android:id="@+id/tvDateFrom"
-                android:layout_width="match_parent"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="Date from"
-                />
-            <TextView
-                android:theme="@style/shadowTV"
-                android:id="@+id/tvDateTo"
-                android:layout_width="match_parent"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="Date to"/>
-        </LinearLayout>
-    </LinearLayout>
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:entries="@array/statistic_time_period"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tv_period"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <LinearLayout
-            android:visibility="gone"
-        android:layout_width="match_parent"
-        android:id="@+id/llMiddle"
-        android:layout_below="@+id/llStatTop"
-        android:orientation="horizontal"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_height="wrap_content">
-        <ImageView
-		        android:layout_width="wrap_content"
-            android:src="@drawable/filter_clear_bg"
-            android:layout_height="wrap_content" />
-        <TextView
-            android:layout_width="match_parent"
-            android:gravity="center"
-            android:layout_height="match_parent"
-            android:text="@string/str_fitre_stat"
-        />
-    </LinearLayout>
-
-    <LinearLayout
-            android:visibility="gone"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/tv_period"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/llBottom"
-        android:orientation="horizontal"
-        android:baselineAligned="false"
-        android:layout_below="@+id/llMiddle"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
-        <LinearLayout
-		        android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-            <Spinner
-                    android:layout_width="match_parent"
-                    android:layout_weight="1"
-                    android:layout_gravity="center"
-                    android:entries="@array/daynight"
-                    android:layout_height="wrap_content"/>
-            <Spinner
-                    android:layout_width="match_parent"
-                    android:entries="@array/ifrvfr"
-                    android:layout_weight="1"
-                    android:layout_gravity="center"
-                    android:layout_height="wrap_content"/>
-            <Spinner
-                    android:layout_width="match_parent"
-                    android:layout_weight="1"
-                    android:layout_gravity="center"
-                    android:entries="@array/flighttype"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/spinner"/>
-        </LinearLayout>
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:padding="2dp"
+        android:text="@string/stat_period"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    </LinearLayout>
-
-    <LinearLayout
-        android:visibility="visible"
-        android:id="@+id/llFooter"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/tv_start_date"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/llBottom"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:gravity="center_horizontal"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/tv_end_date"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spin_period"
+        tools:text="10.09.2015"
+        tools:visibility="visible" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_weight="0.9"
-            android:text="@string/stat_column_month"
-            android:gravity="center"
-            android:layout_gravity="center"
-            android:layout_height="wrap_content" />
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_weight="1"
-            android:text="@string/stat_column_cnt"
-            android:gravity="center"
-            android:layout_gravity="center"
-            android:layout_height="wrap_content" />
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_weight="1"
-            android:text="@string/stat_column_time"
-            android:gravity="center"
-            android:layout_gravity="center"
-            android:layout_height="wrap_content" />
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_weight="1"
-            android:text="@string/stat_column_day_night"
-            android:gravity="center"
-            android:layout_gravity="center"
-            android:layout_height="wrap_content" />
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_weight="1"
-            android:text="@string/stat_column_day_vfr_ifr"
-            android:gravity="center"
-            android:layout_gravity="center"
-            android:layout_height="wrap_content" />
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_weight="1"
-            android:text="@string/stat_column_day_czm"
-            android:gravity="center"
-            android:layout_gravity="center"
-            android:layout_height="wrap_content" />
-
-    </LinearLayout>
-
-    <LinearLayout
-		    android:orientation="vertical"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/tv_end_date"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/llFooter"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:gravity="center_horizontal"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/tv_start_date"
+        app:layout_constraintTop_toBottomOf="@+id/spin_period"
+        tools:text="10.09.2018"
+        tools:visibility="visible" />
 
-        <ProgressBar
-            android:id="@+id/progressStat"
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+    <android.support.constraint.Barrier
+        android:id="@+id/barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="tv_end_date,tv_start_date" />
 
-        <ListView
-            android:id="@+id/lvStatResult"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_statistic"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        tools:listitem="@layout/statistic_item_layout"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/barrier" />
 
-    </LinearLayout>
-
-
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>

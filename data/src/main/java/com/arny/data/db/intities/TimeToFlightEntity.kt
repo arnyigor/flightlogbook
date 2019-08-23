@@ -1,15 +1,11 @@
 package com.arny.data.db.intities
 
-import android.arch.persistence.room.*
-import com.arny.data.models.FlightEntity
+import android.arch.persistence.room.ColumnInfo
+import android.arch.persistence.room.Entity
+import android.arch.persistence.room.Ignore
+import android.arch.persistence.room.PrimaryKey
 
-@Entity(tableName = "times_to_flights",
-        indices = [Index("flight","time_type")],
-        foreignKeys = [
-                ForeignKey(entity = FlightEntity::class, parentColumns = ["_id"], childColumns = ["flight"], onDelete = ForeignKey.CASCADE),
-                ForeignKey(entity = TimeTypeEntity::class, parentColumns = ["_id"], childColumns = ["time_type"], onDelete = ForeignKey.NO_ACTION)
-        ]
-)
+@Entity(tableName = "times_to_flights")
 data class TimeToFlightEntity(
         @PrimaryKey(autoGenerate = true)
         var _id: Long? = null,

@@ -14,6 +14,9 @@ interface AircraftTypeDAO:BaseDao<PlaneTypeEntity> {
     @Query("SELECT * FROM type_table WHERE type_id=:id")
     fun queryAircraftType(id: Long?): PlaneTypeEntity?
 
+    @Query("SELECT * FROM type_table WHERE airplane_type=:title")
+    fun queryAircraftType(title: String?): PlaneTypeEntity?
+
     @Query("SELECT COUNT(*) FROM type_table")
     fun queryAirplaneTypesCount(): Cursor
 

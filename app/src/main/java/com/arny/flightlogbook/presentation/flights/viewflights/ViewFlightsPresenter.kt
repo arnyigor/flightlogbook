@@ -29,8 +29,19 @@ class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>() {
         compositeDisposable.clear()
     }
 
+    /*private fun getTotalsInfo(){
+        flightsUseCase.getTotalflightsTimeInfo()
+                .observeOnMain()
+                .subscribe({
+                    viewState?.showTotalsInfo(it)
+                },{
+                    it.printStackTrace()
+                })
+                .addTo(compositeDisposable)
+    }*/
+
     fun loadFlights() {
-        flightsUseCase.getFilterflights()
+        flightsUseCase.getFilterflightsObs()
                 .observeOnMain()
                 .subscribe({
                     viewState?.updateAdapter(it)
@@ -41,8 +52,8 @@ class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>() {
                 .addTo(compositeDisposable)
     }
 
-    /* fun removeAllFlights() {
-         flightsUseCase.removeAllFlights()
+    /* fun removeAllFlightsObs() {
+         flightsUseCase.removeAllFlightsObs()
                  .observeOnMain()
                  .subscribe({ removed ->
                      if (removed) {
@@ -63,5 +74,10 @@ class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>() {
                 }, {
                     viewState?.toastError(it.message)
                 }).addTo(compositeDisposable)
+    }
+
+    fun changeOrder(orderType: Int) {
+        flightsUseCase.setFlightsOrder(orderType)
+        loadFlights()
     }
 }

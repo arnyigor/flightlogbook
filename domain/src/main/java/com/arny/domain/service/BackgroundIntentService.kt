@@ -9,7 +9,6 @@ import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
 import com.arny.constants.CONSTS
 import com.arny.data.remote.dropbox.DropboxClientFactory
-import com.arny.domain.Local
 import com.arny.domain.R
 import com.arny.domain.common.PrefsUseCase
 import com.arny.domain.flights.FlightsUseCase
@@ -117,7 +116,7 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
         when (getOperation()) {
             OPERATION_IMPORT_SD -> {
                 val mPath = intent.getStringExtra(EXTRA_KEY_IMPORT_SD_FILENAME)
-                if (Utility.empty(mPath)) {
+                if (mPath.isNullOrBlank()) {
                     readExcelFile(applicationContext, CONSTS.FILES.EXEL_FILE_NAME, true)
                 } else {
                     readExcelFile(applicationContext, FileUtils.getSDFilePath(applicationContext, Uri.fromFile(File(mPath))), false)
@@ -161,7 +160,7 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
                 mIsSuccess = false
             }
 
-            OPERATION_EXPORT -> mIsSuccess = saveExcelFile(applicationContext, CONSTS.FILES.EXEL_FILE_NAME)
+            OPERATION_EXPORT -> mIsSuccess = saveExcelFile(applicationContext)
         }
 
     }
@@ -195,7 +194,7 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
     }
 
-    private fun saveExcelFile(context: Context, fileName: String): Boolean {
+    private fun saveExcelFile(context: Context): Boolean {
         var row: Row
         if (!BasePermissions.isStoragePermissonGranted(context)) {
             return false
@@ -231,11 +230,11 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
         c = row.createCell(7)
         c.setCellValue(getString(R.string.str_desc))
 
-        val exportData = Local.getFlightListByDate(context)
+        val exportData = flightsUseCase.loadDBFlights()
         var rows = 1
         for (export in exportData) {
             val airplane_type_id = export.planeId!!
-            val planeType = Local.getTypeItem(airplane_type_id, context)
+            val planeType =  flightsUseCase.loadPlaneType(airplane_type_id)
             val airplane_type = if (planeType != null) planeType.typeName else ""
             row = sheet_main.createRow(rows)
             c = row.createCell(0)
@@ -267,7 +266,7 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
         sheet_main.setColumnWidth(7, 15 * 500)
 
         // Create a path where we will place our List of objects on external storage
-        val file = File(context.getExternalFilesDir(null), fileName)
+        val file = File(context.getExternalFilesDir(null), CONSTS.FILES.EXEL_FILE_NAME)
         var os: FileOutputStream? = null
 
         try {
@@ -299,10 +298,10 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
             return
         }
         try {
-            if (fromSystem) {
-                xlsfile = File(context.getExternalFilesDir(null), CONSTS.FILES.EXEL_FILE_NAME)
+            xlsfile = if (fromSystem) {
+                File(context.getExternalFilesDir(null), filename)
             } else {
-                xlsfile = File("", filename)
+                File("", filename)
             }
             try {
                 val fileInputStream = FileInputStream(xlsfile)
@@ -316,15 +315,15 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
             // Get the first sheet from workbook
             val mySheet = myWorkBook.getSheetAt(0)
             /** We now need something to iterate through the cells. */
-            Local.removeAllFlights(context)
+            flightsUseCase.removeAllFlights()
             val rowIter = mySheet.rowIterator()
             val flightsFromExel = getFlightsFromExcel(context, rowIter)
-            fromCallable { flightsUseCase.removeAllFlights() }
+            fromCallable { flightsUseCase.removeAllFlightsObs() }
                     .flatMap { aBoolean -> flightsUseCase.insertFlights(flightsFromExel) }
                     .subscribe({ aBoolean ->
-
+                        Log.i(BackgroundIntentService::class.java.simpleName, "readExcelFile: $aBoolean");
                     }, { throwable ->
-
+                        throwable.printStackTrace()
                     }).addTo(compositeDisposable)
             mIsSuccess = true
         } catch (e: Exception) {
@@ -388,12 +387,12 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
                         2 -> {
                             try {
                                 airplane_type = myCell.toString()
-                                val planeType = Local.getType(airplane_type, context)
+                                val planeType = flightsUseCase.loadPlaneType(airplane_type)
                                 if (planeType != null) {
                                     airplane_type_id = planeType.typeId
                                 } else {
                                     if (!Utility.empty(airplane_type)) {
-                                        airplane_type_id = Local.addType(airplane_type, context).toInt().toLong()
+                                        airplane_type_id = flightsUseCase.addPlaneTypeAndGet(airplane_type)
                                     }
                                 }
                             } catch (e: Exception) {
