@@ -75,7 +75,12 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
     fun getFlight(id: Long?): Observable<OptionalNull<Flight?>> {
         return fromNullable { repository.getFlight(id)?.toFlight() }
                 .map { nullable->
-                    nullable.value?.times= repository.queryDBFlightTimes(nullable.value?.id).map { it.toTimeFlight() }
+                    val flight = nullable.value
+                    flight?.airplanetypetitle = repository.loadPlaneType(flight?.planeId)?.typeName
+                    flight?.times= repository.queryDBFlightTimes(flight?.id).map { it.toTimeFlight() }
+                    flight?.flightType= repository.loadDBFlightType(flight?.flightTypeId?.toLong())?.toFlightType()
+                    flight?.sumlogTime = (flight?.logtime?:0) + (flight?.times?.sumBy { it.time }?:0)
+                    flight?.sumFlightTime = (flight?.logtime?:0) + (flight?.times?.filter { it.addToFlightTime }?.sumBy { it.time }?:0)
                     nullable
                 }
     }
