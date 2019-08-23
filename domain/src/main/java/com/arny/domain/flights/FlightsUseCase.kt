@@ -170,6 +170,7 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
                 .map { flight ->
                     flight.airplanetypetitle = repository.loadPlaneType(flight.planeId)?.typeName
                     flight.times= repository.queryDBFlightTimes(flight.id).map { it.toTimeFlight() }
+                    flight.flightType= repository.loadDBFlightType(flight.flightTypeId?.toLong())?.toFlightType()
                     flight.sumlogTime = (flight.logtime?:0) + (flight.times?.sumBy { it.time }?:0)
                     flight.sumFlightTime = (flight.logtime?:0) + (flight.times?.filter { it.addToFlightTime }?.sumBy { it.time }?:0)
                     flight

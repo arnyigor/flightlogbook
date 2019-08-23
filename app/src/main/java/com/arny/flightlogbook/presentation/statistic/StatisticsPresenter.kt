@@ -27,4 +27,8 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>() {
         super.detachView(view)
         compositeDisposable.clear()
     }
+
+    fun loadData() {
+        flightsUseCase.loadDBFlights()
+    }
 }

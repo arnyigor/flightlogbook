@@ -16,7 +16,8 @@ class Flight(var id: Long? = null) {
     var planeId: Long? = null
     var daynight: Int? = null
     var ifrvfr: Int? = null
-    var flighttype: Int? = null
+    var flightTypeId: Int? = null
+    var flightType: FlightType? = null
     var description: String? = null
     var times: List<TimeToFlight>?=null
 
@@ -36,7 +37,7 @@ class Flight(var id: Long? = null) {
         if (planeId != other.planeId) return false
         if (daynight != other.daynight) return false
         if (ifrvfr != other.ifrvfr) return false
-        if (flighttype != other.flighttype) return false
+        if (flightTypeId != other.flightTypeId) return false
         if (description != other.description) return false
 
         return true
@@ -54,13 +55,13 @@ class Flight(var id: Long? = null) {
         result = 31 * result + (planeId?.hashCode() ?: 0)
         result = 31 * result + (daynight ?: 0)
         result = 31 * result + (ifrvfr ?: 0)
-        result = 31 * result + (flighttype ?: 0)
+        result = 31 * result + (flightTypeId ?: 0)
         result = 31 * result + (description?.hashCode() ?: 0)
         return result
     }
 
     override fun toString(): String {
-        return "Flight(id=$id, date=$date, datetime=$datetime, logtime=$logtime, sumlogTime=$sumlogTime,  sumFlightTime=$sumFlightTime, reg_no=$reg_no, airplanetypetitle=$airplanetypetitle, planeId=$planeId, daynight=$daynight, ifrvfr=$ifrvfr, flighttype=$flighttype, description=$description)"
+        return "Flight(id=$id, date=$date, datetime=$datetime, logtime=$logtime, sumlogTime=$sumlogTime,  sumFlightTime=$sumFlightTime, reg_no=$reg_no, airplanetypetitle=$airplanetypetitle, planeId=$planeId, daynight=$daynight, ifrvfr=$ifrvfr, flightTypeId=$flightTypeId, description=$description)"
     }
 }
 
@@ -76,7 +77,7 @@ fun FlightEntity.toFlight(): Flight {
     flight.planeId = this.aircraft_id
     flight.daynight = this.daynight
     flight.ifrvfr = this.ifrvfr
-    flight.flighttype = this.flighttype
+    flight.flightTypeId = this.flighttype
     flight.description = this.description
     return flight
 }
@@ -92,7 +93,7 @@ fun Flight.toFlightEntity(): FlightEntity {
     flight.aircraft_id = this.planeId
     flight.daynight = this.daynight
     flight.ifrvfr = this.ifrvfr
-    flight.flighttype = this.flighttype
+    flight.flighttype = this.flightTypeId
     flight.description = this.description
     return flight
 }

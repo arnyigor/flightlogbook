@@ -67,7 +67,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
     }
 
     private fun loadFlightType() {
-        val flighttype = flight?.flighttype
+        val flighttype = flight?.flightTypeId
         if (flighttype != null) {
             flightsUseCase.loadFlightType(flighttype.toLong())
                     .observeOnMain()
@@ -241,7 +241,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
                 .subscribe({
                     val flightType = it.value
                     if (flightType != null) {
-                        this.flight?.flighttype = flightType.id?.toInt()
+                        this.flight?.flightTypeId = flightType.id?.toInt()
                         val title = "${commonUseCase.getString(R.string.str_flight_type_title)}${flightType.typeTitle}"
                         viewState?.setFligtTypeTitle(title)
                     }else{

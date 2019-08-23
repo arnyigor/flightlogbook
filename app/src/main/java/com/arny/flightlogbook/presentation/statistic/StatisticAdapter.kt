@@ -6,10 +6,12 @@ import com.arny.flightlogbook.R
 
 class StatisticAdapter :SimpleAbstractAdapter<Statistic>(){
     override fun getLayout(viewType: Int): Int {
-        return R.layout.stat_list_item
+        return R.layout.statistic_item_layout
     }
 
     override fun bindView(item: Statistic, viewHolder: VH) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        viewHolder.itemView.apply {
+
+        }
     }
 }

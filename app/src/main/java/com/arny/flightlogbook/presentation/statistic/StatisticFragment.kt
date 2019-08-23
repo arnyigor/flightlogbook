@@ -3,29 +3,65 @@ package com.arny.flightlogbook.presentation.statistic
 import android.app.DatePickerDialog
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.app.Fragment
+import android.support.v7.widget.LinearLayoutManager
 import android.view.*
 import android.widget.Toast
-import com.arny.domain.Local
-import com.arny.domain.models.Flight
-import com.arny.domain.models.Statistic
+import com.arellomobile.mvp.MvpAppCompatFragment
+import com.arellomobile.mvp.presenter.InjectPresenter
+import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.arny.flightlogbook.R
 import com.arny.helpers.utils.DateTimeUtils
-import com.arny.helpers.utils.mainThreadObservable
-import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.statistic_fragment.*
 import java.util.*
 
-class StatisticFragment : Fragment() {
-    private var FlightData: List<Flight>? = null
-    private var statistics: List<Statistic>? = null
+class StatisticFragment : MvpAppCompatFragment(),StatisticsView {
     private val dateAndTimeStart = Calendar.getInstance()
     private val dateAndTimeEnd = Calendar.getInstance()
     private var startdatetime: Long = 0
     private var enddatetime: Long = 0
     private var statAdapter: StatisticAdapter? = null
-    private val disposable = CompositeDisposable()
+
+    @InjectPresenter
+    lateinit var statisticsPresenter: StatisticsPresenter
+
+    @ProvidePresenter
+    fun provideStatisticsPresenter(): StatisticsPresenter {
+        return StatisticsPresenter()
+    }
+
+    companion object {
+        @JvmStatic
+        fun getInstance(): StatisticFragment {
+            return StatisticFragment()
+        }
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.statistic_fragment, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        statAdapter = StatisticAdapter()
+        tv_start_date.setOnClickListener { setDateFrom() }
+        tv_end_date.setOnClickListener { setDateTo() }
+        rv_statistic.layoutManager = LinearLayoutManager(context)
+        rv_statistic.adapter = statAdapter
+        startInitDateTime()
+        statisticsPresenter.loadData()
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        super.onCreateOptionsMenu(menu, inflater)
+        menu!!.clear()
+    }
+
+
 
     // установка обработчика выбора даты start
     internal var onDateStartSetListener: DatePickerDialog.OnDateSetListener = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
@@ -47,78 +83,22 @@ class StatisticFragment : Fragment() {
         tv_end_date.text = DateTimeUtils.getDateTime(enddatetime, "dd.MM.yyyy")
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.statistic_fragment, container, false)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        statAdapter = StatisticAdapter()
-        initUI()
-        startInitDateTime()
-        if (statistics != null) {
-            refreshAdapter()
-        } else {
-            getStatistic()
-        }
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-        retainInstance = true
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        disposable.clear()
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        super.onCreateOptionsMenu(menu, inflater)
-        menu!!.clear()
-    }
-
-    private fun refreshAdapter() {
-        statAdapter?.notifyDataSetChanged()
-        rv_statistic.adapter = statAdapter
-    }
-
-    //инициализация view
-    private fun initUI() {
-        tv_start_date.setOnClickListener {  setDateFrom() }
-        tv_end_date.setOnClickListener { setDateTo() }
-    }
-
-    //функция статистики
-    private fun getStatistic() {
-        disposable.add(mainThreadObservable(Observable.fromCallable {
-            Local.getStatistic("", activity as Context)
-        })
-                .subscribe({result->
-                    statistics = result
-                    refreshAdapter()
-                },{
-                    it.printStackTrace()
-                }))
-    }
-
     //начальные данные времени
     private fun startInitDateTime() {
-        disposable.add(mainThreadObservable(Observable.fromCallable { Local.getFlightListByDate(activity as Context, "") })
-                .subscribe({ flights ->
-                    FlightData = flights
-                    if (FlightData!!.isNotEmpty()) {
-                        startdatetime = FlightData!![0].datetime!!
-                        enddatetime = FlightData!![FlightData!!.size - 1].datetime!!
-                    } else {
-                        startdatetime = Calendar.getInstance().timeInMillis
-                        enddatetime = Calendar.getInstance().timeInMillis
-                    }
-                    setDateTimeToTextView()
-                },{
-                    it.printStackTrace()
-                }))
+        /* disposable.add(mainThreadObservable(Observable.fromCallable { Local.getFlightListByDate(activity as Context, "") })
+                 .subscribe({ flights ->
+                     FlightData = flights
+                     if (FlightData!!.isNotEmpty()) {
+                         startdatetime = FlightData!![0].datetime!!
+                         enddatetime = FlightData!![FlightData!!.size - 1].datetime!!
+                     } else {
+                         startdatetime = Calendar.getInstance().timeInMillis
+                         enddatetime = Calendar.getInstance().timeInMillis
+                     }
+                     setDateTimeToTextView()
+                 },{
+                     it.printStackTrace()
+                 }))*/
     }
 
     //устанавливаем дату в textView

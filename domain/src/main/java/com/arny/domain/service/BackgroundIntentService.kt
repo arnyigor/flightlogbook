@@ -250,7 +250,7 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
             c = row.createCell(5)
             c.setCellValue(export.ifrvfr!!.toDouble())
             c = row.createCell(6)
-            c.setCellValue(export.flighttype!!.toDouble())
+            c.setCellValue(export.flightTypeId!!.toDouble())
             c = row.createCell(7)
             c.setCellValue(export.description)
             rows++

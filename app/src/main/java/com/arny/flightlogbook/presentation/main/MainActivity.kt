@@ -189,7 +189,7 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
                 toolbar!!.title = "Типы времени"
             }
             MENU_STATS -> {
-                fragment = StatisticFragment()
+                fragment = StatisticFragment.getInstance()
                 toolbar!!.title = getString(R.string.fragment_stats)
             }
             MENU_DROPBOX_SYNC -> {
