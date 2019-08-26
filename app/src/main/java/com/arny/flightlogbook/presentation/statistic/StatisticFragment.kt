@@ -3,23 +3,17 @@ package com.arny.flightlogbook.presentation.statistic
 import android.app.DatePickerDialog
 import android.content.Context
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
 import android.view.*
-import android.widget.Toast
+import android.widget.AdapterView
 import com.arellomobile.mvp.MvpAppCompatFragment
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.arny.flightlogbook.R
-import com.arny.helpers.utils.DateTimeUtils
+import com.arny.helpers.utils.ToastMaker
+import com.arny.helpers.utils.setVisible
 import kotlinx.android.synthetic.main.statistic_fragment.*
-import java.util.*
 
-class StatisticFragment : MvpAppCompatFragment(),StatisticsView {
-    private val dateAndTimeStart = Calendar.getInstance()
-    private val dateAndTimeEnd = Calendar.getInstance()
-    private var startdatetime: Long = 0
-    private var enddatetime: Long = 0
-    private var statAdapter: StatisticAdapter? = null
+class StatisticFragment : MvpAppCompatFragment(), StatisticsView, View.OnClickListener {
 
     @InjectPresenter
     lateinit var statisticsPresenter: StatisticsPresenter
@@ -42,13 +36,55 @@ class StatisticFragment : MvpAppCompatFragment(),StatisticsView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        statAdapter = StatisticAdapter()
-        tv_start_date.setOnClickListener { setDateFrom() }
-        tv_end_date.setOnClickListener { setDateTo() }
-        rv_statistic.layoutManager = LinearLayoutManager(context)
-        rv_statistic.adapter = statAdapter
+        tv_start_date.setOnClickListener(this)
+        tv_end_date.setOnClickListener(this)
+        tv_pediod_type.setOnClickListener(this)
+        iv_period_left.setOnClickListener(this)
+        iv_period_right.setOnClickListener(this)
+        spin_period.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                statisticsPresenter.onPeriodChanged(position)
+            }
+        }
         startInitDateTime()
         statisticsPresenter.loadData()
+    }
+
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.tv_start_date -> statisticsPresenter.initDateStart()
+            R.id.tv_end_date -> statisticsPresenter.initDateEnd()
+            R.id.tv_pediod_type -> statisticsPresenter.onPeriodTypeClick()
+            R.id.iv_period_left -> statisticsPresenter.decreasePeriod()
+            R.id.iv_period_right -> statisticsPresenter.increasePeriod()
+        }
+    }
+
+    override fun setPeriodTypeVisible(vis: Boolean) {
+        tv_pediod_type.setVisible(vis)
+        iv_period_left.setVisible(vis)
+        iv_period_right.setVisible(vis)
+    }
+
+    override fun setCustomPeriodVisible(vis: Boolean) {
+        tv_start_date.setVisible(vis)
+        tv_end_date.setVisible(vis)
+    }
+
+    override fun setPeriodItemText(periodItem: String?) {
+        tv_pediod_type.setText(periodItem)
+    }
+
+    override fun setStartDateText(date: String?) {
+        tv_start_date.setText(date)
+    }
+
+    override fun setEndDateText(date: String?) {
+        tv_end_date.setText(date)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,32 +94,10 @@ class StatisticFragment : MvpAppCompatFragment(),StatisticsView {
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         super.onCreateOptionsMenu(menu, inflater)
-        menu!!.clear()
+        menu?.clear()
     }
 
 
-
-    // установка обработчика выбора даты start
-    internal var onDateStartSetListener: DatePickerDialog.OnDateSetListener = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
-        dateAndTimeStart.set(Calendar.YEAR, year)
-        dateAndTimeStart.set(Calendar.MONTH, monthOfYear)
-        dateAndTimeStart.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-        startdatetime = dateAndTimeStart.timeInMillis
-        checkStartEndDateTime()
-        tv_start_date.text = DateTimeUtils.getDateTime(startdatetime, "dd.MM.yyyy")
-    }
-
-    // установка обработчика выбора end
-    private var onDateEndSetListener: DatePickerDialog.OnDateSetListener = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
-        dateAndTimeEnd.set(Calendar.YEAR, year)
-        dateAndTimeEnd.set(Calendar.MONTH, monthOfYear)
-        dateAndTimeEnd.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-        enddatetime = dateAndTimeEnd.timeInMillis
-        checkStartEndDateTime()
-        tv_end_date.text = DateTimeUtils.getDateTime(enddatetime, "dd.MM.yyyy")
-    }
-
-    //начальные данные времени
     private fun startInitDateTime() {
         /* disposable.add(mainThreadObservable(Observable.fromCallable { Local.getFlightListByDate(activity as Context, "") })
                  .subscribe({ flights ->
@@ -101,40 +115,21 @@ class StatisticFragment : MvpAppCompatFragment(),StatisticsView {
                  }))*/
     }
 
-    //устанавливаем дату в textView
-    private fun setDateTimeToTextView() {
-        dateAndTimeStart.timeInMillis = startdatetime
-        tv_start_date.text = DateTimeUtils.getDateTime(startdatetime, "ddMMMyyyy")
-        dateAndTimeEnd.timeInMillis = enddatetime
-        tv_end_date.text = DateTimeUtils.getDateTime(enddatetime, "ddMMMyyyy")
-    }
-
-    // отображаем диалоговое окно для выбора даты
-    fun setDateFrom() {
-        dateAndTimeStart.timeInMillis = startdatetime
-        DatePickerDialog(activity as Context, onDateStartSetListener,
-                dateAndTimeStart.get(Calendar.YEAR),
-                dateAndTimeStart.get(Calendar.MONTH),
-                dateAndTimeStart.get(Calendar.DAY_OF_MONTH))
+    override fun showDateDialogStart(year: Int, month: Int, day: Int) {
+        DatePickerDialog(activity as Context, DatePickerDialog.OnDateSetListener { _, y, monthOfYear, dayOfMonth ->
+            statisticsPresenter.onDateStartSet(y, monthOfYear, dayOfMonth)
+        }, year, month, day)
                 .show()
     }
 
-    // отображаем диалоговое окно для выбора даты
-    fun setDateTo() {
-        dateAndTimeEnd.timeInMillis = enddatetime
-        DatePickerDialog(activity as Context, onDateEndSetListener,
-                dateAndTimeEnd.get(Calendar.YEAR),
-                dateAndTimeEnd.get(Calendar.MONTH),
-                dateAndTimeEnd.get(Calendar.DAY_OF_MONTH))
+    override fun toastError(string: String?) {
+         ToastMaker.toastError(context,string)
+    }
+
+    override fun showDateDialogEnd(year: Int, month: Int, day: Int) {
+        DatePickerDialog(activity as Context, DatePickerDialog.OnDateSetListener { _, y, monthOfYear, dayOfMonth ->
+            statisticsPresenter.onDateEndSet(y, monthOfYear, dayOfMonth)
+        },year,month,day)
                 .show()
     }
-
-    //проверяем конечную дату больше начальной
-    private fun checkStartEndDateTime() {
-        if (startdatetime > enddatetime) {
-            Toast.makeText(activity as Context, getString(R.string.stat_error_end_less_start), Toast.LENGTH_SHORT).show()
-            startInitDateTime()
-        }
-    }
-
 }

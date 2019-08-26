@@ -6,7 +6,10 @@ import android.support.annotation.Nullable;
 import android.text.format.DateUtils;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
@@ -247,34 +250,32 @@ public class DateTimeUtils {
         return (new SimpleDateFormat("dd MMM yyyy HH:mm:ss.sss", Locale.getDefault())).format(new Date(System.currentTimeMillis()));
     }
 
-    public static Calendar addMonth(Calendar calendar, int amount) {
+    public static void addMonth(Calendar calendar, int amount) {
         calendar.add(Calendar.MONTH, amount);
-        return calendar;
     }
 
-    public static Calendar addDay(Calendar calendar, int amount) {
+    public static void addYear(Calendar calendar, int amount) {
+        calendar.add(Calendar.YEAR, amount);
+    }
+
+    public static void addDay(Calendar calendar, int amount) {
         calendar.add(Calendar.DATE, amount);
-        return calendar;
     }
 
-    public static Calendar addHour(Calendar calendar, int amount) {
+    public static void addHour(Calendar calendar, int amount) {
         calendar.add(Calendar.HOUR, amount);
-        return calendar;
     }
 
-    public static Calendar addMinute(Calendar calendar, int amount) {
+    public static void addMinute(Calendar calendar, int amount) {
         calendar.add(Calendar.MINUTE, amount);
-        return calendar;
     }
 
-    public static Calendar addSeconds(Calendar calendar, int amount) {
+    public static void addSeconds(Calendar calendar, int amount) {
         calendar.add(Calendar.SECOND, amount);
-        return calendar;
     }
 
-    public static Calendar addMSeconds(Calendar calendar, int amount) {
+    public static void addMSeconds(Calendar calendar, int amount) {
         calendar.add(Calendar.MILLISECOND, amount);
-        return calendar;
     }
 
     public static boolean isToday(long currentDateTime) {
@@ -356,7 +357,12 @@ public class DateTimeUtils {
 
     public static String getDateTime(long timestamp,String format,boolean useUTC) {
         Date d = new Date(timestamp);
-        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.getDefault());
+        Locale locale = Locale.getDefault();
+        SimpleDateFormat sdf = new SimpleDateFormat(format, locale);
+        if (locale.getISO3Language().equalsIgnoreCase("rus")) {
+            DateFormatSymbols formatSimbols = myDateFormatSymbolsFull;
+            sdf.setDateFormatSymbols(formatSimbols);
+        }
         if (useUTC) {
             sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         }
@@ -381,6 +387,54 @@ public class DateTimeUtils {
         }
     }
 
+    public static String getDateTime(int day,int month,int year, String format) {
+        try {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(year,month,day);
+            long milliseconds = calendar.getTimeInMillis();
+            format = (format == null || format.trim().equals("")) ? "dd MMM yyyy HH:mm:ss.sss" : format;
+            return (new SimpleDateFormat(format, Locale.getDefault())).format(new Date(milliseconds));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * получение даты DateTime
+     *
+     * @param date
+     * @param format
+     * @return DateTime
+     */
+    public static DateTime getJodaDateTime(String date, String format,boolean useUTC) {
+        DateTime dateTime = DateTimeFormat.forPattern(format).parseDateTime(date);
+        if (useUTC) {
+            dateTime.withZone(DateTimeZone.UTC);
+        }
+        return dateTime;
+    }
+
+    public static long convertDateTimeToLong(int day, int month, int year, boolean useUTC) {
+        DateTime dateTime = new DateTime(year, month, day, 0, 0);
+        if (useUTC) {
+            dateTime.withZone(DateTimeZone.UTC);
+        }
+        return dateTime.getMillis();
+    }
+
+    /**
+     * получение даты String
+     *
+     * @param dateTime
+     * @param format
+     * @return String
+     */
+    public static String getDateTime(DateTime dateTime, String format) {
+        DateTimeFormatter fmt = DateTimeFormat.forPattern(format);
+        return fmt.print(dateTime);
+    }
+
     /**
      * Convert string timestamp to long
      * @param myTimestamp String
@@ -389,6 +443,15 @@ public class DateTimeUtils {
      */
     public static long convertTimeStringToLong(String myTimestamp, String format) {
         return convertTimeStringToLong(myTimestamp, format, false);
+    }
+
+    public static long convertTimeStringToLong(int day,int month,int year, String format, boolean useUTC) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year,month,day);
+        if (useUTC) {
+            calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+        }
+        return calendar.getTimeInMillis();
     }
 
     /**

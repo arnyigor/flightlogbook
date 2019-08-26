@@ -9,4 +9,12 @@ import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
  */
 @StateStrategyType(value = OneExecutionStateStrategy::class)
 interface StatisticsView : MvpView {
+    fun setPeriodTypeVisible(vis: Boolean)
+    fun setCustomPeriodVisible(vis: Boolean)
+    fun setPeriodItemText(periodItem: String?)
+    fun setStartDateText(date: String?)
+    fun setEndDateText(date: String?)
+    fun toastError(string: String?)
+    fun showDateDialogStart(year: Int, month: Int, day: Int)
+    fun showDateDialogEnd(year: Int, month: Int, day: Int)
 }

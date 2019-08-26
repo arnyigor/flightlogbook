@@ -97,7 +97,6 @@
 
     <string-array name="statistic_time_period">
         <item>День</item>
-        <item>Неделя</item>
         <item>Месяц</item>
         <item>Год</item>
         <item>Другой период</item>

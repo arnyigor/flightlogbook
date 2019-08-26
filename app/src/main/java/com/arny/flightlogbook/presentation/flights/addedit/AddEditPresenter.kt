@@ -11,6 +11,7 @@ import com.arny.domain.models.TimeToFlight
 import com.arny.domain.models.TimeType
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
+import com.arny.helpers.coroutins.launchAsync
 import com.arny.helpers.utils.*
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.zipWith
@@ -189,32 +190,38 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
     }
 
     fun onDateSet(dayOfMonth: Int, monthOfYear: Int, year: Int) {
-        val date = dayOfMonth.toString() + " " + (monthOfYear + 1) + " " + year
-        try {
-            mDateTime = DateTimeUtils.getDateTime(date, "dd MM yyyy").withTimeAtStartOfDay().millis
-        } catch (e: Exception) {
-            e.printStackTrace()
+        launchAsync({
+            mDateTime = DateTimeUtils.getJodaDateTime("$dayOfMonth.${(monthOfYear + 1)}.$year", "dd.MM.yyyy", true).withTimeAtStartOfDay().millis
+            convertDateTime()
+        }, {
+            viewState?.setDate(it)
+        }, {
             viewState?.toastError("Ошибка ввода даты")
-        }
-        val dateTime = convertDateTime()
-        viewState?.setDate(dateTime)
+        })
     }
 
     private fun setDayToday() {
-        mDateTime = DateTime.now().withTimeAtStartOfDay().millis
-        val dateTime = convertDateTime()
-        viewState?.setDate(dateTime)
+        launchAsync({
+            mDateTime = DateTime.now().withTimeAtStartOfDay().millis
+            convertDateTime()
+        },{
+            viewState?.setDate(it)
+        },{
+            it.printStackTrace()
+        })
     }
 
     private fun convertDateTime() = DateTimeUtils.getDateTime(mDateTime, "dd.MM.yyyy")
 
     fun initDateFromMask(extractedValue: String) {
-        try {
-            mDateTime = DateTimeUtils.getDateTime(extractedValue, "ddMMyyyy").withTimeAtStartOfDay().millis
-        } catch (e: Exception) {
+        launchAsync({
+            mDateTime = DateTimeUtils.getJodaDateTime(extractedValue, "ddMMyyyy",true).withTimeAtStartOfDay().millis
+        },{
+
+        },{
             setDayToday()
             viewState?.toastError("Ошибка ввода даты")
-        }
+        })
     }
 
     fun setFlightPlaneType(planetypeId: Long?) {

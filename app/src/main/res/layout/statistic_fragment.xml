@@ -26,6 +26,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
+        android:textSize="@dimen/font_size_medium"
         android:layout_marginTop="8dp"
         android:padding="2dp"
         android:text="@string/stat_period"
@@ -38,18 +39,17 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
+        android:padding="8dp"
         android:layout_marginRight="8dp"
+        android:textSize="@dimen/font_size_xmedium"
         android:gravity="center_horizontal"
-        android:visibility="gone"
         app:layout_constraintEnd_toStartOf="@+id/tv_end_date"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spin_period"
-        tools:text="10.09.2015"
-        tools:visibility="visible" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_pediod_type"
+        tools:text="10.09.2015" />
 
     <TextView
         android:id="@+id/tv_end_date"
@@ -57,34 +57,63 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
+        android:padding="8dp"
         android:layout_marginRight="8dp"
+        android:textSize="@dimen/font_size_xmedium"
         android:gravity="center_horizontal"
-        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/tv_start_date"
+        app:layout_constraintTop_toBottomOf="@+id/tv_pediod_type"
+        tools:text="10.09.2018" />
+
+    <TextView
+        android:id="@+id/tv_pediod_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textSize="@dimen/font_size_xmedium"
+        android:padding="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/spin_period"
-        tools:text="10.09.2018"
-        tools:visibility="visible" />
+        tools:text="10.09.2015" />
+
+    <ImageView
+        android:id="@+id/iv_period_left"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackground"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_pediod_type"
+        app:layout_constraintEnd_toStartOf="@+id/tv_pediod_type"
+        app:layout_constraintTop_toTopOf="@+id/tv_pediod_type"
+        app:srcCompat="@drawable/ic_left_arrow" />
+
+    <ImageView
+        android:id="@+id/iv_period_right"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="8dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackground"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_pediod_type"
+        app:layout_constraintStart_toEndOf="@+id/tv_pediod_type"
+        app:layout_constraintTop_toTopOf="@+id/tv_pediod_type"
+        app:srcCompat="@drawable/ic_right_arrow" />
 
     <android.support.constraint.Barrier
         android:id="@+id/barrier"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="tv_end_date,tv_start_date" />
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv_statistic"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        tools:listitem="@layout/statistic_item_layout"
-        android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/barrier" />
+        app:constraint_referenced_ids="tv_end_date,tv_start_date,tv_pediod_type"
+        tools:layout_editor_absoluteY="32dp" />
 
 </android.support.constraint.ConstraintLayout>
