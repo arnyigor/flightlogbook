@@ -1,20 +1,24 @@
 package com.arny.flightlogbook.presentation.statistic
 
-import android.app.DatePickerDialog
-import android.content.Context
 import android.os.Bundle
+import android.support.v7.widget.LinearLayoutManager
 import android.view.*
+import android.widget.Adapter
 import android.widget.AdapterView
 import com.arellomobile.mvp.MvpAppCompatFragment
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
+import com.arny.adapters.MultiSelectionSpinner
+import com.arny.domain.models.Statistic
 import com.arny.flightlogbook.R
 import com.arny.helpers.utils.ToastMaker
 import com.arny.helpers.utils.setVisible
+import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment
 import kotlinx.android.synthetic.main.statistic_fragment.*
+import java.util.*
 
 class StatisticFragment : MvpAppCompatFragment(), StatisticsView, View.OnClickListener {
-
+    private var statAdapter: StatisticAdapter? = null
     @InjectPresenter
     lateinit var statisticsPresenter: StatisticsPresenter
 
@@ -41,6 +45,9 @@ class StatisticFragment : MvpAppCompatFragment(), StatisticsView, View.OnClickLi
         tv_pediod_type.setOnClickListener(this)
         iv_period_left.setOnClickListener(this)
         iv_period_right.setOnClickListener(this)
+        statAdapter = StatisticAdapter()
+        rv_statistic.layoutManager = LinearLayoutManager(context)
+        rv_statistic.adapter = statAdapter
         spin_period.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
 
@@ -50,8 +57,47 @@ class StatisticFragment : MvpAppCompatFragment(), StatisticsView, View.OnClickLi
                 statisticsPresenter.onPeriodChanged(position)
             }
         }
-        startInitDateTime()
-        statisticsPresenter.loadData()
+        chbox_extended_stat.setOnCheckedChangeListener { _, isChecked ->
+            statisticsPresenter.onExtendedStatisticChanged(isChecked)
+        }
+
+        chbox_filter.setOnCheckedChangeListener { _, isChecked ->
+            statisticsPresenter.onFilterChanged(isChecked)
+        }
+
+        spin_stat_filter.setSelection(Adapter.NO_SELECTION, true)
+        spin_stat_filter.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                statisticsPresenter.onFilterTypeSelect(position)
+            }
+        }
+        spin_stat_filter_type.setOnSelectionListener(object : MultiSelectionSpinner.OnMultiSelectionChooseListener {
+            override fun onSelected(mSelection: List<Int>, items: Array<String>?) {
+                statisticsPresenter.onFilter(spin_stat_filter.selectedItemPosition, mSelection)
+            }
+        })
+    }
+
+    override fun setFilterStatisticVisible(vis: Boolean) {
+        tv_filter_stat_by.setVisible(vis)
+        spin_stat_filter.setVisible(vis)
+        spin_stat_filter_type.setVisible(vis)
+        if (vis) {
+            statisticsPresenter.onFilterTypeSelect(spin_stat_filter.selectedItemPosition)
+        }
+    }
+
+    override fun setFilterSpinnerItems(items: List<String>) {
+        spin_stat_filter_type.setItems(items)
+        spin_stat_filter_type.setSelection(0)
+    }
+
+    override fun showEmptyView(showEmpty: Boolean) {
+        tv_empty_stat_view.setVisible(showEmpty)
     }
 
     override fun onClick(v: View?) {
@@ -62,6 +108,14 @@ class StatisticFragment : MvpAppCompatFragment(), StatisticsView, View.OnClickLi
             R.id.iv_period_left -> statisticsPresenter.decreasePeriod()
             R.id.iv_period_right -> statisticsPresenter.increasePeriod()
         }
+    }
+
+    override fun updateAdapter(stats: ArrayList<Statistic>) {
+        statAdapter?.addAll(stats)
+    }
+
+    override fun clearAdapter() {
+        statAdapter?.clear()
     }
 
     override fun setPeriodTypeVisible(vis: Boolean) {
@@ -97,29 +151,13 @@ class StatisticFragment : MvpAppCompatFragment(), StatisticsView, View.OnClickLi
         menu?.clear()
     }
 
-
-    private fun startInitDateTime() {
-        /* disposable.add(mainThreadObservable(Observable.fromCallable { Local.getFlightListByDate(activity as Context, "") })
-                 .subscribe({ flights ->
-                     FlightData = flights
-                     if (FlightData!!.isNotEmpty()) {
-                         startdatetime = FlightData!![0].datetime!!
-                         enddatetime = FlightData!![FlightData!!.size - 1].datetime!!
-                     } else {
-                         startdatetime = Calendar.getInstance().timeInMillis
-                         enddatetime = Calendar.getInstance().timeInMillis
-                     }
-                     setDateTimeToTextView()
-                 },{
-                     it.printStackTrace()
-                 }))*/
-    }
-
     override fun showDateDialogStart(year: Int, month: Int, day: Int) {
-        DatePickerDialog(activity as Context, DatePickerDialog.OnDateSetListener { _, y, monthOfYear, dayOfMonth ->
-            statisticsPresenter.onDateStartSet(y, monthOfYear, dayOfMonth)
-        }, year, month, day)
-                .show()
+        CalendarDatePickerDialogFragment()
+                .setPreselectedDate(year, month, day)
+                .setOnDateSetListener { dialog, y, monthOfYear, dayOfMonth ->
+                    dialog.dismiss()
+                    statisticsPresenter.onDateStartSet(y, monthOfYear, dayOfMonth)
+                }.show(fragmentManager, "fragment_date_start_picker_name")
     }
 
     override fun toastError(string: String?) {
@@ -127,9 +165,11 @@ class StatisticFragment : MvpAppCompatFragment(), StatisticsView, View.OnClickLi
     }
 
     override fun showDateDialogEnd(year: Int, month: Int, day: Int) {
-        DatePickerDialog(activity as Context, DatePickerDialog.OnDateSetListener { _, y, monthOfYear, dayOfMonth ->
-            statisticsPresenter.onDateEndSet(y, monthOfYear, dayOfMonth)
-        },year,month,day)
-                .show()
+        CalendarDatePickerDialogFragment()
+                .setPreselectedDate(year, month, day)
+                .setOnDateSetListener { dialog, y, monthOfYear, dayOfMonth ->
+                    dialog.dismiss()
+                    statisticsPresenter.onDateEndSet(y, monthOfYear, dayOfMonth)
+                }.show(fragmentManager, "fragment_date_end_picker_name")
     }
 }

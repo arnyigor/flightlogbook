@@ -305,45 +305,65 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
                 .addTo(compositeDisposable)
     }
 
-    fun saveFlight(regNo: String, descr: String, flightTimes: ArrayList<TimeToFlight>?) {
-        flight?.datetime = mDateTime
-        flight?.logtime = logTime
-        flight?.sumlogTime = sumlogTime
-        flight?.sumFlightTime = sumFlightTime
-        flight?.reg_no = regNo
-        flight?.description = descr
-        flight?.let { flt ->
-            if (flt.id != null) {
-                flightsUseCase.updateFlight(flt,flightTimes)
-                        .observeOnMain()
-                        .subscribe({
-                            if (it) {
-                                viewState?.toastSuccess(commonUseCase.getString(R.string.flight_save_success))
-                                viewState?.onPressBack()
-                            } else {
-                                viewState?.toastError(commonUseCase.getString(R.string.flight_not_save))
-                            }
-                        }, {
-                            it.printStackTrace()
-                            viewState?.toastError("${commonUseCase.getString(R.string.flight_save_error)}:${it.message}")
-                        })
-                        .addTo(compositeDisposable)
-            }else{
-                flightsUseCase.insertFlightAndGet(flt,flightTimes)
-                        .observeOnMain()
-                        .subscribe({
-                            if (it) {
-                                viewState?.toastSuccess(commonUseCase.getString(R.string.flight_save_success))
-                                viewState?.onPressBack()
-                            } else {
-                                viewState?.toastError(commonUseCase.getString(R.string.flight_not_save))
-                            }
-                        }, {
-                            it.printStackTrace()
-                            viewState?.toastError("${commonUseCase.getString(R.string.flight_save_error)}:${it.message}")
-                        })
-                        .addTo(compositeDisposable)
-            }
-        } ?: viewState?.toastError(commonUseCase.getString(R.string.empty_flight))
+    fun saveFlight(regNo: String, descr: String, flightTimes: ArrayList<TimeToFlight>?, timeStr: String) {
+        correctLogTime(timeStr,logTime) { time, timeText ->
+            logTime = time
+            viewState?.setEdtTimeText(timeText)
+            viewState?.timeSummChange()
+            flight?.datetime = mDateTime
+            flight?.logtime = logTime
+            flight?.sumlogTime = sumlogTime
+            flight?.sumFlightTime = sumFlightTime
+            flight?.reg_no = regNo
+            flight?.description = descr
+            flight?.let { flt ->
+                if (flt.id != null) {
+                    flightsUseCase.updateFlight(flt,flightTimes)
+                            .observeOnMain()
+                            .subscribe({
+                                if (it) {
+                                    viewState?.toastSuccess(commonUseCase.getString(R.string.flight_save_success))
+                                    viewState?.onPressBack()
+                                } else {
+                                    viewState?.toastError(commonUseCase.getString(R.string.flight_not_save))
+                                }
+                            }, {
+                                it.printStackTrace()
+                                viewState?.toastError("${commonUseCase.getString(R.string.flight_save_error)}:${it.message}")
+                            })
+                            .addTo(compositeDisposable)
+                }else{
+                    flightsUseCase.insertFlightAndGet(flt,flightTimes)
+                            .observeOnMain()
+                            .subscribe({
+                                if (it) {
+                                    viewState?.toastSuccess(commonUseCase.getString(R.string.flight_save_success))
+                                    viewState?.onPressBack()
+                                } else {
+                                    viewState?.toastError(commonUseCase.getString(R.string.flight_not_save))
+                                }
+                            }, {
+                                it.printStackTrace()
+                                viewState?.toastError("${commonUseCase.getString(R.string.flight_save_error)}:${it.message}")
+                            })
+                            .addTo(compositeDisposable)
+                }
+            } ?: viewState?.toastError(commonUseCase.getString(R.string.empty_flight))
+        }
+    }
+
+    fun removeFlight() {
+        flightsUseCase.removeFlight(flight?.id)
+                .observeOnMain()
+                .subscribe({
+                    if (it) {
+                        viewState?.toastSuccess(commonUseCase.getString(R.string.flight_removed))
+                        viewState?.onPressBack()
+                    }else{
+                        viewState?.toastError(commonUseCase.getString(R.string.flight_not_removed))
+                    }
+                }, {
+                    viewState?.toastError(it.message)
+                }).addTo(compositeDisposable)
     }
 }

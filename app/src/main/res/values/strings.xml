@@ -15,4 +15,10 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="stat_period">Период</string>
+    <string name="flight_removed">Запись удалена</string>
+    <string name="flight_not_removed">Запись не удалена</string>
+    <string name="extended_statistic">Расширенная статистика</string>
+    <string name="filter_stat_by">Фильтровать по:</string>
+    <string name="no_statistic_data">Нет данных статистики</string>
+    <string name="filtering">Фильтрация</string>
 </resources>

@@ -11,7 +11,8 @@
 
 	<android.support.constraint.ConstraintLayout
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content">
+		android:layout_height="wrap_content"
+		tools:paddingBottom="8dp">
 
 		<TextView
 			android:id="@+id/tv_date"
@@ -32,11 +33,35 @@
 			tools:text="22.05.2012" />
 
 		<TextView
-			android:id="@+id/tv_log_time"
+			android:id="@+id/tv_log_time_flight"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_centerVertical="true"
+			android:layout_marginTop="8dp"
 			android:layout_marginEnd="8dp"
+			android:layout_marginRight="8dp"
+			android:drawableStart="@drawable/ic_plane"
+			android:drawableLeft="@drawable/ic_plane"
+			android:layout_toEndOf="@+id/tv_date"
+			android:layout_toRightOf="@+id/tv_date"
+			android:gravity="center_horizontal"
+			android:padding="2dp"
+			android:textColor="@color/md_grey_600"
+			android:textSize="@dimen/font_size_xmedium"
+			app:layout_constraintBottom_toTopOf="@+id/tv_log_time_flight_total"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			tools:text="@string/str_logtime" />
+
+		<TextView
+			android:id="@+id/tv_log_time_flight_total"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_centerVertical="true"
+			android:layout_marginTop="8dp"
+			android:layout_marginEnd="8dp"
+			android:drawableStart="@drawable/ic_totals"
+			android:drawableLeft="@drawable/ic_totals"
 			android:layout_marginRight="8dp"
 			android:layout_toEndOf="@+id/tv_date"
 			android:layout_toRightOf="@+id/tv_date"
@@ -45,8 +70,8 @@
 			android:textColor="@color/md_grey_600"
 			android:textSize="@dimen/font_size_xmedium"
 			app:layout_constraintBottom_toBottomOf="parent"
-			app:layout_constraintEnd_toStartOf="@+id/iv_flight_delete"
-			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/tv_log_time_flight"
 			tools:text="@string/str_logtime" />
 
 		<TextView
@@ -56,32 +81,23 @@
 			android:layout_marginStart="8dp"
 			android:layout_marginLeft="8dp"
 			android:layout_marginTop="8dp"
-			android:layout_marginEnd="8dp"
-			android:layout_marginRight="8dp"
-			android:layout_marginBottom="8dp"
 			android:textSize="@dimen/font_size"
 			android:textStyle="bold"
-			app:layout_constraintBottom_toBottomOf="parent"
-			app:layout_constraintEnd_toStartOf="@+id/tv_log_time"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/tv_date"
-			tools:text="B73 7B737B 737B737" />
+			tools:text="Airbus A321" />
 
-		<ImageView
-			android:id="@+id/iv_flight_delete"
-			android:layout_width="35dp"
-			android:layout_height="35dp"
-			android:layout_marginEnd="8dp"
-			android:layout_marginRight="8dp"
-			android:background="?attr/selectableItemBackground"
-			android:clickable="true"
-			android:focusable="true"
-			android:padding="4dp"
-			android:tint="@color/colorTextPrimary"
-			app:layout_constraintBottom_toBottomOf="parent"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintTop_toTopOf="parent"
-			app:srcCompat="@drawable/ic_icon_remove" />
+		<TextView
+			android:id="@+id/tv_plane_reg_no"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="8dp"
+			android:layout_marginLeft="8dp"
+			android:textSize="@dimen/font_size_small"
+			app:layout_constraintBottom_toBottomOf="@+id/tv_plane_type"
+			app:layout_constraintStart_toEndOf="@+id/tv_plane_type"
+			app:layout_constraintTop_toTopOf="@+id/tv_plane_type"
+			tools:text="Airbus A321" />
 
 	</android.support.constraint.ConstraintLayout>
 

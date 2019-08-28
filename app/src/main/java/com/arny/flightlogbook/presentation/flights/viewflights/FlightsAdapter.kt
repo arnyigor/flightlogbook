@@ -4,7 +4,6 @@ import com.arny.adapters.SimpleAbstractAdapter
 import com.arny.domain.models.Flight
 import com.arny.flightlogbook.R
 import com.arny.helpers.utils.DateTimeUtils
-import com.arny.helpers.utils.fromHtml
 import kotlinx.android.synthetic.main.flight_list_item.view.*
 
 class FlightsAdapter(private val flightsAdapterListener: FlightsAdapterListener? = null) : SimpleAbstractAdapter<Flight>() {
@@ -25,11 +24,10 @@ class FlightsAdapter(private val flightsAdapterListener: FlightsAdapterListener?
             }
             val strLogTime = DateTimeUtils.strLogTime(item.sumlogTime ?: 0)
             val strFlightTime = DateTimeUtils.strLogTime(item.sumFlightTime ?: 0)
-            tv_log_time.text = fromHtml("Летное:<b>$strFlightTime</b><br>Общее:<b>$strLogTime</b>")
+            tv_log_time_flight.text = strFlightTime
+            tv_log_time_flight_total.text = strLogTime
+            tv_plane_reg_no.text = item.reg_no
             tv_plane_type.text = item.airplanetypetitle
-            iv_flight_delete.setOnClickListener {
-                flightsAdapterListener?.onEditDelete(position, item)
-            }
             setOnClickListener {
                 listener?.onItemClick(position, item)
             }

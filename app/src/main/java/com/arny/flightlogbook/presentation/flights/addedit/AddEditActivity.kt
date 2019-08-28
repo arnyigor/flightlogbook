@@ -133,7 +133,6 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         select_flight_type.setOnClickListener(this)
         tv_add_time.setOnClickListener(this)
         iv_date.setOnClickListener(this)
-        iv_date.setOnClickListener(this)
         imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         edtDate?.setOnFocusChangeListener { _, hasFocus ->
             val empty = Utility.empty(edtDate?.text.toString())
@@ -291,6 +290,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
     }
 
     override fun setRegNo(regNo: String?) {
+        edtRegNo.setText(regNo)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -313,7 +313,18 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
                 val descr = edtDesc.text.toString()
                 val regNo = edtRegNo.text.toString()
                 val timeItems = timesAdapter?.getItems()
-                addEditPresenter.saveFlight(regNo, descr,timeItems)
+                addEditPresenter.saveFlight(regNo, descr,timeItems,time)
+            }
+            R.id.action_remove -> {
+                confirmDialog(this, getString(R.string.str_delete), dialogListener = object : ConfirmDialogListener {
+                    override fun onCancel() {
+
+                    }
+
+                    override fun onConfirm() {
+                        addEditPresenter.removeFlight()
+                    }
+                })
             }
             R.id.action_moto -> {
                 showMotoDialog()

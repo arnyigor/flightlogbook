@@ -8,17 +8,42 @@
 
     <Spinner
         android:id="@+id/spin_period"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
+        android:entries="@array/statistic_time_period"
+        app:layout_constraintStart_toEndOf="@+id/tv_period"
+        app:layout_constraintTop_toBottomOf="@+id/spin_stat_filter_type" />
+
+    <com.arny.adapters.MultiSelectionSpinner
+        android:id="@+id/spin_stat_filter_type"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:entries="@array/statistic_time_period"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/spin_stat_filter"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/tv_period"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toEndOf="@+id/spin_stat_filter"
+        app:layout_constraintTop_toTopOf="@+id/spin_stat_filter"
+        tools:visibility="visible" />
+
+    <Spinner
+        android:id="@+id/spin_stat_filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:entries="@array/statistic_filter_type"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_filter_stat_by"
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/tv_period"
@@ -26,12 +51,12 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:textSize="@dimen/font_size_medium"
-        android:layout_marginTop="8dp"
         android:padding="2dp"
         android:text="@string/stat_period"
+        android:textSize="@dimen/font_size"
+        app:layout_constraintBottom_toBottomOf="@+id/spin_period"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/spin_period" />
 
     <TextView
         android:id="@+id/tv_start_date"
@@ -114,6 +139,65 @@
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
         app:constraint_referenced_ids="tv_end_date,tv_start_date,tv_pediod_type"
-        tools:layout_editor_absoluteY="32dp" />
+        tools:layout_editor_absoluteY="183dp" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_statistic"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        tools:listitem="@layout/statistic_item_layout"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/barrier" />
+
+    <CheckBox
+        android:id="@+id/chbox_extended_stat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:checked="false"
+        android:text="@string/extended_statistic"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <CheckBox
+        android:id="@+id/chbox_filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:checked="false"
+        android:text="@string/filtering"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/chbox_extended_stat" />
+
+    <TextView
+        android:id="@+id/tv_filter_stat_by"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/filter_stat_by"
+        android:textSize="@dimen/font_size"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/chbox_filter"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/tv_empty_stat_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/font_size"
+        android:text="@string/no_statistic_data"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/barrier" />
 
 </android.support.constraint.ConstraintLayout>

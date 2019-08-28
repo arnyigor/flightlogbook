@@ -5,10 +5,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.support.design.widget.FloatingActionButton
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.*
 import com.afollestad.materialdialogs.MaterialDialog
 import com.arellomobile.mvp.MvpAppCompatFragment
@@ -57,8 +57,7 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val fab = view.findViewById<FloatingActionButton>(R.id.fab)
-        fab.setOnClickListener {
+        fab_add_flight.setOnClickListener {
             launchActivity<AddEditActivity> { }
             activity?.overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
         }
@@ -86,6 +85,15 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
                 activity?.overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
             }
         })
+        rv_flights.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (dy < 0 && !fab_add_flight.isShown)
+                    fab_add_flight.show()
+                else if (dy > 0 && fab_add_flight.isShown)
+                    fab_add_flight.hide()
+            }
+
+        })
         rv_flights.adapter = adapter
         restoreListPosition()
     }
@@ -103,6 +111,7 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
 
     override fun onResume() {
         super.onResume()
+        fab_add_flight.show()
         val filter = IntentFilter(BackgroundIntentService.ACTION)
         filter.addCategory(Intent.CATEGORY_DEFAULT)
         context?.let { ctx ->

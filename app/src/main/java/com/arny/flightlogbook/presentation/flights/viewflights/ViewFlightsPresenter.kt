@@ -29,7 +29,7 @@ class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>() {
         compositeDisposable.clear()
     }
 
-    /*private fun getTotalsInfo(){
+     private fun getTotalsInfo(){
         flightsUseCase.getTotalflightsTimeInfo()
                 .observeOnMain()
                 .subscribe({
@@ -38,7 +38,7 @@ class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>() {
                     it.printStackTrace()
                 })
                 .addTo(compositeDisposable)
-    }*/
+    }
 
     fun loadFlights() {
         flightsUseCase.getFilterflightsObs()
