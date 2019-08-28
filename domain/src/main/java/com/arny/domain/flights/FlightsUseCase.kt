@@ -81,6 +81,7 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
                     flight?.flightType= repository.loadDBFlightType(flight?.flightTypeId?.toLong())?.toFlightType()
                     flight?.sumlogTime = (flight?.logtime?:0) + (flight?.times?.sumBy { it.time }?:0)
                     flight?.sumFlightTime = (flight?.logtime?:0) + (flight?.times?.filter { it.addToFlightTime }?.sumBy { it.time }?:0)
+                    flight?.sumGroundTime =  (flight?.times?.filter { !it.addToFlightTime }?.sumBy { it.time }?:0)
                     nullable
                 }
     }
@@ -118,7 +119,10 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
     }
 
     fun loadDBFlightToTimes(flightId: Long?): Observable<List<TimeToFlight>> {
-        return fromCallable { repository.queryDBFlightTimes(flightId).map { it.toTimeFlight() } }
+        return fromCallable { repository.queryDBFlightTimes(flightId).map {
+            it.timeTypeEntity = it.timeType?.let { it1 -> repository.queryDBTimeType(it1) }
+            it.toTimeFlight()
+        } }
     }
 
     fun insertDBFlightToTime(entity: TimeToFlight): Observable<Boolean> {
@@ -178,6 +182,7 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
                     flight.flightType= repository.loadDBFlightType(flight.flightTypeId?.toLong())?.toFlightType()
                     flight.sumlogTime = (flight.logtime?:0) + (flight.times?.sumBy { it.time }?:0)
                     flight.sumFlightTime = (flight.logtime?:0) + (flight.times?.filter { it.addToFlightTime }?.sumBy { it.time }?:0)
+                    flight.sumGroundTime = (flight.times?.filter { !it.addToFlightTime }?.sumBy { it.time }?:0)
                     flight
                 }
     }
@@ -193,6 +198,7 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
                         flight.times= repository.queryDBFlightTimes(flight.id).map { it.toTimeFlight() }
                         flight.sumlogTime = (flight.logtime?:0) + (flight.times?.sumBy { it.time }?:0)
                         flight.sumFlightTime = (flight.logtime?:0) + (flight.times?.filter { it.addToFlightTime }?.sumBy { it.time }?:0)
+                        flight.sumGroundTime = (flight.times?.filter { !it.addToFlightTime }?.sumBy { it.time }?:0)
                         flight
                     }
         }.map { flights ->

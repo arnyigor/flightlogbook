@@ -96,10 +96,17 @@
 
 
     <string-array name="statistic_time_period">
+        <item>Все записи</item>
         <item>День</item>
         <item>Месяц</item>
         <item>Год</item>
         <item>Другой период</item>
+    </string-array>
+
+    <string-array name="statistic_filter_type">
+        <item>Тип ВС</item>
+        <item>Тип времени</item>
+        <item>Тип полета</item>
     </string-array>
 
     <string-array name="ifrvfr">
