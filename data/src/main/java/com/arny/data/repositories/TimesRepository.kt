@@ -15,6 +15,9 @@ interface TimesRepository {
     fun queryDBTimeTypes(): List<TimeTypeEntity> {
         return getTimeTypeDAO().queryTimeTypes()
     }
+    fun queryDBTimeType(typeId:Long): TimeTypeEntity? {
+        return getTimeTypeDAO().queryTimeType(typeId)
+    }
 
     fun addDBTimeType(title: String?): Boolean {
         return getTimeTypeDAO().insertReplace(TimeTypeEntity(null, title)) > 0

@@ -13,8 +13,32 @@ interface FlightDAO : BaseDao<FlightEntity> {
     @Query("SELECT * FROM main_table ORDER BY :orderby")
     fun queryFlightsWithOrder(orderby: String): List<FlightEntity>
 
+    @Query("SELECT * FROM main_table WHERE reg_no=:regNo")
+    fun queryFlightsByRegNo(regNo: String?): List<FlightEntity>
+
     @Query("SELECT * FROM main_table WHERE _id=:id")
     fun queryFlight(id: Long?): FlightEntity?
+
+    @Query("SELECT * FROM main_table WHERE datetime>=:startDate AND datetime<=:endDate")
+    fun queryFlightsInclude(startDate: Long, endDate: Long): List<FlightEntity>
+
+    @Query("SELECT * FROM main_table WHERE datetime>=:startDate AND datetime <:endDate")
+    fun queryFlights(startDate: Long, endDate: Long): List<FlightEntity>
+
+    @Query("SELECT * FROM main_table WHERE datetime>=:startDate AND datetime<=:endDate AND airplane_type IN(:planeTypes)")
+    fun queryFlightsByPlanesIncludeEnd(startDate: Long, endDate: Long, planeTypes: List<Long?>): List<FlightEntity>
+
+    @Query("SELECT * FROM main_table WHERE datetime>=:startDate AND datetime< :endDate AND airplane_type IN(:planeTypes)")
+    fun queryFlightsByPlanes(startDate: Long, endDate: Long, planeTypes: List<Long?>): List<FlightEntity>
+
+    @Query("SELECT * FROM main_table WHERE datetime>=:startDate AND datetime<=:endDate AND flight_type IN(:flightTypes)")
+    fun queryFlightsByFlightTypesInclude(startDate: Long, endDate: Long, flightTypes: List<Long?>): List<FlightEntity>
+
+    @Query("SELECT * FROM main_table WHERE datetime>=:startDate AND datetime < :endDate AND flight_type IN(:flightTypes)")
+    fun queryFlightsByFlightTypes(startDate: Long, endDate: Long, flightTypes: List<Long?>): List<FlightEntity>
+
+    @Query("SELECT min(datetime) as first, max(datetime) as last FROM main_table")
+    fun queryMinMaxDateTimes(): Cursor
 
     @Query("SELECT SUM(log_time) FROM main_table")
     fun queryFlightTime(): Cursor
