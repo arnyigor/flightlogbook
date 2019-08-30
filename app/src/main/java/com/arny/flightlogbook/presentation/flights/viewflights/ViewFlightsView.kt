@@ -15,4 +15,5 @@ interface ViewFlightsView : MvpView {
     fun clearAdaper()
     fun showEmptyView(vis: Boolean)
     fun showTotalsInfo(content: String?)
+    fun viewLoadProgress(vis: Boolean)
 }

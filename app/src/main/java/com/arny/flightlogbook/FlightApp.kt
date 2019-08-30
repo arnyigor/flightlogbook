@@ -10,7 +10,10 @@ import com.arny.flightlogbook.di.DaggerAppComponent
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.core.CrashlyticsCore
 import com.facebook.stetho.Stetho
+import com.squareup.leakcanary.LeakCanary
 import io.fabric.sdk.android.Fabric
+
+
 
 class FlightApp : Application() {
 
@@ -38,5 +41,12 @@ class FlightApp : Application() {
                 .build()
         Fabric.with(this, crashlyticsKit)
         Stetho.initializeWithDefaults(this)
+        this.initializeLeakDetection();
+    }
+
+    private fun initializeLeakDetection() {
+        if (BuildConfig.DEBUG) {
+            LeakCanary.install(this)
+        }
     }
 }

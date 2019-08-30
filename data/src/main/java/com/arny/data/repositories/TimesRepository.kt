@@ -23,6 +23,10 @@ interface TimesRepository {
         return getTimeTypeDAO().insertReplace(TimeTypeEntity(null, title)) > 0
     }
 
+    fun addDBTimeTypeAndGet(title: String?): Long {
+        return getTimeTypeDAO().insertReplace(TimeTypeEntity(null, title))
+    }
+
     fun updateDBTimeType(typeId: Long?, title: String?): Boolean {
         return getTimeTypeDAO().setTitle(typeId, title) > 0
     }

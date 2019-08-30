@@ -25,4 +25,5 @@ interface AddEditView : MvpView {
     fun updateFlightTimesAdapter(items: List<TimeToFlight>)
     fun toastSuccess(msg: String?)
     fun onPressBack()
+    fun setResultOK()
 }

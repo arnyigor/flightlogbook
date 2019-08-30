@@ -22,6 +22,12 @@ interface FlightTypesRepository : BaseRepository {
         return getFlightTypeDAO().insertReplace(type) > 0
     }
 
+    fun addFlightTypeAndGet(name: String): Long {
+        val type = FlightTypeEntity()
+        type.typeTitle = name
+        return getFlightTypeDAO().insertReplace(type)
+    }
+
     fun addFlightType(type: FlightTypeEntity): Boolean {
         return getFlightTypeDAO().insertReplace(type) > 0
     }

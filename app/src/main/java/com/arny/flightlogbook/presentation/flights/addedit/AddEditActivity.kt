@@ -132,6 +132,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         select_plane_type.setOnClickListener(this)
         select_flight_type.setOnClickListener(this)
         tv_add_time.setOnClickListener(this)
+        btn_moto.setOnClickListener(this)
         iv_date.setOnClickListener(this)
         imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         edtDate?.setOnFocusChangeListener { _, hasFocus ->
@@ -216,24 +217,28 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
                 overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
             }
             R.id.iv_date -> {
-            addEditPresenter.correctingLogTime(time)
-            val cdp = CalendarDatePickerDialogFragment()
-                    .setOnDateSetListener(this@AddEditActivity)
-            cdp.show(supportFragmentManager, "fragment_date_picker_name")
-        }
+                addEditPresenter.correctingLogTime(time)
+                val cdp = CalendarDatePickerDialogFragment()
+                        .setOnDateSetListener(this@AddEditActivity)
+                cdp.show(supportFragmentManager, "fragment_date_picker_name")
+            }
+
             R.id.select_plane_type -> {
                 addEditPresenter.correctingLogTime(time)
                 launchActivity<PlaneTypesActivity>(CONSTS.REQUESTS.REQUEST_SELECT_PLANE_TYPE) {
                     putExtra("is_request", true)
-            }
+                }
                 overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
-        }
+            }
             R.id.select_flight_type -> {
-            addEditPresenter.correctingLogTime(time)
+                addEditPresenter.correctingLogTime(time)
                 launchActivity<FlightTypesActivity>(CONSTS.REQUESTS.REQUEST_SELECT_FLIGHT_TYPE) {
                     putExtra("is_request", true)
+                }
+                overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
             }
-            overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
+            R.id.btn_moto -> {
+                showMotoDialog()
             }
         }
     }
@@ -326,9 +331,6 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
                     }
                 })
             }
-            R.id.action_moto -> {
-                showMotoDialog()
-            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -383,6 +385,10 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
 
     override fun toastSuccess(msg: String?) {
         ToastMaker.toastSuccess(this,msg)
+    }
+
+    override fun setResultOK() {
+        putExtras(Activity.RESULT_OK)
     }
 
     override fun onPressBack() {

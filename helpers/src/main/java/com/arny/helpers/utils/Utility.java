@@ -2,6 +2,7 @@ package com.arny.helpers.utils;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -13,7 +14,6 @@ import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
-import com.arny.helpers.coroutins.CoroutinsUtilsKt;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -418,6 +418,31 @@ public class Utility {
         return builder.toString();
     }
 
+    public static void hideProgress(ProgressDialog pDialog) {
+        try {
+            if (pDialog != null) {
+                if (pDialog.isShowing()) {
+                    pDialog.dismiss();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void showProgress(ProgressDialog pDialog, String notif) {
+        try {
+            if (pDialog != null) {
+                pDialog.setMessage(notif);
+                if (!pDialog.isShowing()) {
+                    pDialog.show();
+                }
+            }
+        } catch (Exception e) {
+           e.printStackTrace();
+        }
+    }
+
     /**
      * Get all fields of a class.
      *
@@ -461,6 +486,20 @@ public class Utility {
 
     public static String dumpCursor(Cursor cursor) {
         return DatabaseUtils.dumpCursorToString(cursor);
+    }
+
+    public static String dumpBundle(@Nullable Bundle bundle) {
+        StringBuilder stringBuilder = new StringBuilder();
+        if (bundle != null) {
+            for (String key : bundle.keySet()) {
+                Object value = bundle.get(key);
+                if (value != null) {
+                    stringBuilder.append(String.format(" class(%s) %s->%s",value.getClass().getSimpleName(), key, value.toString()));
+                }
+            }
+            return stringBuilder.toString();
+        }
+        return null;
     }
 
     public static String dumpIntent(@Nullable Intent data) {

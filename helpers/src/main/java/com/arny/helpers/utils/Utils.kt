@@ -94,6 +94,24 @@ inline fun <reified T : Any> Activity.launchActivity(
     startActivityForResult(intent, requestCode, options)
 }
 
+fun Activity.launchIntent(
+        requestCode: Int = -1,
+        options: Bundle? = null,
+        init: Intent.() -> Unit = {}) {
+    val intent = newIntent()
+    intent.init()
+    startActivityForResult(intent, requestCode, options)
+}
+
+fun Activity.launchIntent(
+        options: Bundle? = null,
+        init: Intent.() -> Unit = {}) {
+    val intent = newIntent()
+    intent.init()
+    startActivity(intent, options)
+}
+
+
 inline fun <reified T : Any> Fragment.launchActivity(
         requestCode: Int = -1,
         options: Bundle? = null,
@@ -106,6 +124,41 @@ inline fun <reified T : Any> Fragment.launchActivity(
     }
 }
 
+
+inline fun <reified T : Any> Fragment.launchActivity(
+        options: Bundle? = null,
+        noinline init: Intent.() -> Unit = {}) {
+    val context = this.context
+    if (context != null) {
+        val intent = newIntent<T>(context)
+        intent.init()
+        startActivity(intent, options)
+    }
+}
+
+fun Fragment.launchIntent(
+        requestCode: Int = -1,
+        options: Bundle? = null,
+        init: Intent.() -> Unit = {}) {
+    val context = this.context
+    if (context != null) {
+        val intent = newIntent()
+        intent.init()
+        startActivityForResult(intent, requestCode, options)
+    }
+}
+
+fun Fragment.launchIntent(
+        options: Bundle? = null,
+        init: Intent.() -> Unit = {}) {
+    val context = this.context
+    if (context != null) {
+        val intent = newIntent()
+        intent.init()
+        startActivity(intent, options)
+    }
+}
+
 inline fun <reified T : Any> Context.launchActivity(
         options: Bundle? = null,
         noinline init: Intent.() -> Unit = {}) {
@@ -115,6 +168,7 @@ inline fun <reified T : Any> Context.launchActivity(
 }
 
 inline fun <reified T : Any> newIntent(context: Context): Intent = Intent(context, T::class.java)
+fun newIntent(): Intent = Intent()
 
 fun Fragment.putExtras(init: Bundle.() -> Unit = {}) {
     val args = Bundle()
@@ -328,15 +382,15 @@ fun AppCompatActivity.resetFragmentsInManager() {
     }
 }
 
-fun AppCompatActivity.replaceFragmentInActivity(fragment: Fragment, @IdRes frameId: Int) {
+fun AppCompatActivity.replaceFragmentInActivity(fragment: Fragment, @IdRes frameId: Int, tag: String? = null) {
     supportFragmentManager.transact {
-        replace(frameId, fragment)
+        replace(frameId, fragment, tag)
     }
 }
 
-fun AppCompatActivity.addFragmentToActivity(fragment: Fragment, tag: String) {
+fun AppCompatActivity.addFragmentToActivity(fragment: Fragment,@IdRes frameId: Int, tag: String?) {
     supportFragmentManager.transact {
-        add(fragment, tag)
+        add(frameId,fragment, tag)
     }
 }
 
@@ -379,7 +433,7 @@ fun AppCompatActivity.getFragmentInContainer(@IdRes containerId: Int): Fragment?
     return supportFragmentManager.findFragmentById(containerId)
 }
 
-fun AppCompatActivity.getFragmentByTag(tag: String): Fragment? {
+fun AppCompatActivity.getFragmentByTag(tag: String?): Fragment? {
     return supportFragmentManager.findFragmentByTag(tag)
 }
 
@@ -408,6 +462,18 @@ fun View.showSnackBar(message: String, actionText: String, duration: Int? = null
         snackBar.setActionTextColor(actionColor)
     }
     snackBar.show()
+}
+
+fun Bundle?.dump(): String? {
+    return Utility.dumpBundle(this)
+}
+
+fun Intent?.dump(): String? {
+    return Utility.dumpIntent(this)
+}
+
+fun Cursor?.dump(): String? {
+    return Utility.dumpCursor(this)
 }
 
 fun dumpCursorColumns(cur: Cursor): String {
@@ -524,7 +590,8 @@ fun checkContextTheme(context: Context): Boolean {
 
 
 @JvmOverloads
-fun alertDialog(context: Context, title: String, content: String? = null, btnOkText: String? = "OK", btnCancelText: String? = null, cancelable: Boolean = false, onConfirm: () -> Unit? = {}, onCancel: () -> Unit? = {}, alert: Boolean = true, autoDissmiss: Boolean = true, btnNeutralText: String? = null, onNeutral: () -> Unit? = {}): MaterialDialog? {
+fun alertDialog(context: Context?, title: String, content: String? = null, btnOkText: String? = "OK", btnCancelText: String? = null, cancelable: Boolean = false, onConfirm: () -> Unit? = {}, onCancel: () -> Unit? = {}, alert: Boolean = true, autoDissmiss: Boolean = true, btnNeutralText: String? = null, onNeutral: () -> Unit? = {}): MaterialDialog? {
+    if (context == null) return null
     if (!checkContextTheme(context)) return null
     val builder = MaterialDialog.Builder(context)
     builder.title(title)

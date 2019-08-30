@@ -38,7 +38,7 @@ class FlightTimesAdapter(private val flightTimeListener: FlightTimesClickListene
         val position = viewHolder.adapterPosition
         viewHolder.itemView.apply {
             iv_time_inflight.setVisible(item.addToFlightTime)
-            tv_title.text = item.timeTypeEntity?.title
+            tv_title.text = item.timeType?.title
             tv_time.text = DateTimeUtils.strLogTime(item.time)
             iv_time_delete.setOnClickListener {
                 flightTimeListener?.onDeleteFlightTime(position, item)

@@ -6,8 +6,8 @@ import com.arny.data.db.intities.TimeToFlightEntity
 data class TimeToFlight(
         var _id: Long? = null,
         var flight: Long? = null,
-        var timeType: Long? = null,
-        var timeTypeEntity: TimeType? = null,
+        var timeTypeId: Long? = null,
+        var timeType: TimeType? = null,
         var time: Int = 0,//minutes
         var addToFlightTime: Boolean = false) {
 
@@ -16,7 +16,7 @@ data class TimeToFlight(
         if (javaClass != other?.javaClass) return false
         other as TimeToFlight
         if (flight != other.flight) return false
-        if (timeType != other.timeType) return false
+        if (timeTypeId != other.timeTypeId) return false
         if (time != other.time) return false
         if (addToFlightTime != other.addToFlightTime) return false
 
@@ -25,7 +25,7 @@ data class TimeToFlight(
 
     override fun hashCode(): Int {
         var result = flight?.hashCode() ?: 0
-        result = 31 * result + (timeType?.hashCode() ?: 0)
+        result = 31 * result + (timeTypeId?.hashCode() ?: 0)
         result = 31 * result + time.hashCode()
         result = 31 * result + addToFlightTime.hashCode()
         return result
@@ -36,8 +36,8 @@ fun TimeToFlight?.toTimeEntity(): TimeToFlightEntity {
     val flightEntity = TimeToFlightEntity()
     flightEntity.flight = this?.flight
     flightEntity.time = this?.time?: 0
-    flightEntity.timeType = this?.timeType
-    flightEntity.timeTypeEntity = this?.timeTypeEntity.toTimeTypeEntity()
+    flightEntity.timeType = this?.timeTypeId
+    flightEntity.timeTypeEntity = this?.timeType.toTimeTypeEntity()
     flightEntity.addToFlightTime = this?.addToFlightTime == true
     return flightEntity
 }

@@ -21,4 +21,5 @@
     <string name="filter_stat_by">Фильтровать по:</string>
     <string name="no_statistic_data">Нет данных статистики</string>
     <string name="filtering">Фильтрация</string>
+    <string name="flight_title">Название полета\\Аэропорты</string>
 </resources>

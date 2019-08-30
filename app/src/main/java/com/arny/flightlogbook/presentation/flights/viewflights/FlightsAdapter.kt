@@ -6,13 +6,9 @@ import com.arny.flightlogbook.R
 import com.arny.helpers.utils.DateTimeUtils
 import kotlinx.android.synthetic.main.flight_list_item.view.*
 
-class FlightsAdapter(private val flightsAdapterListener: FlightsAdapterListener? = null) : SimpleAbstractAdapter<Flight>() {
+class FlightsAdapter : SimpleAbstractAdapter<Flight>() {
     override fun getLayout(viewType: Int): Int {
         return R.layout.flight_list_item
-    }
-
-    interface FlightsAdapterListener {
-        fun onEditDelete(position: Int, item: Flight)
     }
 
     override fun bindView(item: Flight, viewHolder: VH) {
@@ -26,6 +22,7 @@ class FlightsAdapter(private val flightsAdapterListener: FlightsAdapterListener?
             val strFlightTime = DateTimeUtils.strLogTime(item.sumFlightTime ?: 0)
             tv_log_time_flight.text = strFlightTime
             tv_log_time_flight_total.text = strLogTime
+            tv_flight_type.text = item.flightType?.typeTitle
             tv_plane_reg_no.text = item.reg_no
             tv_plane_type.text = item.airplanetypetitle
             setOnClickListener {

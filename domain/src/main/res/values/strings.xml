@@ -38,8 +38,8 @@
     <string name="str_total_time">Общее время:</string>
     <string name="str_total_item_flight_time">Летное время:</string>
     <string name="total_records">Всего записей:</string>
-    <string name="str_add_flight">Добавить полет</string>
-    <string name="str_edt_flight">Редактировать полет</string>
+    <string name="str_add_flight">Добавить</string>
+    <string name="str_edt_flight">Редактировать</string>
     <string name="str_delete">Удалить</string>
     <string name="str_clearall">Очистить все?</string>
     <string name="str_ok">OK</string>
@@ -181,5 +181,11 @@
     <string name="date_time_input_error">Ошибка ввода даты</string>
     <string name="empty_flight">Данные полета не найдены</string>
     <string name="str_total_flight_time">Общее летное время:</string>
+    <string name="saving">Сохранение...</string>
+    <string name="loading_file">Загрузка файла</string>
+    <string name="importing_file">Импорт файла</string>
+    <string name="flight_type_circle">Круги</string>
+    <string name="flight_type_zone">Зона</string>
+    <string name="flight_type_route">Маршрут</string>
 
 </resources>

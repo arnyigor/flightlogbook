@@ -68,12 +68,12 @@ public class DateTimeUtils {
             boolean matches = Pattern.matches(entry.getKey(), myTimestamp);
             if (matches) {
                 String value = entry.getValue();
-                System.out.println("dateFormatChooser myTimestamp:" + myTimestamp + ": format:" + value);
+//                System.out.println("dateFormatChooser myTimestamp:" + myTimestamp + ": format:" + value);
 //				Log.d(DateTimeUtils.class.getSimpleName(), "dateFormatChooser myTimestamp:" + myTimestamp + ": format:" + value);
                 return value;
             }
         }
-        System.out.println("dateFormatChooser myTimestamp:" + myTimestamp + ": format:" + format);
+//        System.out.println("dateFormatChooser myTimestamp:" + myTimestamp + ": format:" + format);
 //		Log.d(DateTimeUtils.class.getSimpleName(), "dateFormatChooser myTimestamp:" + myTimestamp + ": format:" + format);
         return format;
     }
@@ -549,13 +549,13 @@ public class DateTimeUtils {
     }
 
     public static int convertStringToTime(String time) {
-        int hours = 0;
+     int hours = 0;
         int mins = 0;
         String delimeter = (time.contains(TIME_SEPARATOR_TWICE_DOT)) ? TIME_SEPARATOR_TWICE_DOT : TIME_SEPARATOR_DOT;
         int posDelim = time.indexOf(delimeter);
         try {
             hours = Integer.parseInt(time.substring(0, posDelim));
-            mins = Integer.parseInt(time.substring(posDelim + 1, time.length()));
+            mins = Integer.parseInt(time.substring(posDelim + 1));
         } catch (Exception e) {
             e.printStackTrace();
         }

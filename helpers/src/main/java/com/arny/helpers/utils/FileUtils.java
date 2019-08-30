@@ -1220,7 +1220,9 @@ public class FileUtils {
     public static Uri getFileUri(Context context, File file) {
         Uri uri;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", file);
+            String authority = context.getApplicationContext().getPackageName() + ".provider";
+            System.out.println("authority:" + authority + " file:" + file);
+            uri = FileProvider.getUriForFile(context, authority, file);
         } else {
             uri = Uri.fromFile(file);
         }

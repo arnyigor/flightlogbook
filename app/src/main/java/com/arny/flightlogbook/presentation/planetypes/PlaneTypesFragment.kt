@@ -42,6 +42,11 @@ class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickL
         }
     }
 
+    override fun onDetach() {
+        super.onDetach()
+        fragmentResultListener = null
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)

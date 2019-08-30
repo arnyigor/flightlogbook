@@ -9,21 +9,21 @@ import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
 import com.arny.constants.CONSTS
 import com.arny.data.remote.dropbox.DropboxClientFactory
+import com.arny.data.repositories.MainRepositoryImpl
 import com.arny.domain.R
 import com.arny.domain.common.PrefsUseCase
-import com.arny.domain.flights.FlightsUseCase
-import com.arny.domain.models.Flight
-import com.arny.helpers.utils.*
+import com.arny.domain.models.*
+import com.arny.helpers.utils.BasePermissions
+import com.arny.helpers.utils.DateTimeUtils
+import com.arny.helpers.utils.FileUtils
+import com.arny.helpers.utils.Utility
 import com.dropbox.core.DbxException
 import com.dropbox.core.v2.DbxClientV2
 import com.dropbox.core.v2.files.FileMetadata
 import com.dropbox.core.v2.files.WriteMode
-import io.reactivex.disposables.CompositeDisposable
 import org.apache.poi.hssf.usermodel.HSSFCell
-import org.apache.poi.hssf.usermodel.HSSFCellStyle
 import org.apache.poi.hssf.usermodel.HSSFRow
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
-import org.apache.poi.hssf.util.HSSFColor
 import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.Row
 import java.io.File
@@ -40,10 +40,9 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
     private var remoteMetadata: FileMetadata? = null
     private var hashMap: HashMap<String, String>? = null
     private var startId: Int = 0
-    private val compositeDisposable = CompositeDisposable()
 
     @Inject
-    lateinit var flightsUseCase: FlightsUseCase
+    lateinit var repository: MainRepositoryImpl
     @Inject
     lateinit var prefsUseCase: PrefsUseCase
 
@@ -92,7 +91,6 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
 
     private fun onServiceDestroy() {
         mIsStopped = true
-        compositeDisposable.clear()
         sendBroadcastIntent(resultNotif)
         stopSelf(startId)
         super.onDestroy()
@@ -205,9 +203,8 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
 
         //Cell style for header row
         val cs = wb.createCellStyle()
-        cs.fillForegroundColor = HSSFColor.LIME.index
-        cs.fillPattern = HSSFCellStyle.SOLID_FOREGROUND
-
+//        cs.fillForegroundColor = HSSFColor.LIME
+//        cs.fillPattern = HSSFCellStyle.SOLID_FOREGROUND
         var c: Cell
         //New Sheet
         val sheet_main = wb.createSheet(LOG_SHEET_MAIN)
@@ -229,30 +226,41 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
         c.setCellValue(getString(R.string.str_flight_type))
         c = row.createCell(7)
         c.setCellValue(getString(R.string.str_desc))
-
-        val exportData = flightsUseCase.loadDBFlights()
+        val exportData = repository.getDbFlights()
+                .map { it.toFlight() }
+                .map { flight ->
+                    val planeType = repository.loadPlaneType(flight.planeId)
+                    flight.planeType = planeType?.toPlaneType()
+                    flight.airplanetypetitle = planeType?.typeName
+                    flight.times= repository.queryDBFlightTimes(flight.id).map { it.toTimeFlight() }
+                    flight.flightType= repository.loadDBFlightType(flight.flightTypeId?.toLong())?.toFlightType()
+                    flight.sumlogTime = (flight.logtime?:0) + (flight.times?.sumBy { it.time }?:0)
+                    flight.sumFlightTime = (flight.logtime?:0) + (flight.times?.filter { it.addToFlightTime }?.sumBy { it.time }?:0)
+                    flight.sumGroundTime = (flight.times?.filter { !it.addToFlightTime }?.sumBy { it.time }?:0)
+                    flight
+                }
         var rows = 1
-        for (export in exportData) {
-            val airplane_type_id = export.planeId!!
-            val planeType =  flightsUseCase.loadPlaneType(airplane_type_id)
+        for (flight in exportData) {
+            val airplane_type_id = flight.planeId!!
+            val planeType =  flight.planeType
             val airplane_type = if (planeType != null) planeType.typeName else ""
             row = sheet_main.createRow(rows)
             c = row.createCell(0)
-            c.setCellValue(DateTimeUtils.getDateTime(export.datetime!!, "dd MMM yyyy"))
+            c.setCellValue(DateTimeUtils.getDateTime(flight.datetime!!, "dd MMM yyyy"))
             c = row.createCell(1)
-            c.setCellValue(DateTimeUtils.strLogTime(export.logtime!!))
+            c.setCellValue(DateTimeUtils.strLogTime(flight.logtime!!))
             c = row.createCell(2)
             c.setCellValue(airplane_type)
             c = row.createCell(3)
-            c.setCellValue(export.reg_no)
+            c.setCellValue(flight.reg_no)
             c = row.createCell(4)
-            c.setCellValue(export.daynight!!.toDouble())
+            c.setCellValue(flight.daynight!!.toDouble())
             c = row.createCell(5)
-            c.setCellValue(export.ifrvfr!!.toDouble())
+            c.setCellValue(flight.ifrvfr!!.toDouble())
             c = row.createCell(6)
-            c.setCellValue(export.flightTypeId!!.toDouble())
+            c.setCellValue(flight.flightTypeId!!.toDouble())
             c = row.createCell(7)
-            c.setCellValue(export.description)
+            c.setCellValue(flight.description)
             rows++
         }
 
@@ -290,11 +298,14 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
     }
 
     private fun readExcelFile(context: Context, filename: String?, fromSystem: Boolean) {
+        Log.i(BackgroundIntentService::class.java.simpleName, "readExcelFile: $filename");
         val hasType = false
         val checked = false
         val myWorkBook: HSSFWorkbook
         val xlsfile: File
-        if (!FileUtils.isExternalStorageAvailable() || FileUtils.isExternalStorageReadOnly()) {
+        val notAccess = !FileUtils.isExternalStorageAvailable() || FileUtils.isExternalStorageReadOnly()
+        Log.i(BackgroundIntentService::class.java.simpleName, "readExcelFile: $notAccess");
+        if (notAccess) {
             return
         }
         try {
@@ -311,20 +322,13 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
                 mIsSuccess = false
                 return
             }
-
             // Get the first sheet from workbook
             val mySheet = myWorkBook.getSheetAt(0)
             /** We now need something to iterate through the cells. */
-            flightsUseCase.removeAllFlights()
             val rowIter = mySheet.rowIterator()
-            val flightsFromExel = getFlightsFromExcel(context, rowIter)
-            fromCallable { flightsUseCase.removeAllFlightsObs() }
-                    .flatMap { aBoolean -> flightsUseCase.insertFlights(flightsFromExel) }
-                    .subscribe({ aBoolean ->
-                        Log.i(BackgroundIntentService::class.java.simpleName, "readExcelFile: $aBoolean");
-                    }, { throwable ->
-                        throwable.printStackTrace()
-                    }).addTo(compositeDisposable)
+            val flightsFromExel = getFlightsFromExcel(rowIter)
+            repository.removeAllFlights()
+            repository.insertFlights(flightsFromExel.map { it.toFlightEntity() })
             mIsSuccess = true
         } catch (e: Exception) {
             e.printStackTrace()
@@ -334,7 +338,7 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
 
     }//readFile
 
-    private fun getFlightsFromExcel(context: Context, rowIter: Iterator<*>): ArrayList<Flight> {
+    private fun getFlightsFromExcel(rowIter: Iterator<*>): ArrayList<Flight> {
         val flights = ArrayList<Flight>()
         var rowCnt = 0
         var strDate: String? = null
@@ -356,7 +360,6 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
             while (cellIter.hasNext()) {
                 val myCell = cellIter.next() as HSSFCell
                 Log.d(BackgroundIntentService::class.java.simpleName, "Cell: $cellCnt")
-
                 Log.d(BackgroundIntentService::class.java.simpleName, "Cell Value: $myCell")
                 if (rowCnt > 0) {
                     when (cellCnt) {
@@ -387,12 +390,12 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
                         2 -> {
                             try {
                                 airplane_type = myCell.toString()
-                                val planeType = flightsUseCase.loadPlaneType(airplane_type)
+                                val planeType = repository.loadPlaneType(airplane_type)
                                 if (planeType != null) {
                                     airplane_type_id = planeType.typeId
                                 } else {
                                     if (!Utility.empty(airplane_type)) {
-                                        airplane_type_id = flightsUseCase.addPlaneTypeAndGet(airplane_type)
+                                        airplane_type_id = repository.addTypeAndGet(airplane_type)
                                     }
                                 }
                             } catch (e: Exception) {
@@ -523,7 +526,7 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
                 mIsSuccess = false
             }
 
-            val autoimport = prefsUseCase!!.isAutoImportEnabled()
+            val autoimport = prefsUseCase.isAutoImportEnabled()
             if (autoimport) {
                 readExcelFile(applicationContext,CONSTS.FILES.EXEL_FILE_NAME, true)
             }

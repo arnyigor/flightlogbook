@@ -11,9 +11,4 @@
         android:title="@string/remove"
         app:showAsAction="ifRoom" />
 
-    <item
-        android:id="@+id/action_moto"
-        android:title="@string/str_moto"
-        app:showAsAction="never" />
-
 </menu>

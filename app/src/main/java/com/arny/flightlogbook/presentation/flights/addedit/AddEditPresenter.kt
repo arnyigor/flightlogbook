@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 
 @InjectViewState
-class AddEditPresenter : MvpPresenter<AddEditView>() {
+class AddEditPresenter : MvpPresenter<AddEditView>(),CompositeDisposableComponent {
     @Inject
     lateinit var flightsUseCase: FlightsUseCase
     @Inject
@@ -39,7 +39,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
     private var mMotoStart: Float = 0.toFloat()
     private var mMotoFinish: Float = 0.toFloat()
     private var mMotoResult: Float = 0.toFloat()
-    private val compositeDisposable = CompositeDisposable()
+    override val compositeDisposable = CompositeDisposable()
 
     init {
         FlightApp.appComponent.inject(this)
@@ -47,13 +47,14 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
 
     override fun detachView(view: AddEditView?) {
         super.detachView(view)
-        compositeDisposable.clear()
+        resetCompositeDisposable()
     }
 
     private fun initUI(flight: Flight) {
         viewState?.setDescription(flight.description ?: "")
         viewState?.setRegNo(flight.reg_no)
         viewState?.setToolbarTitle(commonUseCase.getString(R.string.str_edt_flight))
+        viewState?.toastError("ГЛОБАЛЬНАЯ ПЕРЕДЕЛКА СТУКТУРЫ ДАННЫХ")
         loadDateTime(flight)
         loadFlightTimes()
         loadFlightType()
@@ -71,47 +72,33 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
         val flighttype = flight?.flightTypeId
         if (flighttype != null) {
             flightsUseCase.loadFlightType(flighttype.toLong())
-                    .observeOnMain()
-                    .subscribe({
+                    .observeSubscribeAdd({
                         val flightType = it.value
                         if (flightType != null) {
                             val title = "${commonUseCase.getString(R.string.str_flight_type_title)}${flightType.typeTitle}"
                             viewState?.setFligtTypeTitle(title)
                         }
-                    },{
-                        it.printStackTrace()
                     })
-                    .addTo(compositeDisposable)
         }
     }
 
     private fun loadDateTime(flight: Flight) {
         fromCallable { DateTimeUtils.getDateTime(flight.datetime ?: 0, "dd.MM.yyyy") }
-                .observeOnMain()
-                .subscribe({date->
-                    viewState?.setDate(date)
-                },{
-                    it.printStackTrace()
-                })
-                .addTo(compositeDisposable)
+                .observeSubscribeAdd({ viewState?.setDate(it) })
     }
 
     private fun loadFlightTimes() {
         logTime = flight?.logtime ?: 0
         flightsUseCase.loadDBFlightToTimes(id)
                 .zipWith(fromCallable { DateTimeUtils.strLogTime(logTime) })
-                .observeOnMain()
-                .subscribe({ pair->
+                .observeSubscribeAdd({ pair ->
                     flight?.times = pair.first
                     viewState?.setLogTime(pair.second)
                     if (!flight?.times.isNullOrEmpty()) {
                         viewState?.updateFlightTimesAdapter(flight?.times!!)
                     }
                     viewState?.timeSummChange()
-                }, {
-                    it.printStackTrace()
                 })
-                .addTo(compositeDisposable)
     }
 
     fun correctingLogTime(stringTime: String) {
@@ -124,20 +111,19 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
 
     private fun loadFlight(id: Long?) {
         flightsUseCase.getFlight(id ?: 0)
-                .observeOnMain()
-                .subscribe({ nulable ->
-                    this.flight = nulable.value
+                .observeSubscribeAdd({
+                    this.flight = it.value
                     if (flight != null) {
                         initUI(flight!!)
                     } else {
                         viewState?.toastError(commonUseCase.getString(R.string.record_not_found))
                         initEmptyUI()
                     }
-                }) {
+                }, {
                     it.printStackTrace()
                     initEmptyUI()
                     viewState?.toastError(commonUseCase.getString(R.string.record_not_found) + ":" + it.message)
-                }.addTo(compositeDisposable)
+                })
     }
 
     private fun initEmptyUI() {
@@ -310,6 +296,9 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
             logTime = time
             viewState?.setEdtTimeText(timeText)
             viewState?.timeSummChange()
+            if (mDateTime == 0L) {
+                mDateTime = System.currentTimeMillis()
+            }
             flight?.datetime = mDateTime
             flight?.logtime = logTime
             flight?.sumlogTime = sumlogTime
@@ -323,6 +312,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
                             .subscribe({
                                 if (it) {
                                     viewState?.toastSuccess(commonUseCase.getString(R.string.flight_save_success))
+                                    viewState?.setResultOK()
                                     viewState?.onPressBack()
                                 } else {
                                     viewState?.toastError(commonUseCase.getString(R.string.flight_not_save))
@@ -338,6 +328,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>() {
                             .subscribe({
                                 if (it) {
                                     viewState?.toastSuccess(commonUseCase.getString(R.string.flight_save_success))
+                                    viewState?.setResultOK()
                                     viewState?.onPressBack()
                                 } else {
                                     viewState?.toastError(commonUseCase.getString(R.string.flight_not_save))

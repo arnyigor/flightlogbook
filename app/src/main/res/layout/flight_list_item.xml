@@ -32,6 +32,15 @@
 			app:layout_constraintVertical_chainStyle="packed"
 			tools:text="22.05.2012" />
 
+		<ImageView
+			android:id="@+id/iv_total_time"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			app:layout_constraintBottom_toBottomOf="@+id/tv_log_time_flight_total"
+			app:layout_constraintEnd_toStartOf="@+id/tv_log_time_flight_total"
+			app:layout_constraintTop_toTopOf="@+id/tv_log_time_flight_total"
+			app:srcCompat="@drawable/ic_totals" />
+
 		<TextView
 			android:id="@+id/tv_log_time_flight"
 			android:layout_width="wrap_content"
@@ -40,8 +49,6 @@
 			android:layout_marginTop="8dp"
 			android:layout_marginEnd="8dp"
 			android:layout_marginRight="8dp"
-			android:drawableStart="@drawable/ic_plane"
-			android:drawableLeft="@drawable/ic_plane"
 			android:layout_toEndOf="@+id/tv_date"
 			android:layout_toRightOf="@+id/tv_date"
 			android:gravity="center_horizontal"
@@ -53,6 +60,15 @@
 			app:layout_constraintTop_toTopOf="parent"
 			tools:text="@string/str_logtime" />
 
+		<ImageView
+			android:id="@+id/iv_flight_time"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			app:layout_constraintBottom_toBottomOf="@+id/tv_log_time_flight"
+			app:layout_constraintEnd_toStartOf="@+id/tv_log_time_flight"
+			app:layout_constraintTop_toTopOf="@+id/tv_log_time_flight"
+			app:srcCompat="@drawable/ic_plane" />
+
 		<TextView
 			android:id="@+id/tv_log_time_flight_total"
 			android:layout_width="wrap_content"
@@ -60,8 +76,6 @@
 			android:layout_centerVertical="true"
 			android:layout_marginTop="8dp"
 			android:layout_marginEnd="8dp"
-			android:drawableStart="@drawable/ic_totals"
-			android:drawableLeft="@drawable/ic_totals"
 			android:layout_marginRight="8dp"
 			android:layout_toEndOf="@+id/tv_date"
 			android:layout_toRightOf="@+id/tv_date"
@@ -98,6 +112,18 @@
 			app:layout_constraintStart_toEndOf="@+id/tv_plane_type"
 			app:layout_constraintTop_toTopOf="@+id/tv_plane_type"
 			tools:text="Airbus A321" />
+
+		<TextView
+			android:id="@+id/tv_flight_type"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="8dp"
+			android:layout_marginLeft="8dp"
+			android:textSize="@dimen/font_size"
+			app:layout_constraintBottom_toBottomOf="@+id/tv_date"
+			app:layout_constraintStart_toEndOf="@+id/tv_date"
+			app:layout_constraintTop_toTopOf="@+id/tv_date"
+			tools:text="Тип полета" />
 
 	</android.support.constraint.ConstraintLayout>
 

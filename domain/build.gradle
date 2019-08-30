@@ -10,7 +10,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -26,10 +26,26 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
         sourceCompatibility JavaVersion.VERSION_1_8
     }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+            returnDefaultValues = true
+        }
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    /*tests*/
+    implementation deps.test.junit
+    androidTestImplementation deps.test.runner
+    androidTestImplementation deps.test.rules
+    implementation deps.test.assertjCore
+    androidTestImplementation deps.test.assertjAndroid
+    androidTestImplementation deps.test.assertjSupport
+    implementation deps.test.mockitoCore
+    androidTestImplementation deps.test.mockitoAndroid
     //di
     implementation deps.google.dagger
     kapt deps.google.daggerCompiler

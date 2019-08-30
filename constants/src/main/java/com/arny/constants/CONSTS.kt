@@ -38,10 +38,12 @@ object CONSTS {
 
     object REQUESTS {
         const val REQUEST_EXTERNAL_STORAGE_XLS = 100
-        const val REQUEST_DBX_EXTERNAL_STORAGE = 101
-        const val REQUEST_ADD_TIME = 102
-        const val REQUEST_SELECT_PLANE_TYPE = 103
-        const val REQUEST_SELECT_FLIGHT_TYPE = 104
+        const val REQUEST_OPEN_FILE = 101
+        const val REQUEST_DBX_EXTERNAL_STORAGE = 102
+        const val REQUEST_ADD_EDIT_FLIGHT = 103
+        const val REQUEST_ADD_TIME = 104
+        const val REQUEST_SELECT_PLANE_TYPE = 105
+        const val REQUEST_SELECT_FLIGHT_TYPE = 106
     }
 
     object EXTRAS {

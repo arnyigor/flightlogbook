@@ -4,8 +4,8 @@ import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
 import com.arny.domain.common.CommonUseCase
 import com.arny.domain.flights.FlightsUseCase
-import com.arny.domain.models.Flight
 import com.arny.flightlogbook.FlightApp
+import com.arny.helpers.utils.CompositeDisposableComponent
 import com.arny.helpers.utils.addTo
 import com.arny.helpers.utils.observeOnMain
 import io.reactivex.disposables.CompositeDisposable
@@ -13,8 +13,8 @@ import javax.inject.Inject
 
 
 @InjectViewState
-class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>() {
-    private val compositeDisposable = CompositeDisposable()
+class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>(),CompositeDisposableComponent {
+    override val compositeDisposable = CompositeDisposable()
     @Inject
     lateinit var flightsUseCase: FlightsUseCase
     @Inject
@@ -26,7 +26,7 @@ class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>() {
 
     override fun detachView(view: ViewFlightsView?) {
         super.detachView(view)
-        compositeDisposable.clear()
+        resetCompositeDisposable()
     }
 
      private fun getTotalsInfo(){
@@ -41,15 +41,16 @@ class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>() {
     }
 
     fun loadFlights() {
+        viewState?.viewLoadProgress(true)
         flightsUseCase.getFilterflightsObs()
-                .observeOnMain()
-                .subscribe({
+                .observeSubscribeAdd({
                     viewState?.updateAdapter(it)
                     viewState?.showEmptyView(it.isEmpty())
+                    viewState?.viewLoadProgress(false)
                 }, {
+                    viewState?.viewLoadProgress(false)
                     viewState?.toastError(it.message)
                 })
-                .addTo(compositeDisposable)
     }
 
     /* fun removeAllFlightsObs() {
@@ -66,7 +67,7 @@ class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>() {
                  }).addTo(compositeDisposable)
      }*/
 
-    fun removeItem(item: Flight?) {
+    /*fun removeItem(item: Flight?) {
         flightsUseCase.removeFlight(item?.id)
                 .observeOnMain()
                 .subscribe({
@@ -74,7 +75,7 @@ class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>() {
                 }, {
                     viewState?.toastError(it.message)
                 }).addTo(compositeDisposable)
-    }
+    }*/
 
     fun changeOrder(orderType: Int) {
         flightsUseCase.setFlightsOrder(orderType)

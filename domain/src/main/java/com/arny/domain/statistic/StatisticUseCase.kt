@@ -23,7 +23,7 @@ class StatisticUseCase @Inject constructor(private val repository: MainRepositor
         val toObservable = filghtList
                 .flatMapIterable { it }
                 .filter { flight ->
-                    val map = flight.times?.map { it.timeType }
+                    val map = flight.times?.map { it.timeTypeId }
                     map?.any { sel-> filterSelection.contains(sel) }==true
                 }
                 .toList()
@@ -71,7 +71,9 @@ class StatisticUseCase @Inject constructor(private val repository: MainRepositor
                 .map { list ->
                     list.map { it.toFlight() }
                             .map { flight ->
-                                flight.airplanetypetitle = repository.loadPlaneType(flight.planeId)?.typeName
+                                val planeType = repository.loadPlaneType(flight.planeId)
+                                flight.planeType = planeType?.toPlaneType()
+                                flight.airplanetypetitle = planeType?.typeName
                                 flight.times = repository.queryDBFlightTimes(flight.id).map {
                                     it.timeTypeEntity = it.timeType?.let { it1 -> repository.queryDBTimeType(it1) }
                                     it.toTimeFlight()
@@ -128,7 +130,7 @@ class StatisticUseCase @Inject constructor(private val repository: MainRepositor
                     val timesBuilder = StringBuilder()
                     for (timeIndexed in flTimes.withIndex()) {
                         val time = timeIndexed.value
-                        timesBuilder.append("${time.timeTypeEntity?.title}:").append(DateTimeUtils.strLogTime(time.time)).append(";")
+                        timesBuilder.append("${time.timeType?.title}:").append(DateTimeUtils.strLogTime(time.time)).append(";")
                     }
                     builder.append(timesBuilder.toString()).append("<br>")
                 }
@@ -141,7 +143,7 @@ class StatisticUseCase @Inject constructor(private val repository: MainRepositor
                     val grBuilder = StringBuilder()
                     for (timeIndexed in ground.withIndex()) {
                         val time = timeIndexed.value
-                        grBuilder.append("${time.timeTypeEntity?.title}:").append(DateTimeUtils.strLogTime(time.time)).append(";")
+                        grBuilder.append("${time.timeType?.title}:").append(DateTimeUtils.strLogTime(time.time)).append(";")
                     }
                     builder.append(grBuilder.toString()).append("<br>")
                 }

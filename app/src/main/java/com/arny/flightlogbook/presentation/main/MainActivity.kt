@@ -13,24 +13,20 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import android.support.v4.app.Fragment
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.util.Log
-import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import com.arny.constants.CONSTS
 import com.arny.domain.service.BackgroundIntentService
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.presentation.about.AboutActivity
-import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
 import com.arny.flightlogbook.presentation.flights.viewflights.FlightListFragment
 import com.arny.flightlogbook.presentation.flighttypes.FlightTypesFragment
 import com.arny.flightlogbook.presentation.planetypes.PlaneTypesFragment
-import com.arny.flightlogbook.presentation.settings.Preferences
+import com.arny.flightlogbook.presentation.settings.SettingsFragment
 import com.arny.flightlogbook.presentation.statistic.StatisticFragment
 import com.arny.flightlogbook.presentation.sync.DropboxSyncFragment
 import com.arny.flightlogbook.presentation.timetypes.TimeTypesFragment
@@ -58,6 +54,19 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
     private var pDialog: ProgressDialog? = null
     private val disposable = CompositeDisposable()
     private var rxPermissions: RxPermissions? = null
+    private val SAVE_FILE_RESULT_CODE = 111
+    private val PICKFILE_RESULT_CODE = 1
+    private val MENU_FLIGHTS = 0
+    private val MENU_PLANE_TYPES = 1
+    private val MENU_FLIGHT_TYPES = 2
+    private val MENU_TIME_TYPES = 3
+    private val MENU_STATS = 4
+    private val MENU_DROPBOX_SYNC = 5
+    private val MENU_SETTINGS = 6
+    private val DRAWER_SELECTION = "drawer_selection"
+    private val TIME_DELAY = 2000
+    private var back_pressed: Long = 0
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,7 +92,8 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
                         PrimaryDrawerItem().withIdentifier(MENU_FLIGHT_TYPES.toLong()).withName(R.string.fragment_flight_types).withIcon(GoogleMaterial.Icon.gmd_flight),
                         PrimaryDrawerItem().withIdentifier(MENU_TIME_TYPES.toLong()).withName(R.string.fragment_time_types).withIcon(GoogleMaterial.Icon.gmd_access_time),
                         PrimaryDrawerItem().withIdentifier(MENU_STATS.toLong()).withName(R.string.fragment_stats).withIcon(GoogleMaterial.Icon.gmd_equalizer),
-                        PrimaryDrawerItem().withIdentifier(MENU_DROPBOX_SYNC.toLong()).withName(R.string.fragment_dropbox_sync).withIcon(R.drawable.ic_dropbox_sync)
+//                        PrimaryDrawerItem().withIdentifier(MENU_DROPBOX_SYNC.toLong()).withName(R.string.fragment_dropbox_sync).withIcon(R.drawable.ic_dropbox_sync),
+                        PrimaryDrawerItem().withIdentifier(MENU_SETTINGS.toLong()).withName(R.string.str_settings).withIcon(GoogleMaterial.Icon.gmd_settings_applications)
                 )
                 .withOnDrawerItemClickListener { _, _, drawerItem ->
                     selectItem(drawerItem.identifier.toInt())
@@ -98,7 +108,6 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-
         }
     }
 
@@ -113,25 +122,17 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
         super.onSaveInstanceState(state)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.main_menu, menu)
-        return true
-    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            android.R.id.home -> {
-                onBackPressed()
-                return true
-            }
-            R.id.action_about -> {
-                val intent = Intent(context, AboutActivity::class.java)
-                startActivity(intent)
-            }
-            R.id.action_settings -> {
-                val intentSettings = Intent(context, Preferences::class.java)
-                startActivity(intentSettings)
-            }
+            /* R.id.action_about -> {
+                 val intent = Intent(context, AboutActivity::class.java)
+                 startActivity(intent)
+             }
+             R.id.action_settings -> {
+                 val intentSettings = Intent(context, Preferences::class.java)
+                 startActivity(intentSettings)
+             }*/
             R.id.action_import_excel -> rxPermissions!!.request(android.Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     .subscribe({ permissionGranded ->
                         if (permissionGranded!!) {
@@ -153,11 +154,11 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
                         }
                     }, { throwable -> ToastMaker.toastError(this, getString(R.string.str_error_import) + ":" + throwable.message) }
                     )
-            R.id.action_type_edit -> {
+            /*R.id.action_type_edit -> {
                 val i = Intent(this, FragmentContainerActivity::class.java)
                 i.putExtra("fragment_tag", "type_list")
                 startActivity(i)
-            }
+            }*/
             R.id.action_import_from_file -> rxPermissions!!.request( Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     .subscribe({ permissionGranded ->
                         if (permissionGranded!!) {
@@ -170,36 +171,52 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
     }
 
     private fun selectItem(position: Int) {
-        var fragment: Fragment? = null
-        when (position) {
-            MENU_FLIGHTS -> {
-                fragment = FlightListFragment.getInstance()
-                toolbar!!.title = getString(R.string.fragment_logbook)
-            }
-            MENU_PLANE_TYPES -> {
-                fragment = PlaneTypesFragment.getInstance()
-                toolbar!!.title = getString(R.string.str_airplane_types)
-            }
-            MENU_FLIGHT_TYPES -> {
-                fragment = FlightTypesFragment.getInstance()
-                toolbar!!.title = getString(R.string.str_flight_types)
-            }
-            MENU_TIME_TYPES -> {
-                fragment = TimeTypesFragment.getInstance()
-                toolbar!!.title = "Типы времени"
-            }
-            MENU_STATS -> {
-                fragment = StatisticFragment.getInstance()
-                toolbar!!.title = getString(R.string.fragment_stats)
-            }
-            MENU_DROPBOX_SYNC -> {
-                fragment = DropboxSyncFragment()
-                toolbar!!.title = getString(R.string.fragment_dropbox_sync)
+        val fragmentTag = getFragmentTag(position)
+        var fragment = getFragmentByTag(fragmentTag)
+        if (fragment == null) {
+            when (position) {
+                MENU_FLIGHTS -> {
+                    fragment = FlightListFragment.getInstance()
+                    toolbar!!.title = getString(R.string.fragment_logbook)
+                }
+                MENU_PLANE_TYPES -> {
+                    fragment = PlaneTypesFragment.getInstance()
+                    toolbar!!.title = getString(R.string.str_airplane_types)
+                }
+                MENU_FLIGHT_TYPES -> {
+                    fragment = FlightTypesFragment.getInstance()
+                    toolbar!!.title = getString(R.string.str_flight_types)
+                }
+                MENU_TIME_TYPES -> {
+                    fragment = TimeTypesFragment.getInstance()
+                    toolbar!!.title = "Типы времени"
+                }
+                MENU_STATS -> {
+                    fragment = StatisticFragment.getInstance()
+                    toolbar!!.title = getString(R.string.fragment_stats)
+                }
+                MENU_SETTINGS -> {
+                    fragment = SettingsFragment.getInstance()
+                    toolbar!!.title = getString(R.string.str_settings)
+                }
             }
         }
         if (fragment != null) {
-            this.replaceFragmentInActivity(fragment, R.id.container)
+            replaceFragmentInActivity(fragment, R.id.container, fragmentTag)
             drawer!!.closeDrawer()
+        }
+    }
+
+
+    private fun getFragmentTag(id: Int): String? {
+        return when (id) {
+            MENU_FLIGHTS -> "fragment_tag_flights"
+            MENU_PLANE_TYPES -> "fragment_tag_plane_types"
+            MENU_FLIGHT_TYPES -> "fragment_tag_flight_types"
+            MENU_TIME_TYPES -> "fragment_tag_time_types"
+            MENU_STATS -> "fragment_tag_statistic"
+            MENU_SETTINGS -> "fragment_tag_settings"
+            else -> null
         }
     }
 
@@ -458,19 +475,5 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
                 }
             }
         }
-    }
-
-    companion object {
-        private val SAVE_FILE_RESULT_CODE = 111
-        private val MENU_DROPBOX_SYNC = 112
-        private val PICKFILE_RESULT_CODE = 1
-        private val MENU_FLIGHTS = 0
-        private val MENU_PLANE_TYPES = 1
-        private val MENU_FLIGHT_TYPES = 2
-        private val MENU_TIME_TYPES = 3
-        private val MENU_STATS = 4
-        private val DRAWER_SELECTION = "drawer_selection"
-        private val TIME_DELAY = 2000
-        private var back_pressed: Long = 0
     }
 }

@@ -14,6 +14,7 @@ class Flight(var id: Long? = null) {
     var logtimeFormatted: String? = null
     var reg_no: String? = null
     var airplanetypetitle: String? = null
+    var planeType: PlaneType? = null
     var planeId: Long? = null
     var daynight: Int? = null
     var ifrvfr: Int? = null

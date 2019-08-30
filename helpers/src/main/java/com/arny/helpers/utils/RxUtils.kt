@@ -4,7 +4,7 @@ import io.reactivex.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.schedulers.Schedulers.io
 import java.util.concurrent.TimeUnit
 
 /**
@@ -43,7 +43,7 @@ fun <T> fromNullable(callable: () -> T?): Observable<OptionalNull<T?>> {
 }
 
 fun <T> IOThreadObservable(observable: Observable<T>): Observable<T> {
-    return observable.subscribeOn(Schedulers.io())
+    return observable.subscribeOn(io())
 }
 
 fun <T> IOThreadObservable(scheduler: Scheduler, observable: Observable<T>): Observable<T> {
@@ -55,27 +55,31 @@ fun <T> observeOnMainThread(observable: Observable<T>): Observable<T> {
 }
 
 fun <T> Observable<T>.observeOnMain(): Observable<T> {
-    return this.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+    return this.subscribeOn(io()).observeOn(AndroidSchedulers.mainThread())
 }
 
+fun <T : Any> Observable<T>.observeSubscribe(onNext: (T) -> Unit = {}, onError: (Throwable) -> Unit = {it.printStackTrace()}, onComplete: () -> Unit = {},scheduler: Scheduler = io(), observeOn: Scheduler = AndroidSchedulers.mainThread()): Disposable = subscribeOn(scheduler)
+        .observeOn(observeOn)
+        .subscribe(onNext, onError, onComplete)
+
 fun <T> Observable<T>.observeOnIO(): Observable<T> {
-    return this.subscribeOn(Schedulers.io())
+    return this.subscribeOn(io())
 }
 
 fun <T> Single<T>.observeOnMain(): Single<T> {
-    return this.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+    return this.subscribeOn(io()).observeOn(AndroidSchedulers.mainThread())
 }
 
 fun <T> Maybe<T>.observeOnMain(): Maybe<T> {
-    return this.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+    return this.subscribeOn(io()).observeOn(AndroidSchedulers.mainThread())
 }
 
 fun <T> mainThreadObservable(observable: Observable<T>): Observable<T> {
-    return observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+    return observable.subscribeOn(io()).observeOn(AndroidSchedulers.mainThread())
 }
 
 fun <T> mainThreadObservable(observable: Single<T>): Single<T> {
-    return mainThreadObservable(Schedulers.io(), observable)
+    return mainThreadObservable(io(), observable)
 }
 
 fun <T> mainThreadObservable(scheduler: Scheduler, observable: Single<T>): Single<T> {
@@ -87,7 +91,7 @@ fun <T> mainThreadObservable(scheduler: Scheduler, observable: Observable<T>): O
 }
 
 fun <T> mainThreadObservable(flowable: Flowable<T>): Flowable<T> {
-    return flowable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+    return flowable.subscribeOn(io()).observeOn(AndroidSchedulers.mainThread())
 }
 
 fun <T> mainThreadObservable(scheduler: Scheduler, flowable: Flowable<T>): Flowable<T> {

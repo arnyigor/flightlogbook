@@ -10,7 +10,8 @@ import com.afollestad.materialdialogs.MaterialDialog
 
 @SuppressLint("RestrictedApi")
 @JvmOverloads
-fun alertDialog(context: Context, title: String, content: String? = null, dialogListener: AlertDialogListener? = null) {
+fun alertDialog(context: Context?, title: String, content: String? = null, dialogListener: AlertDialogListener? = null) {
+    if (context == null) return
     val dlg = MaterialDialog.Builder(context)
             .title(title)
             .cancelable(false)
