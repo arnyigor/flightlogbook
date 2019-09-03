@@ -23,8 +23,8 @@ class FlightsAdapter : SimpleAbstractAdapter<Flight>() {
             tv_log_time_flight.text = strFlightTime
             tv_log_time_flight_total.text = strLogTime
             tv_flight_type.text = item.flightType?.typeTitle
-            tv_plane_reg_no.text = item.reg_no
-            tv_plane_type.text = item.airplanetypetitle
+            tv_plane_reg_no.text = item.regNo
+            tv_plane_type.text = item.planeTitle
             setOnClickListener {
                 listener?.onItemClick(position, item)
             }

@@ -15,7 +15,7 @@ interface FlightDAO : BaseDao<FlightEntity> {
     @Query("SELECT * FROM main_table ORDER BY :orderby")
     fun queryFlightsWithOrder(orderby: String): List<FlightEntity>
 
-    @Query("SELECT * FROM main_table WHERE reg_no=:regNo")
+    @Query("SELECT * FROM main_table WHERE regNo=:regNo")
     fun queryFlightsByRegNo(regNo: String?): List<FlightEntity>
 
     @Query("SELECT * FROM main_table WHERE _id=:id")

@@ -231,11 +231,9 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
                 .map { flight ->
                     val planeType = repository.loadPlaneType(flight.planeId)
                     flight.planeType = planeType?.toPlaneType()
-                    flight.airplanetypetitle = planeType?.typeName
-                    flight.times= repository.queryDBFlightTimes(flight.id).map { it.toTimeFlight() }
+                    flight.planeTitle = planeType?.typeName
                     flight.flightType= repository.loadDBFlightType(flight.flightTypeId?.toLong())?.toFlightType()
-                    flight.sumlogTime = (flight.logtime?:0) + (flight.times?.sumBy { it.time }?:0)
-                    flight.sumFlightTime = (flight.logtime?:0) + (flight.times?.filter { it.addToFlightTime }?.sumBy { it.time }?:0)
+                    flight.sumFlightTime = (flight.flightTime?:0) + (flight.times?.filter { it.addToFlightTime }?.sumBy { it.time }?:0)
                     flight.sumGroundTime = (flight.times?.filter { !it.addToFlightTime }?.sumBy { it.time }?:0)
                     flight
                 }
@@ -248,11 +246,11 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
             c = row.createCell(0)
             c.setCellValue(DateTimeUtils.getDateTime(flight.datetime!!, "dd MMM yyyy"))
             c = row.createCell(1)
-            c.setCellValue(DateTimeUtils.strLogTime(flight.logtime!!))
+            c.setCellValue(DateTimeUtils.strLogTime(flight.flightTime!!))
             c = row.createCell(2)
             c.setCellValue(airplane_type)
             c = row.createCell(3)
-            c.setCellValue(flight.reg_no)
+            c.setCellValue(flight.regNo)
             c = row.createCell(4)
             c.setCellValue(flight.daynight!!.toDouble())
             c = row.createCell(5)
@@ -413,7 +411,7 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
                                 e.printStackTrace()
                             }
 
-                            Log.d(BackgroundIntentService::class.java.simpleName, "reg_no " + reg_no!!)
+                            Log.d(BackgroundIntentService::class.java.simpleName, "regNo " + reg_no!!)
                         }
                         4 -> {
                             try {
@@ -480,7 +478,7 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
                                 Log.d(BackgroundIntentService::class.java.simpleName, "mDateTime: $mDateTime")
                                 Log.d(BackgroundIntentService::class.java.simpleName, "strTime: " + strTime!!)
                                 Log.d(BackgroundIntentService::class.java.simpleName, "logTime: $logTime")
-                                Log.d(BackgroundIntentService::class.java.simpleName, "reg_no: " + reg_no!!)
+                                Log.d(BackgroundIntentService::class.java.simpleName, "regNo: " + reg_no!!)
                                 Log.d(BackgroundIntentService::class.java.simpleName, "airplane_type_id: $airplane_type_id")
                                 Log.d(BackgroundIntentService::class.java.simpleName, "airplane_type: " + airplane_type!!)
                                 Log.d(BackgroundIntentService::class.java.simpleName, "day_night: $day_night")

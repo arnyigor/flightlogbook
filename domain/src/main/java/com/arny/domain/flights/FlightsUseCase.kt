@@ -32,49 +32,12 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
         return repository.removeAllFlights()
     }
 
-    fun updateFlight(flight: Flight, flightTimes: ArrayList<TimeToFlight>?): Observable<Boolean> {
+    fun updateFlight(flight: Flight ): Observable<Boolean> {
         return fromCallable { repository.updateFlight(flight.toFlightEntity()) }
-                .map { update ->
-                    if (update) {
-                        val flightId = flight.id
-                        val dbFlightTimes =  repository.queryDBFlightTimes(flightId).map { it.toTimeFlight() }.toMutableList()
-                        if (!flightTimes.isNullOrEmpty()) {
-                            for (timeToFlight in flightTimes) {
-                                val toFlight = dbFlightTimes.find { it._id == timeToFlight._id }
-                                if (toFlight != null) {
-                                    dbFlightTimes.remove(toFlight)
-                                    if (toFlight!=timeToFlight) {
-                                        repository.updateDBFlightTime(flightId, timeToFlight.timeTypeId, timeToFlight.time, timeToFlight.addToFlightTime)
-                                    }
-                                }else{
-                                    repository.insertDBFlightTime(timeToFlight.toTimeEntity())
-                                }
-                            }
-                            for (dbFlightTime in dbFlightTimes) {
-                                repository.deleteDBFlightTimesByTime(dbFlightTime._id)
-                            }
-                        }else{
-                            repository.deleteDBFlightTimesByFlight(flightId)
-                        }
-                    }
-                    update
-                }
     }
 
-    fun insertFlightAndGet(flight: Flight, flightTimes: ArrayList<TimeToFlight>?): Observable<Boolean> {
-        return fromCallable { repository.insertFlightAndGet(flight.toFlightEntity()) }
-                .flatMap { id ->
-                    if (id > 0) {
-                        if (flightTimes != null && flightTimes.isNotEmpty()) {
-                            flightTimes.map { it.flight = id }
-                            insertDBFlightToTimes(flightTimes)
-                        } else {
-                            fromCallable { true }
-                        }
-                    } else {
-                        fromCallable { false }
-                    }
-                }
+    fun insertFlightAndGet(flight: Flight ): Observable<Boolean> {
+        return fromCallable { repository.insertFlightAndGet(flight.toFlightEntity())>0 }
     }
 
     fun getFlight(id: Long?): Observable<OptionalNull<Flight?>> {
@@ -82,13 +45,11 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
                 .map { nullable->
                     val flight = nullable.value
                     val planeType = repository.loadPlaneType(flight?.planeId)
+                    val flightTypeEntity = repository.loadDBFlightType(flight?.flightTypeId?.toLong())
                     flight?.planeType = planeType?.toPlaneType()
-                    flight?.airplanetypetitle = planeType?.typeName
-                    flight?.times= repository.queryDBFlightTimes(flight?.id).map { it.toTimeFlight() }
-                    flight?.flightType= repository.loadDBFlightType(flight?.flightTypeId?.toLong())?.toFlightType()
-                    flight?.sumlogTime = (flight?.logtime?:0) + (flight?.times?.sumBy { it.time }?:0)
-                    flight?.sumFlightTime = (flight?.logtime?:0) + (flight?.times?.filter { it.addToFlightTime }?.sumBy { it.time }?:0)
-                    flight?.sumGroundTime =  (flight?.times?.filter { !it.addToFlightTime }?.sumBy { it.time }?:0)
+                    flight?.flightType= flightTypeEntity?.toFlightType()
+//                    flight?.sumFlightTime = (flight?.flightTime?:0) + (flight?.times?.filter { it.addToFlightTime }?.sumBy { it.time }?:0)
+//                    flight?.sumGroundTime =  (flight?.times?.filter { !it.addToFlightTime }?.sumBy { it.time }?:0)
                     nullable
                 }
     }
@@ -186,12 +147,9 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
                 .map { flight ->
                     val planeType = repository.loadPlaneType(flight.planeId)
                     flight.planeType = planeType?.toPlaneType()
-                    flight.airplanetypetitle = planeType?.typeName
-                    flight.times= repository.queryDBFlightTimes(flight.id).map { it.toTimeFlight() }
                     flight.flightType= repository.loadDBFlightType(flight.flightTypeId?.toLong())?.toFlightType()
-                    flight.sumlogTime = (flight.logtime?:0) + (flight.times?.sumBy { it.time }?:0)
-                    flight.sumFlightTime = (flight.logtime?:0) + (flight.times?.filter { it.addToFlightTime }?.sumBy { it.time }?:0)
-                    flight.sumGroundTime = (flight.times?.filter { !it.addToFlightTime }?.sumBy { it.time }?:0)
+//                    flight.sumFlightTime = (flight.flightTime?:0) + (flight.times?.filter { it.addToFlightTime }?.sumBy { it.time }?:0)
+//                    flight.sumGroundTime = (flight.times?.filter { !it.addToFlightTime }?.sumBy { it.time }?:0)
                     flight
                 }
     }
@@ -206,20 +164,19 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
             val times = repository.queryDBFlightsTimes()
             flights.map { it.toFlight() }
                     .map { flight ->
-                        flight.airplanetypetitle = planeTypes.find { it.typeId == flight.planeId }?.typeName
-                        flight.times = times.filter { it.flight == flight.id }.map { it.toTimeFlight() }
+                        val planeTypeEntity = planeTypes.find { it.typeId == flight.planeId }
+                        flight.planeType = planeTypeEntity?.toPlaneType()
                         flight.flightType = flightTypes.find { it.id == flight.flightTypeId?.toLong() }?.toFlightType()
-                        flight.sumlogTime = (flight.logtime?:0) + (flight.times?.sumBy { it.time }?:0)
-                        flight.sumFlightTime = (flight.logtime?:0) + (flight.times?.filter { it.addToFlightTime }?.sumBy { it.time }?:0)
-                        flight.sumGroundTime = (flight.times?.filter { !it.addToFlightTime }?.sumBy { it.time }?:0)
+//                        flight.sumFlightTime = (flight.flightTime?:0) + (flight.times?.filter { it.addToFlightTime }?.sumBy { it.time }?:0)
+//                        flight.sumGroundTime = (flight.times?.filter { !it.addToFlightTime }?.sumBy { it.time }?:0)
                         flight
                     }
         }.map { flights ->
             val res = when (orderType) {
                 0 -> flights.sortedBy { it.datetime}
                 1 -> flights.sortedByDescending { it.datetime}
-                2 -> flights.sortedBy { it.sumlogTime}
-                3 -> flights.sortedByDescending { it.sumlogTime}
+                2 -> flights.sortedBy { it.flightTime}
+                3 -> flights.sortedByDescending { it.flightTime}
                 else -> flights
             }
             res
@@ -325,7 +282,7 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
-                            flight.logtime = logTime
+                            flight.flightTime = logTime
                         }
                         3 -> {
                             try {
@@ -352,7 +309,7 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
                                 reg_no = ""
                                 e.printStackTrace()
                             }
-                            flight.reg_no = reg_no
+                            flight.regNo = reg_no
                         }
                         7 -> {
                             try {
@@ -405,34 +362,6 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
                                 myCell.toString()
                             } catch (e: Exception) {
                                 ""
-                            }
-                            try {
-                                val additions = cell//"Смена:00:45;Ночь:00:15"
-                                val split = additions.split(";")
-                                val times = arrayListOf<TimeToFlight>()
-                                for (typeTime in split) {
-                                    val regex = "^(\\W+)[:|-](.*)\$".toRegex()
-                                    val typeAndTime = regex.matchEntire(typeTime)?.groupValues
-                                    if (typeAndTime != null) {
-                                        val type = typeAndTime.getOrNull(0)
-                                        val time = typeAndTime.getOrNull(1)
-                                        if (type != null && time != null) {
-                                            val typeEntity = dbTimeTypes.find { it.title == type }
-                                            if (typeEntity != null) {
-                                                val timeToFlight = TimeToFlight()
-                                                val addTime = DateTimeUtils.convertStringToTime(time)
-                                                timeToFlight.timeTypeId = typeEntity.id
-                                                timeToFlight.timeType = typeEntity.toTimeType()
-                                                timeToFlight
-                                            } else {
-                                                val timeId = repository.addDBTimeTypeAndGet(time)
-                                            }
-                                        }
-                                    }
-                                }
-                                flight.times = times
-                            } catch (e: Exception) {
-                                e.printStackTrace()
                             }
                         }
                     }

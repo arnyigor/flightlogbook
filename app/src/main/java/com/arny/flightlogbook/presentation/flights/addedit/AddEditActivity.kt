@@ -31,7 +31,6 @@ import kotlinx.android.synthetic.main.time_input_dialog_layout.view.*
 import java.util.*
 
 class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerDialogFragment.OnDateSetListener, View.OnClickListener {
-    private var timesAdapter: FlightTimesAdapter? = null
     private var tvMotoResult: TextView? = null
     private var imm: InputMethodManager? = null
     private var time = ""
@@ -55,65 +54,18 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         if (flightId != null) {
             supportActionBar?.title = getString(R.string.str_edt_flight)
         }
-        initFlightTimesAdapter()
         initUI()
         addEditPresenter.initState(flightId)
     }
 
-    private fun initFlightTimesAdapter() {
-        timesAdapter = FlightTimesAdapter(object : FlightTimesAdapter.FlightTimesClickListener {
-            override fun onEditFlightTime(position: Int, item: TimeToFlight) {
-                var timeDialog: AlertDialog? = null
-                timeDialog = createCustomLayoutDialog(R.layout.time_input_dialog_layout, {
-                    var timeValue = ""
-                    MaskedTextChangedListener.installOn(edt_time, CONSTS.STRINGS.LOG_TIME_FORMAT, object : MaskedTextChangedListener.ValueListener {
-                        override fun onTextChanged(maskFilled: Boolean, extractedValue: String, formattedValue: String) {
-                            timeValue = formattedValue
-                        }
-                    })
-                    chbox_add_flight_time.isChecked = item.addToFlightTime
-                    edt_time.hint = "чч:мм"
-                    edt_time.setText(DateTimeUtils.strLogTime(item.time))
-                    iv_close.setOnClickListener {
-                        timeDialog?.dismiss()
-                    }
-                    btn_time_dlg_ok.setOnClickListener {
-                        addEditPresenter.onAddTimeChanged(timeValue, chbox_add_flight_time.isChecked, item, position)
-                        timeDialog?.dismiss()
-                    }
-                })
-            }
-
-            override fun onDeleteFlightTime(position: Int, item: TimeToFlight) {
-                timesAdapter?.remove(item)
-                timeSummChange()
-                rv_time_types.showSnackBar("Время удалено", "Отмена", 2000, action = {
-                    timesAdapter?.add(position, item)
-                    timeSummChange()
-                })
-            }
-
-            override fun onItemClick(position: Int, item: TimeToFlight) {
-
-            }
-        })
-        val customRVLayoutManager = CustomRVLayoutManager(this)
-        customRVLayoutManager.setScrollEnabled(false)
-        rv_time_types.layoutManager = customRVLayoutManager
-        rv_time_types.adapter = timesAdapter
-    }
-
     override fun updateFlightTimesAdapter(items: List<TimeToFlight>) {
-        timesAdapter?.addAll(items)
     }
 
     override fun notifyAddTimeItemChanged(position: Int) {
-        timesAdapter?.notifyItemChanged(position)
         timeSummChange()
     }
 
     override fun timeSummChange() {
-        addEditPresenter.onTimeSummChange(timesAdapter?.getItems())
     }
 
     override fun setTotalFlightTime(flightTime: String) {
@@ -266,7 +218,6 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
     }
 
     override fun addFlightTimeToAdapter(timeFlightEntity: TimeToFlight) {
-        timesAdapter?.add(timeFlightEntity)
     }
 
     override fun setPlaneTypeTitle(title: String?) {
@@ -317,8 +268,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
             R.id.action_save -> {
                 val descr = edtDesc.text.toString()
                 val regNo = edtRegNo.text.toString()
-                val timeItems = timesAdapter?.getItems()
-                addEditPresenter.saveFlight(regNo, descr,timeItems,time)
+                addEditPresenter.saveFlight(regNo, descr,time)
             }
             R.id.action_remove -> {
                 confirmDialog(this, getString(R.string.str_delete), dialogListener = object : ConfirmDialogListener {

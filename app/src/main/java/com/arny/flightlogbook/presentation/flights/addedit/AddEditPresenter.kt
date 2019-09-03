@@ -14,7 +14,6 @@ import com.arny.flightlogbook.R
 import com.arny.helpers.coroutins.launchAsync
 import com.arny.helpers.utils.*
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.zipWith
 import org.joda.time.DateTime
 import javax.inject.Inject
 
@@ -52,11 +51,10 @@ class AddEditPresenter : MvpPresenter<AddEditView>(),CompositeDisposableComponen
 
     private fun initUI(flight: Flight) {
         viewState?.setDescription(flight.description ?: "")
-        viewState?.setRegNo(flight.reg_no)
+        viewState?.setRegNo(flight.regNo)
         viewState?.setToolbarTitle(commonUseCase.getString(R.string.str_edt_flight))
         viewState?.toastError("ГЛОБАЛЬНАЯ ПЕРЕДЕЛКА СТУКТУРЫ ДАННЫХ")
         loadDateTime(flight)
-        loadFlightTimes()
         loadFlightType()
         loadPlaneTypes()
     }
@@ -85,20 +83,6 @@ class AddEditPresenter : MvpPresenter<AddEditView>(),CompositeDisposableComponen
     private fun loadDateTime(flight: Flight) {
         fromCallable { DateTimeUtils.getDateTime(flight.datetime ?: 0, "dd.MM.yyyy") }
                 .observeSubscribeAdd({ viewState?.setDate(it) })
-    }
-
-    private fun loadFlightTimes() {
-        logTime = flight?.logtime ?: 0
-        flightsUseCase.loadDBFlightToTimes(id)
-                .zipWith(fromCallable { DateTimeUtils.strLogTime(logTime) })
-                .observeSubscribeAdd({ pair ->
-                    flight?.times = pair.first
-                    viewState?.setLogTime(pair.second)
-                    if (!flight?.times.isNullOrEmpty()) {
-                        viewState?.updateFlightTimesAdapter(flight?.times!!)
-                    }
-                    viewState?.timeSummChange()
-                })
     }
 
     fun correctingLogTime(stringTime: String) {
@@ -291,7 +275,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>(),CompositeDisposableComponen
                 .addTo(compositeDisposable)
     }
 
-    fun saveFlight(regNo: String, descr: String, flightTimes: ArrayList<TimeToFlight>?, timeStr: String) {
+    fun saveFlight(regNo: String, descr: String,  timeStr: String) {
         correctLogTime(timeStr,logTime) { time, timeText ->
             logTime = time
             viewState?.setEdtTimeText(timeText)
@@ -300,14 +284,13 @@ class AddEditPresenter : MvpPresenter<AddEditView>(),CompositeDisposableComponen
                 mDateTime = System.currentTimeMillis()
             }
             flight?.datetime = mDateTime
-            flight?.logtime = logTime
-            flight?.sumlogTime = sumlogTime
+            flight?.flightTime = logTime
             flight?.sumFlightTime = sumFlightTime
-            flight?.reg_no = regNo
+            flight?.regNo = regNo
             flight?.description = descr
             flight?.let { flt ->
                 if (flt.id != null) {
-                    flightsUseCase.updateFlight(flt,flightTimes)
+                    flightsUseCase.updateFlight(flt)
                             .observeOnMain()
                             .subscribe({
                                 if (it) {
@@ -323,7 +306,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>(),CompositeDisposableComponen
                             })
                             .addTo(compositeDisposable)
                 }else{
-                    flightsUseCase.insertFlightAndGet(flt,flightTimes)
+                    flightsUseCase.insertFlightAndGet(flt)
                             .observeOnMain()
                             .subscribe({
                                 if (it) {
