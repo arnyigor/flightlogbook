@@ -231,10 +231,7 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
                 .map { flight ->
                     val planeType = repository.loadPlaneType(flight.planeId)
                     flight.planeType = planeType?.toPlaneType()
-                    flight.planeTitle = planeType?.typeName
                     flight.flightType= repository.loadDBFlightType(flight.flightTypeId?.toLong())?.toFlightType()
-                    flight.sumFlightTime = (flight.flightTime?:0) + (flight.times?.filter { it.addToFlightTime }?.sumBy { it.time }?:0)
-                    flight.sumGroundTime = (flight.times?.filter { !it.addToFlightTime }?.sumBy { it.time }?:0)
                     flight
                 }
         var rows = 1

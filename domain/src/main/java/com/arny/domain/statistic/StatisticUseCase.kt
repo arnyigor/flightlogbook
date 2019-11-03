@@ -73,19 +73,7 @@ class StatisticUseCase @Inject constructor(private val repository: MainRepositor
                             .map { flight ->
                                 val planeType = repository.loadPlaneType(flight.planeId)
                                 flight.planeType = planeType?.toPlaneType()
-                                flight.planeTitle = planeType?.typeName
-                                flight.times = repository.queryDBFlightTimes(flight.id).map {
-                                    it.timeTypeEntity = it.timeType?.let { it1 -> repository.queryDBTimeType(it1) }
-                                    it.toTimeFlight()
-                                }
                                 flight.flightType = repository.loadDBFlightType(flight.flightTypeId?.toLong())?.toFlightType()
-                                flight.sumlogTime = (flight.flightTime
-                                        ?: 0) + (flight.times?.sumBy { it.time } ?: 0)
-                                flight.sumFlightTime = (flight.flightTime
-                                        ?: 0) + (flight.times?.filter { it.addToFlightTime }?.sumBy { it.time }
-                                        ?: 0)
-                                flight.sumGroundTime = (flight.times?.filter { !it.addToFlightTime }?.sumBy { it.time }
-                                        ?: 0)
                                 flight
                             }.sortedBy { it.datetime }
                 }
@@ -107,7 +95,6 @@ class StatisticUseCase @Inject constructor(private val repository: MainRepositor
             it.sumGroundTime ?: 0
         })).append("<br>")
         builder.append("<b>Общее время:</b>")
-        builder.append(DateTimeUtils.strLogTime(list.sumBy { it.sumlogTime ?: 0 }))
         statistic.data = builder.toString()
         return statistic
     }

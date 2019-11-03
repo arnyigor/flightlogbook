@@ -15,7 +15,6 @@ import android.widget.TextView
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
-import com.arny.adapters.CustomRVLayoutManager
 import com.arny.constants.CONSTS
 import com.arny.domain.models.TimeToFlight
 import com.arny.flightlogbook.R
@@ -27,7 +26,6 @@ import com.arny.helpers.utils.*
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment
 import com.redmadrobot.inputmask.MaskedTextChangedListener
 import kotlinx.android.synthetic.main.activity_addedit.*
-import kotlinx.android.synthetic.main.time_input_dialog_layout.view.*
 import java.util.*
 
 class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerDialogFragment.OnDateSetListener, View.OnClickListener {
@@ -128,8 +126,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         MaskedTextChangedListener.installOn(edtTime, CONSTS.STRINGS.LOG_TIME_FORMAT, object : MaskedTextChangedListener.ValueListener {
             override fun onTextChanged(maskFilled: Boolean, extractedValue: String, formattedValue: String) {
                 if (edtTime.text.toString().isBlank()) {
-                    til_edt_time?.hint = getString(R.string.str_itemlogtime)
-                    edtTime?.hint = null
+                    edtTime?.hint = getString(R.string.str_itemlogtime)
                 }
                 time = extractedValue
             }
@@ -140,11 +137,9 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
             }
             if (edtTime.text.toString().isBlank()) {
                 if (hasFocus) {
-                    til_edt_time?.hint = getString(R.string.str_itemlogtime)
-                    edtTime?.hint = getString(R.string.str_itemlogtime_hint)
-                } else {
-                    til_edt_time?.hint = null
                     edtTime?.hint = getString(R.string.str_itemlogtime)
+                } else {
+                    edtTime?.hint = null
                 }
             }
         }

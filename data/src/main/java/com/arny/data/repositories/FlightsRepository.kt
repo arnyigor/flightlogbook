@@ -66,13 +66,7 @@ interface FlightsRepository:BaseDBRepository {
     }
 
     fun getFlight(id: Long?): FlightEntity? {
-        val flightEntity = getFlightDAO().queryFlight(id)
-        flightEntity?.let {flight->
-            val aircraftType = getPlaneTypeDAO().queryAircraftType(flight.planeId ?: 0)
-            flight.airplanetypetitle = aircraftType?.typeName
-            aircraftType
-        }
-        return flightEntity
+        return getFlightDAO().queryFlight(id)
     }
 
     fun getFlightsTime(): Int {
