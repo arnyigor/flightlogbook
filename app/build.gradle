@@ -9,7 +9,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'io.fabric.tools:gradle:1.27.0'
+        classpath 'io.fabric.tools:gradle:1.31.0'
     }
 }
 
@@ -88,7 +88,7 @@ dependencies {
     implementation project(path: ':data')
     implementation 'com.android.support:support-v4:28.0.0'
     implementation 'android.arch.lifecycle:extensions:1.1.1'
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.3'
+    debugImplementation deps.additional.leakcanary
     /*tests*/
     implementation deps.test.junit
     androidTestImplementation deps.test.runner
