@@ -3,7 +3,6 @@ package com.arny.flightlogbook.presentation.main
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -67,7 +66,6 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
     private val TIME_DELAY = 2000
     private var back_pressed: Long = 0
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         context = this
@@ -122,7 +120,6 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
         super.onSaveInstanceState(state)
     }
 
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             /* R.id.action_about -> {
@@ -159,7 +156,7 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
                 i.putExtra("fragment_tag", "type_list")
                 startActivity(i)
             }*/
-            R.id.action_import_from_file -> rxPermissions!!.request( Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            R.id.action_import_from_file -> rxPermissions!!.request(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     .subscribe({ permissionGranded ->
                         if (permissionGranded!!) {
                             showImportDialogSD()
@@ -207,7 +204,6 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
         }
     }
 
-
     private fun getFragmentTag(id: Int): String? {
         return when (id) {
             MENU_FLIGHTS -> "fragment_tag_flights"
@@ -236,7 +232,8 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
                 selectItem(MENU_FLIGHTS)
             } else {
                 if (back_pressed + TIME_DELAY > System.currentTimeMillis()) {
-                    val autoExportXLSPref = Prefs.getInstance(this).get<Boolean>("autoExportXLSPref")?:false
+                    val autoExportXLSPref = Prefs.getInstance(this).get<Boolean>("autoExportXLSPref")
+                            ?: false
                     if (autoExportXLSPref) {
                         initBgService()
                         mMyServiceIntent!!.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_EXPORT)
@@ -275,7 +272,7 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
                 ?.subscribe({ permissionGranded ->
                     if (permissionGranded) {
                         val menu = toolbar?.menu
-                        val fileExist =  isAppFileExist(this)
+                        val fileExist = isAppFileExist(this)
                         val exelOpenAction = menu?.findItem(R.id.action_open_file)
                         val exelImportAction = menu?.findItem(R.id.action_import_excel)
                         if (exelOpenAction != null) {
@@ -300,29 +297,11 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
     }
 
     private fun hideProgress() {
-        try {
-            if (pDialog != null) {
-                pDialog!!.dismiss()
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
+        Utility.hideProgress(pDialog)
     }
 
     private fun showProgress(notif: String?) {
-        try {
-            if (pDialog != null) {
-                Log.d(MainActivity::class.java.simpleName, "hideProgress: pDialog.isShowing() = " + pDialog!!.isShowing)
-                pDialog!!.setMessage(notif)
-                if (!pDialog!!.isShowing) {
-                    pDialog!!.show()
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
+        Utility.showProgress(pDialog,notif)
     }
 
     public override fun onPause() {
@@ -353,18 +332,14 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
 
     @SuppressLint("CheckResult")
     private fun showImportDialogSD() {
-        val alert = AlertDialog.Builder(context)
-        alert.setTitle(getString(R.string.str_import_attention))
-        alert.setMessage(getString(R.string.str_import_massage))
-        alert.setNegativeButton(getString(R.string.str_cancel)) { dialog, which -> dialog.cancel() }
-        alert.setPositiveButton(getString(R.string.str_ok)) { dialog, which ->
+        alertDialog(this,getString(R.string.str_import_attention),getString(R.string.str_import_massage),btnCancelText = getString(R.string.str_cancel),onConfirm = {
             fileintent = Intent()
             fileintent!!.action = Intent.ACTION_GET_CONTENT
             fileintent!!.addCategory(Intent.CATEGORY_OPENABLE)
             fileintent!!.type = "*/*"
             startActivityForResult(fileintent, PICKFILE_RESULT_CODE)
-        }
-        alert.show()
+
+        })
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -411,35 +386,26 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
     }
 
     private fun showExportAlert() {
-        val alert = AlertDialog.Builder(this)
-        alert.setTitle(getString(R.string.str_export_attention))
-        alert.setNegativeButton(getString(R.string.str_cancel)) { dialog, which -> dialog.cancel() }
-        alert.setPositiveButton(getString(R.string.str_ok)) { dialog, which ->
+        alertDialog(this, getString(R.string.str_export_attention), btnCancelText = getString(R.string.str_cancel), btnOkText = getString(R.string.str_ok), onConfirm = {
             initBgService()
             mMyServiceIntent!!.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_EXPORT)
             startService(mMyServiceIntent)
             showProgress(getString(R.string.str_export_excel))
-        }
-        alert.show()
+        })
     }
 
     private fun showImportAlert() {
-        val alert = AlertDialog.Builder(this)
-        alert.setTitle(getString(R.string.str_import_attention))
-        alert.setMessage(getString(R.string.str_import_massage))
-        alert.setNegativeButton(getString(R.string.str_cancel)) { dialog, which -> dialog.cancel() }
-        alert.setPositiveButton(getString(R.string.str_ok)) { dialog, which ->
+        alertDialog(this,getString(R.string.str_import_attention),getString(R.string.str_import_massage),btnCancelText = getString(R.string.str_cancel),onConfirm = {
             initBgService()
             mMyServiceIntent!!.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_IMPORT_SD)
             mMyServiceIntent!!.putExtra(BackgroundIntentService.EXTRA_KEY_IMPORT_SD_FILENAME, "")
             startService(mMyServiceIntent)
             ToastMaker.toastSuccess(this, "Импорт данных из файла стартовал")
-        }
-        alert.show()
+        })
     }
 
     private fun initBgService() {
-            mMyServiceIntent = Intent(this@MainActivity, BackgroundIntentService::class.java)
+        mMyServiceIntent = Intent(this@MainActivity, BackgroundIntentService::class.java)
     }
 
     override fun onDrawerOpened(drawerView: View) {}

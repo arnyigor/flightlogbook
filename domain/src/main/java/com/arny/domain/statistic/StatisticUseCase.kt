@@ -15,28 +15,20 @@ import javax.inject.Singleton
 @Singleton
 class StatisticUseCase @Inject constructor(private val repository: MainRepositoryImpl) {
     fun loadDBFlights(startDate: Long, endDate: Long, extendedStatistic: Boolean, includeEnd: Boolean): Observable<ArrayList<Statistic>> {
-        return returnStatistic(extendedStatistic,fromCallable { repository.getStatisticDbFlights(startDate, endDate,includeEnd) })
+        return returnStatistic(extendedStatistic, fromCallable { repository.getStatisticDbFlights(startDate, endDate, includeEnd) })
     }
 
     fun loadDBFlightsByTimes(startdatetime: Long, enddatetime: Long, extendedStatistic: Boolean, filterSelection: List<Long?>, includeEnd: Boolean): Observable<ArrayList<Statistic>> {
         val filghtList = toFilghtList(fromCallable { repository.getStatisticDbFlights(startdatetime, enddatetime, includeEnd) })
-        val toObservable = filghtList
-                .flatMapIterable { it }
-                .filter { flight ->
-                    val map = flight.times?.map { it.timeTypeId }
-                    map?.any { sel-> filterSelection.contains(sel) }==true
-                }
-                .toList()
-                .toObservable()
-        return toStatisticList(extendedStatistic, toObservable)
+        return toStatisticList(extendedStatistic, filghtList)
     }
 
     fun loadFilteredFlightsByPlaneTypes(types: List<Long?>, startdatetime: Long, enddatetime: Long, extendedStatistic: Boolean, includeEnd: Boolean): Observable<ArrayList<Statistic>> {
-        return returnStatistic(extendedStatistic,fromCallable { repository.getStatisticDbFlightsByPlanes(startdatetime, enddatetime,types,includeEnd) })
+        return returnStatistic(extendedStatistic, fromCallable { repository.getStatisticDbFlightsByPlanes(startdatetime, enddatetime, types, includeEnd) })
     }
 
-    fun loadFilteredFlightsByFlightTypes(startdatetime: Long, enddatetime: Long,  extendedStatistic: Boolean,types: List<Long?>, includeEnd: Boolean): Observable<ArrayList<Statistic>> {
-        return returnStatistic(extendedStatistic,fromCallable { repository.getStatisticDbFlightsByFlightTypes(startdatetime, enddatetime,types,includeEnd) })
+    fun loadFilteredFlightsByFlightTypes(startdatetime: Long, enddatetime: Long, extendedStatistic: Boolean, types: List<Long?>, includeEnd: Boolean): Observable<ArrayList<Statistic>> {
+        return returnStatistic(extendedStatistic, fromCallable { repository.getStatisticDbFlightsByFlightTypes(startdatetime, enddatetime, types, includeEnd) })
     }
 
     private fun returnStatistic(extendedStatistic: Boolean, observable: Observable<ArrayList<FlightEntity>>): Observable<ArrayList<Statistic>> {
@@ -106,39 +98,12 @@ class StatisticUseCase @Inject constructor(private val repository: MainRepositor
             val statistic = Statistic()
             val flight = flightInd.value
             statistic.dateTimeStart = flight.datetimeFormatted
-            builder.append("<b>Время летное:</b>").append(DateTimeUtils.strLogTime(flight.sumFlightTime
-                    ?: 0)).append("<br>")
-            val times = flight.times
-            builder.append("Налет:").append(DateTimeUtils.strLogTime(flight.flightTime
-                    ?: 0)).append("<br>")
-            if (times != null) {
-                val flTimes = times.filter { it.addToFlightTime }
-                if (flTimes.isNotEmpty()) {
-                    val timesBuilder = StringBuilder()
-                    for (timeIndexed in flTimes.withIndex()) {
-                        val time = timeIndexed.value
-                        timesBuilder.append("${time.timeType?.title}:").append(DateTimeUtils.strLogTime(time.time)).append(";")
-                    }
-                    builder.append(timesBuilder.toString()).append("<br>")
-                }
-            }
-            builder.append("<b>Время на земле:</b>").append(DateTimeUtils.strLogTime(flight.sumGroundTime
-                    ?: 0)).append("<br>")
-            if (times != null) {
-                val ground = times.filter { !it.addToFlightTime }
-                if (ground.isNotEmpty()) {
-                    val grBuilder = StringBuilder()
-                    for (timeIndexed in ground.withIndex()) {
-                        val time = timeIndexed.value
-                        grBuilder.append("${time.timeType?.title}:").append(DateTimeUtils.strLogTime(time.time)).append(";")
-                    }
-                    builder.append(grBuilder.toString()).append("<br>")
-                }
-            }
-            builder.append("<b>Время общее:</b>").append(DateTimeUtils.strLogTime(flight.sumlogTime
-                    ?: 0)).append("<br>")
-
-            builder.append("<b>Тип ВС:</b>").append(flight.planeTitle ?: "-").append("<br>")
+            builder.append("<b>Время летное:</b>").append(DateTimeUtils.strLogTime(flight.sumFlightTime)).append("<br>")
+            builder.append("Налет:").append(DateTimeUtils.strLogTime(flight.flightTime)).append("<br>")
+            builder.append("<b>Время на земле:</b>").append(DateTimeUtils.strLogTime(flight.sumGroundTime)).append("<br>")
+            builder.append("<b>Время общее:</b>").append(DateTimeUtils.strLogTime(flight.sumGroundTime + flight.sumFlightTime)).append("<br>")
+            builder.append("<b>Тип ВС:</b>").append(flight.planeType?.typeName
+                    ?: "-").append("<br>")
             builder.append("<b>Тип полета:</b>").append(flight.flightType?.typeTitle ?: "-")
             statistic.data = builder.toString()
             stats.add(statistic)
@@ -158,8 +123,8 @@ class StatisticUseCase @Inject constructor(private val repository: MainRepositor
         return fromCallable { repository.loadDBFlightTypes().map { it.toFlightType() } }
     }
 
-    fun loadPlanesRegNums(): Observable<List<String>>{
-        return fromCallable { repository.getDbFlights()}
+    fun loadPlanesRegNums(): Observable<List<String>> {
+        return fromCallable { repository.getDbFlights() }
                 .map { flts -> flts.filter { it.regNo.isNullOrBlank() } }
                 .map { list -> list.map { it.regNo!! } }
     }

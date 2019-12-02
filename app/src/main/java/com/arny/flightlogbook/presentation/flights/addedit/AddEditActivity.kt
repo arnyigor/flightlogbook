@@ -20,7 +20,6 @@ import com.arny.domain.models.TimeToFlight
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.presentation.flighttypes.FlightTypesActivity
 import com.arny.flightlogbook.presentation.planetypes.PlaneTypesActivity
-import com.arny.flightlogbook.presentation.timetypes.TimesListActivity
 import com.arny.helpers.interfaces._TextWatcher
 import com.arny.helpers.utils.*
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment
@@ -81,7 +80,6 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
     private fun initUI() {
         select_plane_type.setOnClickListener(this)
         select_flight_type.setOnClickListener(this)
-        tv_add_time.setOnClickListener(this)
         btn_moto.setOnClickListener(this)
         iv_date.setOnClickListener(this)
         imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -156,13 +154,6 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
 
     override fun onClick(v: View?) {
         when (v?.id) {
-            R.id.tv_add_time -> {
-                addEditPresenter.correctingLogTime(time)
-                launchActivity<TimesListActivity>(CONSTS.REQUESTS.REQUEST_ADD_TIME) {
-                    putExtra("is_request", true)
-                }
-                overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
-            }
             R.id.iv_date -> {
                 addEditPresenter.correctingLogTime(time)
                 val cdp = CalendarDatePickerDialogFragment()

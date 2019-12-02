@@ -5,13 +5,13 @@ import com.arny.helpers.utils.DateTimeUtils
 
 class Flight(var id: Long? = null) {
     var datetime: Long? = null
-    var flightTime: Int? = null
-    var nightTime: Int? = null
-    var ifrTime: Int? = null
-    var groundTime: Int? = null
-    var workTime: Int? = null
-    var sumFlightTime: Int? = null
-    var sumGroundTime: Int? = null
+    var flightTime: Int  = 0
+    var nightTime: Int = 0
+    var ifrTime: Int  = 0
+    var groundTime: Int  = 0
+    var workTime: Int = 0
+    var sumFlightTime: Int = 0
+    var sumGroundTime: Int  = 0
     var regNo: String? = null
     var planeId: Long? = null
     var planeType: PlaneType? = null
@@ -71,7 +71,7 @@ fun FlightEntity.toFlight(): Flight {
     val flight = Flight(id)
     flight.datetime = this.datetime
     flight.datetimeFormatted = this.datetime?.let { DateTimeUtils.getDateTime(it, "dd MMM yyyy") }
-    flight.flightTime = this.logtime
+    flight.flightTime = this.logtime?:0
     flight.logtimeFormatted = this.logtime?.let { DateTimeUtils.strLogTime(it) }
     flight.regNo = this.regNo
     flight.planeId = this.planeId

@@ -590,7 +590,7 @@ fun checkContextTheme(context: Context): Boolean {
 
 
 @JvmOverloads
-fun alertDialog(context: Context?, title: String, content: String? = null, btnOkText: String? = "OK", btnCancelText: String? = null, cancelable: Boolean = false, onConfirm: () -> Unit? = {}, onCancel: () -> Unit? = {}, alert: Boolean = true, autoDissmiss: Boolean = true, btnNeutralText: String? = null, onNeutral: () -> Unit? = {}): MaterialDialog? {
+fun alertDialog(context: Context?, title: String, content: String? = null, btnOkText: String? = context?.getString(android.R.string.ok), btnCancelText: String? = null, cancelable: Boolean = false, onConfirm: () -> Unit? = {}, onCancel: () -> Unit? = {}, alert: Boolean = true, autoDissmiss: Boolean = true, btnNeutralText: String? = null, onNeutral: () -> Unit? = {}): MaterialDialog? {
     if (context == null) return null
     if (!checkContextTheme(context)) return null
     val builder = MaterialDialog.Builder(context)

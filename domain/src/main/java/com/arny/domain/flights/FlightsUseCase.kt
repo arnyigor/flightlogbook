@@ -161,7 +161,6 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
             val flightTypes = repository.loadDBFlightTypes()
             val planeTypes = repository.loadPlaneTypes()
             val flights = repository.getDbFlights(order)
-            val times = repository.queryDBFlightsTimes()
             flights.map { it.toFlight() }
                     .map { flight ->
                         val planeTypeEntity = planeTypes.find { it.typeId == flight.planeId }

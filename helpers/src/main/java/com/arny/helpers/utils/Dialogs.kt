@@ -1,27 +1,11 @@
 package com.arny.helpers.utils
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.support.annotation.ArrayRes
 import android.support.v7.app.AppCompatActivity
 import android.text.InputType
 import com.afollestad.materialdialogs.MaterialDialog
 
-
-@SuppressLint("RestrictedApi")
-@JvmOverloads
-fun alertDialog(context: Context?, title: String, content: String? = null, dialogListener: AlertDialogListener? = null) {
-    if (context == null) return
-    val dlg = MaterialDialog.Builder(context)
-            .title(title)
-            .cancelable(false)
-            .onPositive { _, _ -> dialogListener?.onConfirm() }
-            .build()
-    if (content != null) {
-        dlg.setContent(content)
-    }
-    dlg.show()
-}
 
 @JvmOverloads
 fun listDialog(context: Context, vararg items: String, title: String? = null, cancelable: Boolean = false, dialogListener: ListDialogListener? = null) {
