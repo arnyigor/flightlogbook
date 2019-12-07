@@ -83,35 +83,35 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         btn_moto.setOnClickListener(this)
         iv_date.setOnClickListener(this)
         imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        edtDate?.setOnFocusChangeListener { _, hasFocus ->
-            val empty = Utility.empty(edtDate?.text.toString())
+        tiedt_date?.setOnFocusChangeListener { _, hasFocus ->
+            val empty = Utility.empty(tiedt_date?.text.toString())
             if (empty) {
                 if (hasFocus) {
-                    tilDate?.hint = getString(R.string.str_date)
-                    edtDate?.hint = getString(R.string.str_date_format)
+                    til_date?.hint = getString(R.string.str_date)
+                    tiedt_date?.hint = getString(R.string.str_date_format)
                 } else {
-                    tilDate?.hint = null
-                    edtDate?.hint = getString(R.string.str_date)
+                    til_date?.hint = null
+                    tiedt_date?.hint = getString(R.string.str_date)
                 }
             } else {
-                tilDate?.hint = getString(R.string.str_date)
-                edtDate?.hint = getString(R.string.str_date)
+                til_date?.hint = getString(R.string.str_date)
+                tiedt_date?.hint = getString(R.string.str_date)
                 if (!hasFocus) {
-                    val dat = edtDate?.text.toString()
+                    val dat = tiedt_date?.text.toString()
                     val pattern = "^(3[01]|[12][0-9]|0[1-9]).(1[0-2]|0[1-9]).[0-9]{4}\$".toRegex()
                     val containsMatchIn = pattern.containsMatchIn(dat)
                     if (!containsMatchIn) {
-                        edtDate.setText("")
+                        tiedt_date.setText("")
                         ToastMaker.toastError(this@AddEditActivity, getString(R.string.date_time_input_error))
                     }
                 }
             }
         }
-        edtDate?.addTextChangedListener(MaskedTextChangedListener("[00].[00].[0000]", ArrayList(), false, edtDate, object : _TextWatcher {
+        tiedt_date?.addTextChangedListener(MaskedTextChangedListener("[00].[00].[0000]", ArrayList(), false, tiedt_date, object : _TextWatcher {
                     override fun afterTextChanged(s: Editable) {
-                        if (Utility.empty(edtDate.text.toString())) {
-                            tilDate?.hint = getString(R.string.str_date)
-                            edtDate?.hint = null
+                        if (Utility.empty(tiedt_date.text.toString())) {
+                            til_date?.hint = getString(R.string.str_date)
+                            tiedt_date?.hint = null
                         }
                     }
                 }, object : MaskedTextChangedListener.ValueListener {
@@ -121,27 +121,27 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
                 }
             }
         }))
-        MaskedTextChangedListener.installOn(edtTime, CONSTS.STRINGS.LOG_TIME_FORMAT, object : MaskedTextChangedListener.ValueListener {
+        MaskedTextChangedListener.installOn(edt_time, CONSTS.STRINGS.LOG_TIME_FORMAT, object : MaskedTextChangedListener.ValueListener {
             override fun onTextChanged(maskFilled: Boolean, extractedValue: String, formattedValue: String) {
-                if (edtTime.text.toString().isBlank()) {
-                    edtTime?.hint = getString(R.string.str_itemlogtime)
+                if (edt_time.text.toString().isBlank()) {
+                    edt_time?.hint = getString(R.string.str_itemlogtime)
                 }
                 time = extractedValue
             }
         })
-        edtTime.setOnFocusChangeListener { _, hasFocus ->
+        edt_time.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
                 addEditPresenter.correctingLogTime(time)
             }
-            if (edtTime.text.toString().isBlank()) {
+            if (edt_time.text.toString().isBlank()) {
                 if (hasFocus) {
-                    edtTime?.hint = getString(R.string.str_itemlogtime)
+                    edt_time?.hint = getString(R.string.str_itemlogtime)
                 } else {
-                    edtTime?.hint = null
+                    edt_time?.hint = null
                 }
             }
         }
-        edtTime.setOnKeyListener { _, keyCode, event ->
+        edt_time.setOnKeyListener { _, keyCode, event ->
             if (keyCode == EditorInfo.IME_ACTION_GO && event.action == KeyEvent.ACTION_UP) {
                 Utility.hideSoftKeyboard(this@AddEditActivity)
                 addEditPresenter.correctingLogTime(time)
@@ -215,7 +215,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
     }
 
     override fun setEdtTimeText(strLogTime: String?) {
-        edtTime.setText(strLogTime)
+        edt_time.setText(strLogTime)
     }
 
     override fun setDescription(desc: String) {
@@ -223,11 +223,11 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
     }
 
     override fun setDate(date: String) {
-        edtDate.setText(date)
+        tiedt_date.setText(date)
     }
 
     override fun setLogTime(strLogTime: String?) {
-        edtTime.setText(strLogTime)
+        edt_time.setText(strLogTime)
         addEditPresenter.correctingLogTime(time)
     }
 

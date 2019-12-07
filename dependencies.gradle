@@ -1,5 +1,5 @@
 ext.versions = [
-        'androidPlugin'    : '3.5.2',
+        'androidPlugin'    : '3.5.3',
         'minSdk'           : 16,
         'targetSdk'        : 29,
         'compileSdk'       : 29,
