@@ -92,6 +92,12 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
     }
 
     private fun onNightTimeChanges() {
+        setMaskedChanges(edtNightTime) {
+            if (edtNightTime.text.toString().isBlank()) {
+                edtNightTime.hint = getString(R.string.str_time_zero)
+            }
+            sNightTime = it
+        }
         edtNightTime.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
                 addEditPresenter.correctNightTime(sNightTime)
@@ -104,7 +110,6 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
                 }
             }
         }
-
         edtNightTime.setOnKeyListener { _, keyCode, event ->
             if (keyCode == EditorInfo.IME_ACTION_GO && event.action == KeyEvent.ACTION_UP) {
                 Utility.hideSoftKeyboard(this@AddEditActivity)
@@ -116,6 +121,12 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
     }
 
     private fun onGroundTimeChanges() {
+        setMaskedChanges(edtGroundTime) {
+            if (edtGroundTime.text.toString().isBlank()) {
+                edtGroundTime.hint = getString(R.string.str_time_zero)
+            }
+            sGroundTime = it
+        }
         edtGroundTime.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
                 addEditPresenter.correctGroundTime(sGroundTime)
@@ -128,7 +139,6 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
                 }
             }
         }
-
         edtGroundTime.setOnKeyListener { _, keyCode, event ->
             if (keyCode == EditorInfo.IME_ACTION_GO && event.action == KeyEvent.ACTION_UP) {
                 Utility.hideSoftKeyboard(this@AddEditActivity)
@@ -180,19 +190,21 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         }))
     }
 
-    private fun setMaskedChanges(){
-
+    private fun setMaskedChanges(editText: EditText, onMasked: (value: String) -> Unit = {}) {
+        MaskedTextChangedListener.installOn(editText, CONSTS.STRINGS.LOG_TIME_FORMAT, object : MaskedTextChangedListener.ValueListener {
+            override fun onTextChanged(maskFilled: Boolean, extractedValue: String, formattedValue: String) {
+                onMasked.invoke(extractedValue)
+            }
+        })
     }
 
     private fun onFlightTimeChanges() {
-        MaskedTextChangedListener.installOn(edtFlightTime, CONSTS.STRINGS.LOG_TIME_FORMAT, object : MaskedTextChangedListener.ValueListener {
-            override fun onTextChanged(maskFilled: Boolean, extractedValue: String, formattedValue: String) {
-                if (edtFlightTime.text.toString().isBlank()) {
-                    edtFlightTime?.hint = getString(R.string.str_itemlogtime)
-                }
-                sFlightTime = extractedValue
+        setMaskedChanges(edtFlightTime) {
+            if (edtFlightTime.text.toString().isBlank()) {
+                edtFlightTime.hint = getString(R.string.str_time_zero)
             }
-        })
+            sFlightTime = it
+        }
         edtFlightTime.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
                 addEditPresenter.correctFlightTime(sFlightTime)
@@ -282,7 +294,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
     }
 
     override fun setEdtNightTimeText(nightTimeText: String) {
-         edtNightTime.setText(nightTimeText)
+        edtNightTime.setText(nightTimeText)
     }
 
     override fun setDescription(desc: String) {
@@ -325,7 +337,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
             R.id.action_save -> {
                 val descr = edtDesc.text.toString()
                 val regNo = edtRegNo.text.toString()
-                addEditPresenter.saveFlight(regNo, descr,sFlightTime)
+                addEditPresenter.saveFlight(regNo, descr, sFlightTime)
             }
             R.id.action_remove -> {
                 confirmDialog(this, getString(R.string.str_delete), dialogListener = object : ConfirmDialogListener {
@@ -391,7 +403,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
     }
 
     override fun toastSuccess(msg: String?) {
-        ToastMaker.toastSuccess(this,msg)
+        ToastMaker.toastSuccess(this, msg)
     }
 
     override fun setResultOK() {

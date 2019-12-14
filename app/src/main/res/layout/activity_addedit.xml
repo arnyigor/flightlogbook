@@ -13,350 +13,355 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <android.support.constraint.ConstraintLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/til_title"
+        <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_height="wrap_content">
 
-            <android.support.design.widget.TextInputEditText
-                android:id="@+id/tiedt_title"
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/til_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/tiedt_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:gravity="center_horizontal"
+                    android:hint="@string/flight_title"
+                    tools:text="" />
+            </android.support.design.widget.TextInputLayout>
+
+            <ImageView
+                android:id="@+id/iv_date"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                app:layout_constraintBottom_toBottomOf="@+id/til_date"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/til_date"
+                app:srcCompat="@drawable/ic_date" />
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/til_date"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                app:layout_constraintEnd_toStartOf="@+id/btn_moto"
+                app:layout_constraintStart_toEndOf="@+id/iv_date"
+                app:layout_constraintTop_toBottomOf="@+id/til_title"
+                tools:visibility="visible">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/tiedt_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:gravity="center_horizontal"
+                    android:hint="@string/str_date"
+                    android:imeOptions="flagNoExtractUi"
+                    android:inputType="date"
+                    tools:text="" />
+            </android.support.design.widget.TextInputLayout>
+
+
+            <Button
+                android:id="@+id/btn_moto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:background="@drawable/btn_bg_primary"
+                android:minHeight="25dp"
+                android:text="@string/str_moto_btn"
+                android:textAllCaps="false"
+                android:textColor="@color/colorTextWhite"
+                app:layout_constraintBottom_toBottomOf="@+id/til_date"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/til_date" />
+
+            <TextView
+                android:id="@+id/tvFlightTimeLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:padding="4dp"
+                android:text="Летное время:"
+                app:layout_constraintBottom_toBottomOf="@+id/edtFlightTime"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/edtFlightTime" />
+
+            <EditText
+                android:id="@+id/edtFlightTime"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:gravity="center_horizontal"
-                android:hint="@string/flight_title"
-                tools:text="" />
-        </android.support.design.widget.TextInputLayout>
+                android:hint="@string/str_itemlogtime"
+                android:imeOptions="actionDone"
+                android:inputType="time"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/tvFlightTimeLabel"
+                app:layout_constraintTop_toBottomOf="@+id/til_date"
+                tools:text="00:00" />
 
-        <ImageView
-            android:id="@+id/iv_date"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            app:layout_constraintBottom_toBottomOf="@+id/til_date"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/til_date"
-            app:srcCompat="@drawable/ic_date" />
-
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/til_date"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            app:layout_constraintEnd_toStartOf="@+id/btn_moto"
-            app:layout_constraintStart_toEndOf="@+id/iv_date"
-            app:layout_constraintTop_toBottomOf="@+id/til_title"
-            tools:visibility="visible">
-
-            <android.support.design.widget.TextInputEditText
-                android:id="@+id/tiedt_date"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tv_time_label2"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:padding="4dp"
+                android:text="Ночь:"
+                app:layout_constraintBottom_toBottomOf="@+id/edtNightTime"
+                app:layout_constraintEnd_toStartOf="@+id/edtNightTime"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/edtNightTime" />
+
+            <EditText
+                android:id="@+id/edtNightTime"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:gravity="center_horizontal"
-                android:hint="@string/str_date"
-                android:imeOptions="flagNoExtractUi"
-                android:inputType="date"
-                tools:text="" />
-        </android.support.design.widget.TextInputLayout>
+                android:hint="@string/str_itemlogtime"
+                android:imeOptions="actionDone"
+                android:inputType="time"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/edtFlightTime"
+                app:layout_constraintTop_toBottomOf="@+id/edtFlightTime"
+                tools:text="00:00" />
 
-
-        <Button
-            android:id="@+id/btn_moto"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:background="@drawable/btn_bg_primary"
-            android:minHeight="25dp"
-            android:text="@string/str_moto_btn"
-            android:textAllCaps="false"
-            android:textColor="@color/colorTextWhite"
-            app:layout_constraintBottom_toBottomOf="@+id/til_date"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/til_date" />
-
-        <TextView
-            android:id="@+id/tvFlightTimeLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:padding="4dp"
-            android:text="Летное время:"
-            app:layout_constraintBottom_toBottomOf="@+id/edtFlightTime"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/edtFlightTime" />
-
-        <EditText
-            android:id="@+id/edtFlightTime"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:gravity="center_horizontal"
-            android:hint="@string/str_itemlogtime"
-            android:imeOptions="actionDone"
-            android:inputType="time"
-            android:textSize="18sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/tvFlightTimeLabel"
-            app:layout_constraintTop_toBottomOf="@+id/til_date"
-            tools:text="00:00" />
-
-        <TextView
-            android:id="@+id/tv_time_label2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:padding="4dp"
-            android:text="Ночь:"
-            app:layout_constraintBottom_toBottomOf="@+id/edtNightTime"
-            app:layout_constraintEnd_toStartOf="@+id/edtNightTime"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/edtNightTime" />
-
-        <EditText
-            android:id="@+id/edtNightTime"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:gravity="center_horizontal"
-            android:hint="@string/str_itemlogtime"
-            android:imeOptions="actionDone"
-            android:inputType="time"
-            android:textSize="18sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/edtFlightTime"
-            app:layout_constraintTop_toBottomOf="@+id/edtFlightTime"
-            tools:text="00:00" />
-
-        <TextView
-            android:id="@+id/tv_time_label3"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:padding="4dp"
-            android:text="На земле:"
-            app:layout_constraintBottom_toBottomOf="@+id/edtGroundTime"
-            app:layout_constraintEnd_toStartOf="@+id/edtGroundTime"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/edtGroundTime" />
-
-        <EditText
-            android:id="@+id/edtGroundTime"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:gravity="center_horizontal"
-            android:hint="@string/str_itemlogtime"
-            android:imeOptions="actionDone"
-            android:inputType="time"
-            android:textSize="18sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/edtNightTime"
-            app:layout_constraintTop_toBottomOf="@+id/edtNightTime"
-            tools:text="00:00" />
-
-        <TextView
-            android:id="@+id/tvTotalFlightTimeLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:padding="8dp"
-            android:text="Летное время:"
-            app:layout_constraintBottom_toBottomOf="@+id/tvTotalFlightTime"
-            app:layout_constraintStart_toEndOf="@+id/tvTotalTimeLabel"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/tvTotalFlightTime" />
-
-        <TextView
-            android:id="@+id/tvTotalFlightTime"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:gravity="center_horizontal|center_vertical"
-            android:padding="8dp"
-            android:textSize="18sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/edtGroundTime"
-            app:layout_constraintTop_toBottomOf="@+id/edtGroundTime"
-            android:text="00:00" />
-
-        <TextView
-            android:id="@+id/tvTotalTimeLabel"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:padding="8dp"
-            android:text="@string/str_total_time"
-            app:layout_constraintBottom_toBottomOf="@+id/tvTotalTime"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/tvTotalTime" />
-
-
-        <TextView
-            android:id="@+id/tvTotalTime"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:gravity="center_horizontal|center_vertical"
-            android:padding="8dp"
-            android:textSize="18sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/edtGroundTime"
-            app:layout_constraintTop_toBottomOf="@+id/tvTotalFlightTime"
-            android:text="00:00" />
-
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/til_descr"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvTotalTimeLabel">
-
-            <android.support.design.widget.TextInputEditText
-                android:id="@+id/edtDesc"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tv_time_label3"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:ellipsize="end"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:padding="4dp"
+                android:text="На земле:"
+                app:layout_constraintBottom_toBottomOf="@+id/edtGroundTime"
+                app:layout_constraintEnd_toStartOf="@+id/edtGroundTime"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/edtGroundTime" />
+
+            <EditText
+                android:id="@+id/edtGroundTime"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
-                android:hint="@string/str_desc"
-                android:inputType="textMultiLine"
-                android:maxLines="5"
-                tools:text="@tools:sample/lorem" />
-        </android.support.design.widget.TextInputLayout>
+                android:gravity="center_horizontal"
+                android:hint="@string/str_itemlogtime"
+                android:imeOptions="actionDone"
+                android:inputType="time"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/edtNightTime"
+                app:layout_constraintTop_toBottomOf="@+id/edtNightTime"
+                tools:text="00:00" />
+
+            <TextView
+                android:id="@+id/tvTotalFlightTimeLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:padding="8dp"
+                android:text="Летное время:"
+                app:layout_constraintBottom_toBottomOf="@+id/tvTotalFlightTime"
+                app:layout_constraintStart_toEndOf="@+id/tvTotalTimeLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/tvTotalFlightTime" />
+
+            <TextView
+                android:id="@+id/tvTotalFlightTime"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:gravity="center_horizontal|center_vertical"
+                android:padding="8dp"
+                android:text="00:00"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/edtGroundTime"
+                app:layout_constraintTop_toBottomOf="@+id/edtGroundTime" />
+
+            <TextView
+                android:id="@+id/tvTotalTimeLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:padding="8dp"
+                android:text="@string/str_total_time"
+                app:layout_constraintBottom_toBottomOf="@+id/tvTotalTime"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/tvTotalTime" />
 
 
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/edtRegNoLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/til_descr">
+            <TextView
+                android:id="@+id/tvTotalTime"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:gravity="center_horizontal|center_vertical"
+                android:padding="8dp"
+                android:text="00:00"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/edtGroundTime"
+                app:layout_constraintTop_toBottomOf="@+id/tvTotalFlightTime" />
 
-            <android.support.design.widget.TextInputEditText
-                android:id="@+id/edtRegNo"
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/til_descr"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:focusable="true"
-                tools:text="@tools:sample/lorem"
-                android:focusableInTouchMode="true"
-                android:hint="@string/str_regnum" />
+                android:layout_margin="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvTotalTimeLabel">
 
-        </android.support.design.widget.TextInputLayout>
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/edtDesc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:hint="@string/str_desc"
+                    android:inputType="textMultiLine"
+                    android:maxLines="5"
+                    tools:text="@tools:sample/lorem" />
+            </android.support.design.widget.TextInputLayout>
 
-        <TextView
-            android:id="@+id/tvAirplaneType"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_weight="1"
-            android:padding="4dp"
-            android:text="@string/str_type"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="@+id/select_plane_type"
-            app:layout_constraintEnd_toStartOf="@+id/select_plane_type"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/select_plane_type" />
 
-        <Button
-            android:id="@+id/select_plane_type"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:background="@drawable/btn_bg_primary"
-            android:minHeight="25dp"
-            android:text="@string/str_select"
-            android:textAllCaps="false"
-            android:textColor="@color/colorTextWhite"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/edtRegNoLayout" />
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/edtRegNoLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/til_descr">
 
-        <TextView
-            android:id="@+id/tv_flight_type"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_weight="1"
-            android:padding="4dp"
-            android:text="@string/str_flight_type_title"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="@+id/select_flight_type"
-            app:layout_constraintEnd_toStartOf="@+id/select_flight_type"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/select_flight_type" />
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/edtRegNo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:hint="@string/str_regnum"
+                    tools:text="@tools:sample/lorem" />
 
-        <Button
-            android:id="@+id/select_flight_type"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:background="@drawable/btn_bg_primary"
-            android:minHeight="25dp"
-            android:text="@string/str_select"
-            android:textAllCaps="false"
-            android:textColor="@color/colorTextWhite"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/select_plane_type" />
+            </android.support.design.widget.TextInputLayout>
 
-    </android.support.constraint.ConstraintLayout>
+            <TextView
+                android:id="@+id/tvAirplaneType"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_weight="1"
+                android:padding="4dp"
+                android:text="@string/str_type"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="@+id/select_plane_type"
+                app:layout_constraintEnd_toStartOf="@+id/select_plane_type"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/select_plane_type" />
+
+            <Button
+                android:id="@+id/select_plane_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:background="@drawable/btn_bg_primary"
+                android:minHeight="25dp"
+                android:text="@string/str_select"
+                android:textAllCaps="false"
+                android:textColor="@color/colorTextWhite"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/edtRegNoLayout" />
+
+            <TextView
+                android:id="@+id/tv_flight_type"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_weight="1"
+                android:padding="4dp"
+                android:text="@string/str_flight_type_title"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="@+id/select_flight_type"
+                app:layout_constraintEnd_toStartOf="@+id/select_flight_type"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/select_flight_type" />
+
+            <Button
+                android:id="@+id/select_flight_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:background="@drawable/btn_bg_primary"
+                android:minHeight="25dp"
+                android:text="@string/str_select"
+                android:textAllCaps="false"
+                android:textColor="@color/colorTextWhite"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/select_plane_type" />
+
+        </android.support.constraint.ConstraintLayout>
+    </ScrollView>
 
 </LinearLayout>
