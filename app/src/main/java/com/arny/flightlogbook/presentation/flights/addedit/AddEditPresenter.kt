@@ -28,7 +28,11 @@ class AddEditPresenter : MvpPresenter<AddEditView>(),CompositeDisposableComponen
     lateinit var prefsUseCase: PrefsUseCase
     private var id: Long? = null
     @Volatile
-    private var logTime: Int = 0
+    private var intFlightTime: Int = 0
+    @Volatile
+    private var intNightTime: Int = 0
+    @Volatile
+    private var intGroundTime: Int = 0
     @Volatile
     private var sumlogTime: Int = 0
     @Volatile
@@ -85,10 +89,26 @@ class AddEditPresenter : MvpPresenter<AddEditView>(),CompositeDisposableComponen
                 .observeSubscribeAdd({ viewState?.setDate(it) })
     }
 
-    fun correctingLogTime(stringTime: String) {
-        correctLogTime(stringTime,logTime) { time, timeText ->
-            logTime = time
-            viewState?.setEdtTimeText(timeText)
+    fun correctFlightTime(stringTime: String) {
+        correctLogTime(stringTime,intFlightTime) { time, timeText ->
+            intFlightTime = time
+            viewState?.setEdtFlightTimeText(timeText)
+            viewState?.timeSummChange()
+        }
+    }
+
+    fun correctNightTime(stringTime: String) {
+        correctLogTime(stringTime,intNightTime) { time, timeText ->
+            intNightTime = time
+            viewState?.setEdtNightTimeText(timeText)
+            viewState?.timeSummChange()
+        }
+    }
+
+    fun correctGroundTime(stringTime: String) {
+        correctLogTime(stringTime,intGroundTime) { time, timeText ->
+            intGroundTime = time
+            viewState?.setEdtGroundTimeText(timeText)
             viewState?.timeSummChange()
         }
     }
@@ -138,11 +158,11 @@ class AddEditPresenter : MvpPresenter<AddEditView>(),CompositeDisposableComponen
     }
 
     fun setMotoResult() {
-        logTime = setLogTimefromMoto(mMotoResult)
-        val logHours = logTime / 60
-        val logMinutes = logTime % 60
+        intFlightTime = setLogTimefromMoto(mMotoResult)
+        val logHours = intFlightTime / 60
+        val logMinutes = intFlightTime % 60
         val format = String.format("%s:%s", DateTimeUtils.pad(logHours), DateTimeUtils.pad(logMinutes))
-        viewState?.setEdtTimeText(format)
+        viewState?.setEdtFlightTimeText(format)
         viewState?.timeSummChange()
     }
 
@@ -259,8 +279,8 @@ class AddEditPresenter : MvpPresenter<AddEditView>(),CompositeDisposableComponen
     private fun calcTotaltimes(items: ArrayList<TimeToFlight>) {
         fromCallable { items }
                 .map { times ->
-                    sumlogTime = logTime + times.sumBy { it.time }
-                    sumFlightTime = logTime + times.filter { it.addToFlightTime }.sumBy { it.time }
+                    sumlogTime = intFlightTime + times.sumBy { it.time }
+                    sumFlightTime = intFlightTime + times.filter { it.addToFlightTime }.sumBy { it.time }
                     val strLogTime = DateTimeUtils.strLogTime(sumlogTime)
                     val strFlightTime = DateTimeUtils.strLogTime(sumFlightTime)
                     Pair(strLogTime, strFlightTime)
@@ -276,15 +296,15 @@ class AddEditPresenter : MvpPresenter<AddEditView>(),CompositeDisposableComponen
     }
 
     fun saveFlight(regNo: String, descr: String,  timeStr: String) {
-        correctLogTime(timeStr,logTime) { time, timeText ->
-            logTime = time
-            viewState?.setEdtTimeText(timeText)
+        correctLogTime(timeStr,intFlightTime) { time, timeText ->
+            intFlightTime = time
+            viewState?.setEdtFlightTimeText(timeText)
             viewState?.timeSummChange()
             if (mDateTime == 0L) {
                 mDateTime = System.currentTimeMillis()
             }
             flight?.datetime = mDateTime
-            flight?.flightTime = logTime
+            flight?.flightTime = intFlightTime
             flight?.sumFlightTime = sumFlightTime
             flight?.regNo = regNo
             flight?.description = descr

@@ -45,7 +45,7 @@
     <string name="str_ok">OK</string>
     <string name="str_cancel">Отмена</string>
     <string name="str_date_format">dd.MM.yyyy</string>
-    <string name="str_logtime">00:00</string>
+    <string name="str_time_zero">00:00</string>
     <string name="str_about">О программе</string>
     <string name="str_no_regnum">Нет рег.№</string>
     <string name="str_type_change_succesfull">Тип ВС изменен</string>
@@ -72,7 +72,7 @@
     <string name="str_export_attention">Экспорт в файл?</string>
     <string name="str_settings">Настройки</string>
     <string name="str_moto">Cчетчик моточасов</string>
-    <string name="str_moto_btn" translatable="false">Moto</string>
+    <string name="str_moto_btn">Моточасы</string>
     <string name="str_motostart">Начальное показание</string>
     <string name="str_motofinish">Конечное показание</string>
     <string name="str_motoresult">Результат</string>

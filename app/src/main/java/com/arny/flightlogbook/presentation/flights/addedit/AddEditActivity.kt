@@ -30,7 +30,9 @@ import java.util.*
 class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerDialogFragment.OnDateSetListener, View.OnClickListener {
     private var tvMotoResult: TextView? = null
     private var imm: InputMethodManager? = null
-    private var time = ""
+    private var sFlightTime = ""
+    private var sNightTime = ""
+    private var sGroundTime = ""
 
     @InjectPresenter
     lateinit var addEditPresenter: AddEditPresenter
@@ -66,7 +68,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
     }
 
     override fun setTotalFlightTime(flightTime: String) {
-        tv_total_flight_time.text = flightTime
+        tvTotalFlightTimeLabel.text = flightTime
     }
 
     override fun toastError(msg: String?) {
@@ -74,7 +76,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
     }
 
     override fun setTotalTime(total: String) {
-        tv_total_time.text = total
+        tvTotalTimeLabel.text = total
     }
 
     private fun initUI() {
@@ -83,6 +85,61 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         btn_moto.setOnClickListener(this)
         iv_date.setOnClickListener(this)
         imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        onDateTimeChanges()
+        onFlightTimeChanges()
+        onNightTimeChanges()
+        onGroundTimeChanges()
+    }
+
+    private fun onNightTimeChanges() {
+        edtNightTime.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                addEditPresenter.correctNightTime(sNightTime)
+            }
+            if (edtNightTime.text.toString().isBlank()) {
+                if (hasFocus) {
+                    edtNightTime?.hint = getString(R.string.str_time_zero)
+                } else {
+                    edtNightTime?.hint = null
+                }
+            }
+        }
+
+        edtNightTime.setOnKeyListener { _, keyCode, event ->
+            if (keyCode == EditorInfo.IME_ACTION_GO && event.action == KeyEvent.ACTION_UP) {
+                Utility.hideSoftKeyboard(this@AddEditActivity)
+                addEditPresenter.correctNightTime(sFlightTime)
+                return@setOnKeyListener true
+            }
+            return@setOnKeyListener false
+        }
+    }
+
+    private fun onGroundTimeChanges() {
+        edtGroundTime.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                addEditPresenter.correctGroundTime(sGroundTime)
+            }
+            if (edtGroundTime.text.toString().isBlank()) {
+                if (hasFocus) {
+                    edtGroundTime?.hint = getString(R.string.str_time_zero)
+                } else {
+                    edtGroundTime?.hint = null
+                }
+            }
+        }
+
+        edtGroundTime.setOnKeyListener { _, keyCode, event ->
+            if (keyCode == EditorInfo.IME_ACTION_GO && event.action == KeyEvent.ACTION_UP) {
+                Utility.hideSoftKeyboard(this@AddEditActivity)
+                addEditPresenter.correctGroundTime(sGroundTime)
+                return@setOnKeyListener true
+            }
+            return@setOnKeyListener false
+        }
+    }
+
+    private fun onDateTimeChanges() {
         tiedt_date?.setOnFocusChangeListener { _, hasFocus ->
             val empty = Utility.empty(tiedt_date?.text.toString())
             if (empty) {
@@ -108,68 +165,74 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
             }
         }
         tiedt_date?.addTextChangedListener(MaskedTextChangedListener("[00].[00].[0000]", ArrayList(), false, tiedt_date, object : _TextWatcher {
-                    override fun afterTextChanged(s: Editable) {
-                        if (Utility.empty(tiedt_date.text.toString())) {
-                            til_date?.hint = getString(R.string.str_date)
-                            tiedt_date?.hint = null
-                        }
-                    }
-                }, object : MaskedTextChangedListener.ValueListener {
+            override fun afterTextChanged(s: Editable) {
+                if (Utility.empty(tiedt_date.text.toString())) {
+                    til_date?.hint = getString(R.string.str_date)
+                    tiedt_date?.hint = null
+                }
+            }
+        }, object : MaskedTextChangedListener.ValueListener {
             override fun onTextChanged(maskFilled: Boolean, extractedValue: String, formattedValue: String) {
                 if (maskFilled) {
                     addEditPresenter.initDateFromMask(extractedValue)
                 }
             }
         }))
-        MaskedTextChangedListener.installOn(edt_time, CONSTS.STRINGS.LOG_TIME_FORMAT, object : MaskedTextChangedListener.ValueListener {
+    }
+
+    private fun setMaskedChanges(){
+
+    }
+
+    private fun onFlightTimeChanges() {
+        MaskedTextChangedListener.installOn(edtFlightTime, CONSTS.STRINGS.LOG_TIME_FORMAT, object : MaskedTextChangedListener.ValueListener {
             override fun onTextChanged(maskFilled: Boolean, extractedValue: String, formattedValue: String) {
-                if (edt_time.text.toString().isBlank()) {
-                    edt_time?.hint = getString(R.string.str_itemlogtime)
+                if (edtFlightTime.text.toString().isBlank()) {
+                    edtFlightTime?.hint = getString(R.string.str_itemlogtime)
                 }
-                time = extractedValue
+                sFlightTime = extractedValue
             }
         })
-        edt_time.setOnFocusChangeListener { _, hasFocus ->
+        edtFlightTime.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
-                addEditPresenter.correctingLogTime(time)
+                addEditPresenter.correctFlightTime(sFlightTime)
             }
-            if (edt_time.text.toString().isBlank()) {
+            if (edtFlightTime.text.toString().isBlank()) {
                 if (hasFocus) {
-                    edt_time?.hint = getString(R.string.str_itemlogtime)
+                    edtFlightTime?.hint = getString(R.string.str_time_zero)
                 } else {
-                    edt_time?.hint = null
+                    edtFlightTime?.hint = null
                 }
             }
         }
-        edt_time.setOnKeyListener { _, keyCode, event ->
+        edtFlightTime.setOnKeyListener { _, keyCode, event ->
             if (keyCode == EditorInfo.IME_ACTION_GO && event.action == KeyEvent.ACTION_UP) {
                 Utility.hideSoftKeyboard(this@AddEditActivity)
-                addEditPresenter.correctingLogTime(time)
+                addEditPresenter.correctFlightTime(sFlightTime)
                 return@setOnKeyListener true
             }
             return@setOnKeyListener false
         }
-
     }
 
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.iv_date -> {
-                addEditPresenter.correctingLogTime(time)
+                addEditPresenter.correctFlightTime(sFlightTime)
                 val cdp = CalendarDatePickerDialogFragment()
                         .setOnDateSetListener(this@AddEditActivity)
                 cdp.show(supportFragmentManager, "fragment_date_picker_name")
             }
 
             R.id.select_plane_type -> {
-                addEditPresenter.correctingLogTime(time)
+                addEditPresenter.correctFlightTime(sFlightTime)
                 launchActivity<PlaneTypesActivity>(CONSTS.REQUESTS.REQUEST_SELECT_PLANE_TYPE) {
                     putExtra("is_request", true)
                 }
                 overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
             }
             R.id.select_flight_type -> {
-                addEditPresenter.correctingLogTime(time)
+                addEditPresenter.correctFlightTime(sFlightTime)
                 launchActivity<FlightTypesActivity>(CONSTS.REQUESTS.REQUEST_SELECT_FLIGHT_TYPE) {
                     putExtra("is_request", true)
                 }
@@ -214,8 +277,12 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         supportActionBar?.title = string
     }
 
-    override fun setEdtTimeText(strLogTime: String?) {
-        edt_time.setText(strLogTime)
+    override fun setEdtFlightTimeText(strLogTime: String?) {
+        edtFlightTime.setText(strLogTime)
+    }
+
+    override fun setEdtNightTimeText(nightTimeText: String) {
+         edtNightTime.setText(nightTimeText)
     }
 
     override fun setDescription(desc: String) {
@@ -226,9 +293,13 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         tiedt_date.setText(date)
     }
 
+    override fun setEdtGroundTimeText(groundTimeText: String) {
+        edtGroundTime.setText(groundTimeText)
+    }
+
     override fun setLogTime(strLogTime: String?) {
-        edt_time.setText(strLogTime)
-        addEditPresenter.correctingLogTime(time)
+        edtFlightTime.setText(strLogTime)
+        addEditPresenter.correctFlightTime(sFlightTime)
     }
 
     override fun setRegNo(regNo: String?) {
@@ -254,7 +325,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
             R.id.action_save -> {
                 val descr = edtDesc.text.toString()
                 val regNo = edtRegNo.text.toString()
-                addEditPresenter.saveFlight(regNo, descr,time)
+                addEditPresenter.saveFlight(regNo, descr,sFlightTime)
             }
             R.id.action_remove -> {
                 confirmDialog(this, getString(R.string.str_delete), dialogListener = object : ConfirmDialogListener {

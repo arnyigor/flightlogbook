@@ -11,7 +11,7 @@ interface AddEditView : MvpView {
     fun setDate(date: String)
     fun setLogTime(strLogTime: String?)
     fun setRegNo(regNo: String?)
-    fun setEdtTimeText(strLogTime: String?)
+    fun setEdtFlightTimeText(strLogTime: String?)
     fun setMotoTimeResult(motoTime: String?)
     fun setToolbarTitle(string: String)
     fun toastError(msg: String?)
@@ -26,4 +26,6 @@ interface AddEditView : MvpView {
     fun toastSuccess(msg: String?)
     fun onPressBack()
     fun setResultOK()
+    fun setEdtNightTimeText(nightTimeText: String)
+    fun setEdtGroundTimeText(groundTimeText: String)
 }

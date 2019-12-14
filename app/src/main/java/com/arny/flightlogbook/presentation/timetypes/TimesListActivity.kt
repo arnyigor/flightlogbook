@@ -106,18 +106,18 @@ class TimesListActivity : MvpAppCompatActivity(), TimesListView, View.OnClickLis
         var value = ""
         cDialog = createCustomLayoutDialog(R.layout.time_input_dialog_layout, {
             var logTime = 0
-            MaskedTextChangedListener.installOn(edt_time, CONSTS.STRINGS.LOG_TIME_FORMAT, object : MaskedTextChangedListener.ValueListener {
+            MaskedTextChangedListener.installOn(edtFlightTime, CONSTS.STRINGS.LOG_TIME_FORMAT, object : MaskedTextChangedListener.ValueListener {
                 override fun onTextChanged(maskFilled: Boolean, extractedValue: String, formattedValue: String) {
                     value = extractedValue
                 }
             })
             tv_dlg_title.text = getString(R.string.enter_time) + " \"${item.title}\""
-            edt_time.hint = "чч:мм"
-            edt_time.setOnFocusChangeListener { _, hasFocus ->
+            edtFlightTime.hint = "чч:мм"
+            edtFlightTime.setOnFocusChangeListener { _, hasFocus ->
                 if (!hasFocus) {
                     correctLogTime(value, logTime) { time, timeText ->
                         logTime = time
-                        edt_time.setText(timeText)
+                        edtFlightTime.setText(timeText)
                     }
                 }
             }
@@ -127,7 +127,7 @@ class TimesListActivity : MvpAppCompatActivity(), TimesListView, View.OnClickLis
             btn_time_dlg_ok.setOnClickListener {
                 correctLogTime(value, logTime) { time, timeText ->
                     logTime = time
-                    edt_time.setText(timeText)
+                    edtFlightTime.setText(timeText)
                 }
                 timesListPresenter.addFlightTime(item.id, item.title, logTime, chbox_add_flight_time.isChecked)
                 cDialog?.dismiss()
