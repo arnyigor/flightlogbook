@@ -40,17 +40,13 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
         return fromCallable { repository.insertFlightAndGet(flight.toFlightEntity())>0 }
     }
 
-    fun getFlight(id: Long?): Observable<OptionalNull<Flight?>> {
-        return fromNullable { repository.getFlight(id)?.toFlight() }
-                .map { nullable->
-                    val flight = nullable.value
-                    val planeType = repository.loadPlaneType(flight?.planeId)
-                    val flightTypeEntity = repository.loadDBFlightType(flight?.flightTypeId?.toLong())
-                    flight?.planeType = planeType?.toPlaneType()
-                    flight?.flightType= flightTypeEntity?.toFlightType()
-//                    flight?.sumFlightTime = (flight?.flightTime?:0) + (flight?.times?.filter { it.addToFlightTime }?.sumBy { it.time }?:0)
-//                    flight?.sumGroundTime =  (flight?.times?.filter { !it.addToFlightTime }?.sumBy { it.time }?:0)
-                    nullable
+    fun getFlight(id: Long?): Flight? {
+        return repository.getFlight(id)?.toFlight()
+                ?.apply {
+                    val planeType = repository.loadPlaneType(this.planeId)
+                    val flightTypeEntity = repository.loadDBFlightType(this.flightTypeId?.toLong())
+                    this.planeType = planeType?.toPlaneType()
+                    this.flightType= flightTypeEntity?.toFlightType()
                 }
     }
 
@@ -58,8 +54,8 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
         return fromCallable { repository.loadPlaneTypes().map { it.toPlaneType() } }
     }
 
-    fun loadPlaneTypeObs(id: Long?): Observable<OptionalNull<PlaneType?>> {
-        return fromNullable { repository.loadPlaneType(id)?.toPlaneType() }
+    fun loadPlaneTypeObs(id: Long?): PlaneType? {
+        return repository.loadPlaneType(id)?.toPlaneType()
     }
 
     fun loadPlaneType(id: Long?): PlaneType? {
@@ -78,8 +74,8 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
         return repository.loadPlaneType(title)?.toPlaneType()
     }
 
-    fun loadFlightType(id: Long?): Observable<OptionalNull<FlightType?>> {
-        return fromNullable { repository.loadDBFlightType(id)?.toFlightType() }
+    fun loadFlightType(id: Long?): FlightType? {
+        return repository.loadDBFlightType(id)?.toFlightType()
     }
 
     fun loadDBFlightsToTimes(): Observable<List<TimeToFlight>> {

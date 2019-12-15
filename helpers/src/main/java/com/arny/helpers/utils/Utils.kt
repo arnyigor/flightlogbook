@@ -176,7 +176,7 @@ fun Fragment.putExtras(init: Bundle.() -> Unit = {}) {
     this.arguments = args
 }
 
-fun  Fragment.putExtras(args: Bundle?) {
+fun Fragment.putExtras(args: Bundle?) {
     this.arguments = args
 }
 
@@ -388,9 +388,9 @@ fun AppCompatActivity.replaceFragmentInActivity(fragment: Fragment, @IdRes frame
     }
 }
 
-fun AppCompatActivity.addFragmentToActivity(fragment: Fragment,@IdRes frameId: Int, tag: String?) {
+fun AppCompatActivity.addFragmentToActivity(fragment: Fragment, @IdRes frameId: Int, tag: String?) {
     supportFragmentManager.transact {
-        add(frameId,fragment, tag)
+        add(frameId, fragment, tag)
     }
 }
 
@@ -885,7 +885,7 @@ fun getTermination(count: Int, zero_other: String, one: String, two_four: String
  */
 fun String?.setDouble(): Double {
     val source = this ?: ""
-    if (source.isBlank() || source==".") {
+    if (source.isBlank() || source == ".") {
         return 0.0
     }
     return source.toDouble()
@@ -932,7 +932,7 @@ fun <T> Collection<T>.filterList(predicate: (T) -> Boolean): ArrayList<T> {
 }
 
 fun <T : Any> Collection<T>?.dump(predicate: (cls: T) -> String?): String {
-    return dumpArray(this,predicate)
+    return dumpArray(this, predicate)
 }
 
 fun <T : Any> dumpArray(collection: Collection<T>?, predicate: (cls: T) -> String?): String {
@@ -1048,6 +1048,20 @@ fun String?.parseInt(): Int? {
                 this.toInt()
             } catch (e: Exception) {
                 null
+            }
+        }
+    }
+}
+
+fun String?.parseInt(default: Int = 0): Int {
+    return when {
+        this == null -> default
+        this.isBlank() -> default
+        else -> {
+            try {
+                this.toInt()
+            } catch (e: Exception) {
+                default
             }
         }
     }

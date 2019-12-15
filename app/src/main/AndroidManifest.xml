@@ -27,10 +27,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".presentation.timetypes.TimesListActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
             android:name=".presentation.flights.addedit.AddEditActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden" />

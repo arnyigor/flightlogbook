@@ -323,7 +323,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
             R.id.action_save -> {
                 val descr = edtDesc.text.toString()
                 val regNo = edtRegNo.text.toString()
-                addEditPresenter.saveFlight(regNo, descr, sFlightTime,sGroundTime)
+                addEditPresenter.saveFlight(regNo, descr, sFlightTime,sGroundTime,sNightTime)
             }
             R.id.action_remove -> {
                 confirmDialog(this, getString(R.string.str_delete), dialogListener = object : ConfirmDialogListener {

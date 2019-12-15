@@ -4,18 +4,19 @@ import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
 import com.arny.domain.common.CommonUseCase
 import com.arny.domain.common.PrefsUseCase
-import com.arny.domain.correctLogTime
 import com.arny.domain.flights.FlightsUseCase
+import com.arny.domain.getCorrectTime
 import com.arny.domain.models.Flight
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
-import com.arny.helpers.coroutins.CompositeJob
-import com.arny.helpers.coroutins.addTo
-import com.arny.helpers.coroutins.launch
-import com.arny.helpers.coroutins.launchAsync
+import com.arny.helpers.coroutins.*
 import com.arny.helpers.utils.*
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
 import org.joda.time.DateTime
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
@@ -44,7 +45,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
     private var mMotoFinish: Float = 0.toFloat()
     private var mMotoResult: Float = 0.toFloat()
     override val compositeDisposable = CompositeDisposable()
-    override val coroutineContext: CoroutineContext = Dispatchers.Main + SupervisorJob()
+    override val coroutineContext: CoroutineContext = getMainCoroutinContext()
     private val compositeJob = CompositeJob()
 
     init {
@@ -59,12 +60,17 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
     }
 
     private fun initUI(flight: Flight) {
-        viewState?.setDescription(flight.description ?: "")
-        viewState?.setRegNo(flight.regNo)
-        viewState?.setToolbarTitle(commonUseCase.getString(R.string.str_edt_flight))
-        loadDateTime(flight)
-        loadFlightType()
-        loadPlaneTypes()
+        launchSafe({
+            viewState?.setDescription(flight.description ?: "")
+            viewState?.setRegNo(flight.regNo)
+            viewState?.setToolbarTitle(commonUseCase.getString(R.string.str_edt_flight))
+            loadDateTime(flight)
+            loadTimes(flight)
+            loadFlightType()
+            loadPlaneTypes()
+        }, {
+            viewState?.toastError(it.message)
+        }).addTo(compositeJob)
     }
 
     private fun loadPlaneTypes() {
@@ -74,33 +80,48 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
         }
     }
 
-    private fun loadFlightType() {
+    private suspend fun loadFlightType() {
         val flighttype = flight?.flightTypeId
         if (flighttype != null) {
-            flightsUseCase.loadFlightType(flighttype.toLong())
-                    .observeSubscribeAdd({
-                        val flightType = it.value
-                        if (flightType != null) {
-                            val title = "${commonUseCase.getString(R.string.str_flight_type_title)}${flightType.typeTitle}"
-                            viewState?.setFligtTypeTitle(title)
-                        }
-                    })
+            ioThread { flightsUseCase.loadFlightType(flighttype.toLong()) }
+                    ?.let {
+                        val title = "${commonUseCase.getString(R.string.str_flight_type_title)}${it.typeTitle}"
+                        viewState?.setFligtTypeTitle(title)
+                    }
         }
     }
 
-    private fun loadDateTime(flight: Flight) {
-        fromCallable { DateTimeUtils.getDateTime(flight.datetime ?: 0, "dd.MM.yyyy") }
-                .observeSubscribeAdd({ viewState?.setDate(it) })
+    private suspend fun loadDateTime(flight: Flight) {
+        ioThread { DateTimeUtils.getDateTime(flight.datetime ?: 0, "dd.MM.yyyy") }
+                .let { viewState?.setDate(it) }
     }
 
-    private fun timeSummChanged() {
-        val totalSummTime = intFlightTime + intGroundTime
 
+    private suspend fun loadTimes(flight: Flight) {
+        intFlightTime = flight.flightTime
+        flowIO { DateTimeUtils.strLogTime(intFlightTime) }
+                .flowOn(getMainCoroutinContext())
+                .handleErrors()
+                .collect {
+                    viewState?.setDate(it)
+                }
+    }
+
+
+    private suspend fun timeSummChanged() {
+        if (intNightTime > intFlightTime) {
+            intFlightTime = intNightTime
+            ioThread { DateTimeUtils.strLogTime(intFlightTime) }
+                    .let { viewState?.setEdtFlightTimeText(it) }
+        }
+        intTotalTime = intFlightTime + intGroundTime
+        ioThread { DateTimeUtils.strLogTime(intTotalTime) }
+                .let { viewState?.setTotalTime(it) }
     }
 
     fun correctFlightTime(stringTime: String) {
         launch {
-            val pair = withContext(Dispatchers.Default) { correctLogTime(stringTime, intFlightTime) }
+            val pair = withContext(Dispatchers.IO) { getCorrectTime(stringTime, intFlightTime) }
             intFlightTime = pair.first
             viewState?.setEdtFlightTimeText(pair.second)
             timeSummChanged()
@@ -109,7 +130,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
 
     fun correctNightTime(stringTime: String) {
         launch {
-            val pair = withContext(Dispatchers.Default) { correctLogTime(stringTime, intNightTime) }
+            val pair = withContext(Dispatchers.IO) { getCorrectTime(stringTime, intNightTime) }
             intNightTime = pair.first
             viewState?.setEdtNightTimeText(pair.second)
             timeSummChanged()
@@ -118,28 +139,28 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
 
     fun correctGroundTime(stringTime: String) {
         launch {
-            val pair = withContext(Dispatchers.Default) { correctLogTime(stringTime, intGroundTime) }
+            val pair = ioThread { getCorrectTime(stringTime, intGroundTime) }
             intGroundTime = pair.first
             viewState?.setEdtGroundTimeText(pair.second)
             timeSummChanged()
         }.addTo(compositeJob)
     }
 
-    private fun loadFlight(id: Long?) {
-        flightsUseCase.getFlight(id ?: 0)
-                .observeSubscribeAdd({
-                    this.flight = it.value
-                    if (flight != null) {
-                        initUI(flight!!)
-                    } else {
-                        viewState?.toastError(commonUseCase.getString(R.string.record_not_found))
-                        initEmptyUI()
-                    }
-                }, {
-                    it.printStackTrace()
+    private fun loadFlight(id: Long) {
+        launchSafe({
+            ioThread { flightsUseCase.getFlight(id) }.let {
+                this.flight = it
+                if (flight != null) {
+                    initUI(flight!!)
+                } else {
+                    viewState?.toastError(commonUseCase.getString(R.string.record_not_found))
                     initEmptyUI()
-                    viewState?.toastError(commonUseCase.getString(R.string.record_not_found) + ":" + it.message)
-                })
+                }
+            }
+        }, {
+            initEmptyUI()
+            viewState?.toastError(commonUseCase.getString(R.string.record_not_found) + ":" + it.message)
+        }).addTo(compositeJob)
     }
 
     private fun initEmptyUI() {
@@ -225,57 +246,40 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
     }
 
     fun setFlightPlaneType(planetypeId: Long?) {
-        flightsUseCase.loadPlaneTypeObs(planetypeId)
-                .observeOnMain()
-                .subscribe({
-                    val planeType = it.value
-                    if (planeType != null) {
+        launchSafe {
+            ioThread { flightsUseCase.loadPlaneTypeObs(planetypeId) }
+                    ?.let { planeType ->
                         this.flight?.planeId = planeType.typeId
                         val title = "${commonUseCase.getString(R.string.str_type)}${planeType.typeName}"
                         viewState?.setPlaneTypeTitle(title)
-                    } else {
-                        viewState?.toastError(commonUseCase.getString(R.string.err_plane_type_not_found))
                     }
-                }, {
-                    it.printStackTrace()
-                })
-                .addTo(compositeDisposable)
+                    ?: viewState?.toastError(commonUseCase.getString(R.string.err_plane_type_not_found))
+        }.addTo(compositeJob)
     }
 
     fun setFlightType(fightTypeId: Long?) {
-        flightsUseCase.loadFlightType(fightTypeId)
-                .observeOnMain()
-                .subscribe({
-                    val flightType = it.value
-                    if (flightType != null) {
+        launchSafe {
+            ioThread { flightsUseCase.loadFlightType(fightTypeId) }
+                    ?.let { flightType ->
                         this.flight?.flightTypeId = flightType.id?.toInt()
                         val title = "${commonUseCase.getString(R.string.str_flight_type_title)}${flightType.typeTitle}"
                         viewState?.setFligtTypeTitle(title)
-                    } else {
-                        viewState?.toastError(commonUseCase.getString(R.string.err_flight_type_not_found))
                     }
-                }, {
-                    it.printStackTrace()
-                })
-                .addTo(compositeDisposable)
+                    ?: viewState?.toastError(commonUseCase.getString(R.string.err_flight_type_not_found))
+        }.addTo(compositeJob)
     }
 
-    private fun calcTotalTimes(): String? {
-        intTotalTime = intFlightTime + intGroundTime
-        return DateTimeUtils.strLogTime(intTotalTime)
-    }
-
-    fun saveFlight(regNo: String, descr: String, sFlightTime: String, sGroundTime: String) {
-        launch({
-            val pairFlight = withContext(Dispatchers.IO) { correctLogTime(sFlightTime, intFlightTime) }
-            val pairGround = withContext(Dispatchers.IO) { correctLogTime(sGroundTime, intGroundTime) }
+    fun saveFlight(regNo: String, descr: String, sFlightTime: String, sGroundTime: String, sNightTime: String) {
+        launchSafe({
+            val pairFlight = ioThread { getCorrectTime(sFlightTime, intFlightTime) }
+            val pairGround = ioThread { getCorrectTime(sGroundTime, intGroundTime) }
+            val pairNight = ioThread { getCorrectTime(sNightTime, intNightTime) }
             intFlightTime = pairFlight.first
             intGroundTime = pairGround.first
-            val total = withContext(Dispatchers.IO) { calcTotalTimes() }
+            intNightTime = pairNight.first
+            timeSummChanged()
             viewState?.setEdtFlightTimeText(pairFlight.second)
-            if (total != null) {
-                viewState?.setTotalTime(total)
-            }
+            viewState?.setEdtGroundTimeText(pairGround.second)
             if (mDateTime == 0L) {
                 mDateTime = System.currentTimeMillis()
             }
@@ -293,7 +297,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
                 } else {
                     addNewFlight(flt)
                 }
-            }else{
+            } else {
                 viewState?.toastError(commonUseCase.getString(R.string.empty_flight))
             }
         }, {
