@@ -80,7 +80,7 @@ class StatisticUseCase @Inject constructor(private val repository: MainRepositor
         builder.append(list.size).append("<br>")
         builder.append("<b>Общее летное время:</b>")
         builder.append(DateTimeUtils.strLogTime(list.sumBy {
-            it.sumFlightTime ?: 0
+            it.totalTime ?: 0
         })).append("<br>")
         builder.append("<b>Общее время на земле:</b>")
         builder.append(DateTimeUtils.strLogTime(list.sumBy {
@@ -98,10 +98,10 @@ class StatisticUseCase @Inject constructor(private val repository: MainRepositor
             val statistic = Statistic()
             val flight = flightInd.value
             statistic.dateTimeStart = flight.datetimeFormatted
-            builder.append("<b>Время летное:</b>").append(DateTimeUtils.strLogTime(flight.sumFlightTime)).append("<br>")
+            builder.append("<b>Время летное:</b>").append(DateTimeUtils.strLogTime(flight.totalTime)).append("<br>")
             builder.append("Налет:").append(DateTimeUtils.strLogTime(flight.flightTime)).append("<br>")
             builder.append("<b>Время на земле:</b>").append(DateTimeUtils.strLogTime(flight.sumGroundTime)).append("<br>")
-            builder.append("<b>Время общее:</b>").append(DateTimeUtils.strLogTime(flight.sumGroundTime + flight.sumFlightTime)).append("<br>")
+            builder.append("<b>Время общее:</b>").append(DateTimeUtils.strLogTime(flight.sumGroundTime + flight.totalTime)).append("<br>")
             builder.append("<b>Тип ВС:</b>").append(flight.planeType?.typeName
                     ?: "-").append("<br>")
             builder.append("<b>Тип полета:</b>").append(flight.flightType?.typeTitle ?: "-")

@@ -19,6 +19,7 @@
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
+            android:paddingBottom="8dp"
             android:layout_height="wrap_content">
 
             <android.support.design.widget.TextInputLayout
@@ -197,34 +198,6 @@
                 app:layout_constraintTop_toBottomOf="@+id/edtNightTime"
                 tools:text="00:00" />
 
-            <TextView
-                android:id="@+id/tvTotalFlightTimeLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
-                android:padding="8dp"
-                android:text="Летное время:"
-                app:layout_constraintBottom_toBottomOf="@+id/tvTotalFlightTime"
-                app:layout_constraintStart_toEndOf="@+id/tvTotalTimeLabel"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/tvTotalFlightTime" />
-
-            <TextView
-                android:id="@+id/tvTotalFlightTime"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
-                android:gravity="center_horizontal|center_vertical"
-                android:padding="8dp"
-                android:text="00:00"
-                android:textSize="18sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/edtGroundTime"
-                app:layout_constraintTop_toBottomOf="@+id/edtGroundTime" />
 
             <TextView
                 android:id="@+id/tvTotalTimeLabel"
@@ -232,7 +205,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
-                android:padding="8dp"
+                android:padding="4dp"
                 android:text="@string/str_total_time"
                 app:layout_constraintBottom_toBottomOf="@+id/tvTotalTime"
                 app:layout_constraintStart_toStartOf="parent"
@@ -248,11 +221,11 @@
                 android:layout_marginRight="8dp"
                 android:gravity="center_horizontal|center_vertical"
                 android:padding="8dp"
-                android:text="00:00"
+                android:text="@string/str_time_zero"
                 android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/edtGroundTime"
-                app:layout_constraintTop_toBottomOf="@+id/tvTotalFlightTime" />
+                app:layout_constraintTop_toBottomOf="@+id/edtGroundTime" />
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/til_descr"
@@ -330,7 +303,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/edtRegNoLayout" />
 
             <TextView
-                android:id="@+id/tv_flight_type"
+                android:id="@+id/tvFlightType"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -341,13 +314,13 @@
                 android:padding="4dp"
                 android:text="@string/str_flight_type_title"
                 android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="@+id/select_flight_type"
-                app:layout_constraintEnd_toStartOf="@+id/select_flight_type"
+                app:layout_constraintBottom_toBottomOf="@+id/btnSelectFlightType"
+                app:layout_constraintEnd_toStartOf="@+id/btnSelectFlightType"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/select_flight_type" />
+                app:layout_constraintTop_toTopOf="@+id/btnSelectFlightType" />
 
             <Button
-                android:id="@+id/select_flight_type"
+                android:id="@+id/btnSelectFlightType"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"

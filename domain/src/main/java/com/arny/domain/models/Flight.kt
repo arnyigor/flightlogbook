@@ -10,8 +10,7 @@ class Flight(var id: Long? = null) {
     var ifrTime: Int  = 0
     var groundTime: Int  = 0
     var workTime: Int = 0
-    var sumFlightTime: Int = 0
-    var sumGroundTime: Int  = 0
+    var totalTime: Int = 0
     var regNo: String? = null
     var planeId: Long? = null
     var planeType: PlaneType? = null
@@ -48,11 +47,11 @@ class Flight(var id: Long? = null) {
     override fun hashCode(): Int {
         var result = id?.hashCode() ?: 0
         result = 31 * result + (datetime?.hashCode() ?: 0)
-        result = 31 * result + (flightTime ?: 0)
-        result = 31 * result + (nightTime ?: 0)
-        result = 31 * result + (groundTime ?: 0)
-        result = 31 * result + (ifrTime ?: 0)
-        result = 31 * result + (workTime ?: 0)
+        result = 31 * result + flightTime
+        result = 31 * result + nightTime
+        result = 31 * result + groundTime
+        result = 31 * result + ifrTime
+        result = 31 * result + workTime
         result = 31 * result + (regNo?.hashCode() ?: 0)
         result = 31 * result + (planeId?.hashCode() ?: 0)
         result = 31 * result + (daynight ?: 0)
@@ -63,7 +62,7 @@ class Flight(var id: Long? = null) {
     }
 
     override fun toString(): String {
-        return "Flight(id=$id, datetime=$datetime, flightTime=$flightTime,  nightTime=$nightTime,  groundTime=$groundTime, sumFlightTime=$sumFlightTime,  sumGroundTime=$sumGroundTime, regNo=$regNo, ifrTime=$ifrTime, planeId=$planeId, daynight=$daynight, ifrvfr=$ifrvfr, flightTypeId=$flightTypeId, description=$description)"
+        return "Flight(id=$id, datetime=$datetime, flightTime=$flightTime,  nightTime=$nightTime,  groundTime=$groundTime, sumFlightTime=$totalTime, regNo=$regNo, ifrTime=$ifrTime, planeId=$planeId, daynight=$daynight, ifrvfr=$ifrvfr, flightTypeId=$flightTypeId, description=$description)"
     }
 }
 

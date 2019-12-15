@@ -61,14 +61,12 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
     }
 
     override fun notifyAddTimeItemChanged(position: Int) {
-        timeSummChange()
+
     }
 
-    override fun timeSummChange() {
-    }
 
     override fun setTotalFlightTime(flightTime: String) {
-        tvTotalFlightTimeLabel.text = flightTime
+        tvTotalTime.text = flightTime
     }
 
     override fun toastError(msg: String?) {
@@ -76,12 +74,12 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
     }
 
     override fun setTotalTime(total: String) {
-        tvTotalTimeLabel.text = total
+        tvTotalTime.text = total
     }
 
     private fun initUI() {
         select_plane_type.setOnClickListener(this)
-        select_flight_type.setOnClickListener(this)
+        btnSelectFlightType.setOnClickListener(this)
         btn_moto.setOnClickListener(this)
         iv_date.setOnClickListener(this)
         imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -243,7 +241,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
                 }
                 overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
             }
-            R.id.select_flight_type -> {
+            R.id.btnSelectFlightType -> {
                 addEditPresenter.correctFlightTime(sFlightTime)
                 launchActivity<FlightTypesActivity>(CONSTS.REQUESTS.REQUEST_SELECT_FLIGHT_TYPE) {
                     putExtra("is_request", true)
@@ -266,13 +264,6 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
                 }
                 CONSTS.REQUESTS.REQUEST_SELECT_FLIGHT_TYPE -> {
                     addEditPresenter.setFlightType(data.getExtra<Long>(CONSTS.EXTRAS.EXTRA_FLIGHT_TYPE))
-                }
-                CONSTS.REQUESTS.REQUEST_ADD_TIME -> {
-                    val timeId = data.getExtra<Long>(CONSTS.EXTRAS.EXTRA_TIME_FLIGHT_ID)
-                    val timeTitle = data.getExtra<String>(CONSTS.EXTRAS.EXTRA_TIME_FLIGHT_TITLE)
-                    val time = data.getExtra<Int>(CONSTS.EXTRAS.EXTRA_TIME_FLIGHT)
-                    val addToFlight = data.getExtra<Boolean>(CONSTS.EXTRAS.EXTRA_TIME_FLIGHT_ADD)
-                    addEditPresenter.addFlightTime(timeId, timeTitle, time, addToFlight)
                 }
             }
         }
@@ -309,11 +300,6 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         edtGroundTime.setText(groundTimeText)
     }
 
-    override fun setLogTime(strLogTime: String?) {
-        edtFlightTime.setText(strLogTime)
-        addEditPresenter.correctFlightTime(sFlightTime)
-    }
-
     override fun setRegNo(regNo: String?) {
         edtRegNo.setText(regNo)
     }
@@ -337,7 +323,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
             R.id.action_save -> {
                 val descr = edtDesc.text.toString()
                 val regNo = edtRegNo.text.toString()
-                addEditPresenter.saveFlight(regNo, descr, sFlightTime)
+                addEditPresenter.saveFlight(regNo, descr, sFlightTime,sGroundTime)
             }
             R.id.action_remove -> {
                 confirmDialog(this, getString(R.string.str_delete), dialogListener = object : ConfirmDialogListener {
@@ -415,7 +401,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
     }
 
     override fun setFligtTypeTitle(title: String) {
-        tv_flight_type.text = title
+        tvFlightType.text = title
     }
 
     override fun onDateSet(dialog: CalendarDatePickerDialogFragment, year: Int, monthOfYear: Int, dayOfMonth: Int) {

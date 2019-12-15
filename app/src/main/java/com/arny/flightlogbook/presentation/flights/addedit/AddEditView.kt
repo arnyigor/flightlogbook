@@ -9,7 +9,6 @@ import com.arny.domain.models.TimeToFlight
 interface AddEditView : MvpView {
     fun setDescription(desc: String)
     fun setDate(date: String)
-    fun setLogTime(strLogTime: String?)
     fun setRegNo(regNo: String?)
     fun setEdtFlightTimeText(strLogTime: String?)
     fun setMotoTimeResult(motoTime: String?)
@@ -19,7 +18,6 @@ interface AddEditView : MvpView {
     fun addFlightTimeToAdapter(timeFlightEntity: TimeToFlight)
     fun notifyAddTimeItemChanged(position: Int)
     fun setTotalTime(total: String)
-    fun timeSummChange()
     fun setTotalFlightTime(flightTime: String)
     fun setFligtTypeTitle(title: String)
     fun updateFlightTimesAdapter(items: List<TimeToFlight>)
