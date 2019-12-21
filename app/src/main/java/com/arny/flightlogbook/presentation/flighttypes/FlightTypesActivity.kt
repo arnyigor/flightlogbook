@@ -2,13 +2,13 @@ package com.arny.flightlogbook.presentation.flighttypes
 
 import android.app.Activity
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import android.text.InputType
 import android.view.MenuItem
 import android.view.View
-import com.arellomobile.mvp.MvpAppCompatActivity
-import com.arellomobile.mvp.presenter.InjectPresenter
-import com.arellomobile.mvp.presenter.ProvidePresenter
+import moxy.MvpAppCompatActivity
+import moxy.presenter.InjectPresenter
+import moxy.presenter.ProvidePresenter
 import com.arny.constants.CONSTS
 import com.arny.domain.models.FlightType
 import com.arny.flightlogbook.R

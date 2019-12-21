@@ -2,14 +2,16 @@ package com.arny.data.repositories
 
 import android.content.Context
 import com.arny.data.db.MainDB
-import com.arny.data.db.daos.*
+import com.arny.data.db.daos.AircraftTypeDAO
+import com.arny.data.db.daos.FlightDAO
+import com.arny.data.db.daos.FlightTypeDAO
 import com.arny.data.repositories.base.BaseRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
 
 @Singleton
-class MainRepositoryImpl @Inject constructor(private val appContext: Context) : BaseRepository, FlightsRepository, PlaneTypesRepository, TimesRepository,FlightTypesRepository {
+class MainRepositoryImpl @Inject constructor(private val appContext: Context) : BaseRepository, FlightsRepository, PlaneTypesRepository, FlightTypesRepository {
 
     override fun getFlightDAO(): FlightDAO {
         return getDb().flightDAO
@@ -17,14 +19,6 @@ class MainRepositoryImpl @Inject constructor(private val appContext: Context) : 
 
     override fun getFlightTypeDAO(): FlightTypeDAO {
         return getDb().flightTypeDAO
-    }
-
-    override fun getTimeTypeDAO(): TimeTypesDAO {
-         return getDb().timeTypesDAO
-    }
-
-    override fun getTimeToFlightsDAO(): TimeToFlightsDAO {
-         return getDb().timeToFlightsDAO
     }
 
     override fun getPlaneTypeDAO(): AircraftTypeDAO {

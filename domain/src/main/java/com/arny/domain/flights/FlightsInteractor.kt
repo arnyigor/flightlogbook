@@ -18,7 +18,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FlightsUseCase @Inject constructor(private val repository: MainRepositoryImpl) {
+class FlightsInteractor @Inject constructor(private val repository: MainRepositoryImpl) {
 
     fun insertFlights(flights: List<Flight>): Observable<Boolean> {
         return fromCallable { repository.insertFlights(flights.map { it.toFlightEntity() }) }
@@ -32,12 +32,12 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
         return repository.removeAllFlights()
     }
 
-    fun updateFlight(flight: Flight ): Observable<Boolean> {
+    fun updateFlight(flight: Flight): Observable<Boolean> {
         return fromCallable { repository.updateFlight(flight.toFlightEntity()) }
     }
 
-    fun insertFlightAndGet(flight: Flight ): Observable<Boolean> {
-        return fromCallable { repository.insertFlightAndGet(flight.toFlightEntity())>0 }
+    fun insertFlightAndGet(flight: Flight): Observable<Boolean> {
+        return fromCallable { repository.insertFlightAndGet(flight.toFlightEntity()) > 0 }
     }
 
     fun getFlight(id: Long?): Flight? {
@@ -46,7 +46,7 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
                     val planeType = repository.loadPlaneType(this.planeId)
                     val flightTypeEntity = repository.loadDBFlightType(this.flightTypeId?.toLong())
                     this.planeType = planeType?.toPlaneType()
-                    this.flightType= flightTypeEntity?.toFlightType()
+                    this.flightType = flightTypeEntity?.toFlightType()
                 }
     }
 
@@ -62,11 +62,11 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
         return repository.loadPlaneType(id)?.toPlaneType()
     }
 
-    fun addPlaneType(name: String ): Boolean {
+    fun addPlaneType(name: String): Boolean {
         return repository.addType(name)
     }
 
-    fun addPlaneTypeAndGet(name: String ): Long {
+    fun addPlaneTypeAndGet(name: String): Long {
         return repository.addTypeAndGet(name)
     }
 
@@ -78,37 +78,11 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
         return repository.loadDBFlightType(id)?.toFlightType()
     }
 
-    fun loadDBFlightsToTimes(): Observable<List<TimeToFlight>> {
-        return fromCallable { repository.queryDBFlightsTimes().map { it.toTimeFlight() } }
-    }
-
-    fun loadDBFlightToTimes(flightId: Long?): Observable<List<TimeToFlight>> {
-        return fromCallable { repository.queryDBFlightTimes(flightId).map {
-            it.timeTypeEntity = it.timeType?.let { it1 -> repository.queryDBTimeType(it1) }
-            it.toTimeFlight()
-        } }
-    }
-
-    fun insertDBFlightToTime(entity: TimeToFlight): Observable<Boolean> {
-        return fromCallable { repository.insertDBFlightTime(entity.toTimeEntity()) }
-    }
-
-    fun insertDBFlightToTimes(entities: List<TimeToFlight>): Observable<Boolean> {
-        return fromCallable { repository.insertDBFlightTimes(entities.map { it.toTimeEntity() }) }
-    }
-
-    fun updateDBFlightToTime(flightId: Long?, timeType: Long?, time: Int, addToFlight: Boolean = false): Observable<Boolean> {
-        return fromCallable { repository.updateDBFlightTime(flightId, timeType, time, addToFlight) }
-    }
-
-    fun removeDBFlightToTime(flightId: Long?, timeType: Long?): Observable<Boolean> {
-        return fromCallable { repository.removeDBFlightTime(flightId, timeType) }
-    }
 
     private fun getFormattedFlightTimes(): String {
         val flightsTime = repository.getFlightsTime()
-        val totalTimes = repository.queryDBFlightsTimesSum()
-        val totalFlightTimes = repository.queryDBFlightsTimesSum(true)
+        val totalTimes = 0//repository.queryDBFlightsTimesSum()
+        val totalFlightTimes = 0// repository.queryDBFlightsTimesSum(true)
         val sumlogTime = flightsTime + totalTimes
         val sumFlightTime = flightsTime + totalFlightTimes
         val flightsCount = repository.getFlightsCount()
@@ -143,7 +117,7 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
                 .map { flight ->
                     val planeType = repository.loadPlaneType(flight.planeId)
                     flight.planeType = planeType?.toPlaneType()
-                    flight.flightType= repository.loadDBFlightType(flight.flightTypeId?.toLong())?.toFlightType()
+                    flight.flightType = repository.loadDBFlightType(flight.flightTypeId?.toLong())?.toFlightType()
 //                    flight.sumFlightTime = (flight.flightTime?:0) + (flight.times?.filter { it.addToFlightTime }?.sumBy { it.time }?:0)
 //                    flight.sumGroundTime = (flight.times?.filter { !it.addToFlightTime }?.sumBy { it.time }?:0)
                     flight
@@ -168,10 +142,10 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
                     }
         }.map { flights ->
             val res = when (orderType) {
-                0 -> flights.sortedBy { it.datetime}
-                1 -> flights.sortedByDescending { it.datetime}
-                2 -> flights.sortedBy { it.flightTime}
-                3 -> flights.sortedByDescending { it.flightTime}
+                0 -> flights.sortedBy { it.datetime }
+                1 -> flights.sortedByDescending { it.datetime }
+                2 -> flights.sortedBy { it.flightTime }
+                3 -> flights.sortedByDescending { it.flightTime }
                 else -> flights
             }
             res
@@ -234,9 +208,8 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
         var strDesc: String
         var airplane_type_id: Long = 0
         var flight_type: Long = 0
-        var logTime: Int = 0
+        var logTime = 0
         var mDateTime: Long = 0
-        val dbTimeTypes = repository.queryDBTimeTypes()
         var planeTypes = repository.loadPlaneTypes()
         var flightTypes = repository.loadDBFlightTypes()
         var id = 1L
@@ -309,17 +282,18 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
                         7 -> {
                             try {
                                 val fTypeStr = myCell.toString()
-                                flight_type = if(fTypeStr.contains(".")) fTypeStr.parseDouble()?.toLong()?:-1 else fTypeStr.parseLong() ?: -1
+                                flight_type = if (fTypeStr.contains(".")) fTypeStr.parseDouble()?.toLong()
+                                        ?: -1 else fTypeStr.parseLong() ?: -1
                                 val planeType = flightTypes.find { it.id == flight_type }
                                 if (planeType != null) {
-                                    airplane_type_id = planeType.id?:-1
+                                    airplane_type_id = planeType.id ?: -1
                                 } else {
-                                    if (flight_type!=-1L) {
+                                    if (flight_type != -1L) {
                                         val type = getOldFlightType(flight_type)
                                         val flightTypeEntity = flightTypes.find { it.typeTitle == type }
                                         if (flightTypeEntity != null) {
-                                            airplane_type_id = flightTypeEntity.id?:-1
-                                        }else{
+                                            airplane_type_id = flightTypeEntity.id ?: -1
+                                        } else {
                                             flight_type = repository.addFlightTypeAndGet(type)
                                             flightTypes = repository.loadDBFlightTypes()
                                         }
@@ -340,7 +314,7 @@ class FlightsUseCase @Inject constructor(private val repository: MainRepositoryI
                             }
                             flight.description = strDesc
 
-                            
+
                         }
                         9 -> {
                             try {

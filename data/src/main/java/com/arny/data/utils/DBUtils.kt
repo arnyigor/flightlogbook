@@ -1,7 +1,7 @@
 package com.arny.data.utils
 
-import android.arch.persistence.db.SupportSQLiteDatabase
-import android.arch.persistence.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.room.migration.Migration
 import android.content.Context
 import android.os.Environment
 import android.util.Log

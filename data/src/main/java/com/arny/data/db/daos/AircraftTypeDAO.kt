@@ -1,7 +1,7 @@
 package com.arny.data.db.daos
 
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Query
+import androidx.room.Dao
+import androidx.room.Query
 import android.database.Cursor
 import com.arny.data.models.PlaneTypeEntity
 

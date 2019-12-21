@@ -37,7 +37,7 @@ android {
         versionCode 619
         versionName "6.1.9"
         vectorDrawables.useSupportLibrary = true
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
     buildTypes {
@@ -80,14 +80,14 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation "com.android.support:multidex:1.0.3"
+    implementation 'androidx.multidex:multidex:2.0.0'
     implementation project(path: ':helpers')
     implementation project(path: ':adapters')
     implementation project(path: ':domain')
     implementation project(path: ':constants')
     implementation project(path: ':data')
-    implementation 'com.android.support:support-v4:28.0.0'
-    implementation 'android.arch.lifecycle:extensions:1.1.1'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
     debugImplementation deps.additional.leakcanary
     /*tests*/
     implementation deps.test.junit
@@ -108,10 +108,9 @@ dependencies {
     implementation deps.support.constraint
     implementation deps.support.vector
     //mvp
-    implementation deps.additional.moxy
-    kapt deps.additional.moxyCompiler
-    implementation deps.additional.moxyAppCompat
-    implementation deps.additional.moxyAndroid
+    implementation deps.mvp.moxy
+    kapt deps.mvp.moxyCompiler
+    implementation deps.mvp.moxyAndroidx
     //di
     implementation deps.google.dagger
     kapt deps.google.daggerCompiler

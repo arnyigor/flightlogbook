@@ -5,8 +5,8 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.arny.constants.CONSTS
 import com.arny.data.remote.dropbox.DropboxClientFactory
 import com.arny.data.repositories.MainRepositoryImpl
@@ -46,30 +46,29 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
     @Inject
     lateinit var prefsUseCase: PrefsUseCase
 
-    private val resultNotif: String
-        get() {
-            var notice: String
-            if (mIsSuccess) {
-                notice = applicationContext.getString(R.string.service_operation_success)
-                when (operation) {
-                    OPERATION_IMPORT_SD -> notice = applicationContext.getString(R.string.str_import_success)
-                    OPERATION_DBX_SYNC -> notice = applicationContext.getString(R.string.dropbox_sync_complete)
-                    OPERATION_DBX_DOWNLOAD -> notice = applicationContext.getString(R.string.service_file_download_success)
-                    OPERATION_DBX_UPLOAD -> notice = applicationContext.getString(R.string.service_file_upload_success)
-                    OPERATION_EXPORT -> notice = applicationContext.getString(R.string.str_export_success)
-                }
-            } else {
-                notice = applicationContext.getString(R.string.service_operation_fail)
-                when (operation) {
-                    OPERATION_IMPORT_SD -> notice = applicationContext.getString(R.string.service_import_fail)
-                    OPERATION_DBX_SYNC -> notice = applicationContext.getString(R.string.service_sync_fail)
-                    OPERATION_DBX_DOWNLOAD -> notice = applicationContext.getString(R.string.service_download_fail)
-                    OPERATION_DBX_UPLOAD -> notice = applicationContext.getString(R.string.service_upload_fail)
-                    OPERATION_EXPORT -> notice = applicationContext.getString(R.string.service_export_fail)
-                }
+    private fun getNotificationResult(): String {
+        var notice: String
+        if (mIsSuccess) {
+            notice = applicationContext.getString(R.string.service_operation_success)
+            when (operation) {
+                OPERATION_IMPORT_SD -> notice = applicationContext.getString(R.string.str_import_success)
+                OPERATION_DBX_SYNC -> notice = applicationContext.getString(R.string.dropbox_sync_complete)
+                OPERATION_DBX_DOWNLOAD -> notice = applicationContext.getString(R.string.service_file_download_success)
+                OPERATION_DBX_UPLOAD -> notice = applicationContext.getString(R.string.service_file_upload_success)
+                OPERATION_EXPORT -> notice = applicationContext.getString(R.string.str_export_success)
             }
-            return notice
+        } else {
+            notice = applicationContext.getString(R.string.service_operation_fail)
+            when (operation) {
+                OPERATION_IMPORT_SD -> notice = applicationContext.getString(R.string.service_import_fail)
+                OPERATION_DBX_SYNC -> notice = applicationContext.getString(R.string.service_sync_fail)
+                OPERATION_DBX_DOWNLOAD -> notice = applicationContext.getString(R.string.service_download_fail)
+                OPERATION_DBX_UPLOAD -> notice = applicationContext.getString(R.string.service_upload_fail)
+                OPERATION_EXPORT -> notice = applicationContext.getString(R.string.service_export_fail)
+            }
         }
+        return notice
+    }
 
     private fun setOperation(operation: Int) {
         BackgroundIntentService.operation = operation
@@ -91,7 +90,7 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
 
     private fun onServiceDestroy() {
         mIsStopped = true
-        sendBroadcastIntent(resultNotif)
+        sendBroadcastIntent(getNotificationResult())
         stopSelf(startId)
         super.onDestroy()
     }
@@ -231,13 +230,13 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
                 .map { flight ->
                     val planeType = repository.loadPlaneType(flight.planeId)
                     flight.planeType = planeType?.toPlaneType()
-                    flight.flightType= repository.loadDBFlightType(flight.flightTypeId?.toLong())?.toFlightType()
+                    flight.flightType = repository.loadDBFlightType(flight.flightTypeId?.toLong())?.toFlightType()
                     flight
                 }
         var rows = 1
         for (flight in exportData) {
             val airplane_type_id = flight.planeId!!
-            val planeType =  flight.planeType
+            val planeType = flight.planeType
             val airplane_type = if (planeType != null) planeType.typeName else ""
             row = sheet_main.createRow(rows)
             c = row.createCell(0)
@@ -503,7 +502,7 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
     private fun downloadFile(metadata: FileMetadata?) {
         try {
             val syncFolder = applicationContext.getExternalFilesDir(null)
-            val file = File(syncFolder,CONSTS.FILES.EXEL_FILE_NAME)
+            val file = File(syncFolder, CONSTS.FILES.EXEL_FILE_NAME)
             try {
                 val outputStream = FileOutputStream(file)
                 client!!.files().download(metadata!!.pathLower, metadata.rev).download(outputStream)
@@ -523,7 +522,7 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
 
             val autoimport = prefsUseCase.isAutoImportEnabled()
             if (autoimport) {
-                readExcelFile(applicationContext,CONSTS.FILES.EXEL_FILE_NAME, true)
+                readExcelFile(applicationContext, CONSTS.FILES.EXEL_FILE_NAME, true)
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -535,7 +534,7 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
 
     private fun uploadFile() {
         try {
-            val localFile = File(applicationContext.getExternalFilesDir(null),CONSTS.FILES.EXEL_FILE_NAME)
+            val localFile = File(applicationContext.getExternalFilesDir(null), CONSTS.FILES.EXEL_FILE_NAME)
             val remoteFileName = localFile.name
             val inputStream = FileInputStream(localFile)
             val result = client!!.files().uploadBuilder("/$remoteFileName").withMode(WriteMode.OVERWRITE).uploadAndFinish(inputStream)
@@ -551,7 +550,7 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
     }
 
     private fun syncFile(remoteFile: FileMetadata?) {
-        val localFile = File(applicationContext.getExternalFilesDir(null),CONSTS.FILES.EXEL_FILE_NAME)
+        val localFile = File(applicationContext.getExternalFilesDir(null), CONSTS.FILES.EXEL_FILE_NAME)
         try {
             val remoteVal = if (remoteFile == null) {
                 null

@@ -1,8 +1,8 @@
 package com.arny.helpers.utils
 
 import android.content.Context
-import android.support.annotation.ArrayRes
-import android.support.v7.app.AppCompatActivity
+import androidx.annotation.ArrayRes
+import androidx.appcompat.app.AppCompatActivity
 import android.text.InputType
 import com.afollestad.materialdialogs.MaterialDialog
 

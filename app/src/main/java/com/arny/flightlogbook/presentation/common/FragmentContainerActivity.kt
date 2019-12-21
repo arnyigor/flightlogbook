@@ -2,8 +2,8 @@ package com.arny.flightlogbook.presentation.common
 
 import android.app.Activity
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v7.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.appcompat.app.AppCompatActivity
 import android.view.MenuItem
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.data.interfaces.FragmentResultListener

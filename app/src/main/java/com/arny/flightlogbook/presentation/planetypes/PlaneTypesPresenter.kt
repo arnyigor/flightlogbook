@@ -1,7 +1,7 @@
 package com.arny.flightlogbook.presentation.planetypes
 
-import com.arellomobile.mvp.InjectViewState
-import com.arellomobile.mvp.MvpPresenter
+import moxy.InjectViewState
+import moxy.MvpPresenter
 import com.arny.domain.common.CommonUseCase
 import com.arny.domain.models.PlaneType
 import com.arny.domain.planetypes.PlaneTypesUseCase
