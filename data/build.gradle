@@ -36,13 +36,13 @@ dependencies {
     implementation deps.google.dagger
     kapt deps.google.daggerCompiler
     /*ROOM DB*/
-    implementation deps.android.roomRuntime
-    kapt deps.android.roomCompiler
-    implementation deps.android.roomRx
+    implementation 'androidx.room:room-runtime:2.2.3'
+    kapt 'androidx.room:room-compiler:2.2.3'
+    implementation 'androidx.room:room-rxjava2:2.2.3'
     //interсept
     implementation deps.facebook.stetho
     //network
-    api 'com.dropbox.core:dropbox-core-sdk:2.1.1'
+    api 'com.dropbox.core:dropbox-core-sdk:3.1.3'
     implementation project(path: ':helpers')
     implementation project(path: ':constants')
 }

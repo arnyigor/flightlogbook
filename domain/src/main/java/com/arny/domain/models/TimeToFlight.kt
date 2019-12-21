@@ -7,7 +7,6 @@ data class TimeToFlight(
         var _id: Long? = null,
         var flight: Long? = null,
         var timeTypeId: Long? = null,
-        var timeType: TimeType? = null,
         var time: Int = 0,//minutes
         var addToFlightTime: Boolean = false) {
 
@@ -30,19 +29,14 @@ data class TimeToFlight(
         result = 31 * result + addToFlightTime.hashCode()
         return result
     }
+
+    fun toTimeEntity(): TimeToFlightEntity {
+        val flightEntity = TimeToFlightEntity()
+        flightEntity.flight = flight
+        flightEntity.time = time
+        flightEntity.timeType = timeTypeId
+        flightEntity.addToFlightTime = addToFlightTime
+        return flightEntity
+    }
 }
 
-fun TimeToFlight?.toTimeEntity(): TimeToFlightEntity {
-    val flightEntity = TimeToFlightEntity()
-    flightEntity.flight = this?.flight
-    flightEntity.time = this?.time?: 0
-    flightEntity.timeType = this?.timeTypeId
-    flightEntity.timeTypeEntity = this?.timeType.toTimeTypeEntity()
-    flightEntity.addToFlightTime = this?.addToFlightTime == true
-    return flightEntity
-}
-
-fun TimeToFlightEntity?.toTimeFlight(): TimeToFlight {
-    return TimeToFlight(this?._id, this?.flight, this?.timeType, this?.timeTypeEntity.toTimeType(), this?.time
-            ?: 0, this?.addToFlightTime == true)
-}

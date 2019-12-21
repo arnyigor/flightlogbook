@@ -32,7 +32,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation deps.kotlin.stdlib
     /*support*/
-    implementation deps.support.appCompat
+    implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation deps.support.design
     implementation deps.support.support
 }

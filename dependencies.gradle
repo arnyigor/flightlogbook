@@ -13,8 +13,8 @@ ext.versions = [
         'room'             : '1.1.1',
         'lifecycle'        : '1.1.1',
         'realm'            : '5.8.0',
-        'dagger'           : '2.25.2',
-        'gson'             : '2.8.0',
+        'dagger'           : '2.25.3',
+        'gson'             : '2.8.6',
         'retrofit'         : '2.6.2',
         'retrofitRxAdapter': '1.0.0',
         'okhttp'           : '4.2.2',
@@ -119,7 +119,8 @@ ext.deps = [
         mvp       : [
                 'moxy'        : "com.github.moxy-community:moxy:${versions.moxy}",
                 'moxyCompiler': "com.github.moxy-community:moxy-compiler:${versions.moxy}",
-                'moxyAndroidx': "com.github.moxy-community:moxy-androidx:${versions.moxy}"
+                'moxyAndroidx': "com.github.moxy-community:moxy-androidx:${versions.moxy}",
+                'moxyMaterial': "com.github.moxy-community:moxy-material:${versions.moxy}"
         ],
         test      : [
                 'junit'          : "junit:junit:${versions.junit}",

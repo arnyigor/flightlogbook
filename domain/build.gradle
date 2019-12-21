@@ -40,8 +40,8 @@ dependencies {
     /*tests*/
     implementation deps.test.junit
     androidTestImplementation deps.test.runner
-    androidTestImplementation deps.test.rules
-    implementation deps.test.assertjCore
+    androidTestImplementation 'androidx.test:rules:1.2.0'
+    implementation 'org.assertj:assertj-core:3.14.0'
     androidTestImplementation deps.test.assertjAndroid
     androidTestImplementation deps.test.assertjSupport
     implementation deps.test.mockitoCore
@@ -49,7 +49,7 @@ dependencies {
     //di
     implementation deps.google.dagger
     kapt deps.google.daggerCompiler
-    implementation 'org.apache.poi:poi:3.9'
+    implementation 'org.apache.poi:poi:4.1.1'
     implementation project(path: ':helpers')
     implementation project(path: ':constants')
     implementation project(path: ':data')
