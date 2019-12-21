@@ -13,7 +13,7 @@ interface FlightTypeDAO : BaseDao<FlightTypeEntity> {
     fun queryFlightType(id: Long?): FlightTypeEntity?
 
     @Query("UPDATE flight_type SET title=:title WHERE _id=:id ")
-    fun setTitle(id: Long?, title: String?): Long
+    fun setTitle(id: Long?, title: String?): Int
 
     @Query("DELETE FROM flight_type WHERE _id=:id")
     fun delete(id: Long?): Int

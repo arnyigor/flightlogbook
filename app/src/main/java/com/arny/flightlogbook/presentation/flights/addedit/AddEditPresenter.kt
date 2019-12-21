@@ -3,7 +3,6 @@ package com.arny.flightlogbook.presentation.flights.addedit
 import com.arny.domain.common.CommonUseCase
 import com.arny.domain.common.PrefsUseCase
 import com.arny.domain.flights.FlightsInteractor
-import com.arny.domain.getCorrectTime
 import com.arny.domain.models.Flight
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R

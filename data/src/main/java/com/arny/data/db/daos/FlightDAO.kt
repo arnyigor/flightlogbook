@@ -2,7 +2,6 @@ package com.arny.data.db.daos
 
 import androidx.room.Dao
 import androidx.room.Query
-import androidx.room.Transaction
 import android.database.Cursor
 import com.arny.data.models.FlightEntity
 
@@ -11,7 +10,6 @@ interface FlightDAO : BaseDao<FlightEntity> {
     @Query("SELECT * FROM main_table")
     fun queryFlights(): List<FlightEntity>
 
-    @Transaction
     @Query("SELECT * FROM main_table ORDER BY :orderby")
     fun queryFlightsWithOrder(orderby: String): List<FlightEntity>
 

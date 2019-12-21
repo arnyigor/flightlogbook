@@ -24,7 +24,7 @@ interface AircraftTypeDAO:BaseDao<PlaneTypeEntity> {
     fun delete(id: Long?): Int
 
      @Query("UPDATE type_table SET airplane_type=:title WHERE type_id=:id ")
-	fun setTitle(id: Long?, title: String?): Long
+	fun setTitle(id: Long?, title: String?): Int
 
     @Query("DELETE FROM type_table")
     fun delete(): Int

@@ -108,8 +108,9 @@ dependencies {
     implementation deps.support.constraint
     implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
     //mvp
-    kapt deps.mvp.moxyCompiler
-    implementation deps.mvp.moxyAndroidx
+    def moxyVersion = '2.0.2'
+    kapt "com.github.moxy-community:moxy-compiler:$moxyVersion"
+    implementation "com.github.moxy-community:moxy-androidx:$moxyVersion"
     //di
     implementation deps.google.dagger
     kapt deps.google.daggerCompiler

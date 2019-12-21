@@ -1,7 +1,5 @@
 package com.arny.domain.models
 
-import com.arny.data.db.intities.TimeToFlightEntity
-
 
 data class TimeToFlight(
         var _id: Long? = null,
@@ -30,13 +28,5 @@ data class TimeToFlight(
         return result
     }
 
-    fun toTimeEntity(): TimeToFlightEntity {
-        val flightEntity = TimeToFlightEntity()
-        flightEntity.flight = flight
-        flightEntity.time = time
-        flightEntity.timeType = timeTypeId
-        flightEntity.addToFlightTime = addToFlightTime
-        return flightEntity
-    }
 }
 

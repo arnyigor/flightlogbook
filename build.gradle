@@ -14,11 +14,9 @@ buildscript {
 
 allprojects {
     repositories {
-        maven { url  "http://dl.bintray.com/piasy/maven" }
         maven { url "https://jitpack.io" }
-        maven { url 'https://maven.google.com' }
-        jcenter()
         google()
+        jcenter()
     }
 }
 

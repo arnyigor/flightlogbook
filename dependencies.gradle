@@ -28,7 +28,6 @@ ext.versions = [
         'atsl'             : '1.0.1',
         'mockitoKotlin'    : '2.1.0',
         'robolectric'      : '3.6.1',
-        'moxy'             : '2.0.2',
         'mockito'          : '3.0.0',
         'sourceCompat'     : JavaVersion.VERSION_1_8,
         'targetCompat'     : JavaVersion.VERSION_1_8
@@ -115,12 +114,6 @@ ext.deps = [
                 'rxpermissions'        : 'com.github.tbruyelle:rxpermissions:0.10.2',
                 'inputmask'            : 'com.redmadrobot:input-mask-android:4.3.1',
                 'leakcanary'           : 'com.squareup.leakcanary:leakcanary-android:1.6.3'
-        ],
-        mvp       : [
-                'moxy'        : "com.github.moxy-community:moxy:${versions.moxy}",
-                'moxyCompiler': "com.github.moxy-community:moxy-compiler:${versions.moxy}",
-                'moxyAndroidx': "com.github.moxy-community:moxy-androidx:${versions.moxy}",
-                'moxyMaterial': "com.github.moxy-community:moxy-material:${versions.moxy}"
         ],
         test      : [
                 'junit'          : "junit:junit:${versions.junit}",

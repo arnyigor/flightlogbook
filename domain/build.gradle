@@ -49,7 +49,7 @@ dependencies {
     //di
     implementation deps.google.dagger
     kapt deps.google.daggerCompiler
-    implementation 'org.apache.poi:poi:4.1.1'
+    implementation 'org.apache.poi:poi:3.9'
     implementation project(path: ':helpers')
     implementation project(path: ':constants')
     implementation project(path: ':data')
