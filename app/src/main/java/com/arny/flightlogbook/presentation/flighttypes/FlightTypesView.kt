@@ -1,9 +1,9 @@
 package com.arny.flightlogbook.presentation.flighttypes
 
-import com.arellomobile.mvp.MvpView
-import com.arellomobile.mvp.viewstate.strategy.OneExecutionStateStrategy
-import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
 import com.arny.domain.models.FlightType
+import moxy.MvpView
+import moxy.viewstate.strategy.OneExecutionStateStrategy
+import moxy.viewstate.strategy.StateStrategyType
 
 /**
  *Created by Sedoy on 01.08.2019

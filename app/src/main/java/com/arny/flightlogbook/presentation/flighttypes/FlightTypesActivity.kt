@@ -2,22 +2,22 @@ package com.arny.flightlogbook.presentation.flighttypes
 
 import android.app.Activity
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
 import android.text.InputType
 import android.view.MenuItem
 import android.view.View
-import com.arellomobile.mvp.MvpAppCompatActivity
-import com.arellomobile.mvp.presenter.InjectPresenter
-import com.arellomobile.mvp.presenter.ProvidePresenter
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.arny.adapters.SimpleAbstractAdapter
 import com.arny.constants.CONSTS
 import com.arny.domain.models.FlightType
 import com.arny.flightlogbook.R
 import com.arny.helpers.utils.*
 import kotlinx.android.synthetic.main.flight_types_list_layout.*
+import moxy.MvpAppCompatActivity
+import moxy.presenter.InjectPresenter
+import moxy.presenter.ProvidePresenter
 
-class FlightTypesActivity :  MvpAppCompatActivity(), FlightTypesView, View.OnClickListener {
+class FlightTypesActivity : MvpAppCompatActivity(), FlightTypesView, View.OnClickListener {
     private var typesAdapter: FlightTypesAdapter? = null
-
     @InjectPresenter
     lateinit var flightTypesPresenter: FlightTypesPresenter
 
@@ -33,7 +33,7 @@ class FlightTypesActivity :  MvpAppCompatActivity(), FlightTypesView, View.OnCli
             title = getString(R.string.str_flight_types)
             this?.setDisplayHomeAsUpEnabled(true)
         }
-        val request = getExtra<Boolean>("is_request")==true
+        val request = getExtra<Boolean>("is_request") == true
         if (request) {
             supportActionBar?.title = getString(R.string.str_select_flight_type)
         }
@@ -51,15 +51,15 @@ class FlightTypesActivity :  MvpAppCompatActivity(), FlightTypesView, View.OnCli
             override fun onDeleteType(item: FlightType) {
                 showConfirmDeleteDialog(item)
             }
-
+        }, request)
+        typesAdapter?.setViewHolderListener(object : SimpleAbstractAdapter.OnViewHolderListener<FlightType> {
             override fun onItemClick(position: Int, item: FlightType) {
                 putExtras(Activity.RESULT_OK) {
-                    putExtra(CONSTS.EXTRAS.EXTRA_FLIGHT_TYPE,item.id)
+                    putExtra(CONSTS.EXTRAS.EXTRA_FLIGHT_TYPE, item.id)
                 }
                 onBackPressed()
             }
-
-        },request)
+        })
         rv_flight_types.layoutManager = LinearLayoutManager(this)
         rv_flight_types.adapter = typesAdapter
     }
@@ -67,42 +67,50 @@ class FlightTypesActivity :  MvpAppCompatActivity(), FlightTypesView, View.OnCli
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.fab_add_flight_type -> {
-                val btnOkText =  getString(android.R.string.ok)
-                val btnCancelText =  getString(android.R.string.cancel)
-                inputDialog(this, getString(R.string.enter_flight_type), null,null, btnOkText, btnCancelText,dialogListener = object : InputDialogListener {
-                    override fun onConfirm(content: String?) {
-                        flightTypesPresenter.addType(content)
-                    }
-
-                    override fun onCancel() {
-                    }
-                })
+                val btnOkText = getString(android.R.string.ok)
+                val btnCancelText = getString(android.R.string.cancel)
+                inputDialog(
+                        this,
+                        getString(R.string.enter_flight_type),
+                        null,
+                        null,
+                        null,
+                        btnOkText,
+                        btnCancelText,
+                        dialogListener = { result ->
+                            flightTypesPresenter.addType(result)
+                        })
             }
         }
     }
 
     private fun showConfirmDeleteDialog(item: FlightType) {
-            confirmDialog(this, getString(R.string.confirm_delete_flight_type), null, getString(android.R.string.ok), getString(android.R.string.cancel), true, object : ConfirmDialogListener {
-                override fun onConfirm() {
-                    flightTypesPresenter.removeFlightType(item)
-                }
-
-                override fun onCancel() {
-
-                }
-            })
+        alertDialog(
+                this,
+                getString(R.string.confirm_delete_flight_type),
+                null,
+                getString(android.R.string.ok),
+                getString(android.R.string.cancel),
+                true,
+                onConfirm = { flightTypesPresenter.removeFlightType(item) }
+        )
     }
 
     private fun showEditDialog(item: FlightType) {
-            inputDialog(this, getString(R.string.str_edt_flight_type), "", item.typeTitle, getString(R.string.str_ok), getString(R.string.str_cancel), false, InputType.TYPE_CLASS_TEXT, object : InputDialogListener {
-                override fun onConfirm(newName: String) {
-                    flightTypesPresenter.editFlightTypeTitle(item,newName)
+        inputDialog(
+                this,
+                getString(R.string.str_edt_flight_type),
+                "",
+                "",
+                item.typeTitle,
+                getString(R.string.str_ok),
+                getString(R.string.str_cancel),
+                false,
+                InputType.TYPE_CLASS_TEXT,
+                dialogListener = { result ->
+                    flightTypesPresenter.editFlightTypeTitle(item, result)
                 }
-
-                override fun onCancel() {
-
-                }
-            })
+        )
     }
 
     override fun onBackPressed() {

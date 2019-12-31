@@ -1,22 +1,22 @@
 package com.arny.flightlogbook.presentation.settings
 
 import android.util.Log
-import com.arellomobile.mvp.InjectViewState
-import com.arellomobile.mvp.MvpPresenter
 import com.arny.data.repositories.MainRepositoryImpl
-import com.arny.domain.flights.FlightsUseCase
+import com.arny.domain.flights.FlightsInteractor
 import com.arny.flightlogbook.FlightApp
 import com.arny.helpers.utils.CompositeDisposableComponent
 import com.arny.helpers.utils.fromCallable
 import com.arny.helpers.utils.runOnUI
 import io.reactivex.disposables.CompositeDisposable
+import moxy.InjectViewState
+import moxy.MvpPresenter
 import javax.inject.Inject
 
 @InjectViewState
 class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableComponent {
     override val compositeDisposable = CompositeDisposable()
     @Inject
-    lateinit var useCase: FlightsUseCase
+    lateinit var interactor: FlightsInteractor
     @Inject
     lateinit var repository: MainRepositoryImpl
 
@@ -31,9 +31,9 @@ class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableCompo
 
     fun onFileImport(path: String?) {
         viewState?.showProgress("Импорт данных...")
-        Log.i(SettingsPresenter::class.java.simpleName, "onFileImport: $path,useCase:$useCase")
+        Log.i(SettingsPresenter::class.java.simpleName, "onFileImport: $path,useCase:$interactor")
         fromCallable {
-            useCase.readExcelFile(path, false) { state, perc, total ->
+            interactor.readExcelFile(path, false) { state, perc, total ->
                 runOnUI {
                     viewState?.showProgress("$state $perc%")
                 }

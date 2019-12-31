@@ -1,12 +1,12 @@
 package com.arny.adapters
 
-import android.support.annotation.LayoutRes
-import android.support.v7.util.DiffUtil
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Filter
+import androidx.annotation.LayoutRes
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
 
 
 abstract class SimpleAbstractAdapter<T>(private var items: ArrayList<T> = arrayListOf()) : RecyclerView.Adapter<SimpleAbstractAdapter.VH>() {

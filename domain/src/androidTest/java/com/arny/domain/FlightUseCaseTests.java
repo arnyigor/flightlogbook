@@ -1,7 +1,7 @@
 package com.arny.domain;
 
 import com.arny.data.repositories.MainRepositoryImpl;
-import com.arny.domain.flights.FlightsUseCase;
+import com.arny.domain.flights.FlightsInteractor;
 import com.arny.domain.models.Flight;
 
 import org.junit.Before;
@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class FlightUseCaseTests {
-    private FlightsUseCase flightsUseCase;
+    private FlightsInteractor flightsInteractor;
     @Mock
     private MainRepositoryImpl mockRepository;
     @Rule
@@ -31,12 +31,12 @@ public class FlightUseCaseTests {
     @Rule public ExpectedException expectedException = ExpectedException.none();
     @Before
     public void setUp() {
-        flightsUseCase = new FlightsUseCase(mockRepository);
+        flightsInteractor = new FlightsInteractor(mockRepository);
     }
 
     @Test
     public void testGetFlightsUseCase() {
-        List<Flight> flights = flightsUseCase.loadDBFlights();
+        List<Flight> flights = flightsInteractor.loadDBFlights();
         assertThat(flights).isNotEmpty();
     }
 }

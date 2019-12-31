@@ -8,14 +8,16 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.arellomobile.mvp.MvpAppCompatFragment
-import com.arellomobile.mvp.presenter.InjectPresenter
-import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.arny.constants.CONSTS
 import com.arny.flightlogbook.R
-import com.arny.helpers.utils.*
+import com.arny.helpers.utils.alertDialog
+import com.arny.helpers.utils.dump
+import com.arny.helpers.utils.launchIntent
 import com.tbruyelle.rxpermissions2.RxPermissions
 import kotlinx.android.synthetic.main.settings_fragment.*
+import moxy.MvpAppCompatFragment
+import moxy.presenter.InjectPresenter
+import moxy.presenter.ProvidePresenter
 
 class SettingsFragment : MvpAppCompatFragment(), SettingsView {
     private var pDialog: ProgressDialog? = null

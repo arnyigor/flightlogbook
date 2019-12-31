@@ -1,7 +1,5 @@
 package com.arny.flightlogbook.presentation.flighttypes
 
-import com.arellomobile.mvp.InjectViewState
-import com.arellomobile.mvp.MvpPresenter
 import com.arny.domain.common.CommonUseCase
 import com.arny.domain.flighttypes.FlightTypesUseCase
 import com.arny.domain.models.FlightType
@@ -9,6 +7,8 @@ import com.arny.flightlogbook.FlightApp
 import com.arny.helpers.utils.addTo
 import com.arny.helpers.utils.observeOnMain
 import io.reactivex.disposables.CompositeDisposable
+import moxy.InjectViewState
+import moxy.MvpPresenter
 import javax.inject.Inject
 
 

@@ -2,24 +2,26 @@ package com.arny.flightlogbook.presentation.planetypes
 
 import android.content.Context
 import android.os.Bundle
-import android.support.v7.widget.DefaultItemAnimator
-import android.support.v7.widget.LinearLayoutManager
 import android.text.InputType
 import android.view.*
 import android.widget.Toast
-import com.arellomobile.mvp.MvpAppCompatFragment
-import com.arellomobile.mvp.presenter.InjectPresenter
-import com.arellomobile.mvp.presenter.ProvidePresenter
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.arny.domain.models.PlaneType
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.data.interfaces.FragmentResultListener
-import com.arny.helpers.utils.*
+import com.arny.helpers.utils.ToastMaker.toast
+import com.arny.helpers.utils.alertDialog
+import com.arny.helpers.utils.inputDialog
+import com.arny.helpers.utils.setVisible
 import kotlinx.android.synthetic.main.plane_types_layout.*
+import moxy.MvpAppCompatFragment
+import moxy.presenter.InjectPresenter
+import moxy.presenter.ProvidePresenter
 
 class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickListener {
     private var adapter: PlaneTypesAdapter? = null
     private var fragmentResultListener: FragmentResultListener? = null
-
     @InjectPresenter
     lateinit var typeListPresenter: PlaneTypesPresenter
 
@@ -98,53 +100,56 @@ class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickL
     override fun onClick(v: View) {
         when (v.id) {
             R.id.fab_add_plane_type -> {
-                context?.let { ctx ->
-                    inputDialog(ctx, getString(R.string.str_add_airplane_types), "", "", getString(R.string.str_ok), getString(R.string.str_cancel), false, InputType.TYPE_CLASS_TEXT, object : InputDialogListener {
-                        override fun onConfirm(name: String) {
-                            if (!name.isBlank()) {
-                                typeListPresenter.addType(name)
+                inputDialog(
+                        requireActivity(),
+                        getString(R.string.str_add_airplane_types),
+                        "",
+                        "",
+                        "",
+                        getString(R.string.str_ok),
+                        getString(R.string.str_cancel),
+                        false,
+                        InputType.TYPE_CLASS_TEXT,
+                        dialogListener = { result ->
+                            if (result.isNotBlank()) {
+                                typeListPresenter.addType(result)
                             } else {
-                                Toast.makeText(ctx, R.string.str_alarm_add_airplane_type, Toast.LENGTH_LONG).show()
+                                Toast.makeText(requireActivity(), R.string.str_alarm_add_airplane_type, Toast.LENGTH_LONG).show()
                             }
                         }
-
-                        override fun onCancel() {
-
-                        }
-
-                    })
-                }
-
+                )
             }
         }
     }
 
     override fun showEditDialog(type: PlaneType, position: Int) {
-        context?.let { ctx ->
-            inputDialog(ctx, getString(R.string.str_edt_airplane_types), "", type.typeName, getString(R.string.str_ok), getString(R.string.str_cancel), false, InputType.TYPE_CLASS_TEXT, object : InputDialogListener {
-                override fun onConfirm(newName: String) {
-                    typeListPresenter.updatePlaneTypeTitle(type, newName, position)
+        inputDialog(
+                requireActivity(),
+                getString(R.string.str_edt_airplane_types),
+                "",
+                "",
+                type.typeName,
+                getString(R.string.str_ok),
+                getString(R.string.str_cancel),
+                false,
+                InputType.TYPE_CLASS_TEXT,
+                dialogListener = { result ->
+                    typeListPresenter.updatePlaneTypeTitle(type, result, position)
                 }
-
-                override fun onCancel() {
-
-                }
-            })
-        }
+        )
     }
 
     override fun showRemoveDialog(item: PlaneType, position: Int) {
-        context?.let { ctx ->
-            confirmDialog(ctx, "Вы хотите удалить ${item.typeName}", null, "Да", "Нет", false, object : ConfirmDialogListener {
-                override fun onConfirm() {
+        alertDialog(
+                requireActivity(),
+                "Вы хотите удалить ${item.typeName}?",
+                null,
+                "Да",
+                "Нет",
+                false,
+                onConfirm = {
                     typeListPresenter.removeType(item)
-                }
-
-                override fun onCancel() {
-
-                }
-            })
-        }
+                })
     }
 
     override fun notifyItemChanged(position: Int) {

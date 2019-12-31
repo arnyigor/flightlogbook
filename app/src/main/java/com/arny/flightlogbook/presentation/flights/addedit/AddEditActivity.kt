@@ -12,9 +12,6 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
-import com.arellomobile.mvp.MvpAppCompatActivity
-import com.arellomobile.mvp.presenter.InjectPresenter
-import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.arny.constants.CONSTS
 import com.arny.domain.models.TimeToFlight
 import com.arny.flightlogbook.R
@@ -25,15 +22,21 @@ import com.arny.helpers.utils.*
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment
 import com.redmadrobot.inputmask.MaskedTextChangedListener
 import kotlinx.android.synthetic.main.activity_addedit.*
+import moxy.MvpAppCompatActivity
+import moxy.presenter.InjectPresenter
+import moxy.presenter.ProvidePresenter
 import java.util.*
 
-class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerDialogFragment.OnDateSetListener, View.OnClickListener {
+class AddEditActivity :
+        MvpAppCompatActivity(),
+        AddEditView,
+        CalendarDatePickerDialogFragment.OnDateSetListener,
+        View.OnClickListener {
     private var tvMotoResult: TextView? = null
     private var imm: InputMethodManager? = null
     private var sFlightTime = ""
     private var sNightTime = ""
     private var sGroundTime = ""
-
     @InjectPresenter
     lateinit var addEditPresenter: AddEditPresenter
 
@@ -63,7 +66,6 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
     override fun notifyAddTimeItemChanged(position: Int) {
 
     }
-
 
     override fun setTotalFlightTime(flightTime: String) {
         tvTotalTime.text = flightTime
@@ -111,7 +113,7 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
         edtNightTime.setOnKeyListener { _, keyCode, event ->
             if (keyCode == EditorInfo.IME_ACTION_GO && event.action == KeyEvent.ACTION_UP) {
                 Utility.hideSoftKeyboard(this@AddEditActivity)
-                addEditPresenter.correctNightTime(sFlightTime)
+                addEditPresenter.correctNightTime(sNightTime)
                 return@setOnKeyListener true
             }
             return@setOnKeyListener false
@@ -233,7 +235,6 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
                         .setOnDateSetListener(this@AddEditActivity)
                 cdp.show(supportFragmentManager, "fragment_date_picker_name")
             }
-
             R.id.select_plane_type -> {
                 addEditPresenter.correctFlightTime(sFlightTime)
                 launchActivity<PlaneTypesActivity>(CONSTS.REQUESTS.REQUEST_SELECT_PLANE_TYPE) {
@@ -323,18 +324,15 @@ class AddEditActivity : MvpAppCompatActivity(), AddEditView, CalendarDatePickerD
             R.id.action_save -> {
                 val descr = edtDesc.text.toString()
                 val regNo = edtRegNo.text.toString()
-                addEditPresenter.saveFlight(regNo, descr, sFlightTime,sGroundTime,sNightTime)
+                addEditPresenter.saveFlight(regNo, descr, sFlightTime, sGroundTime, sNightTime)
             }
             R.id.action_remove -> {
-                confirmDialog(this, getString(R.string.str_delete), dialogListener = object : ConfirmDialogListener {
-                    override fun onCancel() {
-
-                    }
-
-                    override fun onConfirm() {
-                        addEditPresenter.removeFlight()
-                    }
-                })
+                alertDialog(
+                        context = this,
+                        title = getString(R.string.str_delete),
+                        btnCancelText = getString(R.string.str_cancel),
+                        onConfirm = { addEditPresenter.removeFlight() }
+                )
             }
         }
         return super.onOptionsItemSelected(item)

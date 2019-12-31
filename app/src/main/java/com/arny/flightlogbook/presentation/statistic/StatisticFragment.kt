@@ -1,13 +1,10 @@
 package com.arny.flightlogbook.presentation.statistic
 
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
 import android.view.*
 import android.widget.Adapter
 import android.widget.AdapterView
-import com.arellomobile.mvp.MvpAppCompatFragment
-import com.arellomobile.mvp.presenter.InjectPresenter
-import com.arellomobile.mvp.presenter.ProvidePresenter
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.arny.adapters.MultiSelectionSpinner
 import com.arny.domain.models.Statistic
 import com.arny.flightlogbook.R
@@ -15,6 +12,9 @@ import com.arny.helpers.utils.ToastMaker
 import com.arny.helpers.utils.setVisible
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment
 import kotlinx.android.synthetic.main.statistic_fragment.*
+import moxy.MvpAppCompatFragment
+import moxy.presenter.InjectPresenter
+import moxy.presenter.ProvidePresenter
 import java.util.*
 
 class StatisticFragment : MvpAppCompatFragment(), StatisticsView, View.OnClickListener {

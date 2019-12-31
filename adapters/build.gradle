@@ -10,7 +10,7 @@ android {
         targetSdkVersion versions.targetSdk
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -29,10 +29,8 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation deps.kotlin.stdlib
-    /*support*/
-    implementation deps.support.appCompat
-    implementation deps.support.design
-    implementation deps.support.support
+    implementation libs.kotlinStdlib
+    implementation libs.appCompat
+    implementation libs.design
+    implementation libs.support
 }

@@ -2,8 +2,8 @@ package com.arny.flightlogbook
 
 import android.app.Application
 import android.content.Context
-import android.support.multidex.MultiDex
-import android.support.v7.app.AppCompatDelegate
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.multidex.MultiDex
 import com.arny.flightlogbook.di.AppComponent
 import com.arny.flightlogbook.di.AppModule
 import com.arny.flightlogbook.di.DaggerAppComponent
@@ -12,7 +12,6 @@ import com.crashlytics.android.core.CrashlyticsCore
 import com.facebook.stetho.Stetho
 import com.squareup.leakcanary.LeakCanary
 import io.fabric.sdk.android.Fabric
-
 
 
 class FlightApp : Application() {

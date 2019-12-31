@@ -1,8 +1,8 @@
 package com.arny.data.db.daos
 
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Query
 import android.database.Cursor
+import androidx.room.Dao
+import androidx.room.Query
 import com.arny.data.models.PlaneTypeEntity
 
 
@@ -24,7 +24,7 @@ interface AircraftTypeDAO:BaseDao<PlaneTypeEntity> {
     fun delete(id: Long?): Int
 
      @Query("UPDATE type_table SET airplane_type=:title WHERE type_id=:id ")
-	fun setTitle(id: Long?, title: String?): Long
+	fun setTitle(id: Long?, title: String?): Int
 
     @Query("DELETE FROM type_table")
     fun delete(): Int

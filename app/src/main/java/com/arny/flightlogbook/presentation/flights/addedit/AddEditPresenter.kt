@@ -1,22 +1,23 @@
 package com.arny.flightlogbook.presentation.flights.addedit
 
-import com.arellomobile.mvp.InjectViewState
-import com.arellomobile.mvp.MvpPresenter
 import com.arny.domain.common.CommonUseCase
 import com.arny.domain.common.PrefsUseCase
-import com.arny.domain.flights.FlightsUseCase
-import com.arny.domain.getCorrectTime
+import com.arny.domain.flights.FlightsInteractor
 import com.arny.domain.models.Flight
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
 import com.arny.helpers.coroutins.*
-import com.arny.helpers.utils.*
+import com.arny.helpers.utils.CompositeDisposableComponent
+import com.arny.helpers.utils.addTo
+import com.arny.helpers.utils.observeOnMain
+import com.arny.helpers.utils.parseInt
 import io.reactivex.disposables.CompositeDisposable
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import moxy.InjectViewState
+import moxy.MvpPresenter
 import org.joda.time.DateTime
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
@@ -25,7 +26,7 @@ import kotlin.coroutines.CoroutineContext
 @InjectViewState
 class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableComponent, CoroutineScope {
     @Inject
-    lateinit var flightsUseCase: FlightsUseCase
+    lateinit var flightsInteractor: FlightsInteractor
     @Inject
     lateinit var commonUseCase: CommonUseCase
     @Inject
@@ -83,7 +84,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
     private suspend fun loadFlightType() {
         val flighttype = flight?.flightTypeId
         if (flighttype != null) {
-            ioThread { flightsUseCase.loadFlightType(flighttype.toLong()) }
+            ioThread { flightsInteractor.loadFlightType(flighttype.toLong()) }
                     ?.let {
                         val title = "${commonUseCase.getString(R.string.str_flight_type_title)}${it.typeTitle}"
                         viewState?.setFligtTypeTitle(title)
@@ -148,7 +149,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
 
     private fun loadFlight(id: Long) {
         launchSafe({
-            ioThread { flightsUseCase.getFlight(id) }.let {
+            ioThread { flightsInteractor.getFlight(id) }.let {
                 this.flight = it
                 if (flight != null) {
                     initUI(flight!!)
@@ -247,7 +248,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
 
     fun setFlightPlaneType(planetypeId: Long?) {
         launchSafe {
-            ioThread { flightsUseCase.loadPlaneTypeObs(planetypeId) }
+            ioThread { flightsInteractor.loadPlaneTypeObs(planetypeId) }
                     ?.let { planeType ->
                         this.flight?.planeId = planeType.typeId
                         val title = "${commonUseCase.getString(R.string.str_type)}${planeType.typeName}"
@@ -259,7 +260,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
 
     fun setFlightType(fightTypeId: Long?) {
         launchSafe {
-            ioThread { flightsUseCase.loadFlightType(fightTypeId) }
+            ioThread { flightsInteractor.loadFlightType(fightTypeId) }
                     ?.let { flightType ->
                         this.flight?.flightTypeId = flightType.id?.toInt()
                         val title = "${commonUseCase.getString(R.string.str_flight_type_title)}${flightType.typeTitle}"
@@ -306,7 +307,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
     }
 
     private fun addNewFlight(flt: Flight) {
-        flightsUseCase.insertFlightAndGet(flt)
+        flightsInteractor.insertFlightAndGet(flt)
                 .observeOnMain()
                 .subscribe({
                     if (it) {
@@ -324,7 +325,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
     }
 
     private fun updateFlight(flt: Flight) {
-        flightsUseCase.updateFlight(flt)
+        flightsInteractor.updateFlight(flt)
                 .observeOnMain()
                 .subscribe({
                     if (it) {
@@ -342,7 +343,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
     }
 
     fun removeFlight() {
-        flightsUseCase.removeFlight(flight?.id)
+        flightsInteractor.removeFlight(flight?.id)
                 .observeOnMain()
                 .subscribe({
                     if (it) {
@@ -354,5 +355,45 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
                 }, {
                     viewState?.toastError(it.message)
                 }).addTo(compositeDisposable)
+    }
+
+
+    fun getCorrectTime(stringTime: String, initTime: Int): Pair<Int, String> {
+        var logMinutes: Int
+        var logHours = 0
+        var logTime = initTime
+        return when {
+            stringTime.isBlank() -> Pair(logTime, if (logTime != 0) DateTimeUtils.strLogTime(logTime) else "")
+            stringTime.length == 1 -> {
+                logTime = stringTime.parseInt(0)
+                Pair(logTime, if (logTime != 0) String.format("00:0%d", logTime) else "")
+            }
+            stringTime.length == 2 -> {
+                logMinutes = stringTime.parseInt(0)
+                logTime = stringTime.parseInt(0)
+                if (logMinutes > 59) {
+                    logHours = 1
+                    logMinutes -= 60
+                }
+                val format = String.format("%s:%s", DateTimeUtils.pad(logHours), DateTimeUtils.pad(logMinutes))
+                Pair(logTime, format)
+            }
+            stringTime.length > 2 -> {
+                if (stringTime.contains(":")) {
+                    logMinutes = stringTime.substring(stringTime.length - 2, stringTime.length).parseInt(0)
+                    logHours = stringTime.substring(0, stringTime.length - 3).parseInt(0)
+                } else {
+                    logMinutes = stringTime.substring(stringTime.length - 2, stringTime.length).parseInt(0)
+                    logHours = stringTime.substring(0, stringTime.length - 2).parseInt(0)
+                }
+                if (logMinutes > 59) {
+                    logHours += 1
+                    logMinutes -= 60
+                }
+                logTime = DateTimeUtils.logTimeMinutes(logHours, logMinutes)
+                Pair(logTime, DateTimeUtils.strLogTime(logTime))
+            }
+            else -> Pair(logTime, if (logTime != 0) DateTimeUtils.strLogTime(logTime) else "")
+        }
     }
 }

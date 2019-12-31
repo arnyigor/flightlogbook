@@ -2,11 +2,10 @@ package com.arny.flightlogbook.presentation.settings
 
 import android.os.Bundle
 import android.preference.PreferenceActivity
-import android.support.v7.widget.Toolbar
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
-
+import androidx.appcompat.widget.Toolbar
 import com.arny.flightlogbook.R
 
 

@@ -1,10 +1,8 @@
 package com.arny.flightlogbook.presentation.statistic
 
 import android.util.Log
-import com.arellomobile.mvp.InjectViewState
-import com.arellomobile.mvp.MvpPresenter
 import com.arny.domain.common.CommonUseCase
-import com.arny.domain.flights.FlightsUseCase
+import com.arny.domain.flights.FlightsInteractor
 import com.arny.domain.models.Statistic
 import com.arny.domain.models.StatisticFilter
 import com.arny.domain.statistic.StatisticUseCase
@@ -17,6 +15,8 @@ import com.arny.helpers.utils.fromCallable
 import com.arny.helpers.utils.observeOnMain
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
+import moxy.InjectViewState
+import moxy.MvpPresenter
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import java.util.*
@@ -34,7 +34,7 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>() {
     private var extendedStatistic = false
     private var enableFilter = false
     @Inject
-    lateinit var flightsUseCase: FlightsUseCase
+    lateinit var flightsInteractor: FlightsInteractor
     @Inject
     lateinit var statisticUseCase: StatisticUseCase
     @Inject
@@ -387,30 +387,10 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>() {
         Log.i(StatisticsPresenter::class.java.simpleName, "onFilterTypeSelect: $position")
         when (position) {
             0 -> loadFilterPlaneTypes()
-            1 -> loadFilterTimeTypes()
             2 -> loadFilterFlightTypes()
 //            3 -> loadFilterRegNums()
         }
     }
-
-    /* private fun loadFilterRegNums() {
-         statisticUseCase.loadPlanesRegNums()
-                 .map {
-                     val list = arrayListOf<StatisticFilter>()
-                     for (withIndex in it.withIndex()) {
-                         list.add(StatisticFilter(3, withIndex.index.toLong(), withIndex.value))
-                     }
-                     list
-                 }
-                 .observeOnMain()
-                 .subscribe({
-                     filterList = it
-                     initFilter()
-                 },{
-                     it.printStackTrace()
-                 })
-                 .addTo(compositeDisposable)
-     }*/
 
     private fun loadFilterFlightTypes() {
         statisticUseCase.loadFlightTypes()
@@ -425,18 +405,6 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>() {
                 .addTo(compositeDisposable)
     }
 
-    private fun loadFilterTimeTypes() {
-        statisticUseCase.loadTimeTypes()
-                .map { types -> types.map { StatisticFilter(1, it.id, it.title ?: "") } }
-                .observeOnMain()
-                .subscribe({
-                    filterList = it
-                    initFilter()
-                }, {
-                    it.printStackTrace()
-                })
-                .addTo(compositeDisposable)
-    }
 
     private fun loadFilterPlaneTypes() {
         statisticUseCase.loadPlaneTypes()

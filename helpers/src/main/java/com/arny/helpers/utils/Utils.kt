@@ -17,19 +17,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.support.annotation.*
-import android.support.design.internal.BottomNavigationItemView
-import android.support.design.internal.BottomNavigationMenuView
-import android.support.design.widget.BottomNavigationView
-import android.support.design.widget.Snackbar
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentTransaction
-import android.support.v4.content.ContextCompat
-import android.support.v4.graphics.drawable.DrawableCompat
-import android.support.v7.app.ActionBar
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.Toolbar
 import android.text.Html
 import android.text.Spanned
 import android.view.ContextThemeWrapper
@@ -38,8 +25,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import com.afollestad.materialdialogs.MaterialDialog
+import androidx.annotation.*
+import androidx.appcompat.app.ActionBar
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
 import com.amulyakhare.textdrawable.TextDrawable
+import com.google.android.material.bottomnavigation.BottomNavigationItemView
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.mikepenz.google_material_typeface_library.GoogleMaterial
 import com.mikepenz.iconics.IconicsDrawable
@@ -51,8 +50,6 @@ import kotlin.math.roundToInt
 /**
  *Created by Sedoy on 15.07.2019
  */
-
-
 fun AppCompatActivity.replaceFragmentInActivity(
         fragment: Fragment, @IdRes frameId: Int,
         addToback: Boolean = false,
@@ -84,7 +81,6 @@ private inline fun FragmentManager.transact(action: FragmentTransaction.() -> Un
     }.commitAllowingStateLoss()
 }
 
-
 inline fun <reified T : Any> Activity.launchActivity(
         requestCode: Int = -1,
         options: Bundle? = null,
@@ -111,7 +107,6 @@ fun Activity.launchIntent(
     startActivity(intent, options)
 }
 
-
 inline fun <reified T : Any> Fragment.launchActivity(
         requestCode: Int = -1,
         options: Bundle? = null,
@@ -123,7 +118,6 @@ inline fun <reified T : Any> Fragment.launchActivity(
         startActivityForResult(intent, requestCode, options)
     }
 }
-
 
 inline fun <reified T : Any> Fragment.launchActivity(
         options: Bundle? = null,
@@ -209,7 +203,6 @@ fun Activity.sendEmail(email: String, subject: String, body: String, shareTitle:
 //emailIntent.putExtra(Intent.EXTRA_HTML_TEXT, body); //If you are using HTML in your body text
     startActivity(Intent.createChooser(emailIntent, shareTitle))
 }
-
 /*fun Activity.share(type: String, subject: String, body: String, shareTitle: String) {
     ShareCompat.IntentBuilder.from(this)
             .setType("message/rfc822")
@@ -370,7 +363,7 @@ fun AppCompatActivity.backStackCnt(): Int {
 }
 
 fun AppCompatActivity.backStackClear() {
-    return supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+    return supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
 }
 
 fun AppCompatActivity.resetFragmentsInManager() {
@@ -422,7 +415,7 @@ fun AppCompatActivity.fragmentsBackStack(): Fragment {
 }
 
 fun AppCompatActivity.fragmentBackStackClear() {
-    return supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+    return supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
 }
 
 fun inflate(inflater: LayoutInflater, container: ViewGroup?, @LayoutRes resource: Int): View? {
@@ -563,77 +556,14 @@ fun getGMDIcon(context: Context, gmd_icon: GoogleMaterial.Icon, size: Int, color
     return icon
 }
 
-@JvmOverloads
-fun ContextThemeWrapper.showAlertDialog(title: String? = null, content: String? = null,
-                                        positivePair: Pair<String, (() -> Unit)?>? = null,
-                                        negativePair: Pair<String, (() -> Unit)?>? = null,
-                                        cancelable: Boolean = true,
-                                        style: Int? = null): AlertDialog {
-    val builder = if (style != null) AlertDialog.Builder(this, style) else AlertDialog.Builder(this)
-    title?.let { builder.setTitle(title) }
-    content?.let { builder.setMessage(it) }
-    positivePair?.let { builder.setPositiveButton(it.first) { _, which -> it.second?.invoke() } }
-    negativePair?.let { builder.setNegativeButton(it.first) { _, _ -> it.second?.invoke() } }
-    builder.setCancelable(cancelable)
-    val dialog = builder.create()
-    dialog.show()
-    return dialog
-}
-
-fun checkContextTheme(context: Context): Boolean {
+fun checkContextTheme(context: Context?): Boolean {
+    if (context == null) return false
     val b = context is ContextThemeWrapper
     if (!b) {
         return false
     }
     return true
 }
-
-
-@JvmOverloads
-fun alertDialog(context: Context?, title: String, content: String? = null, btnOkText: String? = context?.getString(android.R.string.ok), btnCancelText: String? = null, cancelable: Boolean = false, onConfirm: () -> Unit? = {}, onCancel: () -> Unit? = {}, alert: Boolean = true, autoDissmiss: Boolean = true, btnNeutralText: String? = null, onNeutral: () -> Unit? = {}): MaterialDialog? {
-    if (context == null) return null
-    if (!checkContextTheme(context)) return null
-    val builder = MaterialDialog.Builder(context)
-    builder.title(title)
-    builder.titleColor(if (alert) Color.RED else Color.BLACK)
-    builder.cancelable(cancelable)
-    builder.contentColor(Color.BLACK)
-    if (btnOkText != null) {
-        builder.positiveText(btnOkText)
-        builder.onPositive { dialog, _ ->
-            if (autoDissmiss) {
-                dialog.dismiss()
-            }
-            onConfirm.invoke()
-        }
-    }
-    if (btnCancelText != null) {
-        builder.negativeText(btnCancelText)
-        builder.onNegative { dialog, _ ->
-            if (autoDissmiss) {
-                dialog.dismiss()
-            }
-            onCancel.invoke()
-        }
-    }
-    if (btnNeutralText != null) {
-        builder.neutralText(btnNeutralText)
-        builder.onNeutral { dialog, _ ->
-            if (autoDissmiss) {
-                dialog.dismiss()
-            }
-            onNeutral.invoke()
-        }
-    }
-    if (!content.isNullOrBlank()) {
-        builder.content(fromHtml(content))
-    }
-    val dlg = builder.build()
-    dlg.show()
-    return dlg
-
-}
-
 
 fun fromHtml(html: String): Spanned {
     return if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.N) {
@@ -649,23 +579,6 @@ fun <T> getIntentExtra(intent: Intent?, extraName: String): T? {
 
 fun <T> getBundleExtra(extras: Bundle?, extraName: String): T? {
     return extras?.get(extraName) as? T
-}
-
-@JvmOverloads
-fun listDialog(context: Context, title: String, items: List<String>, cancelable: Boolean? = false, listDialogListener: ListDialogListener): MaterialDialog? {
-    val dlg = MaterialDialog.Builder(context)
-            .backgroundColor(Color.WHITE)
-            .titleColor(Color.BLACK)
-            .itemsColor(Color.BLACK)
-            .title(title)
-            .cancelable(cancelable ?: false)
-            .items(items)
-            .itemsCallback { _, _, position, text ->
-                listDialogListener.onClick(position)
-            }
-            .build()
-    dlg.show()
-    return dlg
 }
 
 fun Cursor?.toList(onCursor: (c: Cursor) -> Unit) {
@@ -693,17 +606,6 @@ fun Cursor?.toItem(onCursor: (c: Cursor) -> Unit) {
             this.close()
         }
     }
-}
-
-fun Activity.createCustomLayoutDialog(@LayoutRes layout: Int, initView: View.() -> Unit, cancelable: Boolean = true): AlertDialog? {
-    val builder = AlertDialog.Builder(this)
-    builder.setView(LayoutInflater.from(this).inflate(layout, null, false).apply(initView))
-    if (!cancelable) {
-        builder.setCancelable(false)
-    }
-    val dialog = builder.create()
-    dialog.show()
-    return dialog
 }
 
 fun Context.getSizeDP(size: Int): Int {
@@ -784,7 +686,6 @@ fun BottomNavigationView?.disableShiftMode() {
 
                 item.setShifting(false)
                 // set once again checked value, so view will be updated
-
                 item.setChecked(item.itemData.isChecked)
             }
         } catch (e: NoSuchFieldException) {

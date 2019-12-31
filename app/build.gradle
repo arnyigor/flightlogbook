@@ -1,15 +1,16 @@
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android-extensions'
+
 buildscript {
     repositories {
         maven { url 'https://maven.fabric.io/public' }
     }
 
     dependencies {
-        classpath 'io.fabric.tools:gradle:1.31.0'
+        classpath 'io.fabric.tools:gradle:1.31.2'
     }
 }
 
@@ -37,7 +38,7 @@ android {
         versionCode 619
         versionName "6.1.9"
         vectorDrawables.useSupportLibrary = true
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
     buildTypes {
@@ -80,51 +81,64 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation "com.android.support:multidex:1.0.3"
     implementation project(path: ':helpers')
     implementation project(path: ':adapters')
     implementation project(path: ':domain')
     implementation project(path: ':constants')
     implementation project(path: ':data')
-    implementation 'com.android.support:support-v4:28.0.0'
-    implementation 'android.arch.lifecycle:extensions:1.1.1'
-    debugImplementation deps.additional.leakcanary
+    implementation libs.multidex
+    implementation libs.kotlinStdlib
+    implementation libs.coroutinesCore
+    implementation libs.coroutinesAndroid
+    implementation libs.support
+    implementation libs.lifecycleExt
+    debugImplementation libs.leakcanary
     /*tests*/
-    implementation deps.test.junit
-    androidTestImplementation deps.test.runner
-    androidTestImplementation deps.test.rules
-    implementation deps.test.assertjCore
-    androidTestImplementation deps.test.assertjAndroid
-    androidTestImplementation deps.test.assertjSupport
-    implementation deps.test.mockitoCore
-    androidTestImplementation deps.test.mockitoAndroid
+    /*tests*/
+    implementation libs.junit
+    androidTestImplementation libs.extJunit
+    androidTestImplementation libs.rules
+    implementation libs.assertjCore
+    androidTestImplementation libs.assertjAndroid
+    androidTestImplementation libs.assertjSupport
+    implementation libs.mockitoCore
+    androidTestImplementation libs.mockitoAndroid
     /*support*/
-    implementation deps.support.appCompat
-    implementation deps.support.design
-    implementation deps.support.recyclerView
-    implementation deps.support.preference
-    implementation deps.support.cardView
-    implementation deps.support.support
-    implementation deps.support.constraint
-    implementation deps.support.vector
+    implementation libs.appCompat
+    implementation libs.design
+    implementation libs.recyclerView
+    implementation libs.preference
+    implementation libs.cardView
+    implementation libs.support
+    implementation libs.constraint
+    implementation libs.vector
+    //rx
+    implementation libs.rxJava
+    implementation libs.rxAndroid
+    implementation libs.rxKotlin
     //mvp
-    implementation deps.additional.moxy
-    kapt deps.additional.moxyCompiler
-    implementation deps.additional.moxyAppCompat
-    implementation deps.additional.moxyAndroid
+    implementation libs.moxy
+    implementation libs.moxyAndroidX
+    kapt libs.moxyCompiler
     //di
-    implementation deps.google.dagger
-    kapt deps.google.daggerCompiler
+    implementation libs.dagger
+    kapt libs.daggerCompiler
     //custom
-    implementation deps.additional.rxpermissions
+    implementation libs.rxpermissions
+    implementation libs.betterpickers
+    implementation libs.toasty
+    implementation libs.dropboxCoreSdk
+    implementation libs.jodaTime
+    implementation libs.materialTypeface
+    implementation libs.materialDialogsCore
+    implementation libs.materialDialogsInput
     implementation("com.mikepenz:materialdrawer:6.0.9@aar") {
         transitive = true
     }
-    implementation('com.crashlytics.sdk.android:crashlytics:2.8.0@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics:2.10.1@aar') {
         transitive = true
     }
     //interсept
-    implementation deps.facebook.stetho
-    implementation deps.additional.inputmask
-    implementation 'com.code-troopers.betterpickers:library:3.1.0'
+    implementation libs.stetho
+    implementation libs.inputmask
 }

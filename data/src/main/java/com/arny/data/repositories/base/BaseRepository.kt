@@ -2,10 +2,10 @@ package com.arny.data.repositories.base
 
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.support.annotation.ColorRes
-import android.support.annotation.DrawableRes
-import android.support.annotation.StringRes
-import android.support.v4.content.ContextCompat
+import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.core.content.ContextCompat
 import com.arny.helpers.utils.Prefs
 import com.arny.helpers.utils.Utility
 

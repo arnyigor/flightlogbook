@@ -9,7 +9,7 @@ android {
         targetSdkVersion versions.targetSdk
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -28,21 +28,26 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    api deps.kotlin.stdlib
-    api deps.kotlin.coroutinesCore
-    api deps.kotlin.coroutinesAndroid
-    //di
-    implementation deps.google.dagger
-    kapt deps.google.daggerCompiler
-    /*ROOM DB*/
-    implementation deps.android.roomRuntime
-    kapt deps.android.roomCompiler
-    implementation deps.android.roomRx
-    //interсept
-    implementation deps.facebook.stetho
-    //network
-    api 'com.dropbox.core:dropbox-core-sdk:2.1.1'
     implementation project(path: ':helpers')
     implementation project(path: ':constants')
+    implementation libs.kotlinStdlib
+    implementation libs.coroutinesCore
+    implementation libs.coroutinesAndroid
+    //di
+    implementation libs.dagger
+    kapt libs.daggerCompiler
+    //rx2
+    implementation libs.rxJava
+    implementation libs.rxAndroid
+    implementation libs.rxKotlin
+    //room
+    implementation libs.roomRuntime
+    kapt libs.roomCompiler
+    implementation libs.roomRx
+    //network
+    //interсept
+    implementation libs.stetho
+    //network
+    implementation libs.okhttp
+    implementation libs.dropboxCoreSdk
 }

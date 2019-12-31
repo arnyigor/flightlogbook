@@ -1,8 +1,8 @@
 package com.arny.data.models
 
-import android.arch.persistence.room.ColumnInfo
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.PrimaryKey
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
 @Entity(tableName = "type_table")
 data class PlaneTypeEntity(@PrimaryKey(autoGenerate = true) @ColumnInfo(name = "type_id") var typeId: Long = 0) {

@@ -1,14 +1,14 @@
 package com.arny.flightlogbook.presentation.flights.viewflights
 
-import com.arellomobile.mvp.InjectViewState
-import com.arellomobile.mvp.MvpPresenter
 import com.arny.domain.common.CommonUseCase
-import com.arny.domain.flights.FlightsUseCase
+import com.arny.domain.flights.FlightsInteractor
 import com.arny.flightlogbook.FlightApp
 import com.arny.helpers.utils.CompositeDisposableComponent
 import com.arny.helpers.utils.addTo
 import com.arny.helpers.utils.observeOnMain
 import io.reactivex.disposables.CompositeDisposable
+import moxy.InjectViewState
+import moxy.MvpPresenter
 import javax.inject.Inject
 
 
@@ -16,7 +16,7 @@ import javax.inject.Inject
 class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>(),CompositeDisposableComponent {
     override val compositeDisposable = CompositeDisposable()
     @Inject
-    lateinit var flightsUseCase: FlightsUseCase
+    lateinit var flightsInteractor: FlightsInteractor
     @Inject
     lateinit var commonUseCase: CommonUseCase
 
@@ -30,7 +30,7 @@ class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>(),CompositeDisposable
     }
 
      private fun getTotalsInfo(){
-        flightsUseCase.getTotalflightsTimeInfo()
+        flightsInteractor.getTotalflightsTimeInfo()
                 .observeOnMain()
                 .subscribe({
                     viewState?.showTotalsInfo(it)
@@ -42,7 +42,7 @@ class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>(),CompositeDisposable
 
     fun loadFlights() {
         viewState?.viewLoadProgress(true)
-        flightsUseCase.getFilterflightsObs()
+        flightsInteractor.getFilterflightsObs()
                 .observeSubscribeAdd({
                     viewState?.updateAdapter(it)
                     viewState?.showEmptyView(it.isEmpty())
@@ -78,7 +78,7 @@ class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>(),CompositeDisposable
     }*/
 
     fun changeOrder(orderType: Int) {
-        flightsUseCase.setFlightsOrder(orderType)
+        flightsInteractor.setFlightsOrder(orderType)
         loadFlights()
     }
 }
