@@ -2,6 +2,7 @@ package com.arny.adapters;
 
 import android.content.Context;
 import android.graphics.PointF;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;

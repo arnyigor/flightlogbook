@@ -16,7 +16,6 @@
         android:layout_marginRight="8dp"
         android:gravity="center_horizontal"
         android:text="@string/enter_time"
-        android:textColor="@color/default_text_color_holo_light"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

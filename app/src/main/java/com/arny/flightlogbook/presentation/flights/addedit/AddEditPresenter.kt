@@ -7,12 +7,13 @@ import com.arny.domain.models.Flight
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
 import com.arny.helpers.coroutins.*
-import com.arny.helpers.utils.*
+import com.arny.helpers.utils.CompositeDisposableComponent
+import com.arny.helpers.utils.addTo
+import com.arny.helpers.utils.observeOnMain
+import com.arny.helpers.utils.parseInt
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import moxy.InjectViewState

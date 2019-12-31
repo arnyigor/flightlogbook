@@ -162,7 +162,7 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
 
     }
 
-    @Throws(DbxException::class)
+    @Throws(Exception::class)
     private fun getRemoteMetaData() {
         var result = client!!.files().listFolder("")
         while (true) {

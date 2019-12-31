@@ -1,6 +1,5 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion versions.compileSdk
@@ -29,26 +28,26 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation deps.kotlin.stdlib
-    implementation deps.kotlin.coroutinesCore
-    implementation deps.kotlin.coroutinesAndroid
+    implementation libs.kotlinStdlib
+    implementation libs.coroutinesCore
+    implementation libs.coroutinesAndroid
     /*support*/
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation deps.support.design
-    implementation deps.support.support
+    implementation libs.appCompat
+    implementation libs.design
+    implementation libs.support
     //rx2
-    api deps.reactivex.rxJava
-    api deps.reactivex.rxAndroid
-    api deps.reactivex.rxKotlin
+    implementation libs.rxJava
+    implementation libs.rxAndroid
+    implementation libs.rxKotlin
     //custom
-    api deps.additional.jodaTime
-    api deps.google.gson
-    api deps.network.okhttp
-    api deps.additional.toasty
-    api 'com.mikepenz:google-material-typeface:3.0.1.2.original@aar'
-    api 'com.mikepenz:iconics-core:3.0.4@aar'
-    api 'com.mikepenz:material-design-iconic-typeface:2.2.0.4@aar'
-    api 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
-    api 'com.afollestad.material-dialogs:commons:0.9.6.0'
+    implementation libs.jodaTime
+    implementation libs.gson
+    implementation libs.okhttp
+    implementation libs.toasty
+    implementation libs.materialTypeface
+    implementation libs.materialDialogsCore
+    implementation libs.materialDialogsInput
+    implementation libs.iconicsCore
+    implementation libs.iconicsTypeface
+    implementation libs.textDrawable
 }

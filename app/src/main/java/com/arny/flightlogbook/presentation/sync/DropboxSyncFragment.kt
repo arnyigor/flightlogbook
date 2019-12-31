@@ -6,12 +6,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import android.util.Log
 import android.view.*
 import android.widget.Toast
-import com.afollestad.materialdialogs.MaterialDialog
+import androidx.fragment.app.Fragment
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.arny.constants.CONSTS
 import com.arny.data.remote.dropbox.DropboxClientFactory
 import com.arny.data.remote.dropbox.GetCurrentAccountTask
@@ -21,6 +20,7 @@ import com.arny.flightlogbook.R
 import com.arny.helpers.coroutins.launchAsync
 import com.arny.helpers.utils.DateTimeUtils
 import com.arny.helpers.utils.Utility
+import com.arny.helpers.utils.alertDialog
 import com.arny.helpers.utils.setVisible
 import com.dropbox.core.android.Auth
 import com.dropbox.core.v2.users.FullAccount
@@ -30,7 +30,6 @@ import java.util.*
 import javax.inject.Inject
 
 class DropboxSyncFragment : Fragment() {
-
     private var accessToken: String? = null
     private var mOperationResult: String? = null
     private var dbxEmail: String? = null
@@ -47,7 +46,6 @@ class DropboxSyncFragment : Fragment() {
     private var hashMap = hashMapOf<String, String>()
     @Inject
     lateinit var repository: MainRepositoryImpl
-
     private val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             try {
@@ -117,39 +115,22 @@ class DropboxSyncFragment : Fragment() {
             getFileData()
         }
         btnSyncUp.setOnClickListener {
-            context?.let { it1 ->
-                MaterialDialog.Builder(it1)
-                        .title(R.string.warning)
-                        .content(getString(R.string.dropbox_sync_upload) + "?")
-                        .positiveText(android.R.string.ok)
-                        .negativeText(android.R.string.cancel)
-                        .onPositive { dialog, which -> uploadFile() }
-                        .show()
-            }
+            alertDialog(
+                    context = requireActivity(),
+                    title = getString(R.string.warning),
+                    content = getString(R.string.dropbox_sync_upload) + "?",
+                    btnCancelText = getString(R.string.str_cancel),
+                    onConfirm = { uploadFile() }
+            )
         }
         btnSyncDown.setOnClickListener {
-            val autoImport = repository.getPrefBoolean(CONSTS.PREFS.PREF_DROPBOX_AUTOIMPORT_TO_DB, false)
-            if (autoImport) {
-                context?.let { it1 ->
-                    MaterialDialog.Builder(it1)
-                            .title(R.string.warning)
-                            .content(R.string.dropbox_sync_warning_content)
-                            .positiveText(android.R.string.ok)
-                            .negativeText(android.R.string.cancel)
-                            .onPositive { _, _ -> downLoadFile() }
-                            .show()
-                }
-            } else {
-                context?.let { it1 ->
-                    MaterialDialog.Builder(it1)
-                            .title(R.string.warning)
-                            .content(getString(R.string.dropbox_sync_download) + "?")
-                            .positiveText(android.R.string.ok)
-                            .negativeText(android.R.string.cancel)
-                            .onPositive { _, _ -> downLoadFile() }
-                            .show()
-                }
-            }
+            //            val autoImport = repository.getPrefBoolean(CONSTS.PREFS.PREF_DROPBOX_AUTOIMPORT_TO_DB, false)
+            alertDialog(
+                    context = requireActivity(),
+                    title = getString(R.string.warning),
+                    content = getString(R.string.dropbox_sync_warning_content),
+                    onConfirm = { downLoadFile() }
+            )
         }
         checkBoxAutoImport.setOnCheckedChangeListener { _, b -> repository.setPrefBoolean(CONSTS.PREFS.PREF_DROPBOX_AUTOIMPORT_TO_DB, b) }
     }
@@ -292,7 +273,6 @@ class DropboxSyncFragment : Fragment() {
             initAndLoadData(accessToken!!)
         }
     }
-
 
     private fun hasToken(): Boolean {
         if (accessToken == null) {

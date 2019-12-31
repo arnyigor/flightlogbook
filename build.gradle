@@ -6,7 +6,7 @@ buildscript {
     }
     dependencies {
         classpath "com.android.tools.build:gradle:${versions.androidPlugin}"
-        classpath deps.kotlin.gradlePlugin
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -22,19 +22,4 @@ allprojects {
 
 task clean(type: Delete) {
     delete rootProject.buildDir
-}
-
-ext {
-    // Sdk and tools
-    minSdkVersion = 16
-    targetSdkVersion = 29
-    compileSdkVersion = 29
-    buildToolsVersion = '29.0.0'
-    supportLibraryVersion = '28.0.0'
-    archRoomVersion = '1.1.1'
-    constraintVersion= '2.0.0-beta3'
-    retrofit2Version= '2.6.2'
-    rxjavaVersion= '2.2.15'
-    rxandroidVersion= '2.1.1'
-    coroutinesVersion = '1.1.0'
 }

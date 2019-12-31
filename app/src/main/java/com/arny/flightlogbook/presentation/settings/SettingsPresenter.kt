@@ -1,8 +1,6 @@
 package com.arny.flightlogbook.presentation.settings
 
 import android.util.Log
-import moxy.InjectViewState
-import moxy.MvpPresenter
 import com.arny.data.repositories.MainRepositoryImpl
 import com.arny.domain.flights.FlightsInteractor
 import com.arny.flightlogbook.FlightApp
@@ -10,6 +8,8 @@ import com.arny.helpers.utils.CompositeDisposableComponent
 import com.arny.helpers.utils.fromCallable
 import com.arny.helpers.utils.runOnUI
 import io.reactivex.disposables.CompositeDisposable
+import moxy.InjectViewState
+import moxy.MvpPresenter
 import javax.inject.Inject
 
 @InjectViewState

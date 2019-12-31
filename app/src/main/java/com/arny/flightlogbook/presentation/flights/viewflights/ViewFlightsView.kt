@@ -1,9 +1,9 @@
 package com.arny.flightlogbook.presentation.flights.viewflights
 
+import com.arny.domain.models.Flight
 import moxy.MvpView
 import moxy.viewstate.strategy.OneExecutionStateStrategy
 import moxy.viewstate.strategy.StateStrategyType
-import com.arny.domain.models.Flight
 
 /**
  *Created by Sedoy on 09.07.2019

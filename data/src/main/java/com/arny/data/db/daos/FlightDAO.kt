@@ -1,8 +1,8 @@
 package com.arny.data.db.daos
 
+import android.database.Cursor
 import androidx.room.Dao
 import androidx.room.Query
-import android.database.Cursor
 import com.arny.data.models.FlightEntity
 
 @Dao

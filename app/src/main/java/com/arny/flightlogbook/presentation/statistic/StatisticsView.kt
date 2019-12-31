@@ -1,9 +1,9 @@
 package com.arny.flightlogbook.presentation.statistic
 
+import com.arny.domain.models.Statistic
 import moxy.MvpView
 import moxy.viewstate.strategy.OneExecutionStateStrategy
 import moxy.viewstate.strategy.StateStrategyType
-import com.arny.domain.models.Statistic
 import java.util.*
 
 /**

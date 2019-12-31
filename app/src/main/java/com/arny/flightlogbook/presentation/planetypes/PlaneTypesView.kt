@@ -1,9 +1,9 @@
 package com.arny.flightlogbook.presentation.planetypes
 
+import com.arny.domain.models.PlaneType
 import moxy.MvpView
 import moxy.viewstate.strategy.OneExecutionStateStrategy
 import moxy.viewstate.strategy.StateStrategyType
-import com.arny.domain.models.PlaneType
 
 /**
  *Created by Sedoy on 09.07.2019

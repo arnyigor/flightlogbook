@@ -1,9 +1,9 @@
 package com.arny.flightlogbook.presentation.flights.addedit
 
+import com.arny.domain.models.TimeToFlight
 import moxy.MvpView
 import moxy.viewstate.strategy.OneExecutionStateStrategy
 import moxy.viewstate.strategy.StateStrategyType
-import com.arny.domain.models.TimeToFlight
 
 @StateStrategyType(value = OneExecutionStateStrategy::class)
 interface AddEditView : MvpView {

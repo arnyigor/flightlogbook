@@ -12,13 +12,13 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.arny.constants.CONSTS
 import com.arny.domain.service.BackgroundIntentService
 import com.arny.flightlogbook.R
@@ -28,7 +28,6 @@ import com.arny.flightlogbook.presentation.planetypes.PlaneTypesFragment
 import com.arny.flightlogbook.presentation.settings.SettingsFragment
 import com.arny.flightlogbook.presentation.statistic.StatisticFragment
 import com.arny.flightlogbook.presentation.sync.DropboxSyncFragment
-import com.arny.flightlogbook.presentation.timetypes.TimeTypesFragment
 import com.arny.helpers.utils.*
 import com.mikepenz.google_material_typeface_library.GoogleMaterial
 import com.mikepenz.materialdrawer.Drawer
@@ -58,10 +57,9 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
     private val MENU_FLIGHTS = 0
     private val MENU_PLANE_TYPES = 1
     private val MENU_FLIGHT_TYPES = 2
-    private val MENU_TIME_TYPES = 3
-    private val MENU_STATS = 4
-    private val MENU_DROPBOX_SYNC = 5
-    private val MENU_SETTINGS = 6
+    private val MENU_STATS = 3
+    private val MENU_DROPBOX_SYNC = 4
+    private val MENU_SETTINGS = 5
     private val DRAWER_SELECTION = "drawer_selection"
     private val TIME_DELAY = 2000
     private var back_pressed: Long = 0
@@ -88,7 +86,6 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
                         PrimaryDrawerItem().withIdentifier(MENU_FLIGHTS.toLong()).withName(R.string.fragment_logbook).withIcon(GoogleMaterial.Icon.gmd_flight_takeoff),
                         PrimaryDrawerItem().withIdentifier(MENU_PLANE_TYPES.toLong()).withName(R.string.fragment_plane_types).withIcon(GoogleMaterial.Icon.gmd_flight),
                         PrimaryDrawerItem().withIdentifier(MENU_FLIGHT_TYPES.toLong()).withName(R.string.fragment_flight_types).withIcon(GoogleMaterial.Icon.gmd_flight),
-                        PrimaryDrawerItem().withIdentifier(MENU_TIME_TYPES.toLong()).withName(R.string.fragment_time_types).withIcon(GoogleMaterial.Icon.gmd_access_time),
                         PrimaryDrawerItem().withIdentifier(MENU_STATS.toLong()).withName(R.string.fragment_stats).withIcon(GoogleMaterial.Icon.gmd_equalizer),
 //                        PrimaryDrawerItem().withIdentifier(MENU_DROPBOX_SYNC.toLong()).withName(R.string.fragment_dropbox_sync).withIcon(R.drawable.ic_dropbox_sync),
                         PrimaryDrawerItem().withIdentifier(MENU_SETTINGS.toLong()).withName(R.string.str_settings).withIcon(GoogleMaterial.Icon.gmd_settings_applications)
@@ -184,10 +181,6 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
                     fragment = FlightTypesFragment.getInstance()
                     toolbar!!.title = getString(R.string.str_flight_types)
                 }
-                MENU_TIME_TYPES -> {
-                    fragment = TimeTypesFragment.getInstance()
-                    toolbar!!.title = "Типы времени"
-                }
                 MENU_STATS -> {
                     fragment = StatisticFragment.getInstance()
                     toolbar!!.title = getString(R.string.fragment_stats)
@@ -209,7 +202,6 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
             MENU_FLIGHTS -> "fragment_tag_flights"
             MENU_PLANE_TYPES -> "fragment_tag_plane_types"
             MENU_FLIGHT_TYPES -> "fragment_tag_flight_types"
-            MENU_TIME_TYPES -> "fragment_tag_time_types"
             MENU_STATS -> "fragment_tag_statistic"
             MENU_SETTINGS -> "fragment_tag_settings"
             else -> null
@@ -332,7 +324,7 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
 
     @SuppressLint("CheckResult")
     private fun showImportDialogSD() {
-        alertDialog(this,getString(R.string.str_import_attention),getString(R.string.str_import_massage),btnCancelText = getString(R.string.str_cancel),onConfirm = {
+        alertDialog(this, getString(R.string.str_import_attention), getString(R.string.str_import_massage), btnCancelText = getString(R.string.str_cancel), onConfirm = {
             fileintent = Intent()
             fileintent!!.action = Intent.ACTION_GET_CONTENT
             fileintent!!.addCategory(Intent.CATEGORY_OPENABLE)
@@ -386,7 +378,7 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
     }
 
     private fun showExportAlert() {
-        alertDialog(this, getString(R.string.str_export_attention), btnCancelText = getString(R.string.str_cancel), btnOkText = getString(R.string.str_ok), onConfirm = {
+        alertDialog(this, getString(R.string.str_export_attention), btnOkText = getString(R.string.str_ok), btnCancelText = getString(R.string.str_cancel), onConfirm = {
             initBgService()
             mMyServiceIntent!!.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_EXPORT)
             startService(mMyServiceIntent)
@@ -395,7 +387,7 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
     }
 
     private fun showImportAlert() {
-        alertDialog(this,getString(R.string.str_import_attention),getString(R.string.str_import_massage),btnCancelText = getString(R.string.str_cancel),onConfirm = {
+        alertDialog(this, getString(R.string.str_import_attention), getString(R.string.str_import_massage), btnCancelText = getString(R.string.str_cancel), onConfirm = {
             initBgService()
             mMyServiceIntent!!.putExtra(BackgroundIntentService.EXTRA_KEY_OPERATION_CODE, BackgroundIntentService.OPERATION_IMPORT_SD)
             mMyServiceIntent!!.putExtra(BackgroundIntentService.EXTRA_KEY_IMPORT_SD_FILENAME, "")

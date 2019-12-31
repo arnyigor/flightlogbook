@@ -1,2 +1,1 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.arny.data" />
+<manifest package="com.arny.data" />

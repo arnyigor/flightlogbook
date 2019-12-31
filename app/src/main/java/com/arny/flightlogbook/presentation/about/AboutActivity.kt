@@ -2,14 +2,13 @@ package com.arny.flightlogbook.presentation.about
 
 import android.os.Build
 import android.os.Bundle
-import androidx.core.content.ContextCompat
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.view.MenuItem
 import android.widget.TextView
-
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import com.arny.flightlogbook.R
 
 class AboutActivity : AppCompatActivity() {

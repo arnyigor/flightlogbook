@@ -5,15 +5,11 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.view.*
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import android.util.Log
-import android.view.*
-import com.afollestad.materialdialogs.MaterialDialog
-import moxy.MvpAppCompatFragment
-import moxy.presenter.InjectPresenter
-import moxy.presenter.ProvidePresenter
 import com.arny.adapters.SimpleAbstractAdapter
 import com.arny.constants.CONSTS
 import com.arny.domain.models.Flight
@@ -22,6 +18,9 @@ import com.arny.flightlogbook.R
 import com.arny.flightlogbook.presentation.flights.addedit.AddEditActivity
 import com.arny.helpers.utils.*
 import kotlinx.android.synthetic.main.fragment_flight_list.*
+import moxy.MvpAppCompatFragment
+import moxy.presenter.InjectPresenter
+import moxy.presenter.ProvidePresenter
 
 class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
     private var adapter: FlightsAdapter? = null
@@ -29,7 +28,6 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
     private var positionIndex: Int = 0
     private var mLayoutManager: LinearLayoutManager? = null
     private var topView: Int = 0
-
     @InjectPresenter
     lateinit var viewFlightsPresenter: ViewFlightsPresenter
 
@@ -142,7 +140,7 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
     }
 
     override fun showEmptyView(vis: Boolean) {
-         tv_empty_view.setVisible(vis)
+        tv_empty_view.setVisible(vis)
     }
 
     private fun initFlights() {
@@ -172,15 +170,17 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
         when (item.itemId) {
             R.id.action_filter -> {
                 val filters = resources.getStringArray(R.array.flights_filers)
-                val filterPos = Prefs.getInstance(activity as Context).get<Int>(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS)?:0
+                val filterPos = Prefs.getInstance(activity as Context).get<Int>(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS)
+                        ?: 0
                 val filter = filters[filterPos]
-                MaterialDialog.Builder(activity as Context)
-                        .title(getString(R.string.str_sort_by) + " " + filter)
-                        .items(R.array.flights_filers)
-                        .autoDismiss(true)
-                        .itemsCallback { _, _, which, _ ->
-                            viewFlightsPresenter.changeOrder(which)
-                        }.show()
+                listDialog(
+                        context = requireActivity(),
+                        title = getString(R.string.str_sort_by) + " " + filter,
+                        items = resources.getStringArray(R.array.flights_filers).map { it },
+                        onSelect = { index, _ ->
+                            viewFlightsPresenter.changeOrder(index)
+                        }
+                )
                 return true
             }
         }
@@ -188,7 +188,7 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
     }
 
     override fun clearAdaper() {
-         adapter?.clear()
+        adapter?.clear()
     }
 
     private val broadcastReceiver = object : BroadcastReceiver() {

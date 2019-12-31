@@ -3,13 +3,14 @@ apply plugin: 'io.fabric'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
+
 buildscript {
     repositories {
         maven { url 'https://maven.fabric.io/public' }
     }
 
     dependencies {
-        classpath 'io.fabric.tools:gradle:1.31.0'
+        classpath 'io.fabric.tools:gradle:1.31.2'
     }
 }
 
@@ -80,42 +81,57 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.multidex:multidex:2.0.1'
     implementation project(path: ':helpers')
     implementation project(path: ':adapters')
     implementation project(path: ':domain')
     implementation project(path: ':constants')
     implementation project(path: ':data')
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
-    debugImplementation deps.additional.leakcanary
+    implementation libs.multidex
+    implementation libs.kotlinStdlib
+    implementation libs.coroutinesCore
+    implementation libs.coroutinesAndroid
+    implementation libs.support
+    implementation libs.lifecycleExt
+    debugImplementation libs.leakcanary
     /*tests*/
-    implementation deps.test.junit
-    androidTestImplementation deps.test.runner
-    androidTestImplementation 'androidx.test:rules:1.2.0'
-    implementation 'org.assertj:assertj-core:3.14.0'
-    androidTestImplementation deps.test.assertjAndroid
-    androidTestImplementation deps.test.assertjSupport
-    implementation deps.test.mockitoCore
-    androidTestImplementation deps.test.mockitoAndroid
+    /*tests*/
+    implementation libs.junit
+    androidTestImplementation libs.extJunit
+    androidTestImplementation libs.rules
+    implementation libs.assertjCore
+    androidTestImplementation libs.assertjAndroid
+    androidTestImplementation libs.assertjSupport
+    implementation libs.mockitoCore
+    androidTestImplementation libs.mockitoAndroid
     /*support*/
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation deps.support.design
-    implementation 'androidx.recyclerview:recyclerview:1.1.0'
-    implementation 'androidx.preference:preference:1.1.0'
-    implementation deps.support.cardView
-    implementation deps.support.support
-    implementation deps.support.constraint
-    implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
+    implementation libs.appCompat
+    implementation libs.design
+    implementation libs.recyclerView
+    implementation libs.preference
+    implementation libs.cardView
+    implementation libs.support
+    implementation libs.constraint
+    implementation libs.vector
+    //rx
+    implementation libs.rxJava
+    implementation libs.rxAndroid
+    implementation libs.rxKotlin
     //mvp
-    def moxyVersion = '2.0.2'
-    kapt "com.github.moxy-community:moxy-compiler:$moxyVersion"
-    implementation "com.github.moxy-community:moxy-androidx:$moxyVersion"
+    implementation libs.moxy
+    implementation libs.moxyAndroidX
+    kapt libs.moxyCompiler
     //di
-    implementation deps.google.dagger
-    kapt deps.google.daggerCompiler
+    implementation libs.dagger
+    kapt libs.daggerCompiler
     //custom
-    implementation deps.additional.rxpermissions
+    implementation libs.rxpermissions
+    implementation libs.betterpickers
+    implementation libs.toasty
+    implementation libs.dropboxCoreSdk
+    implementation libs.jodaTime
+    implementation libs.materialTypeface
+    implementation libs.materialDialogsCore
+    implementation libs.materialDialogsInput
     implementation("com.mikepenz:materialdrawer:6.0.9@aar") {
         transitive = true
     }
@@ -123,7 +139,6 @@ dependencies {
         transitive = true
     }
     //interсept
-    implementation deps.facebook.stetho
-    implementation deps.additional.inputmask
-    implementation 'com.code-troopers.betterpickers:library:3.1.0'
+    implementation libs.stetho
+    implementation libs.inputmask
 }

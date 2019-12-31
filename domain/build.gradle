@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+
 android {
     compileSdkVersion versions.compileSdk
     buildToolsVersion versions.buildTools
@@ -36,21 +37,29 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    /*tests*/
-    implementation deps.test.junit
-    androidTestImplementation deps.test.runner
-    androidTestImplementation 'androidx.test:rules:1.2.0'
-    implementation 'org.assertj:assertj-core:3.14.0'
-    androidTestImplementation deps.test.assertjAndroid
-    androidTestImplementation deps.test.assertjSupport
-    implementation deps.test.mockitoCore
-    androidTestImplementation deps.test.mockitoAndroid
-    //di
-    implementation deps.google.dagger
-    kapt deps.google.daggerCompiler
-    implementation 'org.apache.poi:poi:3.9'
     implementation project(path: ':helpers')
     implementation project(path: ':constants')
     implementation project(path: ':data')
+    implementation libs.kotlinStdlib
+    //rx2
+    implementation libs.rxJava
+    implementation libs.rxAndroid
+    implementation libs.rxKotlin
+    /*tests*/
+    implementation libs.junit
+    androidTestImplementation libs.extJunit
+    androidTestImplementation libs.rules
+    implementation libs.assertjCore
+    androidTestImplementation libs.assertjAndroid
+    androidTestImplementation libs.assertjSupport
+    implementation libs.mockitoCore
+    androidTestImplementation libs.mockitoAndroid
+    //di
+    implementation libs.dagger
+    kapt libs.daggerCompiler
+    implementation libs.poi
+
+    implementation libs.okhttp
+    implementation libs.dropboxCoreSdk
+    implementation libs.localBrodcast
 }

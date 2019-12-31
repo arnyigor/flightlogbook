@@ -10,9 +10,10 @@ import android.database.DatabaseUtils;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+
+import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;

@@ -2,24 +2,23 @@ package com.arny.flightlogbook.presentation.planetypes
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.appcompat.widget.Toolbar
 import android.text.InputType
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import moxy.MvpAppCompatActivity
-import moxy.presenter.InjectPresenter
-import moxy.presenter.ProvidePresenter
+import androidx.appcompat.widget.Toolbar
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.arny.constants.CONSTS
 import com.arny.domain.models.PlaneType
 import com.arny.flightlogbook.R
 import com.arny.helpers.utils.*
 import kotlinx.android.synthetic.main.plane_types_layout.*
+import moxy.MvpAppCompatActivity
+import moxy.presenter.InjectPresenter
+import moxy.presenter.ProvidePresenter
 
 class PlaneTypesActivity : MvpAppCompatActivity(), PlaneTypesView, View.OnClickListener {
     private var adapter: PlaneTypesAdapter? = null
-
     @InjectPresenter
     lateinit var typeListPresenter: PlaneTypesPresenter
 
@@ -36,7 +35,7 @@ class PlaneTypesActivity : MvpAppCompatActivity(), PlaneTypesView, View.OnClickL
             this?.title = getString(R.string.str_airplane_types)
             this?.setDisplayHomeAsUpEnabled(true)
         }
-        val request = getExtra<Boolean>("is_request")==true
+        val request = getExtra<Boolean>("is_request") == true
         if (request) {
             supportActionBar?.title = getString(R.string.str_select_plane_type)
         }
@@ -62,7 +61,7 @@ class PlaneTypesActivity : MvpAppCompatActivity(), PlaneTypesView, View.OnClickL
                 }
                 onBackPressed()
             }
-        },request)
+        }, request)
         rv_plane_types.adapter = adapter
     }
 
@@ -86,19 +85,23 @@ class PlaneTypesActivity : MvpAppCompatActivity(), PlaneTypesView, View.OnClickL
     }
 
     override fun showEditDialog(type: PlaneType, position: Int) {
-        inputDialog(this, getString(R.string.str_edt_airplane_types), "", type.typeName, getString(R.string.str_ok), getString(R.string.str_cancel), false, InputType.TYPE_CLASS_TEXT, object : InputDialogListener {
-            override fun onConfirm(newName: String) {
-                typeListPresenter.updatePlaneTypeTitle(type,newName,position)
-            }
-
-            override fun onCancel() {
-
-            }
-        })
+        inputDialog(
+                this,
+                getString(R.string.str_edt_airplane_types),
+                "",
+                "",
+                type.typeName,
+                getString(R.string.str_ok),
+                getString(R.string.str_cancel),
+                false,
+                InputType.TYPE_CLASS_TEXT
+        ) { result ->
+            typeListPresenter.updatePlaneTypeTitle(type, result, position)
+        }
     }
 
     override fun notifyItemChanged(position: Int) {
-         adapter?.notifyItemChanged(position)
+        adapter?.notifyItemChanged(position)
     }
 
     override fun toastSuccess(string: String) {
@@ -106,15 +109,17 @@ class PlaneTypesActivity : MvpAppCompatActivity(), PlaneTypesView, View.OnClickL
     }
 
     override fun showRemoveDialog(item: PlaneType, position: Int) {
-        confirmDialog(this, "Вы хотите удалить ${item.typeName}", null, "Да", "Нет", false, object : ConfirmDialogListener {
-            override fun onConfirm() {
-                typeListPresenter.removeType(item)
-            }
-
-            override fun onCancel() {
-
-            }
-        })
+        alertDialog(
+                this,
+                "Вы хотите удалить ${item.typeName}?",
+                null,
+                "Да",
+                "Нет",
+                false,
+                onConfirm = {
+                    typeListPresenter.removeType(item)
+                }
+        )
     }
 
     override fun setEmptyViewVisible(vis: Boolean) {
@@ -128,19 +133,21 @@ class PlaneTypesActivity : MvpAppCompatActivity(), PlaneTypesView, View.OnClickL
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.fab_add_plane_type -> {
-                inputDialog(this, getString(R.string.str_add_airplane_types), "", "", getString(R.string.str_ok), getString(R.string.str_cancel), false, InputType.TYPE_CLASS_TEXT, object : InputDialogListener {
-                    override fun onConfirm(name: String) {
-                        if (!name.empty()) {
-                            typeListPresenter.addType(name)
-                        } else {
-                            Toast.makeText(this@PlaneTypesActivity, R.string.str_alarm_add_airplane_type, Toast.LENGTH_LONG).show()
+                inputDialog(
+                        context = this,
+                        title = getString(R.string.str_add_airplane_types),
+                        btnOkText = getString(R.string.str_ok),
+                        btnCancelText = getString(R.string.str_cancel),
+                        cancelable = false,
+                        type = InputType.TYPE_CLASS_TEXT,
+                        dialogListener = {
+                            if (it.isNotBlank()) {
+                                typeListPresenter.addType(it)
+                            } else {
+                                Toast.makeText(this@PlaneTypesActivity, R.string.str_alarm_add_airplane_type, Toast.LENGTH_LONG).show()
+                            }
                         }
-                    }
-
-                    override fun onCancel() {
-
-                    }
-                })
+                )
             }
         }
     }

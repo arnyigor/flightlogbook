@@ -1,8 +1,6 @@
 package com.arny.flightlogbook.presentation.statistic
 
 import android.util.Log
-import moxy.InjectViewState
-import moxy.MvpPresenter
 import com.arny.domain.common.CommonUseCase
 import com.arny.domain.flights.FlightsInteractor
 import com.arny.domain.models.Statistic
@@ -17,6 +15,8 @@ import com.arny.helpers.utils.fromCallable
 import com.arny.helpers.utils.observeOnMain
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
+import moxy.InjectViewState
+import moxy.MvpPresenter
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import java.util.*

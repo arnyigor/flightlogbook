@@ -11,7 +11,7 @@ class FlightTypesAdapter(private val typesListener: FlightTypesListener? = null,
         return R.layout.type_list_item_layout
     }
 
-    interface FlightTypesListener : OnViewHolderListener<FlightType> {
+    interface FlightTypesListener {
         fun onEditType(position: Int, item: FlightType)
         fun onDeleteType(item: FlightType)
     }
@@ -29,7 +29,7 @@ class FlightTypesAdapter(private val typesListener: FlightTypesListener? = null,
                 typesListener?.onDeleteType(item)
             }
             setOnClickListener {
-                typesListener?.onItemClick(position, item)
+                listener?.onItemClick(position, item)
             }
         }
     }
