@@ -3,8 +3,10 @@ package com.arny.data.models
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
 import com.arny.domain.models.Flight
 import com.arny.helpers.utils.DateTimeUtils
+import java.sql.Date
 
 @Entity(tableName = "main_table")
 data class FlightEntity constructor(
@@ -13,7 +15,8 @@ data class FlightEntity constructor(
         var id: Long? = null
 ) {
     var date: String? = null
-    var datetime: Long? = null
+    @TypeConverters(DateConverter::class)
+    var datetime: Date? = null
     @ColumnInfo(name = "log_time")
     var logtime: Int? = null
     @ColumnInfo(name = "ground_time")
@@ -55,7 +58,7 @@ data class FlightEntity constructor(
         other as FlightEntity
         if (id != other.id) return false
         if (date != other.date) return false
-        if (datetime != other.datetime) return false
+        if (datetime?.time != other.datetime?.time) return false
         if (logtime != other.logtime) return false
         if (groundTime != other.groundTime) return false
         if (nightTime != other.nightTime) return false
@@ -72,7 +75,7 @@ data class FlightEntity constructor(
     override fun hashCode(): Int {
         var result = id?.hashCode() ?: 0
         result = 31 * result + (date?.hashCode() ?: 0)
-        result = 31 * result + (datetime?.hashCode() ?: 0)
+        result = 31 * result + (datetime?.time?.hashCode() ?: 0)
         result = 31 * result + (logtime ?: 0)
         result = 31 * result + (groundTime ?: 0)
         result = 31 * result + (nightTime ?: 0)
@@ -88,7 +91,7 @@ data class FlightEntity constructor(
 
     fun toFlight(): Flight {
         val flight = Flight(id)
-        flight.datetime = datetime
+        flight.datetime = datetime?.time
         flight.datetimeFormatted = datetime?.let { DateTimeUtils.getDateTime(it, "dd MMM yyyy") }
         flight.flightTime = logtime ?: 0
         flight.logtimeFormatted = logtime?.let { DateTimeUtils.strLogTime(it) }
@@ -113,7 +116,7 @@ data class FlightEntity constructor(
 
 fun Flight.toFlightEntity(): FlightEntity {
     val flight = FlightEntity(id)
-    flight.datetime = this.datetime
+    flight.datetime = Date(datetime ?: System.currentTimeMillis())
     flight.logtime = this.flightTime
     flight.groundTime = this.groundTime
     flight.nightTime = this.nightTime

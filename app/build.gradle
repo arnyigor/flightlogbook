@@ -56,7 +56,7 @@ android {
             testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguardTest-rules.pro'
         }
         prerelease {
-            debuggable false
+            debuggable true
             minifyEnabled true
             useProguard true
             signingConfig signingConfigs.release
