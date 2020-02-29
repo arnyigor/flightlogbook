@@ -36,7 +36,7 @@ class MigrationTest {
                     close()
                 }
         // Re-open the database with version 2 and provide
-        val db = helper.runMigrationsAndValidate(TEST_DB, 16, true, DatabaseMigrations.MIGRATION_15_16)
+        val db = helper.runMigrationsAndValidate(TEST_DB, 16, true, DatabaseMigrations.MIGRATION_12_13)
         val cursor = db.query("SELECT * FROM main_table LIMIT 1")
         var time = 0
         cursor.toList {

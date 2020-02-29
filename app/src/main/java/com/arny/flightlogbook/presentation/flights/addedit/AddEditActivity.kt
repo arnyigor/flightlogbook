@@ -2,9 +2,7 @@ package com.arny.flightlogbook.presentation.flights.addedit
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -13,7 +11,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
 import com.arny.constants.CONSTS
@@ -35,9 +32,8 @@ class AddEditActivity :
         AddEditView,
         CalendarDatePickerDialogFragment.OnDateSetListener,
         View.OnClickListener {
-    private var dateMaskListener: MaskedTextChangedListener?=null
+    private var dateMaskListener: MaskedTextChangedListener? = null
     private var tvMotoResult: TextView? = null
-    private var imm: InputMethodManager? = null
     private var sFlightTime = ""
     private var sNightTime = ""
     private var sGroundTime = ""
@@ -67,11 +63,14 @@ class AddEditActivity :
         btnSelectFlightType.setOnClickListener(this)
         btn_moto.setOnClickListener(this)
         iv_date.setOnClickListener(this)
-        imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         onDateTimeChanges()
         onFlightTimeChanges()
         onNightTimeChanges()
         onGroundTimeChanges()
+    }
+
+    override fun setTitle(title: String?) {
+        tiedt_title.setText(title)
     }
 
     override fun onBackPressed() {
@@ -289,11 +288,11 @@ class AddEditActivity :
         supportActionBar?.title = string
     }
 
-    override fun setEdtFlightTimeText(strLogTime: String?) {
+    override fun setEdtTime(strLogTime: String?) {
         edtFlightTime.setText(strLogTime)
     }
 
-    override fun setEdtNightTimeText(nightTimeText: String) {
+    override fun setEdtNightTime(nightTimeText: String) {
         edtNightTime.setText(nightTimeText)
     }
 
@@ -307,7 +306,7 @@ class AddEditActivity :
         tiedt_date.addTextChangedListener(dateMaskListener)
     }
 
-    override fun setEdtGroundTimeText(groundTimeText: String) {
+    override fun setEdtGroundTime(groundTimeText: String) {
         edtGroundTime.setText(groundTimeText)
     }
 
@@ -320,18 +319,6 @@ class AddEditActivity :
         return true
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        // Checks whether a hardware keyboard is available
-        if (newConfig.keyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO) {
-            true
-            //
-        } else if (newConfig.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_YES) {
-            true
-            //
-        }
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
@@ -341,7 +328,8 @@ class AddEditActivity :
             R.id.action_save -> {
                 val descr = edtDesc.text.toString()
                 val regNo = edtRegNo.text.toString()
-                addEditPresenter.saveFlight(regNo, descr, sFlightTime, sGroundTime, sNightTime)
+                val titleText = tiedt_title.text.toString()
+                addEditPresenter.saveFlight(regNo, descr, sFlightTime, sGroundTime, sNightTime,titleText)
             }
             R.id.action_remove -> {
                 alertDialog(

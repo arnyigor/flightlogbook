@@ -51,6 +51,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
     private fun initUI(flight: Flight) {
         viewState.setDescription(flight.description ?: "")
         viewState.setRegNo(flight.regNo)
+        viewState.setTitle(flight.title)
         viewState.setToolbarTitle(resourcesInteractor.getString(R.string.str_edt_flight))
         loadDateTime(flight)
         loadTimes(flight)
@@ -86,23 +87,29 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
 
     private fun loadTimes(flight: Flight) {
         intFlightTime = flight.flightTime
-        val logtimeFormatted = flight.logtimeFormatted
-        if (logtimeFormatted.isNullOrBlank()) {
+        val timeFormatted = flight.logtimeFormatted
+        if (timeFormatted.isNullOrBlank()) {
             fromCallable { DateTimeUtils.strLogTime(intFlightTime) }
                     .observeSubscribeAdd({
-                        viewState.setEdtFlightTimeText(it)
+                        viewState.setEdtTime(it)
                     })
         } else {
-            viewState.setEdtFlightTimeText(logtimeFormatted)
+            viewState.setEdtTime(timeFormatted)
         }
-
+        intGroundTime = flight.groundTime
+        fromCallable { DateTimeUtils.strLogTime(intGroundTime) }
+                .observeSubscribeAdd({ viewState.setEdtGroundTime(it) })
+        intNightTime = flight.nightTime
+        fromCallable { DateTimeUtils.strLogTime(intNightTime) }
+                .observeSubscribeAdd({ viewState.setEdtNightTime(it) })
+        timeSummChanged()
     }
 
     private fun timeSummChanged() {
         if (intNightTime > intFlightTime) {
             intFlightTime = intNightTime
             fromCallable { DateTimeUtils.strLogTime(intFlightTime) }
-                    .observeSubscribeAdd({ viewState.setEdtFlightTimeText(it) })
+                    .observeSubscribeAdd({ viewState.setEdtTime(it) })
         }
         intTotalTime = intFlightTime + intGroundTime
         fromCallable { DateTimeUtils.strLogTime(intTotalTime) }
@@ -113,7 +120,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
         correctTimeObs(stringTime, intFlightTime)
                 .observeSubscribeAdd({
                     intFlightTime = it.intTime
-                    viewState.setEdtFlightTimeText(it.strTime)
+                    viewState.setEdtTime(it.strTime)
                     timeSummChanged()
                 })
     }
@@ -122,7 +129,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
         correctTimeObs(stringTime, intNightTime)
                 .observeSubscribeAdd({
                     intNightTime = it.intTime
-                    viewState.setEdtNightTimeText(it.strTime)
+                    viewState.setEdtNightTime(it.strTime)
                     timeSummChanged()
                 })
     }
@@ -131,7 +138,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
         correctTimeObs(stringTime, intGroundTime)
                 .observeSubscribeAdd({
                     intGroundTime = it.intTime
-                    viewState.setEdtGroundTimeText(it.strTime)
+                    viewState.setEdtGroundTime(it.strTime)
                     timeSummChanged()
                 })
     }
@@ -182,7 +189,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
         val logHours = intFlightTime / 60
         val logMinutes = intFlightTime % 60
         val format = String.format("%s:%s", DateTimeUtils.pad(logHours), DateTimeUtils.pad(logMinutes))
-        viewState.setEdtFlightTimeText(format)
+        viewState.setEdtTime(format)
     }
 
     private fun setLogTimefromMoto(motoTime: Float): Int {
@@ -225,7 +232,6 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
     private fun convertDateTime() = DateTimeUtils.getDateTime(mDateTime, "dd.MM.yyyy")
 
     fun initDateFromMask(extractedValue: String) {
-        Log.i(AddEditPresenter::class.java.simpleName, "initDateFromMask: ");
         if (extractedValue.isNotBlank()) {
             fromCallable {
                 val dateTime = DateTimeUtils.getJodaDateTime(extractedValue, "ddMMyyyy", true)
@@ -266,45 +272,60 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
                 })
     }
 
-    fun saveFlight(regNo: String, descr: String, sFlightTime: String, sGroundTime: String, sNightTime: String) {
-        val flightTimeObs = correctTimeObs(sFlightTime, intFlightTime)
-        val groundTimeObs = correctTimeObs(sGroundTime, intGroundTime)
-        val nightTimeObs = correctTimeObs(sNightTime, intNightTime)
-        Observables.zip(flightTimeObs, groundTimeObs, nightTimeObs)
-                .map {
-                    val flightTime = it.first
-                    val groundTime = it.second
-                    val nightTime = it.third
-                    intFlightTime = flightTime.intTime
-                    intGroundTime = groundTime.intTime
-                    intNightTime = nightTime.intTime
-                    timeSummChanged()
-                    if (mDateTime == 0L) {
-                        mDateTime = System.currentTimeMillis()
-                    }
-                    true
-                }
+    fun saveFlight(
+            regNo: String,
+            descr: String,
+            sFlightTime: String,
+            sGroundTime: String,
+            sNightTime: String,
+            titleText: String
+    ) {
+        Observables.zip(
+                correctTimeObs(sFlightTime, intFlightTime),
+                correctTimeObs(sGroundTime, intGroundTime),
+                correctTimeObs(sNightTime, intNightTime)
+        )
+                .map { timeChanged(it) }
                 .observeSubscribeAdd({
-                    val flt = flight
-                    if (flt != null) {
-                        flt.datetime = mDateTime
-                        flt.flightTime = intFlightTime
-                        flt.totalTime = intFlightTime
-                        flt.groundTime = intGroundTime
-                        flt.totalTime = intTotalTime
-                        flt.regNo = regNo
-                        flt.description = descr
-                        if (flt.id != null) {
-                            updateFlight(flt)
-                        } else {
-                            addNewFlight(flt)
-                        }
-                    } else {
-                        viewState.toastError(resourcesInteractor.getString(R.string.empty_flight))
-                    }
+                    save(titleText, regNo, descr)
                 }, {
                     viewState.toastError(it.message)
                 })
+    }
+
+    private fun save(titleText: String, regNo: String, descr: String) {
+        val flt = flight
+        if (flt != null) {
+            flt.title = titleText
+            flt.datetime = mDateTime
+            flt.flightTime = intFlightTime
+            flt.nightTime = intNightTime
+            flt.groundTime = intGroundTime
+            flt.totalTime = intTotalTime
+            flt.regNo = regNo
+            flt.description = descr
+            if (flt.id != null) {
+                updateFlight(flt)
+            } else {
+                addNewFlight(flt)
+            }
+        } else {
+            viewState.toastError(resourcesInteractor.getString(R.string.empty_flight))
+        }
+    }
+
+    private fun timeChanged(it: Triple<CorrectedTimePair, CorrectedTimePair, CorrectedTimePair>): Boolean {
+        val flightTime = it.first
+        val groundTime = it.second
+        val nightTime = it.third
+        intFlightTime = flightTime.intTime
+        intGroundTime = groundTime.intTime
+        intNightTime = nightTime.intTime
+        timeSummChanged()
+        if (mDateTime == 0L) {
+            mDateTime = System.currentTimeMillis()
+        }
+        return true
     }
 
     private fun addNewFlight(flt: Flight) {
@@ -327,8 +348,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
 
     private fun updateFlight(flt: Flight) {
         flightsInteractor.updateFlight(flt)
-                .observeOnMain()
-                .subscribe({
+                .observeSubscribeAdd({
                     if (it) {
                         viewState.toastSuccess(resourcesInteractor.getString(R.string.flight_save_success))
                         viewState.setResultOK()
@@ -340,13 +360,11 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
                     it.printStackTrace()
                     viewState.toastError("${resourcesInteractor.getString(R.string.flight_save_error)}:${it.message}")
                 })
-                .addTo(compositeDisposable)
     }
 
     fun removeFlight() {
         flightsInteractor.removeFlight(flight?.id)
-                .observeOnMain()
-                .subscribe({
+                .observeSubscribeAdd({
                     if (it) {
                         viewState.toastSuccess(resourcesInteractor.getString(R.string.flight_removed))
                         viewState.onPressBack()
@@ -355,7 +373,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
                     }
                 }, {
                     viewState.toastError(it.message)
-                }).addTo(compositeDisposable)
+                })
     }
 
     private fun getCorrectTime(stringTime: String, initTime: Int): CorrectedTimePair {

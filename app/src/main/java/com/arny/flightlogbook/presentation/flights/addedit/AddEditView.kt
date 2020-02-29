@@ -2,15 +2,15 @@ package com.arny.flightlogbook.presentation.flights.addedit
 
 import com.arny.domain.models.TimeToFlight
 import moxy.MvpView
-import moxy.viewstate.strategy.OneExecutionStateStrategy
+import moxy.viewstate.strategy.AddToEndSingleStrategy
 import moxy.viewstate.strategy.StateStrategyType
 
-@StateStrategyType(value = OneExecutionStateStrategy::class)
+@StateStrategyType(value = AddToEndSingleStrategy::class)
 interface AddEditView : MvpView {
     fun setDescription(desc: String)
     fun setDate(date: String)
     fun setRegNo(regNo: String?)
-    fun setEdtFlightTimeText(strLogTime: String?)
+    fun setEdtTime(strLogTime: String?)
     fun setMotoTimeResult(motoTime: String?)
     fun setToolbarTitle(string: String)
     fun toastError(msg: String?)
@@ -22,6 +22,7 @@ interface AddEditView : MvpView {
     fun toastSuccess(msg: String?)
     fun onPressBack()
     fun setResultOK()
-    fun setEdtNightTimeText(nightTimeText: String)
-    fun setEdtGroundTimeText(groundTimeText: String)
+    fun setEdtNightTime(nightTimeText: String)
+    fun setEdtGroundTime(groundTimeText: String)
+    fun setTitle(title: String?)
 }

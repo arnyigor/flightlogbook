@@ -39,7 +39,7 @@ class AppModule(private val application: Application) {
     @Singleton
     fun provideDB(): MainDB {
         return Room.databaseBuilder(application, MainDB::class.java, CONSTS.DB.DB_NAME)
-                .addMigrations(DatabaseMigrations.MIGRATION_15_16)
+                .addMigrations(DatabaseMigrations.MIGRATION_12_13)
                 .build()
     }
 

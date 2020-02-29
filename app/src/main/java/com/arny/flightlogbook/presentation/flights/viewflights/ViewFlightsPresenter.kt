@@ -35,6 +35,7 @@ class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>(), CompositeDisposabl
                     viewState.showEmptyView(it.isEmpty())
                     viewState.viewLoadProgress(false)
                 }, {
+                    it.printStackTrace()
                     viewState.viewLoadProgress(false)
                     viewState.toastError(it.message)
                 })
