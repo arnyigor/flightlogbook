@@ -38,6 +38,10 @@ fun <T> fromCallable(callable: () -> T): Observable<T> {
     return Observable.fromCallable(callable)
 }
 
+fun fromCompletable(action: (() -> Unit)): Completable {
+    return Completable.fromAction(action)
+}
+
 fun <T> fromNullable(callable: () -> T?): Observable<OptionalNull<T?>> {
     return Observable.fromCallable { callable.invoke().toOptionalNull() }
 }
@@ -58,7 +62,7 @@ fun <T> Observable<T>.observeOnMain(): Observable<T> {
     return this.subscribeOn(io()).observeOn(AndroidSchedulers.mainThread())
 }
 
-fun <T : Any> Observable<T>.observeSubscribe(onNext: (T) -> Unit = {}, onError: (Throwable) -> Unit = {it.printStackTrace()}, onComplete: () -> Unit = {},scheduler: Scheduler = io(), observeOn: Scheduler = AndroidSchedulers.mainThread()): Disposable = subscribeOn(scheduler)
+fun <T : Any> Observable<T>.observeSubscribe(onNext: (T) -> Unit = {}, onError: (Throwable) -> Unit = { it.printStackTrace() }, onComplete: () -> Unit = {}, scheduler: Scheduler = io(), observeOn: Scheduler = AndroidSchedulers.mainThread()): Disposable = subscribeOn(scheduler)
         .observeOn(observeOn)
         .subscribe(onNext, onError, onComplete)
 

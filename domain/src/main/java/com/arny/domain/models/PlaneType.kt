@@ -1,7 +1,5 @@
 package com.arny.domain.models
 
-import com.arny.data.models.PlaneTypeEntity
-
 class PlaneType(var typeId: Long = 0) {
     var typeName: String? = null
 
@@ -25,16 +23,4 @@ class PlaneType(var typeId: Long = 0) {
     }
 
 
-}
-
-fun PlaneTypeEntity.toPlaneType(): PlaneType {
-    val planeType = PlaneType(typeId)
-    planeType.typeName = typeName
-    return planeType
-}
-
-fun PlaneType.toPlaneTypeEntity(): PlaneTypeEntity {
-    val planeTypeEntity = PlaneTypeEntity(typeId)
-    planeTypeEntity.typeName = typeName
-    return planeTypeEntity
 }

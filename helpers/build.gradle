@@ -16,6 +16,9 @@ android {
         debug {
             debuggable true
         }
+        prerelease {
+            debuggable true
+        }
         release {
             debuggable false
         }
@@ -29,16 +32,17 @@ android {
 
 dependencies {
     implementation libs.kotlinStdlib
-    implementation libs.coroutinesCore
-    implementation libs.coroutinesAndroid
     /*support*/
     implementation libs.appCompat
     implementation libs.design
     implementation libs.support
+    implementation libs.preference
     //rx2
     implementation libs.rxJava
     implementation libs.rxAndroid
     implementation libs.rxKotlin
+    //room
+    implementation libs.roomRx
     //custom
     implementation libs.jodaTime
     implementation libs.gson

@@ -1,5 +1,6 @@
 package com.arny.helpers.utils
 
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -12,12 +13,28 @@ interface CompositeDisposableComponent {
 
     fun Disposable.add() = compositeDisposable.add(this)
 
-    fun resetCompositeDisposable(){
+    fun resetCompositeDisposable() {
         compositeDisposable.clear()
     }
 
-    fun <T : Any> Observable<T>.observeSubscribeAdd(onNext: (T) -> Unit = {}, onError: (Throwable) -> Unit = {it.printStackTrace()}, onComplete: () -> Unit = {}, scheduler: Scheduler = Schedulers.io(), observeOn: Scheduler = AndroidSchedulers.mainThread()) = subscribeOn(scheduler)
+    fun <T : Any> Observable<T>.observeSubscribeAdd(
+            onNext: (T) -> Unit = {},
+            onError: (Throwable) -> Unit = { it.printStackTrace() },
+            onComplete: () -> Unit = {},
+            scheduler: Scheduler = Schedulers.io(),
+            observeOn: Scheduler = AndroidSchedulers.mainThread()
+    ) = subscribeOn(scheduler)
             .observeOn(observeOn)
             .subscribe(onNext, onError, onComplete)
+            .add()
+
+    fun Completable.completableSubscribeAdd(
+            onComplete: () -> Unit = {},
+            onError: (Throwable) -> Unit = { it.printStackTrace() },
+            scheduler: Scheduler = Schedulers.io(),
+            observeOn: Scheduler = AndroidSchedulers.mainThread()
+    ) = subscribeOn(scheduler)
+            .observeOn(observeOn)
+            .subscribe(onComplete, onError)
             .add()
 }

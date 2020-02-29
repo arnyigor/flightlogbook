@@ -8,7 +8,6 @@ import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.database.Cursor
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
@@ -23,6 +22,7 @@ import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.*
@@ -300,14 +300,14 @@ fun Intent?.hasExtra(extraName: String): Boolean {
     return this?.hasExtra(extraName) ?: false
 }
 
-fun <T> Intent?.getExtra(extraName: String): T? {
+inline fun <reified T> Intent?.getExtra(extraName: String): T? {
     if (this.hasExtra(extraName)) {
         return this?.extras?.get(extraName) as? T
     }
     return null
 }
 
-fun <T> Activity?.getExtra(extraName: String): T? {
+inline fun <reified T> Activity?.getExtra(extraName: String): T? {
     val intent = this?.intent
     if (intent.hasExtra(extraName)) {
         return intent?.extras?.get(extraName) as? T
@@ -315,18 +315,18 @@ fun <T> Activity?.getExtra(extraName: String): T? {
     return null
 }
 
-fun <T> Fragment?.getExtra(extraName: String): T? {
+inline fun <reified T> Fragment?.getExtra(extraName: String): T? {
     return this?.arguments?.get(extraName) as? T
 }
 
-fun <T> Bundle?.getExtra(extraName: String): T? {
+inline fun <reified T> Bundle?.getExtra(extraName: String): T? {
     return this?.get(extraName) as? T
 }
 
 fun runOnUI(func: () -> Unit? = {}) = Handler(Looper.getMainLooper()).post { func.invoke() }
 
 @JvmOverloads
-fun runOnLooper(func: () -> Unit? = {}, looper: Looper? = Looper.getMainLooper()) = Handler(looper).post { func.invoke() }
+fun runOnLooper(func: () -> Unit? = {}, looper: Looper = Looper.getMainLooper()) = Handler(looper).post { func.invoke() }
 
 fun View?.setVisible(visible: Boolean) {
     this?.visibility = if (visible) View.VISIBLE else View.GONE
@@ -465,87 +465,6 @@ fun Intent?.dump(): String? {
     return Utility.dumpIntent(this)
 }
 
-fun Cursor?.dump(): String? {
-    return Utility.dumpCursor(this)
-}
-
-fun dumpCursorColumns(cur: Cursor): String {
-    val count = cur.columnCount
-    val builder = StringBuilder()
-    for (i in 0..(count - 1)) {
-        val columnName = cur.getColumnName(i)
-        var curValue: String? = null
-        try {
-            curValue = "[String]" + cur.getString(i)?.toString()
-        } catch (e: Exception) {
-        }
-        if (curValue == null) {
-            try {
-                curValue = "[Long]" + cur.getLong(i)?.toString()
-            } catch (e: Exception) {
-            }
-        }
-        if (curValue == null) {
-            try {
-                curValue = "[Int]" + cur.getInt(i)?.toString()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-        builder.append("$i:$columnName->$curValue\n")
-    }
-    return builder.toString()
-}
-
-fun getCursorColumns(cur: Cursor): HashMap<String, Any> {
-    val count = cur.columnCount
-    val mapColumns = hashMapOf<String, Any>()
-    for (i in 0..(count - 1)) {
-        val columnName = cur.getColumnName(i)
-        var curValue: Any? = null
-        try {
-            curValue = cur.getString(i)
-        } catch (e: Exception) {
-        }
-        if (curValue == null) {
-            try {
-                curValue = cur.getLong(i)
-            } catch (e: Exception) {
-            }
-        }
-        if (curValue == null) {
-            try {
-                curValue = cur.getInt(i)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-        if (curValue != null) {
-            mapColumns[columnName] = curValue
-        } else {
-            mapColumns[columnName] = "null"
-        }
-    }
-    return mapColumns
-}
-
-private fun cursorConvert(cur: Cursor, i: Int, builder: StringBuilder) {
-    val columnName = cur.getColumnName(i)
-    var type: Int? = null
-    try {
-//        type = Utility.getCursorType(cur, i)
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
-    val curValue = when (type) {
-        0 -> "[String]${cur.getString(i)?.toString()}"
-        1 -> "[Long]${cur.getLong(i)?.toString()}"
-        3 -> "[Int]${cur.getInt(i)?.toString()}"
-        else -> "${cur.getString(i)?.toString()}"
-    }
-    builder.append("$i:$columnName->$curValue\n")
-}
-
 @JvmOverloads
 fun getGMDIcon(context: Context, gmd_icon: GoogleMaterial.Icon, size: Int, color: Int? = null): IconicsDrawable? {
     val icon = IconicsDrawable(context).icon(gmd_icon)
@@ -566,46 +485,26 @@ fun checkContextTheme(context: Context?): Boolean {
 }
 
 fun fromHtml(html: String): Spanned {
-    return if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.N) {
+    return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
         Html.fromHtml(html);
     } else {
         Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY);
     }
 }
 
-fun <T> getIntentExtra(intent: Intent?, extraName: String): T? {
+inline fun <reified T> getIntentExtra(intent: Intent?, extraName: String): T? {
     return intent?.extras?.get(extraName) as? T
 }
 
-fun <T> getBundleExtra(extras: Bundle?, extraName: String): T? {
+inline fun <reified T> getBundleExtra(extras: Bundle?, extraName: String): T? {
     return extras?.get(extraName) as? T
 }
 
-fun Cursor?.toList(onCursor: (c: Cursor) -> Unit) {
-    if (this != null) {
-        try {
-            this.moveToPosition(-1);
-            while (this.moveToNext()) {
-                onCursor.invoke(this)
-            }
-        } catch (e: Exception) {
-        } finally {
-            this.close()
-        }
-    }
-}
-
-fun Cursor?.toItem(onCursor: (c: Cursor) -> Unit) {
-    if (this != null) {
-        try {
-            if (this.moveToNext()) {
-                onCursor.invoke(this)
-            }
-        } catch (e: Exception) {
-        } finally {
-            this.close()
-        }
-    }
+fun isKeyboardVisible(context: Context): Boolean {
+    val imm by lazy { context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager }
+    val windowHeightMethod = InputMethodManager::class.java.getMethod("getInputMethodWindowVisibleHeight")
+    val height = windowHeightMethod.invoke(imm) as Int
+    return height > 100
 }
 
 fun Context.getSizeDP(size: Int): Int {
@@ -646,16 +545,20 @@ private fun createNotificationChannel(context: Context): String {
     return channelId
 }
 
-private fun getServiceNotification(context: Context, cls: Class<*>, requestCode: Int, title: String, content: String, icon: Int): Notification {
+private fun getServiceNotification(
+        context: Context,
+        cls: Class<*>,
+        requestCode: Int,
+        title: String,
+        content: String,
+        icon: Int
+)
+        : Notification {
     val notification: Notification
     val notificationIntent = Intent(context, cls)
     notificationIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
     val pendingIntent = PendingIntent.getActivity(context, requestCode, notificationIntent, 0)
-    val notifbuild = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        Notification.Builder(context, createNotificationChannel(context))
-    } else {
-        Notification.Builder(context)
-    }
+    val notifbuild = getNotifBuilder(context)
     notifbuild.setSmallIcon(icon)// маленькая иконка
             .setAutoCancel(false)
             .setContentTitle(title)// Заголовок уведомления
@@ -663,6 +566,14 @@ private fun getServiceNotification(context: Context, cls: Class<*>, requestCode:
     notifbuild.setContentIntent(pendingIntent)
     notification = notifbuild.build()
     return notification
+}
+
+private fun getNotifBuilder(context: Context): Notification.Builder {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        Notification.Builder(context, createNotificationChannel(context))
+    } else {
+        Notification.Builder(context)
+    }
 }
 
 fun createNotification(context: Context, cls: Class<*>, notifyId: Int, title: String, content: String = "", icon: Int, request: Int = 999) {

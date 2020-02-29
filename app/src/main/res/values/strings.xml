@@ -19,4 +19,8 @@
     <string name="no_statistic_data">Нет данных статистики</string>
     <string name="filtering">Фильтрация</string>
     <string name="flight_title">Название/Маршрут</string>
+    <string name="flight_time_info">Летное время:</string>
+    <string name="night_time_info">Включая ночное:</string>
+    <string name="ground_time_info">На земле:</string>
+    <string name="error_enter_date">Ошибка ввода даты</string>
 </resources>

@@ -1,6 +1,5 @@
 package com.arny.domain.models
 
-import com.arny.data.models.FlightTypeEntity
 
 data class FlightType ( var id: Long? = null) {
     var typeTitle: String? = null
@@ -23,14 +22,4 @@ data class FlightType ( var id: Long? = null) {
     }
 }
 
-fun FlightTypeEntity.toFlightType(): FlightType {
-    val type = FlightType(this.id)
-    type.typeTitle = this.typeTitle
-    return type
-}
 
-fun FlightType.toFlightTypeEntity(): FlightTypeEntity {
-    val type = FlightTypeEntity(this.id)
-    type.typeTitle = this.typeTitle
-    return type
-}

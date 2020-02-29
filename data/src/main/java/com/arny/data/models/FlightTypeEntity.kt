@@ -3,9 +3,10 @@ package com.arny.data.models
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.arny.domain.models.FlightType
 
 @Entity(tableName = "flight_type")
-data class FlightTypeEntity (@PrimaryKey(autoGenerate = true) @ColumnInfo(name = "_id") var id: Long? = null) {
+data class FlightTypeEntity(@PrimaryKey(autoGenerate = true) @ColumnInfo(name = "_id") var id: Long? = null) {
     @ColumnInfo(name = "title")
     var typeTitle: String? = null
 
@@ -28,5 +29,15 @@ data class FlightTypeEntity (@PrimaryKey(autoGenerate = true) @ColumnInfo(name =
         return result
     }
 
+    fun toFlightType(): FlightType {
+        val type = FlightType(this.id)
+        type.typeTitle = this.typeTitle
+        return type
+    }
+}
 
+fun FlightType.toFlightTypeEntity(): FlightTypeEntity {
+    val type = FlightTypeEntity(this.id)
+    type.typeTitle = this.typeTitle
+    return type
 }

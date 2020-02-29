@@ -4,10 +4,14 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
@@ -25,13 +29,13 @@ import kotlinx.android.synthetic.main.activity_addedit.*
 import moxy.MvpAppCompatActivity
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
-import java.util.*
 
 class AddEditActivity :
         MvpAppCompatActivity(),
         AddEditView,
         CalendarDatePickerDialogFragment.OnDateSetListener,
         View.OnClickListener {
+    private var dateMaskListener: MaskedTextChangedListener?=null
     private var tvMotoResult: TextView? = null
     private var imm: InputMethodManager? = null
     private var sFlightTime = ""
@@ -41,9 +45,7 @@ class AddEditActivity :
     lateinit var addEditPresenter: AddEditPresenter
 
     @ProvidePresenter
-    fun provideAddEditPresenter(): AddEditPresenter {
-        return AddEditPresenter()
-    }
+    fun provideAddEditPresenter() = AddEditPresenter()
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,11 +62,21 @@ class AddEditActivity :
         addEditPresenter.initState(flightId)
     }
 
-    override fun updateFlightTimesAdapter(items: List<TimeToFlight>) {
+    private fun initUI() {
+        select_plane_type.setOnClickListener(this)
+        btnSelectFlightType.setOnClickListener(this)
+        btn_moto.setOnClickListener(this)
+        iv_date.setOnClickListener(this)
+        imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        onDateTimeChanges()
+        onFlightTimeChanges()
+        onNightTimeChanges()
+        onGroundTimeChanges()
     }
 
-    override fun notifyAddTimeItemChanged(position: Int) {
-
+    override fun onBackPressed() {
+        super.onBackPressed()
+        overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_out_right)
     }
 
     override fun setTotalFlightTime(flightTime: String) {
@@ -79,20 +91,8 @@ class AddEditActivity :
         tvTotalTime.text = total
     }
 
-    private fun initUI() {
-        select_plane_type.setOnClickListener(this)
-        btnSelectFlightType.setOnClickListener(this)
-        btn_moto.setOnClickListener(this)
-        iv_date.setOnClickListener(this)
-        imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        onDateTimeChanges()
-        onFlightTimeChanges()
-        onNightTimeChanges()
-        onGroundTimeChanges()
-    }
-
     private fun onNightTimeChanges() {
-        setMaskedChanges(edtNightTime) {
+        edtNightTime.setInputMask {
             if (edtNightTime.text.toString().isBlank()) {
                 edtNightTime.hint = getString(R.string.str_time_zero)
             }
@@ -104,24 +104,26 @@ class AddEditActivity :
             }
             if (edtNightTime.text.toString().isBlank()) {
                 if (hasFocus) {
-                    edtNightTime?.hint = getString(R.string.str_time_zero)
+                    edtNightTime.hint = getString(R.string.str_time_zero)
                 } else {
-                    edtNightTime?.hint = null
+                    edtNightTime.hint = null
                 }
             }
         }
-        edtNightTime.setOnKeyListener { _, keyCode, event ->
-            if (keyCode == EditorInfo.IME_ACTION_GO && event.action == KeyEvent.ACTION_UP) {
-                Utility.hideSoftKeyboard(this@AddEditActivity)
-                addEditPresenter.correctNightTime(sNightTime)
-                return@setOnKeyListener true
+        edtNightTime.setOnEditorActionListener { _, actionId, _ ->
+            when (actionId) {
+                EditorInfo.IME_ACTION_NEXT -> {
+                    addEditPresenter.correctNightTime(sNightTime)
+                    edtGroundTime.requestFocus()
+                    true
+                }
+                else -> false
             }
-            return@setOnKeyListener false
         }
     }
 
     private fun onGroundTimeChanges() {
-        setMaskedChanges(edtGroundTime) {
+        edtGroundTime.setInputMask {
             if (edtGroundTime.text.toString().isBlank()) {
                 edtGroundTime.hint = getString(R.string.str_time_zero)
             }
@@ -133,38 +135,40 @@ class AddEditActivity :
             }
             if (edtGroundTime.text.toString().isBlank()) {
                 if (hasFocus) {
-                    edtGroundTime?.hint = getString(R.string.str_time_zero)
+                    edtGroundTime.hint = getString(R.string.str_time_zero)
                 } else {
-                    edtGroundTime?.hint = null
+                    edtGroundTime.hint = null
                 }
             }
         }
-        edtGroundTime.setOnKeyListener { _, keyCode, event ->
-            if (keyCode == EditorInfo.IME_ACTION_GO && event.action == KeyEvent.ACTION_UP) {
-                Utility.hideSoftKeyboard(this@AddEditActivity)
-                addEditPresenter.correctGroundTime(sGroundTime)
-                return@setOnKeyListener true
+        edtGroundTime.setOnEditorActionListener { _, actionId, _ ->
+            when (actionId) {
+                EditorInfo.IME_ACTION_DONE -> {
+                    addEditPresenter.correctGroundTime(sGroundTime)
+                    Utility.hideSoftKeyboard(this@AddEditActivity)
+                    true
+                }
+                else -> false
             }
-            return@setOnKeyListener false
         }
     }
 
     private fun onDateTimeChanges() {
-        tiedt_date?.setOnFocusChangeListener { _, hasFocus ->
-            val empty = Utility.empty(tiedt_date?.text.toString())
+        tiedt_date.setOnFocusChangeListener { _, hasFocus ->
+            val empty = Utility.empty(tiedt_date.text.toString())
             if (empty) {
                 if (hasFocus) {
-                    til_date?.hint = getString(R.string.str_date)
-                    tiedt_date?.hint = getString(R.string.str_date_format)
+                    til_date.hint = getString(R.string.str_date)
+                    tiedt_date.hint = getString(R.string.str_date_format)
                 } else {
-                    til_date?.hint = null
-                    tiedt_date?.hint = getString(R.string.str_date)
+                    til_date.hint = null
+                    tiedt_date.hint = getString(R.string.str_date)
                 }
             } else {
-                til_date?.hint = getString(R.string.str_date)
-                tiedt_date?.hint = getString(R.string.str_date)
+                til_date.hint = getString(R.string.str_date)
+                tiedt_date.hint = getString(R.string.str_date)
                 if (!hasFocus) {
-                    val dat = tiedt_date?.text.toString()
+                    val dat = tiedt_date.text.toString()
                     val pattern = "^(3[01]|[12][0-9]|0[1-9]).(1[0-2]|0[1-9]).[0-9]{4}\$".toRegex()
                     val containsMatchIn = pattern.containsMatchIn(dat)
                     if (!containsMatchIn) {
@@ -174,11 +178,11 @@ class AddEditActivity :
                 }
             }
         }
-        tiedt_date?.addTextChangedListener(MaskedTextChangedListener("[00].[00].[0000]", ArrayList(), false, tiedt_date, object : _TextWatcher {
+        dateMaskListener = MaskedTextChangedListener("[00].[00].[0000]", ArrayList(), false, tiedt_date, object : _TextWatcher {
             override fun afterTextChanged(s: Editable) {
                 if (Utility.empty(tiedt_date.text.toString())) {
-                    til_date?.hint = getString(R.string.str_date)
-                    tiedt_date?.hint = null
+                    til_date.hint = getString(R.string.str_date)
+                    tiedt_date.hint = null
                 }
             }
         }, object : MaskedTextChangedListener.ValueListener {
@@ -187,19 +191,22 @@ class AddEditActivity :
                     addEditPresenter.initDateFromMask(extractedValue)
                 }
             }
-        }))
+        })
+        tiedt_date.addTextChangedListener(dateMaskListener)
     }
 
-    private fun setMaskedChanges(editText: EditText, onMasked: (value: String) -> Unit = {}) {
-        MaskedTextChangedListener.installOn(editText, CONSTS.STRINGS.LOG_TIME_FORMAT, object : MaskedTextChangedListener.ValueListener {
+    private fun EditText.setInputMask(formatMask: String = CONSTS.STRINGS.LOG_TIME_FORMAT, onMasked: (value: String) -> Unit = {}) {
+        val listener = MaskedTextChangedListener.installOn(this, formatMask, object : MaskedTextChangedListener.ValueListener {
             override fun onTextChanged(maskFilled: Boolean, extractedValue: String, formattedValue: String) {
                 onMasked.invoke(extractedValue)
             }
         })
+        this.hint = listener.placeholder()
+        this.onFocusChangeListener = listener
     }
 
     private fun onFlightTimeChanges() {
-        setMaskedChanges(edtFlightTime) {
+        edtFlightTime.setInputMask {
             if (edtFlightTime.text.toString().isBlank()) {
                 edtFlightTime.hint = getString(R.string.str_time_zero)
             }
@@ -211,19 +218,21 @@ class AddEditActivity :
             }
             if (edtFlightTime.text.toString().isBlank()) {
                 if (hasFocus) {
-                    edtFlightTime?.hint = getString(R.string.str_time_zero)
+                    edtFlightTime.hint = getString(R.string.str_time_zero)
                 } else {
-                    edtFlightTime?.hint = null
+                    edtFlightTime.hint = null
                 }
             }
         }
-        edtFlightTime.setOnKeyListener { _, keyCode, event ->
-            if (keyCode == EditorInfo.IME_ACTION_GO && event.action == KeyEvent.ACTION_UP) {
-                Utility.hideSoftKeyboard(this@AddEditActivity)
-                addEditPresenter.correctFlightTime(sFlightTime)
-                return@setOnKeyListener true
+        edtFlightTime.setOnEditorActionListener { _, actionId, _ ->
+            when (actionId) {
+                EditorInfo.IME_ACTION_NEXT -> {
+                    addEditPresenter.correctFlightTime(sFlightTime)
+                    edtNightTime.requestFocus()
+                    true
+                }
+                else -> false
             }
-            return@setOnKeyListener false
         }
     }
 
@@ -257,7 +266,6 @@ class AddEditActivity :
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-//        Log.i(AddEditActivity::class.java.simpleName, "onActivityResult: requestCode:$requestCode;resultCode:$resultCode;data:" + Utility.dumpIntent(data) )
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
                 CONSTS.REQUESTS.REQUEST_SELECT_PLANE_TYPE -> {
@@ -294,7 +302,9 @@ class AddEditActivity :
     }
 
     override fun setDate(date: String) {
+        tiedt_date.removeTextChangedListener(dateMaskListener)
         tiedt_date.setText(date)
+        tiedt_date.addTextChangedListener(dateMaskListener)
     }
 
     override fun setEdtGroundTimeText(groundTimeText: String) {
@@ -310,9 +320,16 @@ class AddEditActivity :
         return true
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-        overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_out_right)
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // Checks whether a hardware keyboard is available
+        if (newConfig.keyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO) {
+            true
+            //
+        } else if (newConfig.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_YES) {
+            true
+            //
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

@@ -14,22 +14,20 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.arny.constants.CONSTS
 import com.arny.data.remote.dropbox.DropboxClientFactory
 import com.arny.data.remote.dropbox.GetCurrentAccountTask
-import com.arny.data.repositories.MainRepositoryImpl
-import com.arny.domain.service.BackgroundIntentService
+import com.arny.data.service.BackgroundIntentService
+import com.arny.domain.common.PreferencesProvider
+import com.arny.domain.flights.FlightsRepository
 import com.arny.flightlogbook.R
-import com.arny.helpers.coroutins.launchAsync
-import com.arny.helpers.utils.DateTimeUtils
-import com.arny.helpers.utils.Utility
-import com.arny.helpers.utils.alertDialog
-import com.arny.helpers.utils.setVisible
+import com.arny.helpers.utils.*
 import com.dropbox.core.android.Auth
 import com.dropbox.core.v2.users.FullAccount
 import es.dmoral.toasty.Toasty
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.fragment_dropbox_sync.*
 import java.util.*
 import javax.inject.Inject
 
-class DropboxSyncFragment : Fragment() {
+class DropboxSyncFragment : Fragment(), CompositeDisposableComponent {
     private var accessToken: String? = null
     private var mOperationResult: String? = null
     private var dbxEmail: String? = null
@@ -45,7 +43,10 @@ class DropboxSyncFragment : Fragment() {
     private var mOperation: Int = 0
     private var hashMap = hashMapOf<String, String>()
     @Inject
-    lateinit var repository: MainRepositoryImpl
+    lateinit var preferencesProvider: PreferencesProvider
+    @Inject
+    lateinit var repository: FlightsRepository
+    override val compositeDisposable: CompositeDisposable = CompositeDisposable()
     private val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             try {
@@ -95,14 +96,14 @@ class DropboxSyncFragment : Fragment() {
     }
 
     private fun initState() {
-        localfileDate = repository.getPrefString(PREF_DBX_LOCAL_DATETIME, "")
-        remoteFileDate = repository.getPrefString(PREF_DBX_REMOTE_DATETIME, "")
-        syncDateTime = repository.getPrefString(PREF_DBX_SYNC_DATETIME, "")
-        dbxEmail = repository.getPrefString(PREF_DBX_EMAIL, "")
-        dbxName = repository.getPrefString(PREF_DBX_NAME, "")
+        localfileDate = preferencesProvider.getPrefString(PREF_DBX_LOCAL_DATETIME, "")
+        remoteFileDate = preferencesProvider.getPrefString(PREF_DBX_REMOTE_DATETIME, "")
+        syncDateTime = preferencesProvider.getPrefString(PREF_DBX_SYNC_DATETIME, "")
+        dbxEmail = preferencesProvider.getPrefString(PREF_DBX_EMAIL, "")
+        dbxName = preferencesProvider.getPrefString(PREF_DBX_NAME, "")
         tvDpxEmail.text = String.format(getString(R.string.dropbox_email), dbxEmail)
         tvDpxName.text = String.format(getString(R.string.dropbox_name), dbxName)
-        val autoImport = repository.getPrefBoolean(CONSTS.PREFS.PREF_DROPBOX_AUTOIMPORT_TO_DB, false)
+        val autoImport = preferencesProvider.getPrefBoolean(CONSTS.PREFS.PREF_DROPBOX_AUTOIMPORT_TO_DB, false)
         checkBoxAutoImport.isChecked = autoImport
         setSyncDataFileDateTime()
     }
@@ -124,7 +125,6 @@ class DropboxSyncFragment : Fragment() {
             )
         }
         btnSyncDown.setOnClickListener {
-            //            val autoImport = repository.getPrefBoolean(CONSTS.PREFS.PREF_DROPBOX_AUTOIMPORT_TO_DB, false)
             alertDialog(
                     context = requireActivity(),
                     title = getString(R.string.warning),
@@ -132,7 +132,9 @@ class DropboxSyncFragment : Fragment() {
                     onConfirm = { downLoadFile() }
             )
         }
-        checkBoxAutoImport.setOnCheckedChangeListener { _, b -> repository.setPrefBoolean(CONSTS.PREFS.PREF_DROPBOX_AUTOIMPORT_TO_DB, b) }
+        checkBoxAutoImport.setOnCheckedChangeListener { _, b ->
+            preferencesProvider.setPrefBoolean(CONSTS.PREFS.PREF_DROPBOX_AUTOIMPORT_TO_DB, b)
+        }
     }
 
     private fun setSyncDataFileDateTime() {
@@ -209,13 +211,12 @@ class DropboxSyncFragment : Fragment() {
             showProgress(notif)
         } else {
             hideProgress()
-            setUIVisibility()
-            launchAsync({
+            setUiVisibility()
+            fromCallable {
                 getAccessToken()
-            }, {
-                setUIVisibility()
-            }, {
-                it.printStackTrace()
+                true
+            }.observeSubscribeAdd({
+                setUiVisibility()
             })
         }
     }
@@ -253,7 +254,7 @@ class DropboxSyncFragment : Fragment() {
         }
     }
 
-    private fun setUIVisibility() {
+    private fun setUiVisibility() {
         val hasToken = hasToken()
         btnDpxLogin.setVisible(!hasToken)
         tvDpxEmail.setVisible(hasToken)
@@ -262,11 +263,11 @@ class DropboxSyncFragment : Fragment() {
     }
 
     private fun getAccessToken() {
-        accessToken = repository.getPrefString(DROPBOX_STR_TOKEN, null)
+        accessToken = preferencesProvider.getPrefString(DROPBOX_STR_TOKEN, null)
         if (accessToken == null) {
             accessToken = Auth.getOAuth2Token()
             if (accessToken != null) {
-                repository.setPrefString(DROPBOX_STR_TOKEN, accessToken)
+                preferencesProvider.setPrefString(DROPBOX_STR_TOKEN, accessToken)
                 initAndLoadData(accessToken!!)
             }
         } else {
@@ -276,7 +277,7 @@ class DropboxSyncFragment : Fragment() {
 
     private fun hasToken(): Boolean {
         if (accessToken == null) {
-            accessToken = repository.getPrefString(DROPBOX_STR_TOKEN)
+            accessToken = preferencesProvider.getPrefString(DROPBOX_STR_TOKEN)
         }
         return accessToken != null
     }
@@ -284,8 +285,8 @@ class DropboxSyncFragment : Fragment() {
     private fun loadData() {
         GetCurrentAccountTask(DropboxClientFactory.getClient(), object : GetCurrentAccountTask.Callback {
             override fun onComplete(result: FullAccount) {
-                repository.setPrefString(PREF_DBX_EMAIL, result.email)
-                repository.setPrefString(PREF_DBX_NAME, result.name.displayName)
+                preferencesProvider.setPrefString(PREF_DBX_EMAIL, result.email)
+                preferencesProvider.setPrefString(PREF_DBX_NAME, result.name.displayName)
                 if (view != null) {
                     tvDpxEmail.text = String.format(getString(R.string.dropbox_email), result.email)
                     tvDpxName.text = String.format(getString(R.string.dropbox_name), result.name.displayName)
@@ -309,9 +310,9 @@ class DropboxSyncFragment : Fragment() {
                 localfileDate = hashMap[BackgroundIntentService.EXTRA_KEY_OPERATION_DATA_LOCAL_DATE]
                 remoteFileDate = hashMap[BackgroundIntentService.EXTRA_KEY_OPERATION_DATA_REMOTE_DATE]
                 syncDateTime = DateTimeUtils.getDateTime(0.toLong(), "dd MMM yyyy HH:mm:ss")
-                repository.setPrefString(PREF_DBX_LOCAL_DATETIME, localfileDate)
-                repository.setPrefString(PREF_DBX_REMOTE_DATETIME, remoteFileDate)
-                repository.setPrefString(PREF_DBX_SYNC_DATETIME, syncDateTime)
+                preferencesProvider.setPrefString(PREF_DBX_LOCAL_DATETIME, localfileDate)
+                preferencesProvider.setPrefString(PREF_DBX_REMOTE_DATETIME, remoteFileDate)
+                preferencesProvider.setPrefString(PREF_DBX_SYNC_DATETIME, syncDateTime)
                 setSyncDataFileDateTime()
             }
         }

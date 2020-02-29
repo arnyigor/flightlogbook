@@ -20,7 +20,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.arny.constants.CONSTS
-import com.arny.domain.service.BackgroundIntentService
+import com.arny.data.service.BackgroundIntentService
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.presentation.flights.viewflights.FlightListFragment
 import com.arny.flightlogbook.presentation.flighttypes.FlightTypesFragment
@@ -281,7 +281,7 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
 
     private fun isAppFileExist(context: Context): Boolean {
         if (!BasePermissions.isStoragePermissonGranted(context)) {
-            Toast.makeText(context, com.arny.domain.R.string.storage_not_avalable, Toast.LENGTH_LONG).show()
+            Toast.makeText(context, R.string.storage_not_avalable, Toast.LENGTH_LONG).show()
             return false
         }
         val file = File(Environment.getExternalStorageDirectory().toString() + "/Android/data/com.arny.flightlogbook/files", CONSTS.FILES.EXEL_FILE_NAME)

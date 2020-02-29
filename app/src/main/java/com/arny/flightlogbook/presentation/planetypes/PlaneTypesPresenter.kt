@@ -1,8 +1,8 @@
 package com.arny.flightlogbook.presentation.planetypes
 
-import com.arny.domain.common.CommonUseCase
+import com.arny.domain.common.ResourcesInteractor
 import com.arny.domain.models.PlaneType
-import com.arny.domain.planetypes.PlaneTypesUseCase
+import com.arny.domain.planetypes.PlaneTypesInteractor
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
 import com.arny.helpers.utils.addTo
@@ -16,9 +16,9 @@ import javax.inject.Inject
 class PlaneTypesPresenter : MvpPresenter<PlaneTypesView>() {
     private val compositeDisposable = CompositeDisposable()
     @Inject
-    lateinit var planeTypesUseCase: PlaneTypesUseCase
+    lateinit var planeTypesInteractor: PlaneTypesInteractor
     @Inject
-    lateinit var commonUseCase: CommonUseCase
+    lateinit var resourcesInteractor: ResourcesInteractor
 
     init {
         FlightApp.appComponent.inject(this)
@@ -31,7 +31,7 @@ class PlaneTypesPresenter : MvpPresenter<PlaneTypesView>() {
 
     fun loadTypes() {
         viewState?.setEmptyViewVisible(false)
-        planeTypesUseCase.loadPlaneTypes()
+        planeTypesInteractor.loadPlaneTypes()
                 .observeOnMain()
                 .subscribe({
                     viewState?.updateAdapter(it)
@@ -44,13 +44,13 @@ class PlaneTypesPresenter : MvpPresenter<PlaneTypesView>() {
     }
 
     fun addType(name: String) {
-        planeTypesUseCase.addType(name)
+        planeTypesInteractor.addType(name)
                 .observeOnMain()
                 .subscribe({
                     if (it) {
                         loadTypes()
                     } else {
-                        viewState?.toastError(commonUseCase.getString(R.string.str_type_add_fail))
+                        viewState?.toastError(resourcesInteractor.getString(R.string.str_type_add_fail))
                     }
                 }, {
                     viewState?.toastError(it.message)
@@ -59,13 +59,13 @@ class PlaneTypesPresenter : MvpPresenter<PlaneTypesView>() {
     }
 
     fun removeType(item: PlaneType) {
-        planeTypesUseCase.removeType(item)
+        planeTypesInteractor.removeType(item)
                 .observeOnMain()
                 .subscribe({
                     if (it) {
                         loadTypes()
                     } else {
-                        viewState?.toastError(commonUseCase.getString(R.string.str_type_remove_fail))
+                        viewState?.toastError(resourcesInteractor.getString(R.string.str_type_remove_fail))
                     }
                 }, {
                     viewState?.toastError(it.message)
@@ -74,14 +74,14 @@ class PlaneTypesPresenter : MvpPresenter<PlaneTypesView>() {
     }
 
     fun updatePlaneTypeTitle(type: PlaneType, title: String?, position: Int) {
-        planeTypesUseCase.updatePlaneTypeTitle(type.typeId, title)
+        planeTypesInteractor.updatePlaneTypeTitle(type.typeId, title)
                 .observeOnMain()
                 .subscribe({
                     if (it) {
                         type.typeName = title
                         viewState?.notifyItemChanged(position)
                     } else {
-                        viewState?.toastError(commonUseCase.getString(R.string.str_type_change_fail))
+                        viewState?.toastError(resourcesInteractor.getString(R.string.str_type_change_fail))
                     }
                 }, {
                     viewState?.toastError(it.message)

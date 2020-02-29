@@ -3,7 +3,6 @@ package com.arny.flightlogbook.presentation.flights.viewflights
 import com.arny.adapters.SimpleAbstractAdapter
 import com.arny.domain.models.Flight
 import com.arny.flightlogbook.R
-import com.arny.helpers.utils.DateTimeUtils
 import kotlinx.android.synthetic.main.flight_list_item.view.*
 
 class FlightsAdapter : SimpleAbstractAdapter<Flight>() {
@@ -16,14 +15,12 @@ class FlightsAdapter : SimpleAbstractAdapter<Flight>() {
         viewHolder.itemView.apply {
             val datetime = item.datetime ?: 0
             if (datetime > 0) {
-                tv_date.text = item.datetimeFormatted
+                tvDate.text = item.datetimeFormatted
             }
-            val strLogTime = DateTimeUtils.strLogTime(item.totalTime)
-            val strFlightTime = DateTimeUtils.strLogTime(item.totalTime)
-            tv_log_time_flight.text = strFlightTime
-            tv_log_time_flight_total.text = strLogTime
+            tv_log_time_flight.text = item.logtimeFormatted
+            tv_log_time_flight_total.text = item.totalTimeFormatted
             tvFlightType.text = item.flightType?.typeTitle
-            tv_plane_reg_no.text = item.regNo
+            tvPlaneRegNo.text = item.regNo
             tv_plane_type.text = item.planeType?.typeName
             setOnClickListener {
                 listener?.onItemClick(position, item)

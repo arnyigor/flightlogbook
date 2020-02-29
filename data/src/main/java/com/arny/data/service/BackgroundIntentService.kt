@@ -1,4 +1,4 @@
-package com.arny.domain.service
+package com.arny.data.service
 
 import android.app.IntentService
 import android.app.Service
@@ -9,10 +9,12 @@ import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.arny.constants.CONSTS
 import com.arny.data.remote.dropbox.DropboxClientFactory
-import com.arny.data.repositories.MainRepositoryImpl
 import com.arny.domain.R
-import com.arny.domain.common.PrefsUseCase
-import com.arny.domain.models.*
+import com.arny.domain.common.PreferencesInteractor
+import com.arny.domain.flights.FlightsRepository
+import com.arny.domain.flighttypes.FlightTypesRepository
+import com.arny.domain.models.Flight
+import com.arny.domain.planetypes.PlaneTypesRepository
 import com.arny.helpers.utils.BasePermissions
 import com.arny.helpers.utils.DateTimeUtils
 import com.arny.helpers.utils.FileUtils
@@ -40,11 +42,14 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
     private var remoteMetadata: FileMetadata? = null
     private var hashMap: HashMap<String, String>? = null
     private var startId: Int = 0
-
     @Inject
-    lateinit var repository: MainRepositoryImpl
+    lateinit var flightsRepository: FlightsRepository
     @Inject
-    lateinit var prefsUseCase: PrefsUseCase
+    lateinit var planeTypesRepository: PlaneTypesRepository
+    @Inject
+    lateinit var flightTypesRepository: FlightTypesRepository
+    @Inject
+    lateinit var preferencesInteractor: PreferencesInteractor
 
     private fun getNotificationResult(): String {
         var notice: String
@@ -71,7 +76,7 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
     }
 
     private fun setOperation(operation: Int) {
-        BackgroundIntentService.operation = operation
+        Companion.operation = operation
     }
 
     init {
@@ -131,7 +136,6 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
                 e.printStackTrace()
                 mIsSuccess = false
             }
-
             OPERATION_DBX_DOWNLOAD -> try {
                 client = DropboxClientFactory.getClient()
                 if (client != null) {
@@ -144,7 +148,6 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
                 e.printStackTrace()
                 mIsSuccess = false
             }
-
             OPERATION_DBX_UPLOAD -> try {
                 client = DropboxClientFactory.getClient()
                 if (client != null) {
@@ -156,7 +159,6 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
                 e.printStackTrace()
                 mIsSuccess = false
             }
-
             OPERATION_EXPORT -> mIsSuccess = saveExcelFile(applicationContext)
         }
 
@@ -199,7 +201,6 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
         var success = false
         //New Workbook
         val wb = HSSFWorkbook()
-
         //Cell style for header row
         val cs = wb.createCellStyle()
 //        cs.fillForegroundColor = HSSFColor.LIME
@@ -225,12 +226,10 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
         c.setCellValue(getString(R.string.str_flight_type))
         c = row.createCell(7)
         c.setCellValue(getString(R.string.str_desc))
-        val exportData = repository.getDbFlights()
-                .map { it.toFlight() }
+        val exportData = flightsRepository.getDbFlights()
                 .map { flight ->
-                    val planeType = repository.loadPlaneType(flight.planeId)
-                    flight.planeType = planeType?.toPlaneType()
-                    flight.flightType = repository.loadDBFlightType(flight.flightTypeId?.toLong())?.toFlightType()
+                    flight.planeType = planeTypesRepository.loadPlaneType(flight.planeId)
+                    flight.flightType = flightTypesRepository.loadDBFlightType(flight.flightTypeId?.toLong())
                     flight
                 }
         var rows = 1
@@ -266,7 +265,6 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
         sheet_main.setColumnWidth(5, 15 * 300)
         sheet_main.setColumnWidth(6, 15 * 200)
         sheet_main.setColumnWidth(7, 15 * 500)
-
         // Create a path where we will place our List of objects on external storage
         val file = File(context.getExternalFilesDir(null), CONSTS.FILES.EXEL_FILE_NAME)
         var os: FileOutputStream? = null
@@ -316,13 +314,11 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
                 mIsSuccess = false
                 return
             }
-            // Get the first sheet from workbook
             val mySheet = myWorkBook.getSheetAt(0)
-            /** We now need something to iterate through the cells. */
             val rowIter = mySheet.rowIterator()
             val flightsFromExel = getFlightsFromExcel(rowIter)
-            repository.removeAllFlights()
-            repository.insertFlights(flightsFromExel.map { it.toFlightEntity() })
+            flightsRepository.removeAllFlights()
+            flightsRepository.insertFlights(flightsFromExel)
             mIsSuccess = true
         } catch (e: Exception) {
             e.printStackTrace()
@@ -384,12 +380,12 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
                         2 -> {
                             try {
                                 airplane_type = myCell.toString()
-                                val planeType = repository.loadPlaneType(airplane_type)
+                                val planeType = planeTypesRepository.loadPlaneType(airplane_type)
                                 if (planeType != null) {
                                     airplane_type_id = planeType.typeId
                                 } else {
                                     if (!Utility.empty(airplane_type)) {
-                                        airplane_type_id = repository.addTypeAndGet(airplane_type)
+                                        airplane_type_id = planeTypesRepository.addTypeAndGet(airplane_type)
                                     }
                                 }
                             } catch (e: Exception) {
@@ -453,7 +449,6 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
-
                             var format = "dd MMM yyyy"
                             strDate = strDate!!.replace("-", " ").replace(".", " ").replace("\\s+".toRegex(), " ")
                             try {
@@ -506,7 +501,6 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
             try {
                 val outputStream = FileOutputStream(file)
                 client!!.files().download(metadata!!.pathLower, metadata.rev).download(outputStream)
-                // Tell android about the file
                 val intent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
                 intent.data = Uri.fromFile(file)
                 applicationContext.sendBroadcast(intent)
@@ -519,8 +513,7 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
                 e.printStackTrace()
                 mIsSuccess = false
             }
-
-            val autoimport = prefsUseCase.isAutoImportEnabled()
+            val autoimport = preferencesInteractor.isAutoImportEnabled()
             if (autoimport) {
                 readExcelFile(applicationContext, CONSTS.FILES.EXEL_FILE_NAME, true)
             }

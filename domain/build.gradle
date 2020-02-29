@@ -18,6 +18,9 @@ android {
         debug {
             debuggable true
         }
+        prerelease {
+            debuggable true
+        }
         release {
             debuggable false
         }
@@ -39,7 +42,6 @@ android {
 dependencies {
     implementation project(path: ':helpers')
     implementation project(path: ':constants')
-    implementation project(path: ':data')
     implementation libs.kotlinStdlib
     //rx2
     implementation libs.rxJava

@@ -120,7 +120,7 @@ class DBHelper extends SQLiteOpenHelper {
                 Cursor cursor = db.rawQuery("SELECT * FROM migrations WHERE filename = '"+name+"'", null);
                 if (cursor != null && cursor.getCount()>0){
                     cursor.moveToFirst();
-                    String dbName = DBProvider.getCursorString(cursor, "filename");
+                    String dbName = "";//DBProvider.getCursorString(cursor, "filename");
                     if (!Utility.empty(dbName)){
                         toDel.add(dbName+".sql");
                     }

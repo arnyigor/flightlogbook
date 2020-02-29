@@ -3,6 +3,8 @@ package com.arny.data.models
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.arny.domain.models.Flight
+import com.arny.helpers.utils.DateTimeUtils
 
 @Entity(tableName = "main_table")
 data class FlightEntity(@PrimaryKey(autoGenerate = true) @ColumnInfo(name = "_id") var id: Long? = null) {
@@ -10,6 +12,10 @@ data class FlightEntity(@PrimaryKey(autoGenerate = true) @ColumnInfo(name = "_id
     var datetime: Long? = null
     @ColumnInfo(name = "log_time")
     var logtime: Int? = null
+/*    @ColumnInfo(name = "ground_time")
+    var groundTime: Int? = null
+    @ColumnInfo(name = "night_time")
+    var nightTime: Int? = null*/
     @ColumnInfo(name = "reg_no")
     var regNo: String? = null
     @ColumnInfo(name = "airplane_type")
@@ -57,5 +63,33 @@ data class FlightEntity(@PrimaryKey(autoGenerate = true) @ColumnInfo(name = "_id
         return result
     }
 
+    fun toFlight(): Flight {
+        val flight = Flight(id)
+        flight.datetime = this.datetime
+        flight.datetimeFormatted = this.datetime?.let { DateTimeUtils.getDateTime(it, "dd MMM yyyy") }
+        flight.flightTime = this.logtime ?: 0
+        flight.logtimeFormatted = this.logtime?.let { DateTimeUtils.strLogTime(it) }
+        flight.totalTimeFormatted = this.logtime?.let { DateTimeUtils.strLogTime(it) }//TODO добавить ночное и землю
+        flight.regNo = this.regNo
+        flight.planeId = this.planeId
+        flight.daynight = this.daynight
+        flight.ifrvfr = this.ifrvfr
+        flight.flightTypeId = this.flighttype
+        flight.description = this.description
+        return flight
+    }
 
+}
+
+fun Flight.toFlightEntity(): FlightEntity {
+    val flight = FlightEntity(id)
+    flight.datetime = this.datetime
+    flight.logtime = this.flightTime
+    flight.regNo = this.regNo
+    flight.planeId = this.planeId
+    flight.daynight = this.daynight
+    flight.ifrvfr = this.ifrvfr
+    flight.flighttype = this.flightTypeId
+    flight.description = this.description
+    return flight
 }

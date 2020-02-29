@@ -22,7 +22,7 @@ import io.reactivex.schedulers.Schedulers;
 @RunWith(AndroidJUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class InstrumentsTests {
-	private static final Context context = InstrumentationRegistry.getTargetContext();
+	private static final Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
 	private static final Object syncObject = new Object();
 
 	private static class ImmediateSchedulersRule implements TestRule {

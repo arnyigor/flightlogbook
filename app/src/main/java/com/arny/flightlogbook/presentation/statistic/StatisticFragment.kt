@@ -146,18 +146,20 @@ class StatisticFragment : MvpAppCompatFragment(), StatisticsView, View.OnClickLi
         setHasOptionsMenu(true)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        menu?.clear()
+        menu.clear()
     }
 
     override fun showDateDialogStart(year: Int, month: Int, day: Int) {
-        CalendarDatePickerDialogFragment()
+        fragmentManager?.let {
+            CalendarDatePickerDialogFragment()
                 .setPreselectedDate(year, month, day)
                 .setOnDateSetListener { dialog, y, monthOfYear, dayOfMonth ->
                     dialog.dismiss()
                     statisticsPresenter.onDateStartSet(y, monthOfYear, dayOfMonth)
-                }.show(fragmentManager, "fragment_date_start_picker_name")
+                }.show(it, "fragment_date_start_picker_name")
+        }
     }
 
     override fun toastError(string: String?) {
@@ -165,11 +167,13 @@ class StatisticFragment : MvpAppCompatFragment(), StatisticsView, View.OnClickLi
     }
 
     override fun showDateDialogEnd(year: Int, month: Int, day: Int) {
-        CalendarDatePickerDialogFragment()
+        fragmentManager?.let {
+            CalendarDatePickerDialogFragment()
                 .setPreselectedDate(year, month, day)
                 .setOnDateSetListener { dialog, y, monthOfYear, dayOfMonth ->
                     dialog.dismiss()
                     statisticsPresenter.onDateEndSet(y, monthOfYear, dayOfMonth)
-                }.show(fragmentManager, "fragment_date_end_picker_name")
+                }.show(it, "fragment_date_end_picker_name")
+        }
     }
 }

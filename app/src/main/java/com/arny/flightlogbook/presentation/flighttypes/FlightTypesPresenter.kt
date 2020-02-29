@@ -1,7 +1,7 @@
 package com.arny.flightlogbook.presentation.flighttypes
 
-import com.arny.domain.common.CommonUseCase
-import com.arny.domain.flighttypes.FlightTypesUseCase
+import com.arny.domain.common.ResourcesInteractor
+import com.arny.domain.flighttypes.FlightTypesInteractor
 import com.arny.domain.models.FlightType
 import com.arny.flightlogbook.FlightApp
 import com.arny.helpers.utils.addTo
@@ -16,9 +16,9 @@ import javax.inject.Inject
 class FlightTypesPresenter : MvpPresenter<FlightTypesView>() {
     private val compositeDisposable = CompositeDisposable()
     @Inject
-    lateinit var flightTypesUseCase: FlightTypesUseCase
+    lateinit var flightTypesInteractor: FlightTypesInteractor
     @Inject
-    lateinit var commonUseCase: CommonUseCase
+    lateinit var resourcesInteractor: ResourcesInteractor
 
     init {
         FlightApp.appComponent.inject(this)
@@ -31,7 +31,7 @@ class FlightTypesPresenter : MvpPresenter<FlightTypesView>() {
 
     fun loadTypes() {
         viewState?.showEmptyView(false)
-        flightTypesUseCase.loadDBFlightTypes()
+        flightTypesInteractor.loadDBFlightTypes()
                 .observeOnMain()
                 .subscribe({
                     viewState?.updateAdapter(it)
@@ -48,7 +48,7 @@ class FlightTypesPresenter : MvpPresenter<FlightTypesView>() {
             viewState?.toastError("Введите название типа полета")
             return
         }
-        flightTypesUseCase.insertFlightType(title)
+        flightTypesInteractor.insertFlightType(title)
                 .observeOnMain()
                 .subscribe({
                     if (it) {
@@ -65,7 +65,7 @@ class FlightTypesPresenter : MvpPresenter<FlightTypesView>() {
     }
 
     fun removeFlightType(item: FlightType) {
-        flightTypesUseCase.removeFlightType(item.id)
+        flightTypesInteractor.removeFlightType(item.id)
                 .observeOnMain()
                 .subscribe({
                     if (it) {
@@ -81,7 +81,7 @@ class FlightTypesPresenter : MvpPresenter<FlightTypesView>() {
     }
 
     fun editFlightTypeTitle(item: FlightType, newName: String) {
-        flightTypesUseCase.updateFlightType(item.id,newName)
+        flightTypesInteractor.updateFlightType(item.id,newName)
                 .observeOnMain()
                 .subscribe({
                     if (it) {

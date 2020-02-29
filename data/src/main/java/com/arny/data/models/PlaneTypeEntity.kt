@@ -3,6 +3,7 @@ package com.arny.data.models
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.arny.domain.models.PlaneType
 
 @Entity(tableName = "type_table")
 data class PlaneTypeEntity(@PrimaryKey(autoGenerate = true) @ColumnInfo(name = "type_id") var typeId: Long = 0) {
@@ -28,5 +29,15 @@ data class PlaneTypeEntity(@PrimaryKey(autoGenerate = true) @ColumnInfo(name = "
         return result
     }
 
+    fun toPlaneType(): PlaneType {
+        val planeType = PlaneType(typeId)
+        planeType.typeName = typeName
+        return planeType
+    }
+}
 
+fun PlaneType.toPlaneTypeEntity(): PlaneTypeEntity {
+    val planeTypeEntity = PlaneTypeEntity(typeId)
+    planeTypeEntity.typeName = typeName
+    return planeTypeEntity
 }

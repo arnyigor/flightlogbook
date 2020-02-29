@@ -10,10 +10,19 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
+        kapt {
+            arguments {
+                arg("room.schemaLocation", "$projectDir/schemas")
+            }
+        }
     }
 
     buildTypes {
         debug {
+            debuggable true
+        }
+        prerelease {
             debuggable true
         }
         release {
@@ -25,14 +34,23 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
         sourceCompatibility JavaVersion.VERSION_1_8
     }
+
+    sourceSets {
+        androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
+    }
 }
 
 dependencies {
+    implementation libs.multidex
     implementation project(path: ':helpers')
     implementation project(path: ':constants')
+    implementation project(path: ':domain')
     implementation libs.kotlinStdlib
-    implementation libs.coroutinesCore
-    implementation libs.coroutinesAndroid
+    /*tests*/
+    implementation libs.junit
+    androidTestImplementation libs.extJunit
+    androidTestImplementation libs.rules
+    androidTestImplementation libs.runner
     //di
     implementation libs.dagger
     kapt libs.daggerCompiler
@@ -44,7 +62,9 @@ dependencies {
     implementation libs.roomRuntime
     kapt libs.roomCompiler
     implementation libs.roomRx
+    implementation libs.roomTesting
     //network
+    implementation libs.poi
     //interсept
     implementation libs.stetho
     //network

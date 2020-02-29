@@ -1,24 +1,28 @@
 package com.arny.data.db
 
-import android.content.Context
 import androidx.room.Database
-import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.arny.constants.CONSTS
 import com.arny.data.db.daos.AircraftTypeDAO
 import com.arny.data.db.daos.FlightDAO
 import com.arny.data.db.daos.FlightTypeDAO
 import com.arny.data.db.daos.FlightTypeValueDAO
-import com.arny.data.models.*
-import com.arny.helpers.utils.SingletonHolder
+import com.arny.data.models.FlightEntity
+import com.arny.data.models.FlightTypeEntity
+import com.arny.data.models.FlightTypeValueEntity
+import com.arny.data.models.PlaneTypeEntity
 
-@Database(entities = [FlightEntity::class, PlaneTypeEntity::class, FlightTypeEntity::class, FlightTypeValueEntity::class, MigrationsEntity::class], version = CONSTS.DB.DB_VERSION, exportSchema = false)
+@Database(
+        entities = [
+            FlightEntity::class,
+            PlaneTypeEntity::class,
+            FlightTypeEntity::class,
+            FlightTypeValueEntity::class
+        ],
+        version = CONSTS.DB.DB_VERSION,
+        exportSchema = true
+)
 abstract class MainDB : RoomDatabase() {
-    companion object : SingletonHolder<MainDB, Context>({
-        Room.databaseBuilder(it.applicationContext, MainDB::class.java, CONSTS.DB.DB_NAME)
-                .build()
-    })
-
     abstract val flightDAO: FlightDAO
     abstract val flightTypeDAO: FlightTypeDAO
     abstract val aircraftTypeValueDAO: FlightTypeValueDAO

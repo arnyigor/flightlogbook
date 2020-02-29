@@ -1,6 +1,6 @@
 package com.arny.domain;
 
-import com.arny.data.repositories.MainRepositoryImpl;
+import com.arny.data.repositories.RepositoryImpl;
 import com.arny.domain.flights.FlightsInteractor;
 import com.arny.domain.models.Flight;
 
@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class FlightUseCaseTests {
     private FlightsInteractor flightsInteractor;
     @Mock
-    private MainRepositoryImpl mockRepository;
+    private RepositoryImpl mockRepository;
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
     @Rule public ExpectedException expectedException = ExpectedException.none();

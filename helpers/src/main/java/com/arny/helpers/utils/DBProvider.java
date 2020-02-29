@@ -114,44 +114,6 @@ public class DBProvider {
         return DBHelper.getInstance(context).getWritableDatabase();
     }
 
-    public static int getCursorInt(Cursor cursor, String columnname) {
-        int index = cursor.getColumnIndex(columnname);
-        if (index != -1) {
-            return cursor.getInt(index);
-        }
-        return 0;
-    }
-
-    public static long getCursorLong(Cursor cursor, String columnname) {
-        int index = cursor.getColumnIndex(columnname);
-        if (index != -1) {
-            return cursor.getLong(index);
-        }
-        return 0;
-    }
-
-    public static String getCursorString(Cursor cursor, String columnname) {
-        int index = cursor.getColumnIndex(columnname);
-        if (index != -1) {
-            return cursor.getString(index);
-        }
-        return "";
-    }
-
-    public static boolean getCursorBoolean(Cursor cursor, String columnname) {
-        String string = getCursorString(cursor, columnname);
-        return string != null && string.trim().length() > 0 && Boolean.parseBoolean(string);
-    }
-
-    public static double getCursorDouble(Cursor cursor, String columnname) {
-        String cursorString = getCursorString(cursor, columnname);
-        if (cursorString != null && cursorString.trim().length() > 0) {
-            return Double.parseDouble(cursorString);
-        } else {
-            return 0.0;
-        }
-    }
-
     @NonNull
     public static String getSqlTable(Class<?> aClass) {
         return aClass.getSimpleName().toLowerCase();

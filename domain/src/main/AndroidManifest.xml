@@ -6,7 +6,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true">
         <service
-            android:name=".service.BackgroundIntentService"
+            android:name="com.arny.data.service.BackgroundIntentService"
             android:exported="false"
             android:label="BackgroundIntentService" />
 

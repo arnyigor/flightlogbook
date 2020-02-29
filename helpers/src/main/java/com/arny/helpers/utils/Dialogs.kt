@@ -58,7 +58,6 @@ fun checkDialog(
         context: Context,
         title: String? = null,
         items: Array<String>,
-        itemsSelected: Array<Int>? = null,
         cancelable: Boolean = false,
         dialogListener: (index: Int, text: String) -> Unit?): MaterialDialog {
     val dlg = MaterialDialog(context)

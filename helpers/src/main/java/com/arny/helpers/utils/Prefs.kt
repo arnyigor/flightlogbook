@@ -2,14 +2,14 @@ package com.arny.helpers.utils
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 
 class Prefs private constructor(val context: Context) {
-    private var settings: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+    val settings: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
     companion object : SingletonHolder<Prefs, Context>(::Prefs)
 
-    fun <T> get(key: String): T? {
+    inline fun <reified T> get(key: String): T? {
         return settings.all[key] as? T
     }
 

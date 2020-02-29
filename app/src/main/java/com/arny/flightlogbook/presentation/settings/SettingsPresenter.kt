@@ -1,7 +1,6 @@
 package com.arny.flightlogbook.presentation.settings
 
 import android.util.Log
-import com.arny.data.repositories.MainRepositoryImpl
 import com.arny.domain.flights.FlightsInteractor
 import com.arny.flightlogbook.FlightApp
 import com.arny.helpers.utils.CompositeDisposableComponent
@@ -17,8 +16,6 @@ class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableCompo
     override val compositeDisposable = CompositeDisposable()
     @Inject
     lateinit var interactor: FlightsInteractor
-    @Inject
-    lateinit var repository: MainRepositoryImpl
 
     init {
         FlightApp.appComponent.inject(this)

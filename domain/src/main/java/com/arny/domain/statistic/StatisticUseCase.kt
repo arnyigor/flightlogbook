@@ -1,8 +1,12 @@
 package com.arny.domain.statistic
 
-import com.arny.data.models.FlightEntity
-import com.arny.data.repositories.MainRepositoryImpl
-import com.arny.domain.models.*
+import com.arny.domain.flights.FlightsRepository
+import com.arny.domain.flighttypes.FlightTypesRepository
+import com.arny.domain.models.Flight
+import com.arny.domain.models.FlightType
+import com.arny.domain.models.PlaneType
+import com.arny.domain.models.Statistic
+import com.arny.domain.planetypes.PlaneTypesRepository
 import com.arny.helpers.utils.DateTimeUtils
 import com.arny.helpers.utils.fromCallable
 import io.reactivex.Observable
@@ -13,30 +17,34 @@ import javax.inject.Singleton
  *Created by Sedoy on 27.08.2019
  */
 @Singleton
-class StatisticUseCase @Inject constructor(private val repository: MainRepositoryImpl) {
+class StatisticUseCase @Inject constructor(
+        private val flightsRepository: FlightsRepository,
+        private val planeTypesRepository: PlaneTypesRepository,
+        private val flightTypesRepository: FlightTypesRepository
+) {
     fun loadDBFlights(startDate: Long, endDate: Long, extendedStatistic: Boolean, includeEnd: Boolean): Observable<ArrayList<Statistic>> {
-        return returnStatistic(extendedStatistic, fromCallable { repository.getStatisticDbFlights(startDate, endDate, includeEnd) })
+        return returnStatistic(extendedStatistic, fromCallable { flightsRepository.getStatisticDbFlights(startDate, endDate, includeEnd) })
     }
 
     fun loadDBFlightsByTimes(startdatetime: Long, enddatetime: Long, extendedStatistic: Boolean, filterSelection: List<Long?>, includeEnd: Boolean): Observable<ArrayList<Statistic>> {
-        val filghtList = toFilghtList(fromCallable { repository.getStatisticDbFlights(startdatetime, enddatetime, includeEnd) })
+        val filghtList = toFilghtList(fromCallable { flightsRepository.getStatisticDbFlights(startdatetime, enddatetime, includeEnd) })
         return toStatisticList(extendedStatistic, filghtList)
     }
 
     fun loadFilteredFlightsByPlaneTypes(types: List<Long?>, startdatetime: Long, enddatetime: Long, extendedStatistic: Boolean, includeEnd: Boolean): Observable<ArrayList<Statistic>> {
-        return returnStatistic(extendedStatistic, fromCallable { repository.getStatisticDbFlightsByPlanes(startdatetime, enddatetime, types, includeEnd) })
+        return returnStatistic(extendedStatistic, fromCallable { flightsRepository.getStatisticDbFlightsByPlanes(startdatetime, enddatetime, types, includeEnd) })
     }
 
     fun loadFilteredFlightsByFlightTypes(startdatetime: Long, enddatetime: Long, extendedStatistic: Boolean, types: List<Long?>, includeEnd: Boolean): Observable<ArrayList<Statistic>> {
-        return returnStatistic(extendedStatistic, fromCallable { repository.getStatisticDbFlightsByFlightTypes(startdatetime, enddatetime, types, includeEnd) })
+        return returnStatistic(extendedStatistic, fromCallable { flightsRepository.getStatisticDbFlightsByFlightTypes(startdatetime, enddatetime, types, includeEnd) })
     }
 
-    private fun returnStatistic(extendedStatistic: Boolean, observable: Observable<ArrayList<FlightEntity>>): Observable<ArrayList<Statistic>> {
+    private fun returnStatistic(extendedStatistic: Boolean, observable: Observable<List<Flight>>): Observable<ArrayList<Statistic>> {
         return toStatisticList(extendedStatistic, toFilghtList(observable))
     }
 
     fun getFightsMinMaxDateTimes(): Observable<Pair<Long, Long>> {
-        return fromCallable { repository.getStatisticDbFlightsMinMax() }
+        return fromCallable { flightsRepository.getStatisticDbFlightsMinMax() }
     }
 
     private fun toStatisticList(extendedStatistic: Boolean, observable: Observable<List<Flight>>): Observable<ArrayList<Statistic>> {
@@ -58,16 +66,14 @@ class StatisticUseCase @Inject constructor(private val repository: MainRepositor
                 }
     }
 
-    private fun toFilghtList(observable: Observable<ArrayList<FlightEntity>>): Observable<List<Flight>> {
+    private fun toFilghtList(observable: Observable<List<Flight>>): Observable<List<Flight>> {
         return observable
                 .map { list ->
-                    list.map { it.toFlight() }
-                            .map { flight ->
-                                val planeType = repository.loadPlaneType(flight.planeId)
-                                flight.planeType = planeType?.toPlaneType()
-                                flight.flightType = repository.loadDBFlightType(flight.flightTypeId?.toLong())?.toFlightType()
-                                flight
-                            }.sortedBy { it.datetime }
+                    list.map { flight ->
+                        flight.planeType = planeTypesRepository.loadPlaneType(flight.planeId)
+                        flight.flightType = flightTypesRepository.loadDBFlightType(flight.flightTypeId?.toLong())
+                        flight
+                    }.sortedBy { it.datetime }
                 }
     }
 
@@ -117,15 +123,15 @@ class StatisticUseCase @Inject constructor(private val repository: MainRepositor
     private fun getTime(time: Int) = DateTimeUtils.strLogTime(time)
 
     fun loadPlaneTypes(): Observable<List<PlaneType>> {
-        return fromCallable { repository.loadPlaneTypes().map { it.toPlaneType() } }
+        return fromCallable { planeTypesRepository.loadPlaneTypes() }
     }
 
     fun loadFlightTypes(): Observable<List<FlightType>> {
-        return fromCallable { repository.loadDBFlightTypes().map { it.toFlightType() } }
+        return fromCallable { flightTypesRepository.loadDBFlightTypes() }
     }
 
     fun loadPlanesRegNums(): Observable<List<String>> {
-        return fromCallable { repository.getDbFlights() }
+        return fromCallable { flightsRepository.getDbFlights() }
                 .map { flts -> flts.filter { it.regNo.isNullOrBlank() } }
                 .map { list -> list.map { it.regNo!! } }
     }

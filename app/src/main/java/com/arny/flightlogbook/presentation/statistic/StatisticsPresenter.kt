@@ -1,18 +1,14 @@
 package com.arny.flightlogbook.presentation.statistic
 
 import android.util.Log
-import com.arny.domain.common.CommonUseCase
+import com.arny.domain.common.ResourcesInteractor
 import com.arny.domain.flights.FlightsInteractor
 import com.arny.domain.models.Statistic
 import com.arny.domain.models.StatisticFilter
 import com.arny.domain.statistic.StatisticUseCase
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
-import com.arny.helpers.coroutins.launchAsync
-import com.arny.helpers.utils.DateTimeUtils
-import com.arny.helpers.utils.addTo
-import com.arny.helpers.utils.fromCallable
-import com.arny.helpers.utils.observeOnMain
+import com.arny.helpers.utils.*
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import moxy.InjectViewState
@@ -22,12 +18,9 @@ import org.joda.time.DateTimeZone
 import java.util.*
 import javax.inject.Inject
 
-/**
- *Created by Sedoy on 21.08.2019
- */
 @InjectViewState
-class StatisticsPresenter : MvpPresenter<StatisticsView>() {
-    private val compositeDisposable = CompositeDisposable()
+class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableComponent {
+    override val compositeDisposable = CompositeDisposable()
     private var filterList = listOf<StatisticFilter>()
     private var filterType = 0
     private var filterSelection = arrayListOf<Long?>()
@@ -38,23 +31,26 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>() {
     @Inject
     lateinit var statisticUseCase: StatisticUseCase
     @Inject
-    lateinit var commonUseCase: CommonUseCase
+    lateinit var resourcesInteractor: ResourcesInteractor
+    @Volatile
     private var currentPeriodType: PeriodType = PeriodType.ALL
     private val dateAndTimeStart = GregorianCalendar.getInstance()
     private val dateAndTimeEnd = GregorianCalendar.getInstance()
+    @Volatile
     private var startdatetime: Long = dateAndTimeStart.timeInMillis
+    @Volatile
     private var enddatetime: Long = dateAndTimeEnd.timeInMillis
 
     init {
         FlightApp.appComponent.inject(this)
     }
 
-    sealed class PeriodType(val canShowDialog: Boolean,val showCustomRange:Boolean) {
-        object ALL : PeriodType(false,false)
-        object DAY : PeriodType(true,false)
-        object MONTH : PeriodType(true,false)
-        object YEAR : PeriodType(true,false)
-        object CUSTOM : PeriodType(false,true)
+    sealed class PeriodType(val canShowDialog: Boolean, val showCustomRange: Boolean) {
+        object ALL : PeriodType(false, false)
+        object DAY : PeriodType(true, false)
+        object MONTH : PeriodType(true, false)
+        object YEAR : PeriodType(true, false)
+        object CUSTOM : PeriodType(false, true)
     }
 
     private fun getPeriod(position: Int): PeriodType {
@@ -81,23 +77,24 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>() {
     private fun correctTimes() {
         viewState?.setPeriodTypeVisible(currentPeriodType.canShowDialog)
         viewState?.setCustomPeriodVisible(currentPeriodType.showCustomRange)
-        launchAsync({
-            when (currentPeriodType) {
-                PeriodType.DAY -> correctDayToFirst(DateTimeUtils.getJodaDateTime(dateAndTimeStart))
-                PeriodType.MONTH -> correctMonthFirst(DateTimeUtils.getJodaDateTime(dateAndTimeStart))
-                PeriodType.YEAR -> correctYearFirst(DateTimeUtils.getJodaDateTime(dateAndTimeStart))
-            }
-        }, {
-            when (currentPeriodType) {
-                PeriodType.DAY -> setPeriod("dd.MM.yyyy")
-                PeriodType.MONTH -> setPeriod("MMMM yyyy")
-                PeriodType.YEAR -> setPeriod("yyyy")
-                PeriodType.CUSTOM, PeriodType.ALL -> setPeriodStartEnd("dd.MM.yyyy")
-            }
-            loadStatisticData()
-        }, {
-            it.printStackTrace()
-        })
+        fromCompletable { correctDateTime() }
+                .completableSubscribeAdd({
+                    when (currentPeriodType) {
+                        PeriodType.DAY -> setPeriod("dd.MM.yyyy")
+                        PeriodType.MONTH -> setPeriod("MMMM yyyy")
+                        PeriodType.YEAR -> setPeriod("yyyy")
+                        PeriodType.CUSTOM, PeriodType.ALL -> setPeriodStartEnd("dd.MM.yyyy")
+                    }
+                    loadStatisticData()
+                })
+    }
+
+    private fun correctDateTime() {
+        when (currentPeriodType) {
+            PeriodType.DAY -> correctDayToFirst(DateTimeUtils.getJodaDateTime(dateAndTimeStart))
+            PeriodType.MONTH -> correctMonthFirst(DateTimeUtils.getJodaDateTime(dateAndTimeStart))
+            PeriodType.YEAR -> correctYearFirst(DateTimeUtils.getJodaDateTime(dateAndTimeStart))
+        }
     }
 
     private fun getMinMaxDateRange(): Observable<Pair<Long, Long>> {
@@ -109,25 +106,18 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>() {
     }
 
     private fun setPeriodStartEnd(format: String) {
-        launchAsync({
-//            val f = "dd.MMM.yyyy"
-            Pair(DateTimeUtils.getDateTime(startdatetime, format), DateTimeUtils.getDateTime(enddatetime, format))
-        }, {
-            viewState?.setStartDateText(it.first)
-            viewState?.setEndDateText(it.second)
-        }, {
-            it.printStackTrace()
-        })
+        fromCallable { Pair(DateTimeUtils.getDateTime(startdatetime, format), DateTimeUtils.getDateTime(enddatetime, format)) }
+                .observeSubscribeAdd({
+                    viewState?.setStartDateText(it.first)
+                    viewState?.setEndDateText(it.second)
+                })
     }
 
     private fun setPeriod(format: String) {
-        launchAsync({
-            //            val f = "dd.MMM.yyyy"
+        fromCallable {
             DateTimeUtils.getDateTime(startdatetime, format)
-        }, {
+        }.observeSubscribeAdd({
             viewState?.setPeriodItemText(it)
-        }, {
-            it.printStackTrace()
         })
     }
 
@@ -136,23 +126,27 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>() {
     }
 
     fun onDateStartSet(year: Int, monthOfYear: Int, dayOfMonth: Int) {
-        launchAsync({
-            dateAndTimeStart.set(Calendar.YEAR, year)
-            dateAndTimeStart.set(Calendar.MONTH, monthOfYear)
-            dateAndTimeStart.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-            startdatetime = dateAndTimeStart.timeInMillis
-            if (isRanged()) {
+        fromCallable {
+            startDateChange(year, monthOfYear, dayOfMonth)
+        }.observeSubscribeAdd({ ranged ->
+            if (ranged) {
                 if (startdatetime > enddatetime) {
-                    viewState?.toastError(commonUseCase.getString(R.string.stat_error_end_less_start))
+                    viewState?.toastError(resourcesInteractor.getString(R.string.stat_error_end_less_start))
                     enddatetime = startdatetime
                 }
             }
-        }, {
             correctTimes()
         }, {
-            it.printStackTrace()
             viewState?.toastError(it.message)
         })
+    }
+
+    private fun startDateChange(year: Int, monthOfYear: Int, dayOfMonth: Int): Boolean {
+        dateAndTimeStart.set(Calendar.YEAR, year)
+        dateAndTimeStart.set(Calendar.MONTH, monthOfYear)
+        dateAndTimeStart.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+        startdatetime = dateAndTimeStart.timeInMillis
+        return isRanged()
     }
 
     private fun loadStatisticData() {
@@ -164,15 +158,11 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>() {
             }
         } else {
             loadStat()
-                    .observeOnMain()
-                    .subscribe({
+                    .observeSubscribeAdd({
                         viewState?.clearAdapter()
                         viewState?.updateAdapter(it)
                         viewState?.showEmptyView(it.isEmpty())
-                    }, {
-                        it.printStackTrace()
                     })
-                    .addTo(compositeDisposable)
         }
     }
 
@@ -201,7 +191,6 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>() {
                 .addTo(compositeDisposable)
     }
 
-
     private fun filterBySelectedFlightTypes(filterSelection: List<Long?>) {
         return if (isRanged()) {
             getMinMaxDateRange().flatMap { statisticUseCase.loadFilteredFlightsByFlightTypes(startdatetime, enddatetime, extendedStatistic, filterSelection, true) }
@@ -220,74 +209,71 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>() {
     }
 
     fun initDateStart() {
-        launchAsync({
+        fromCallable {
             dateAndTimeStart.timeInMillis = startdatetime
             val y = dateAndTimeStart.get(Calendar.YEAR)
             val m = dateAndTimeStart.get(Calendar.MONTH)
             val d = dateAndTimeStart.get(Calendar.DAY_OF_MONTH)
             Triple(y, m, d)
-        }, {
+        }.observeSubscribeAdd({
             viewState?.showDateDialogStart(it.first, it.second, it.third)
-        }, {
-            it.printStackTrace()
         })
+
     }
 
     fun initDateEnd() {
-        launchAsync({
+        fromCallable {
             dateAndTimeEnd.timeInMillis = enddatetime
             val y = dateAndTimeEnd.get(Calendar.YEAR)
             val m = dateAndTimeEnd.get(Calendar.MONTH)
             val d = dateAndTimeEnd.get(Calendar.DAY_OF_MONTH)
             Triple(y, m, d)
-        }, {
+        }.observeSubscribeAdd({
             viewState?.showDateDialogEnd(it.first, it.second, it.third)
-        }, {
-            it.printStackTrace()
         })
     }
 
     fun onDateEndSet(year: Int, monthOfYear: Int, dayOfMonth: Int) {
-        launchAsync({
-            dateAndTimeEnd.set(Calendar.YEAR, year)
-            dateAndTimeEnd.set(Calendar.MONTH, monthOfYear)
-            dateAndTimeEnd.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-            enddatetime = dateAndTimeEnd.timeInMillis
-            if (isRanged()) {
+        fromCallable {
+            endDateTimeChange(year, monthOfYear, dayOfMonth)
+        }.observeSubscribeAdd({ ranged ->
+            if (ranged) {
                 if (startdatetime > enddatetime) {
-                    viewState?.toastError(commonUseCase.getString(R.string.stat_error_end_less_start))
+                    viewState?.toastError(resourcesInteractor.getString(R.string.stat_error_end_less_start))
                     enddatetime = startdatetime
                 }
             }
-        }, {
             correctTimes()
         }, {
-            it.printStackTrace()
             viewState?.toastError(it.message)
         })
     }
 
+    private fun endDateTimeChange(year: Int, monthOfYear: Int, dayOfMonth: Int): Boolean {
+        dateAndTimeEnd.set(Calendar.YEAR, year)
+        dateAndTimeEnd.set(Calendar.MONTH, monthOfYear)
+        dateAndTimeEnd.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+        enddatetime = dateAndTimeEnd.timeInMillis
+        return isRanged()
+    }
+
     fun decreasePeriod() {
-        launchAsync({
+        fromCallable {
             onAddPeriod(-1)
-        }, {
+        }.observeSubscribeAdd({
             setPeriod(it)
             setPeriodStartEnd(it)
             loadStatisticData()
-        }, {
-            it.printStackTrace()
         })
     }
 
     fun increasePeriod() {
-        launchAsync({
+        fromCallable {
             onAddPeriod(1)
-        }, {
+        }.observeSubscribeAdd({
             setPeriod(it)
             setPeriodStartEnd(it)
             loadStatisticData()
-        }, {
-            it.printStackTrace()
         })
     }
 
@@ -337,7 +323,6 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>() {
 
     private fun correctDayToFirst(plusDays: DateTime) {
         val startOfDay = plusDays.withTimeAtStartOfDay()
-        //                startOfDay.withZone(DateTimeZone.UTC)
         startdatetime = startOfDay.millis
         dateAndTimeStart.timeInMillis = startdatetime
         enddatetime = startOfDay.plusDays(1).millis
@@ -404,7 +389,6 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>() {
                 })
                 .addTo(compositeDisposable)
     }
-
 
     private fun loadFilterPlaneTypes() {
         statisticUseCase.loadPlaneTypes()

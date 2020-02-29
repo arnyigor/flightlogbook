@@ -40,14 +40,28 @@ android {
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
+        kapt {
+            arguments {
+                arg("room.schemaLocation", "$projectDir/schemas")
+                arg("dagger.gradle.incremental", "true")
+            }
+        }
     }
     buildTypes {
         debug {
+            debuggable true
             minifyEnabled false
             useProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguardTest-rules.pro'
-            debuggable true
+        }
+        prerelease {
+            debuggable false
+            minifyEnabled true
+            useProguard true
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguardTest-rules.pro'
         }
         release {
             debuggable false
@@ -88,19 +102,14 @@ dependencies {
     implementation project(path: ':data')
     implementation libs.multidex
     implementation libs.kotlinStdlib
-    implementation libs.coroutinesCore
-    implementation libs.coroutinesAndroid
     implementation libs.support
     implementation libs.lifecycleExt
     debugImplementation libs.leakcanary
     /*tests*/
-    /*tests*/
     implementation libs.junit
     androidTestImplementation libs.extJunit
     androidTestImplementation libs.rules
-    implementation libs.assertjCore
-    androidTestImplementation libs.assertjAndroid
-    androidTestImplementation libs.assertjSupport
+    androidTestImplementation libs.runner
     implementation libs.mockitoCore
     androidTestImplementation libs.mockitoAndroid
     /*support*/
@@ -116,6 +125,10 @@ dependencies {
     implementation libs.rxJava
     implementation libs.rxAndroid
     implementation libs.rxKotlin
+    //room
+    implementation libs.roomRuntime
+    kapt libs.roomCompiler
+    implementation libs.roomRx
     //mvp
     implementation libs.moxy
     implementation libs.moxyAndroidX

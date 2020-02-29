@@ -1,14 +1,16 @@
 package com.arny.domain.flights
 
 import android.net.Uri
-import android.util.Log
 import com.arny.constants.CONSTS
-import com.arny.data.repositories.MainRepositoryImpl
 import com.arny.domain.R
-import com.arny.domain.models.*
-import com.arny.helpers.utils.fromCallable
-import com.arny.helpers.utils.parseDouble
-import com.arny.helpers.utils.parseLong
+import com.arny.domain.common.PreferencesProvider
+import com.arny.domain.common.ResourcesProvider
+import com.arny.domain.flighttypes.FlightTypesRepository
+import com.arny.domain.models.Flight
+import com.arny.domain.models.FlightType
+import com.arny.domain.models.PlaneType
+import com.arny.domain.planetypes.PlaneTypesRepository
+import com.arny.helpers.utils.*
 import io.reactivex.Observable
 import org.apache.poi.hssf.usermodel.HSSFCell
 import org.apache.poi.hssf.usermodel.HSSFRow
@@ -20,80 +22,78 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FlightsInteractor @Inject constructor(private val repository: MainRepositoryImpl) {
-
+class FlightsInteractor @Inject constructor(
+        private val flightTypesRepository: FlightTypesRepository,
+        private val flightsRepository: FlightsRepository,
+        private val resourcesProvider: ResourcesProvider,
+        private val planeTypesRepository: PlaneTypesRepository,
+        private val preferencesProvider: PreferencesProvider
+) {
     fun insertFlights(flights: List<Flight>): Observable<Boolean> {
-        return fromCallable { repository.insertFlights(flights.map { it.toFlightEntity() }) }
+        return fromCallable { flightsRepository.insertFlights(flights) }
     }
 
     fun removeAllFlightsObs(): Observable<Boolean> {
-        return fromCallable { repository.removeAllFlights() }
+        return fromCallable { flightsRepository.removeAllFlights() }
     }
 
     fun removeAllFlights(): Boolean {
-        return repository.removeAllFlights()
+        return flightsRepository.removeAllFlights()
     }
 
     fun updateFlight(flight: Flight): Observable<Boolean> {
-        return fromCallable { repository.updateFlight(flight.toFlightEntity()) }
+        return fromCallable { flightsRepository.updateFlight(flight) }
     }
 
     fun insertFlightAndGet(flight: Flight): Observable<Boolean> {
-        return fromCallable { repository.insertFlightAndGet(flight.toFlightEntity()) > 0 }
+        return fromCallable { flightsRepository.insertFlightAndGet(flight) > 0 }
     }
 
     fun getFlight(id: Long?): Flight? {
-        return repository.getFlight(id)?.toFlight()
+        return flightsRepository.getFlight(id)
                 ?.apply {
-                    val planeType = repository.loadPlaneType(this.planeId)
-                    val flightTypeEntity = repository.loadDBFlightType(this.flightTypeId?.toLong())
-                    this.planeType = planeType?.toPlaneType()
-                    this.flightType = flightTypeEntity?.toFlightType()
+                    this.planeType = planeTypesRepository.loadPlaneType(planeId)
+                    this.flightType = flightTypesRepository.loadDBFlightType(flightTypeId?.toLong())
                 }
     }
 
     fun loadPlaneTypes(): Observable<List<PlaneType>> {
-        return fromCallable { repository.loadPlaneTypes().map { it.toPlaneType() } }
-    }
-
-    fun loadPlaneTypeObs(id: Long?): PlaneType? {
-        return repository.loadPlaneType(id)?.toPlaneType()
+        return fromCallable { planeTypesRepository.loadPlaneTypes() }
     }
 
     fun loadPlaneType(id: Long?): PlaneType? {
-        return repository.loadPlaneType(id)?.toPlaneType()
+        return planeTypesRepository.loadPlaneType(id)
     }
 
     fun addPlaneType(name: String): Boolean {
-        return repository.addType(name)
+        return planeTypesRepository.addType(name)
     }
 
     fun addPlaneTypeAndGet(name: String): Long {
-        return repository.addTypeAndGet(name)
+        return planeTypesRepository.addTypeAndGet(name)
     }
 
     fun loadPlaneType(title: String?): PlaneType? {
-        return repository.loadPlaneType(title)?.toPlaneType()
+        return planeTypesRepository.loadPlaneType(title)
     }
 
     fun loadFlightType(id: Long?): FlightType? {
-        return repository.loadDBFlightType(id)?.toFlightType()
+        return flightTypesRepository.loadDBFlightType(id)
     }
 
-
     private fun getFormattedFlightTimes(): String {
-        val flightsTime = repository.getFlightsTime()
+        val flightsTime = flightsRepository.getFlightsTime()
         val totalTimes = 0//repository.queryDBFlightsTimesSum()
         val totalFlightTimes = 0// repository.queryDBFlightsTimesSum(true)
         val sumlogTime = flightsTime + totalTimes
         val sumFlightTime = flightsTime + totalFlightTimes
-        val flightsCount = repository.getFlightsCount()
+        val flightsCount = flightsRepository.getFlightsCount()
         return String.format("%s %s\n%s %s\n%s %d",
-                repository.getString(R.string.str_total_time),
+                resourcesProvider.getString(R.string.str_total_time),
                 DateTimeUtils.strLogTime(sumlogTime),
-                repository.getString(R.string.str_total_flight_time),
+                resourcesProvider.getString(R.string.str_total_flight_time),
                 DateTimeUtils.strLogTime(sumFlightTime),
-                repository.getString(R.string.total_records),
+                resourcesProvider.getString(R.string.total_records),
                 flightsCount)
     }
 
@@ -110,36 +110,30 @@ class FlightsInteractor @Inject constructor(private val repository: MainReposito
     }
 
     fun setFlightsOrder(orderType: Int) {
-        repository.setPrefInt(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS, orderType)
+        preferencesProvider.setPrefInt(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS, orderType)
     }
 
     fun loadDBFlights(): List<Flight> {
-        return repository.getDbFlights()
-                .map { it.toFlight() }
+        return flightsRepository.getDbFlights()
                 .map { flight ->
-                    val planeType = repository.loadPlaneType(flight.planeId)
-                    flight.planeType = planeType?.toPlaneType()
-                    flight.flightType = repository.loadDBFlightType(flight.flightTypeId?.toLong())?.toFlightType()
+                    flight.planeType = planeTypesRepository.loadPlaneType(flight.planeId)
+                    flight.flightType = flightTypesRepository.loadDBFlightType(flight.flightTypeId?.toLong())
 //                    flight.sumFlightTime = (flight.flightTime?:0) + (flight.times?.filter { it.addToFlightTime }?.sumBy { it.time }?:0)
 //                    flight.sumGroundTime = (flight.times?.filter { !it.addToFlightTime }?.sumBy { it.time }?:0)
                     flight
                 }
     }
 
-    fun getFilterflightsObs(): Observable<List<Flight>> {
-        val orderType = repository.getPrefInt(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS)
+    fun getFilterFlightsObs(): Observable<List<Flight>> {
+        val orderType = preferencesProvider.getPrefInt(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS)
         return fromCallable {
             val order = getPrefOrderflights(orderType)
-            val flightTypes = repository.loadDBFlightTypes()
-            val planeTypes = repository.loadPlaneTypes()
-            val flights = repository.getDbFlights(order)
-            flights.map { it.toFlight() }
-                    .map { flight ->
-                        val planeTypeEntity = planeTypes.find { it.typeId == flight.planeId }
-                        flight.planeType = planeTypeEntity?.toPlaneType()
-                        flight.flightType = flightTypes.find { it.id == flight.flightTypeId?.toLong() }?.toFlightType()
-//                        flight.sumFlightTime = (flight.flightTime?:0) + (flight.times?.filter { it.addToFlightTime }?.sumBy { it.time }?:0)
-//                        flight.sumGroundTime = (flight.times?.filter { !it.addToFlightTime }?.sumBy { it.time }?:0)
+            val flightTypes = flightTypesRepository.loadDBFlightTypes()
+            val planeTypes = planeTypesRepository.loadPlaneTypes()
+            val flights = flightsRepository.getDbFlights(order)
+            flights.map { flight ->
+                        flight.planeType = planeTypes.find { it.typeId == flight.planeId }
+                        flight.flightType = flightTypes.find { it.id == flight.flightTypeId?.toLong() }
                         flight
                     }
         }.map { flights ->
@@ -155,19 +149,17 @@ class FlightsInteractor @Inject constructor(private val repository: MainReposito
     }
 
     fun removeFlight(id: Long?): Observable<Boolean> {
-        return fromCallable { repository.removeFlight(id) }
+        return fromCallable { flightsRepository.removeFlight(id) }
     }
 
     fun readExcelFile(path: String?, fromSystem: Boolean, onProgress: (state: String, iter: Int, total: Int) -> Unit): Boolean {
-        val ctx = repository.getContext()
-        val saving = repository.getString(R.string.saving)
-        val loadingFile = repository.getString(R.string.loading_file)
-        val fileImport = repository.getString(R.string.importing_file)
+        val ctx = resourcesProvider.provideContext()
+        val saving = resourcesProvider.getString(R.string.saving)
+        val loadingFile = resourcesProvider.getString(R.string.loading_file)
+        val fileImport = resourcesProvider.getString(R.string.importing_file)
         onProgress.invoke(loadingFile, 0, 100)
         val fileUri = Uri.fromFile(File(path))
         val filename = FileUtils.getSDFilePath(ctx, fileUri)
-        var mIsSuccess = false
-        Log.i(this::class.java.simpleName, "readExcelFile:fileUri:$fileUri, filename:$filename");
         val myWorkBook: HSSFWorkbook
         val xlsfile: File
         val notAccess = !FileUtils.isExternalStorageAvailable() || FileUtils.isExternalStorageReadOnly()
@@ -184,36 +176,35 @@ class FlightsInteractor @Inject constructor(private val repository: MainReposito
         // Get the first sheet from workbook
         val mySheet = myWorkBook.getSheetAt(0)
         /** We now need something to iterate through the cells. */
-        val numberOfRows = mySheet.getPhysicalNumberOfRows()
+        val numberOfRows = mySheet.physicalNumberOfRows
         val rowIter = mySheet.rowIterator()
-        repository.removeAllFlights()
-        repository.runSQl("UPDATE sqlite_sequence SET seq = (SELECT count(*) FROM main_table) WHERE name='main_table'", false)
+        flightsRepository.removeAllFlights()
+        flightsRepository.resetTableFlights()
         onProgress.invoke(loadingFile, 100, 100)
         val flightsFromExel = getFlightsFromExcel(rowIter) {
             val percent = MathUtils.getPercent(it.toDouble(), numberOfRows.toDouble()).toInt()
             onProgress.invoke(fileImport, percent, 100)
         }
         onProgress.invoke(saving, 50, 100)
-        repository.insertFlights(flightsFromExel.map { it.toFlightEntity() })
+        flightsRepository.insertFlights(flightsFromExel)
         onProgress.invoke(saving, 100, 100)
-        mIsSuccess = true
-        return mIsSuccess
+        return true
     }
 
     private fun getFlightsFromExcel(rowIter: Iterator<*>, onProgress: (iter: Int) -> Unit): ArrayList<Flight> {
         val flights = ArrayList<Flight>()
         var rowCnt = 0
         var strDate: String? = null
-        var strTime: String? = null
-        var airplane_type: String? = null
-        var reg_no: String? = null
+        var strTime: String?
+        var airplane_type: String?
+        var reg_no: String?
         var strDesc: String
         var airplane_type_id: Long = 0
-        var flight_type: Long = 0
+        var flight_type: Long
         var logTime = 0
         var mDateTime: Long = 0
-        var planeTypes = repository.loadPlaneTypes()
-        var flightTypes = repository.loadDBFlightTypes()
+        var planeTypes = planeTypesRepository.loadPlaneTypes()
+        var flightTypes = flightTypesRepository.loadDBFlightTypes()
         var id = 1L
         while (rowIter.hasNext()) {
             val myRow = rowIter.next() as HSSFRow
@@ -262,8 +253,8 @@ class FlightsInteractor @Inject constructor(private val repository: MainReposito
                                     airplane_type_id = planeType.typeId
                                 } else {
                                     if (!airplane_type.isNullOrBlank()) {
-                                        airplane_type_id = repository.addTypeAndGet(airplane_type)
-                                        planeTypes = repository.loadPlaneTypes()
+                                        airplane_type_id = planeTypesRepository.addTypeAndGet(airplane_type)
+                                        planeTypes = planeTypesRepository.loadPlaneTypes()
                                     }
                                 }
                             } catch (e: Exception) {
@@ -296,8 +287,8 @@ class FlightsInteractor @Inject constructor(private val repository: MainReposito
                                         if (flightTypeEntity != null) {
                                             airplane_type_id = flightTypeEntity.id ?: -1
                                         } else {
-                                            flight_type = repository.addFlightTypeAndGet(type)
-                                            flightTypes = repository.loadDBFlightTypes()
+                                            flight_type = flightTypesRepository.addFlightTypeAndGet(type)
+                                            flightTypes = flightTypesRepository.loadDBFlightTypes()
                                         }
                                     }
                                 }
@@ -315,7 +306,6 @@ class FlightsInteractor @Inject constructor(private val repository: MainReposito
                                 e.printStackTrace()
                             }
                             flight.description = strDesc
-
 
                         }
                         9 -> {
@@ -364,9 +354,9 @@ class FlightsInteractor @Inject constructor(private val repository: MainReposito
 
     private fun getOldFlightType(flight_type: Long): String {
         return when (flight_type) {
-            0L -> repository.getString(R.string.flight_type_circle)
-            1L -> repository.getString(R.string.flight_type_zone)
-            2L -> repository.getString(R.string.flight_type_route)
+            0L -> resourcesProvider.getString(R.string.flight_type_circle)
+            1L -> resourcesProvider.getString(R.string.flight_type_zone)
+            2L -> resourcesProvider.getString(R.string.flight_type_route)
             else -> ""
         }
     }
