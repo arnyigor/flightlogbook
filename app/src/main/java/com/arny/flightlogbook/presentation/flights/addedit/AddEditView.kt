@@ -25,4 +25,5 @@ interface AddEditView : MvpView {
     fun setEdtNightTime(nightTimeText: String)
     fun setEdtGroundTime(groundTimeText: String)
     fun setTitle(title: String?)
+    fun onColorSelect(colors: IntArray)
 }

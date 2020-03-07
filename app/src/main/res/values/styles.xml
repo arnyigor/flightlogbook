@@ -8,11 +8,4 @@
         <item name="windowActionBar">false</item>
     </style>
 
-
-	<style name="shadowTV" parent="AppTheme">
-        <item name="android:background">@drawable/tv_shadow</item>
-        <item name="android:padding">10dp</item>
-    </style>
-
-
 </resources>

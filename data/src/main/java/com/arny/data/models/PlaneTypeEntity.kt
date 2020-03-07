@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 import com.arny.domain.models.PlaneType
 
 @Entity(tableName = "type_table")
-data class PlaneTypeEntity(@PrimaryKey(autoGenerate = true) @ColumnInfo(name = "type_id") var typeId: Long = 0) {
+data class PlaneTypeEntity(@PrimaryKey(autoGenerate = true) @ColumnInfo(name = "type_id") var typeId: Long? = null) {
     @ColumnInfo(name = "airplane_type")
     var typeName: String? = null
 

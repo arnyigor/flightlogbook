@@ -23,4 +23,7 @@
     <string name="night_time_info">Включая ночное:</string>
     <string name="ground_time_info">На земле:</string>
     <string name="error_enter_date">Ошибка ввода даты</string>
+    <string name="color">Цвет</string>
+    <string name="select">Выбрать</string>
+    <string name="select_color">Выбрать цвет</string>
 </resources>

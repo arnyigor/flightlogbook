@@ -6,10 +6,7 @@ import com.arny.flightlogbook.R
 import kotlinx.android.synthetic.main.flight_list_item.view.*
 
 class FlightsAdapter : SimpleAbstractAdapter<Flight>() {
-    override fun getLayout(viewType: Int): Int {
-        return R.layout.flight_list_item
-    }
-
+    override fun getLayout(viewType: Int): Int = R.layout.flight_list_item
     override fun bindView(item: Flight, viewHolder: VH) {
         val position = viewHolder.adapterPosition
         viewHolder.itemView.apply {
@@ -19,7 +16,7 @@ class FlightsAdapter : SimpleAbstractAdapter<Flight>() {
             }
             tv_log_time_flight.text = item.logtimeFormatted
             tv_log_time_flight_total.text = item.totalTimeFormatted
-            tvFlightType.text = item.flightType?.typeTitle
+            tvFlightTitle.text = item.flightType?.typeTitle
             tvPlaneRegNo.text = item.regNo
             tv_plane_type.text = item.planeType?.typeName
             setOnClickListener {
@@ -39,5 +36,4 @@ class FlightsAdapter : SimpleAbstractAdapter<Flight>() {
             }
         }
     }
-
 }

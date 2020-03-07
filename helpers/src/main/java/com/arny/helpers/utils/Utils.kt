@@ -51,11 +51,11 @@ import kotlin.math.roundToInt
  *Created by Sedoy on 15.07.2019
  */
 fun AppCompatActivity.replaceFragmentInActivity(
-        fragment: Fragment, @IdRes frameId: Int,
-        addToback: Boolean = false,
-        tag: String? = null,
-        onLoadFunc: () -> Unit? = {},
-        animResourses: Pair<Int, Int>? = null
+    fragment: Fragment, @IdRes frameId: Int,
+    addToback: Boolean = false,
+    tag: String? = null,
+    onLoadFunc: () -> Unit? = {},
+    animResourses: Pair<Int, Int>? = null
 ) {
     val tg = tag ?: fragment.javaClass.simpleName
     supportFragmentManager.transact {
@@ -82,35 +82,39 @@ private inline fun FragmentManager.transact(action: FragmentTransaction.() -> Un
 }
 
 inline fun <reified T : Any> Activity.launchActivity(
-        requestCode: Int = -1,
-        options: Bundle? = null,
-        noinline init: Intent.() -> Unit = {}) {
+    requestCode: Int = -1,
+    options: Bundle? = null,
+    noinline init: Intent.() -> Unit = {}
+) {
     val intent = newIntent<T>(this)
     intent.init()
     startActivityForResult(intent, requestCode, options)
 }
 
 fun Activity.launchIntent(
-        requestCode: Int = -1,
-        options: Bundle? = null,
-        init: Intent.() -> Unit = {}) {
+    requestCode: Int = -1,
+    options: Bundle? = null,
+    init: Intent.() -> Unit = {}
+) {
     val intent = newIntent()
     intent.init()
     startActivityForResult(intent, requestCode, options)
 }
 
 fun Activity.launchIntent(
-        options: Bundle? = null,
-        init: Intent.() -> Unit = {}) {
+    options: Bundle? = null,
+    init: Intent.() -> Unit = {}
+) {
     val intent = newIntent()
     intent.init()
     startActivity(intent, options)
 }
 
 inline fun <reified T : Any> Fragment.launchActivity(
-        requestCode: Int = -1,
-        options: Bundle? = null,
-        noinline init: Intent.() -> Unit = {}) {
+    requestCode: Int = -1,
+    options: Bundle? = null,
+    noinline init: Intent.() -> Unit = {}
+) {
     val context = this.context
     if (context != null) {
         val intent = newIntent<T>(context)
@@ -120,8 +124,9 @@ inline fun <reified T : Any> Fragment.launchActivity(
 }
 
 inline fun <reified T : Any> Fragment.launchActivity(
-        options: Bundle? = null,
-        noinline init: Intent.() -> Unit = {}) {
+    options: Bundle? = null,
+    noinline init: Intent.() -> Unit = {}
+) {
     val context = this.context
     if (context != null) {
         val intent = newIntent<T>(context)
@@ -131,9 +136,10 @@ inline fun <reified T : Any> Fragment.launchActivity(
 }
 
 fun Fragment.launchIntent(
-        requestCode: Int = -1,
-        options: Bundle? = null,
-        init: Intent.() -> Unit = {}) {
+    requestCode: Int = -1,
+    options: Bundle? = null,
+    init: Intent.() -> Unit = {}
+) {
     val context = this.context
     if (context != null) {
         val intent = newIntent()
@@ -143,8 +149,9 @@ fun Fragment.launchIntent(
 }
 
 fun Fragment.launchIntent(
-        options: Bundle? = null,
-        init: Intent.() -> Unit = {}) {
+    options: Bundle? = null,
+    init: Intent.() -> Unit = {}
+) {
     val context = this.context
     if (context != null) {
         val intent = newIntent()
@@ -154,8 +161,9 @@ fun Fragment.launchIntent(
 }
 
 inline fun <reified T : Any> Context.launchActivity(
-        options: Bundle? = null,
-        noinline init: Intent.() -> Unit = {}) {
+    options: Bundle? = null,
+    noinline init: Intent.() -> Unit = {}
+) {
     val intent = newIntent<T>(this)
     intent.init()
     startActivity(intent, options)
@@ -174,7 +182,11 @@ fun Fragment.putExtras(args: Bundle?) {
     this.arguments = args
 }
 
-fun Activity.putExtras(resultCode: Int? = null, clear: Boolean = true, init: Intent.() -> Unit = {}) {
+fun Activity.putExtras(
+    resultCode: Int? = null,
+    clear: Boolean = true,
+    init: Intent.() -> Unit = {}
+) {
     val i = if (clear) {
         Intent()
     } else {
@@ -214,7 +226,12 @@ fun Activity.sendEmail(email: String, subject: String, body: String, shareTitle:
 }*/
 
 fun Activity.shareLocation(lat: Double, long: Double, label: String) {
-    this.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("geo:<$lat>,<$long>?q=<$lat>,<$long>($label)")));
+    this.startActivity(
+        Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse("geo:<$lat>,<$long>?q=<$lat>,<$long>($label)")
+        )
+    );
 }
 
 fun Activity.shareImage(uri: Uri) {
@@ -239,7 +256,14 @@ enum class AnimType {
     DEFAULT, TOP_BOTTOM, LEFT_RIGHT
 }
 
-fun animateVisible(v: View, visible: Boolean, duration: Int, onComplete: () -> Unit? = {}, interpolator: TimeInterpolator? = null, type: AnimType = AnimType.DEFAULT) {
+fun animateVisible(
+    v: View,
+    visible: Boolean,
+    duration: Int,
+    onComplete: () -> Unit? = {},
+    interpolator: TimeInterpolator? = null,
+    type: AnimType = AnimType.DEFAULT
+) {
     v.clearAnimation()
     val animate = v.animate()
     if (interpolator != null) {
@@ -326,13 +350,20 @@ inline fun <reified T> Bundle?.getExtra(extraName: String): T? {
 fun runOnUI(func: () -> Unit? = {}) = Handler(Looper.getMainLooper()).post { func.invoke() }
 
 @JvmOverloads
-fun runOnLooper(func: () -> Unit? = {}, looper: Looper = Looper.getMainLooper()) = Handler(looper).post { func.invoke() }
+fun runOnLooper(func: () -> Unit? = {}, looper: Looper = Looper.getMainLooper()) =
+    Handler(looper).post { func.invoke() }
 
 fun View?.setVisible(visible: Boolean) {
     this?.visibility = if (visible) View.VISIBLE else View.GONE
 }
 
-fun View?.setVisible(visible: Boolean, duration: Int, onComplete: () -> Unit?, interpolator: TimeInterpolator? = null, type: AnimType = AnimType.DEFAULT) {
+fun View?.setVisible(
+    visible: Boolean,
+    duration: Int,
+    onComplete: () -> Unit?,
+    interpolator: TimeInterpolator? = null,
+    type: AnimType = AnimType.DEFAULT
+) {
     this?.let { animateVisible(it, visible, duration, onComplete, interpolator, type) }
 }
 
@@ -348,14 +379,14 @@ fun animateVisible(v: View, visible: Boolean, duration: Int) {
     val alpha = if (visible) 1.0f else 0.0f
     v.clearAnimation()
     v.animate()
-            .alpha(alpha)
-            .setDuration(duration.toLong())
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    super.onAnimationEnd(animation)
-                    v.setVisible(visible)
-                }
-            })
+        .alpha(alpha)
+        .setDuration(duration.toLong())
+        .setListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator) {
+                super.onAnimationEnd(animation)
+                v.setVisible(visible)
+            }
+        })
 }
 
 fun AppCompatActivity.backStackCnt(): Int {
@@ -363,7 +394,10 @@ fun AppCompatActivity.backStackCnt(): Int {
 }
 
 fun AppCompatActivity.backStackClear() {
-    return supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
+    return supportFragmentManager.popBackStack(
+        null,
+        androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
+    );
 }
 
 fun AppCompatActivity.resetFragmentsInManager() {
@@ -375,7 +409,11 @@ fun AppCompatActivity.resetFragmentsInManager() {
     }
 }
 
-fun AppCompatActivity.replaceFragmentInActivity(fragment: Fragment, @IdRes frameId: Int, tag: String? = null) {
+fun AppCompatActivity.replaceFragmentInActivity(
+    fragment: Fragment,
+    @IdRes frameId: Int,
+    tag: String? = null
+) {
     supportFragmentManager.transact {
         replace(frameId, fragment, tag)
     }
@@ -396,7 +434,10 @@ fun AppCompatActivity.popBackStack(immadiate: Boolean = true) {
 }
 
 fun checkPremission(context: Context, permission: String): Boolean {
-    return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+    return ContextCompat.checkSelfPermission(
+        context,
+        permission
+    ) == PackageManager.PERMISSION_GRANTED
 }
 
 fun AppCompatActivity.getFragment(position: Int): Fragment? {
@@ -415,7 +456,10 @@ fun AppCompatActivity.fragmentsBackStack(): Fragment {
 }
 
 fun AppCompatActivity.fragmentBackStackClear() {
-    return supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
+    return supportFragmentManager.popBackStack(
+        null,
+        androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
+    );
 }
 
 fun inflate(inflater: LayoutInflater, container: ViewGroup?, @LayoutRes resource: Int): View? {
@@ -430,7 +474,10 @@ fun AppCompatActivity.getFragmentByTag(tag: String?): Fragment? {
     return supportFragmentManager.findFragmentByTag(tag)
 }
 
-fun AppCompatActivity.setupActionBar(@IdRes toolbarId: Int, action: (ActionBar?.() -> Unit)? = null) {
+fun AppCompatActivity.setupActionBar(
+    @IdRes toolbarId: Int,
+    action: (ActionBar?.() -> Unit)? = null
+) {
     setSupportActionBar(findViewById(toolbarId))
     supportActionBar?.run {
         action?.let { it() }
@@ -448,7 +495,13 @@ fun View.showSnackBar(message: String, duration: Int) {
     Snackbar.make(this, message, duration).show()
 }
 
-fun View.showSnackBar(message: String, actionText: String, duration: Int? = null, @ColorInt actionColor: Int? = null, action: () -> Unit) {
+fun View.showSnackBar(
+    message: String,
+    actionText: String,
+    duration: Int? = null,
+    @ColorInt actionColor: Int? = null,
+    action: () -> Unit
+) {
     val snackBar = Snackbar.make(this, message, duration ?: Snackbar.LENGTH_INDEFINITE)
     snackBar.setAction(actionText) { action.invoke() }
     if (actionColor != null) {
@@ -466,7 +519,12 @@ fun Intent?.dump(): String? {
 }
 
 @JvmOverloads
-fun getGMDIcon(context: Context, gmd_icon: GoogleMaterial.Icon, size: Int, color: Int? = null): IconicsDrawable? {
+fun getGMDIcon(
+    context: Context,
+    gmd_icon: GoogleMaterial.Icon,
+    size: Int,
+    color: Int? = null
+): IconicsDrawable? {
     val icon = IconicsDrawable(context).icon(gmd_icon)
     icon.sizeDp(size)
     if (color != null) {
@@ -502,7 +560,8 @@ inline fun <reified T> getBundleExtra(extras: Bundle?, extraName: String): T? {
 
 fun isKeyboardVisible(context: Context): Boolean {
     val imm by lazy { context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager }
-    val windowHeightMethod = InputMethodManager::class.java.getMethod("getInputMethodWindowVisibleHeight")
+    val windowHeightMethod =
+        InputMethodManager::class.java.getMethod("getInputMethodWindowVisibleHeight")
     val height = windowHeightMethod.invoke(imm) as Int
     return height > 100
 }
@@ -529,8 +588,79 @@ fun ImageView?.setSrcTintColor(@DrawableRes src: Int, @ColorInt color: Int) {
     }
 }
 
-fun getHexColor(color: Int): String {
-    return String.format("#%06X", (0xFFFFFF and color))
+fun Int.toHexColor(): String {
+    return String.format("#%06X", (0xFFFFFF and this))
+}
+
+fun String.toIntColor(): Int {
+    return (this.substring(0, 2).toInt(16) shl 24) + this.substring(2).toInt(16)
+}
+
+fun generateColor(){
+    #000000
+    #00FF00
+    #0000FF
+    #FF0000
+    #01FFFE
+    #FFA6FE
+    #FFDB66
+    #006401
+    #010067
+    #95003A
+    #007DB5
+    #FF00F6
+    #FFEEE8
+    #774D00
+    #90FB92
+    #0076FF
+    #D5FF00
+    #FF937E
+    #6A826C
+    #FF029D
+    #FE8900
+    #7A4782
+    #7E2DD2
+    #85A900
+    #FF0056
+    #A42400
+    #00AE7E
+    #683D3B
+    #BDC6FF
+    #263400
+    #BDD393
+    #00B917
+    #9E008E
+    #001544
+    #C28C9F
+    #FF74A3
+    #01D0FF
+    #004754
+    #E56FFE
+    #788231
+    #0E4CA1
+    #91D0CB
+    #BE9970
+    #968AE8
+    #BB8800
+    #43002C
+    #DEFF74
+    #00FFC6
+    #FFE502
+    #620E00
+    #008F9C
+    #98FF52
+    #7544B1
+    #B500FF
+    #00FF78
+    #FF6E41
+    #005F39
+    #6B6882
+    #5FAD4E
+    #A75740
+    #A5FFD2
+    #FFB167
+    #009BFF
+    #E85EBE
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -546,12 +676,12 @@ private fun createNotificationChannel(context: Context): String {
 }
 
 private fun getServiceNotification(
-        context: Context,
-        cls: Class<*>,
-        requestCode: Int,
-        title: String,
-        content: String,
-        icon: Int
+    context: Context,
+    cls: Class<*>,
+    requestCode: Int,
+    title: String,
+    content: String,
+    icon: Int
 )
         : Notification {
     val notification: Notification
@@ -560,9 +690,9 @@ private fun getServiceNotification(
     val pendingIntent = PendingIntent.getActivity(context, requestCode, notificationIntent, 0)
     val notifbuild = getNotifBuilder(context)
     notifbuild.setSmallIcon(icon)// маленькая иконка
-            .setAutoCancel(false)
-            .setContentTitle(title)// Заголовок уведомления
-            .setContentText(content) // Текст уведомления
+        .setAutoCancel(false)
+        .setContentTitle(title)// Заголовок уведомления
+        .setContentText(content) // Текст уведомления
     notifbuild.setContentIntent(pendingIntent)
     notification = notifbuild.build()
     return notification
@@ -576,9 +706,18 @@ private fun getNotifBuilder(context: Context): Notification.Builder {
     }
 }
 
-fun createNotification(context: Context, cls: Class<*>, notifyId: Int, title: String, content: String = "", icon: Int, request: Int = 999) {
+fun createNotification(
+    context: Context,
+    cls: Class<*>,
+    notifyId: Int,
+    title: String,
+    content: String = "",
+    icon: Int,
+    request: Int = 999
+) {
     val notification = getServiceNotification(context, cls, request, title, content, icon)
-    val mNotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+    val mNotificationManager =
+        context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
     mNotificationManager?.notify(notifyId, notification)
 }
 
@@ -607,11 +746,16 @@ fun BottomNavigationView?.disableShiftMode() {
     }
 }
 
-fun getIconDrawable(context: Context, color: Int, icon: GoogleMaterial.Icon, sizeDp: Int): Drawable {
+fun getIconDrawable(
+    context: Context,
+    color: Int,
+    icon: GoogleMaterial.Icon,
+    sizeDp: Int
+): Drawable {
     return IconicsDrawable(context)
-            .icon(icon)
-            .color(color)
-            .sizeDp(sizeDp)
+        .icon(icon)
+        .color(color)
+        .sizeDp(sizeDp)
 }
 
 fun getTextDrawable(text: String, color: Int): TextDrawable {
@@ -624,8 +768,248 @@ fun <T> find(list: List<T>, c: T, comp: Comparator<T>): T? {
 
 @JvmOverloads
 fun transliterate(message: String, toUpper: Boolean = false): String {
-    val abcCyr = charArrayOf(' ', 'а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я', 'А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z')
-    val abcLat = arrayOf(" ", "a", "b", "v", "g", "d", "e", "e", "zh", "z", "i", "y", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u", "f", "h", "ts", "ch", "sh", "sch", "", "i", "", "e", "ju", "ja", "A", "B", "V", "G", "D", "E", "E", "Zh", "Z", "I", "Y", "K", "L", "M", "N", "O", "P", "R", "S", "T", "U", "F", "H", "Ts", "Ch", "Sh", "Sch", "", "I", "", "E", "Ju", "Ja", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z")
+    val abcCyr = charArrayOf(
+        ' ',
+        'а',
+        'б',
+        'в',
+        'г',
+        'д',
+        'е',
+        'ё',
+        'ж',
+        'з',
+        'и',
+        'й',
+        'к',
+        'л',
+        'м',
+        'н',
+        'о',
+        'п',
+        'р',
+        'с',
+        'т',
+        'у',
+        'ф',
+        'х',
+        'ц',
+        'ч',
+        'ш',
+        'щ',
+        'ъ',
+        'ы',
+        'ь',
+        'э',
+        'ю',
+        'я',
+        'А',
+        'Б',
+        'В',
+        'Г',
+        'Д',
+        'Е',
+        'Ё',
+        'Ж',
+        'З',
+        'И',
+        'Й',
+        'К',
+        'Л',
+        'М',
+        'Н',
+        'О',
+        'П',
+        'Р',
+        'С',
+        'Т',
+        'У',
+        'Ф',
+        'Х',
+        'Ц',
+        'Ч',
+        'Ш',
+        'Щ',
+        'Ъ',
+        'Ы',
+        'Ь',
+        'Э',
+        'Ю',
+        'Я',
+        'a',
+        'b',
+        'c',
+        'd',
+        'e',
+        'f',
+        'g',
+        'h',
+        'i',
+        'j',
+        'k',
+        'l',
+        'm',
+        'n',
+        'o',
+        'p',
+        'q',
+        'r',
+        's',
+        't',
+        'u',
+        'v',
+        'w',
+        'x',
+        'y',
+        'z',
+        'A',
+        'B',
+        'C',
+        'D',
+        'E',
+        'F',
+        'G',
+        'H',
+        'I',
+        'J',
+        'K',
+        'L',
+        'M',
+        'N',
+        'O',
+        'P',
+        'Q',
+        'R',
+        'S',
+        'T',
+        'U',
+        'V',
+        'W',
+        'X',
+        'Y',
+        'Z'
+    )
+    val abcLat = arrayOf(
+        " ",
+        "a",
+        "b",
+        "v",
+        "g",
+        "d",
+        "e",
+        "e",
+        "zh",
+        "z",
+        "i",
+        "y",
+        "k",
+        "l",
+        "m",
+        "n",
+        "o",
+        "p",
+        "r",
+        "s",
+        "t",
+        "u",
+        "f",
+        "h",
+        "ts",
+        "ch",
+        "sh",
+        "sch",
+        "",
+        "i",
+        "",
+        "e",
+        "ju",
+        "ja",
+        "A",
+        "B",
+        "V",
+        "G",
+        "D",
+        "E",
+        "E",
+        "Zh",
+        "Z",
+        "I",
+        "Y",
+        "K",
+        "L",
+        "M",
+        "N",
+        "O",
+        "P",
+        "R",
+        "S",
+        "T",
+        "U",
+        "F",
+        "H",
+        "Ts",
+        "Ch",
+        "Sh",
+        "Sch",
+        "",
+        "I",
+        "",
+        "E",
+        "Ju",
+        "Ja",
+        "a",
+        "b",
+        "c",
+        "d",
+        "e",
+        "f",
+        "g",
+        "h",
+        "i",
+        "j",
+        "k",
+        "l",
+        "m",
+        "n",
+        "o",
+        "p",
+        "q",
+        "r",
+        "s",
+        "t",
+        "u",
+        "v",
+        "w",
+        "x",
+        "y",
+        "z",
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "I",
+        "J",
+        "K",
+        "L",
+        "M",
+        "N",
+        "O",
+        "P",
+        "Q",
+        "R",
+        "S",
+        "T",
+        "U",
+        "V",
+        "W",
+        "X",
+        "Y",
+        "Z"
+    )
     val builder = StringBuilder()
     for (i in 0 until message.length) {
         for (x in abcCyr.indices) {
@@ -649,7 +1033,11 @@ fun <T> findPosition(list: Array<T>, item: T): Int {
     return list.indexOf(item)
 }
 
-fun <T> getExcludeList(list: ArrayList<T>, items: List<T>, comparator: Comparator<T>): ArrayList<T> {
+fun <T> getExcludeList(
+    list: ArrayList<T>,
+    items: List<T>,
+    comparator: Comparator<T>
+): ArrayList<T> {
     val res = ArrayList<T>()
     for (t in list) {
         val pos = Collections.binarySearch(items, t, comparator)
@@ -714,7 +1102,12 @@ fun String?.ifEmpty(default: String): String {
  * @param second Collection of  T
  * @param predicate function equals
  */
-fun <T> arraysDiff(first: ArrayList<T>?, second: ArrayList<T>, fillAll: Boolean = false, predicate: (firstItem: T, secondItem: T) -> Boolean): ArrayList<T> {
+fun <T> arraysDiff(
+    first: ArrayList<T>?,
+    second: ArrayList<T>,
+    fillAll: Boolean = false,
+    predicate: (firstItem: T, secondItem: T) -> Boolean
+): ArrayList<T> {
     if (first.isNullOrEmpty()) return second
     if (first.isEmpty() && second.isNotEmpty()) return second
     val result = arrayListOf<T>()
@@ -778,7 +1171,13 @@ fun <T : Any> dumpArray(collection: Collection<T>?, predicate: (cls: T) -> Strin
  * @param [one] слово с окончанием значения  [count]=1 (слово)
  * @param [two_four] слово с окончанием значения  [count]=2,3,4 (слова)
  */
-fun getTermination(count: Int, zero_other: String, one: String, two_four: String, concat: Boolean = true): String {
+fun getTermination(
+    count: Int,
+    zero_other: String,
+    one: String,
+    two_four: String,
+    concat: Boolean = true
+): String {
     if (count % 100 in 11..19) {
         return if (concat) "$count $zero_other" else " $zero_other"
     }

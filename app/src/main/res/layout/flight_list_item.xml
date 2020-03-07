@@ -26,20 +26,20 @@
             tools:text="22.05.2012" />
 
         <TextView
-            android:id="@+id/tvFlightType"
+            android:id="@+id/tvFlightTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:textSize="@dimen/font_size"
+            app:layout_constraintBottom_toBottomOf="@+id/tvDate"
             app:layout_constraintEnd_toStartOf="@+id/iv_flight_time"
             app:layout_constraintStart_toEndOf="@+id/tvDate"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tvDate"
             tools:text="Тип полетаТип полетаТип полетаТип полетаип полетаТип полетаТип полета" />
 
         <ImageView
@@ -103,7 +103,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="bottom"
-            app:constraint_referenced_ids="tvDate,tvFlightType" />
+            app:constraint_referenced_ids="tvDate,tvFlightTitle" />
 
         <TextView
             android:id="@+id/tv_plane_type"

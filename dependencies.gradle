@@ -1,5 +1,4 @@
 ext.versions = [
-        'androidPlugin'    : '3.5.3',
         'minSdk'           : 16,
         'targetSdk'        : 29,
         'compileSdk'       : 29,
@@ -105,9 +104,9 @@ ext.libs = [
 
         'jodaTime'            : 'joda-time:joda-time:2.10.3',
         'toasty'              : 'com.github.GrenderG:Toasty:1.4.2',
-        'materialDialogsCore' : 'com.afollestad.material-dialogs:core:3.1.1',//https://github.com/afollestad/material-dialogs
-        'materialDialogsInput': 'com.afollestad.material-dialogs:input:3.1.1',
-        'materialDialogsColor': 'com.afollestad.material-dialogs:color:3.1.1',
+        'materialDialogsCore' : 'com.afollestad.material-dialogs:core:3.3.0',//https://github.com/afollestad/material-dialogs
+        'materialDialogsInput': 'com.afollestad.material-dialogs:input:3.3.0',
+        'materialDialogsColor': 'com.afollestad.material-dialogs:color:3.3.0',
         'betterpickers'       : 'com.code-troopers.betterpickers:library:3.1.0',
         'rxpermissions'       : 'com.github.tbruyelle:rxpermissions:0.10.2',
         'inputmask'           : 'com.redmadrobot:input-mask-android:5.0.0',

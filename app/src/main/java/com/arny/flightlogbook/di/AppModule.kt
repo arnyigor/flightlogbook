@@ -4,9 +4,9 @@ import android.app.Application
 import android.content.Context
 import androidx.room.Room
 import com.arny.constants.CONSTS
+import com.arny.data.db.DatabaseMigrations
 import com.arny.data.db.MainDB
 import com.arny.data.db.daos.AircraftTypeDAO
-import com.arny.data.db.daos.DatabaseMigrations
 import com.arny.data.db.daos.FlightDAO
 import com.arny.data.db.daos.FlightTypeDAO
 import com.arny.data.repositories.*

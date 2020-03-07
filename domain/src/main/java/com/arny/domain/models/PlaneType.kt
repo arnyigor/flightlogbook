@@ -1,6 +1,6 @@
 package com.arny.domain.models
 
-class PlaneType(var typeId: Long = 0) {
+class PlaneType(var typeId: Long? = null) {
     var typeName: String? = null
 
     override fun toString(): String {

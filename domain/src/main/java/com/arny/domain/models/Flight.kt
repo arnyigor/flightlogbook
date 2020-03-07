@@ -1,5 +1,7 @@
 package com.arny.domain.models
 
+const val PARAM_COLOR = "color"
+
 class Flight(var id: Long? = null) {
     var datetime: Long? = null
     var flightTime: Int = 0
@@ -19,6 +21,7 @@ class Flight(var id: Long? = null) {
     var logtimeFormatted: String? = null
     var totalTimeFormatted: String? = null
     var title: String? = null
+    var params: Params? = null
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -38,6 +41,7 @@ class Flight(var id: Long? = null) {
         if (flightTypeId != other.flightTypeId) return false
         if (description != other.description) return false
         if (title != other.title) return false
+        if (params != params) return false
         return true
     }
 

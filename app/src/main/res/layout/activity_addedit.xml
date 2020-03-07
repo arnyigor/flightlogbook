@@ -299,7 +299,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/edtRegNoLayout" />
 
             <TextView
-                android:id="@+id/tvFlightType"
+                android:id="@+id/tvFlightTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"

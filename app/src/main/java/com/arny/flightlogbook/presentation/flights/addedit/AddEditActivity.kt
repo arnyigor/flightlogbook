@@ -3,6 +3,7 @@ package com.arny.flightlogbook.presentation.flights.addedit
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.Color.BLUE
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -13,6 +14,8 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.TextView
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.color.colorChooser
 import com.arny.constants.CONSTS
 import com.arny.domain.models.TimeToFlight
 import com.arny.flightlogbook.R
@@ -339,6 +342,9 @@ class AddEditActivity :
                         onConfirm = { addEditPresenter.removeFlight() }
                 )
             }
+            R.id.action_color -> {
+                addEditPresenter.menuColorClick()
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -404,10 +410,20 @@ class AddEditActivity :
     }
 
     override fun setFligtTypeTitle(title: String) {
-        tvFlightType.text = title
+        tvFlightTitle.text = title
     }
 
     override fun onDateSet(dialog: CalendarDatePickerDialogFragment, year: Int, monthOfYear: Int, dayOfMonth: Int) {
         addEditPresenter.onDateSet(dayOfMonth, monthOfYear, year)
+    }
+
+    override fun onColorSelect(colors: IntArray) {
+        MaterialDialog(this).show {
+            title(R.string.select_color)
+            colorChooser(colors, initialSelection = BLUE) { _, color ->
+                 addEditPresenter.onColorSelected(color)
+            }
+            positiveButton(R.string.select)
+        }
     }
 }

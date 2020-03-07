@@ -56,20 +56,30 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
         if (mIsSuccess) {
             notice = applicationContext.getString(R.string.service_operation_success)
             when (operation) {
-                OPERATION_IMPORT_SD -> notice = applicationContext.getString(R.string.str_import_success)
-                OPERATION_DBX_SYNC -> notice = applicationContext.getString(R.string.dropbox_sync_complete)
-                OPERATION_DBX_DOWNLOAD -> notice = applicationContext.getString(R.string.service_file_download_success)
-                OPERATION_DBX_UPLOAD -> notice = applicationContext.getString(R.string.service_file_upload_success)
-                OPERATION_EXPORT -> notice = applicationContext.getString(R.string.str_export_success)
+                OPERATION_IMPORT_SD -> notice =
+                    applicationContext.getString(R.string.str_import_success)
+                OPERATION_DBX_SYNC -> notice =
+                    applicationContext.getString(R.string.dropbox_sync_complete)
+                OPERATION_DBX_DOWNLOAD -> notice =
+                    applicationContext.getString(R.string.service_file_download_success)
+                OPERATION_DBX_UPLOAD -> notice =
+                    applicationContext.getString(R.string.service_file_upload_success)
+                OPERATION_EXPORT -> notice =
+                    applicationContext.getString(R.string.str_export_success)
             }
         } else {
             notice = applicationContext.getString(R.string.service_operation_fail)
             when (operation) {
-                OPERATION_IMPORT_SD -> notice = applicationContext.getString(R.string.service_import_fail)
-                OPERATION_DBX_SYNC -> notice = applicationContext.getString(R.string.service_sync_fail)
-                OPERATION_DBX_DOWNLOAD -> notice = applicationContext.getString(R.string.service_download_fail)
-                OPERATION_DBX_UPLOAD -> notice = applicationContext.getString(R.string.service_upload_fail)
-                OPERATION_EXPORT -> notice = applicationContext.getString(R.string.service_export_fail)
+                OPERATION_IMPORT_SD -> notice =
+                    applicationContext.getString(R.string.service_import_fail)
+                OPERATION_DBX_SYNC -> notice =
+                    applicationContext.getString(R.string.service_sync_fail)
+                OPERATION_DBX_DOWNLOAD -> notice =
+                    applicationContext.getString(R.string.service_download_fail)
+                OPERATION_DBX_UPLOAD -> notice =
+                    applicationContext.getString(R.string.service_upload_fail)
+                OPERATION_EXPORT -> notice =
+                    applicationContext.getString(R.string.service_export_fail)
             }
         }
         return notice
@@ -121,7 +131,11 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
                 if (mPath.isNullOrBlank()) {
                     readExcelFile(applicationContext, CONSTS.FILES.EXEL_FILE_NAME, true)
                 } else {
-                    readExcelFile(applicationContext, FileUtils.getSDFilePath(applicationContext, Uri.fromFile(File(mPath))), false)
+                    readExcelFile(
+                        applicationContext,
+                        FileUtils.getSDFilePath(applicationContext, Uri.fromFile(File(mPath))),
+                        false
+                    )
                 }
             }
             OPERATION_DBX_SYNC -> try {
@@ -227,11 +241,12 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
         c = row.createCell(7)
         c.setCellValue(getString(R.string.str_desc))
         val exportData = flightsRepository.getDbFlights()
-                .map { flight ->
-                    flight.planeType = planeTypesRepository.loadPlaneType(flight.planeId)
-                    flight.flightType = flightTypesRepository.loadDBFlightType(flight.flightTypeId?.toLong())
-                    flight
-                }
+            .map { flight ->
+                flight.planeType = planeTypesRepository.loadPlaneType(flight.planeId)
+                flight.flightType =
+                    flightTypesRepository.loadDBFlightType(flight.flightTypeId?.toLong())
+                flight
+            }
         var rows = 1
         for (flight in exportData) {
             val airplane_type_id = flight.planeId!!
@@ -295,7 +310,8 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
         val checked = false
         val myWorkBook: HSSFWorkbook
         val xlsfile: File
-        val notAccess = !FileUtils.isExternalStorageAvailable() || FileUtils.isExternalStorageReadOnly()
+        val notAccess =
+            !FileUtils.isExternalStorageAvailable() || FileUtils.isExternalStorageReadOnly()
         Log.i(BackgroundIntentService::class.java.simpleName, "readExcelFile: $notAccess");
         if (notAccess) {
             return
@@ -361,12 +377,19 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
                                 e.printStackTrace()
                             }
 
-                            Log.d(BackgroundIntentService::class.java.simpleName, "strDate " + strDate!!)
+                            Log.d(
+                                BackgroundIntentService::class.java.simpleName,
+                                "strDate " + strDate!!
+                            )
                         }
                         1 -> {
                             try {
                                 if (myCell.cellType == Cell.CELL_TYPE_NUMERIC) {
-                                    strTime = Utility.match(myCell.dateCellValue.toString(), "(\\d{2}:\\d{2})", 1)
+                                    strTime = Utility.match(
+                                        myCell.dateCellValue.toString(),
+                                        "(\\d{2}:\\d{2})",
+                                        1
+                                    )
                                 } else {
                                     strTime = myCell.toString()
                                 }
@@ -375,17 +398,21 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
                                 e.printStackTrace()
                             }
 
-                            Log.d(BackgroundIntentService::class.java.simpleName, "strTime " + strTime!!)
+                            Log.d(
+                                BackgroundIntentService::class.java.simpleName,
+                                "strTime " + strTime!!
+                            )
                         }
                         2 -> {
                             try {
                                 airplane_type = myCell.toString()
                                 val planeType = planeTypesRepository.loadPlaneType(airplane_type)
                                 if (planeType != null) {
-                                    airplane_type_id = planeType.typeId
+                                    airplane_type_id = planeType.typeId ?: 0
                                 } else {
                                     if (!Utility.empty(airplane_type)) {
-                                        airplane_type_id = planeTypesRepository.addTypeAndGet(airplane_type)
+                                        airplane_type_id =
+                                            planeTypesRepository.addTypeAndGet(airplane_type)
                                     }
                                 }
                             } catch (e: Exception) {
@@ -393,7 +420,10 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
                                 e.printStackTrace()
                             }
 
-                            Log.d(BackgroundIntentService::class.java.simpleName, "airplane_type " + airplane_type!!)
+                            Log.d(
+                                BackgroundIntentService::class.java.simpleName,
+                                "airplane_type " + airplane_type!!
+                            )
                         }
                         3 -> {
                             try {
@@ -403,37 +433,52 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
                                 e.printStackTrace()
                             }
 
-                            Log.d(BackgroundIntentService::class.java.simpleName, "regNo " + reg_no!!)
+                            Log.d(
+                                BackgroundIntentService::class.java.simpleName,
+                                "regNo " + reg_no!!
+                            )
                         }
                         4 -> {
                             try {
-                                day_night = java.lang.Float.parseFloat(myCell.toString()).toInt().toLong()
+                                day_night =
+                                    java.lang.Float.parseFloat(myCell.toString()).toInt().toLong()
                             } catch (e: Exception) {
                                 day_night = 0
                                 e.printStackTrace()
                             }
 
-                            Log.d(BackgroundIntentService::class.java.simpleName, "day_night $day_night")
+                            Log.d(
+                                BackgroundIntentService::class.java.simpleName,
+                                "day_night $day_night"
+                            )
                         }
                         5 -> {
                             try {
-                                ifr_vfr = java.lang.Float.parseFloat(myCell.toString()).toInt().toLong()
+                                ifr_vfr =
+                                    java.lang.Float.parseFloat(myCell.toString()).toInt().toLong()
                             } catch (e: Exception) {
                                 ifr_vfr = 0
                                 e.printStackTrace()
                             }
 
-                            Log.d(BackgroundIntentService::class.java.simpleName, "ifr_vfr $ifr_vfr")
+                            Log.d(
+                                BackgroundIntentService::class.java.simpleName,
+                                "ifr_vfr $ifr_vfr"
+                            )
                         }
                         6 -> {
                             try {
-                                flight_type = java.lang.Float.parseFloat(myCell.toString()).toInt().toLong()
+                                flight_type =
+                                    java.lang.Float.parseFloat(myCell.toString()).toInt().toLong()
                             } catch (e: Exception) {
                                 flight_type = 0
                                 e.printStackTrace()
                             }
 
-                            Log.d(BackgroundIntentService::class.java.simpleName, "flight_type $flight_type")
+                            Log.d(
+                                BackgroundIntentService::class.java.simpleName,
+                                "flight_type $flight_type"
+                            )
                         }
                         7 -> {
                             try {
@@ -443,14 +488,18 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
                                 e.printStackTrace()
                             }
 
-                            Log.d(BackgroundIntentService::class.java.simpleName, "strDesc $strDesc")
+                            Log.d(
+                                BackgroundIntentService::class.java.simpleName,
+                                "strDesc $strDesc"
+                            )
                             try {
                                 logTime = DateTimeUtils.convertStringToTime(strTime!!).toLong()
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
                             var format = "dd MMM yyyy"
-                            strDate = strDate!!.replace("-", " ").replace(".", " ").replace("\\s+".toRegex(), " ")
+                            strDate = strDate!!.replace("-", " ").replace(".", " ")
+                                .replace("\\s+".toRegex(), " ")
                             try {
                                 format = DateTimeUtils.dateFormatChooser(strDate)
                             } catch (e: Exception) {
@@ -464,18 +513,54 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
                             }
 
                             try {
-                                Log.d(BackgroundIntentService::class.java.simpleName, "\nstrDesc: $strDesc")
-                                Log.d(BackgroundIntentService::class.java.simpleName, "strDate: $strDate")
-                                Log.d(BackgroundIntentService::class.java.simpleName, "mDateTime: $mDateTime")
-                                Log.d(BackgroundIntentService::class.java.simpleName, "strTime: " + strTime!!)
-                                Log.d(BackgroundIntentService::class.java.simpleName, "logTime: $logTime")
-                                Log.d(BackgroundIntentService::class.java.simpleName, "regNo: " + reg_no!!)
-                                Log.d(BackgroundIntentService::class.java.simpleName, "airplane_type_id: $airplane_type_id")
-                                Log.d(BackgroundIntentService::class.java.simpleName, "airplane_type: " + airplane_type!!)
-                                Log.d(BackgroundIntentService::class.java.simpleName, "day_night: $day_night")
-                                Log.d(BackgroundIntentService::class.java.simpleName, "ifr_vfr: $ifr_vfr")
-                                Log.d(BackgroundIntentService::class.java.simpleName, "flight_type: $flight_type")
-                                Log.d(BackgroundIntentService::class.java.simpleName, "strDesc: $strDesc")
+                                Log.d(
+                                    BackgroundIntentService::class.java.simpleName,
+                                    "\nstrDesc: $strDesc"
+                                )
+                                Log.d(
+                                    BackgroundIntentService::class.java.simpleName,
+                                    "strDate: $strDate"
+                                )
+                                Log.d(
+                                    BackgroundIntentService::class.java.simpleName,
+                                    "mDateTime: $mDateTime"
+                                )
+                                Log.d(
+                                    BackgroundIntentService::class.java.simpleName,
+                                    "strTime: " + strTime!!
+                                )
+                                Log.d(
+                                    BackgroundIntentService::class.java.simpleName,
+                                    "logTime: $logTime"
+                                )
+                                Log.d(
+                                    BackgroundIntentService::class.java.simpleName,
+                                    "regNo: " + reg_no!!
+                                )
+                                Log.d(
+                                    BackgroundIntentService::class.java.simpleName,
+                                    "airplane_type_id: $airplane_type_id"
+                                )
+                                Log.d(
+                                    BackgroundIntentService::class.java.simpleName,
+                                    "airplane_type: " + airplane_type!!
+                                )
+                                Log.d(
+                                    BackgroundIntentService::class.java.simpleName,
+                                    "day_night: $day_night"
+                                )
+                                Log.d(
+                                    BackgroundIntentService::class.java.simpleName,
+                                    "ifr_vfr: $ifr_vfr"
+                                )
+                                Log.d(
+                                    BackgroundIntentService::class.java.simpleName,
+                                    "flight_type: $flight_type"
+                                )
+                                Log.d(
+                                    BackgroundIntentService::class.java.simpleName,
+                                    "strDesc: $strDesc"
+                                )
                                 Log.d(BackgroundIntentService::class.java.simpleName, "\n")
                                 val flight = Flight()
                                 flights.add(flight)
@@ -527,10 +612,13 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
 
     private fun uploadFile() {
         try {
-            val localFile = File(applicationContext.getExternalFilesDir(null), CONSTS.FILES.EXEL_FILE_NAME)
+            val localFile =
+                File(applicationContext.getExternalFilesDir(null), CONSTS.FILES.EXEL_FILE_NAME)
             val remoteFileName = localFile.name
             val inputStream = FileInputStream(localFile)
-            val result = client!!.files().uploadBuilder("/$remoteFileName").withMode(WriteMode.OVERWRITE).uploadAndFinish(inputStream)
+            val result =
+                client!!.files().uploadBuilder("/$remoteFileName").withMode(WriteMode.OVERWRITE)
+                    .uploadAndFinish(inputStream)
             mIsSuccess = result != null
         } catch (e: DbxException) {
             e.printStackTrace()
@@ -543,7 +631,8 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
     }
 
     private fun syncFile(remoteFile: FileMetadata?) {
-        val localFile = File(applicationContext.getExternalFilesDir(null), CONSTS.FILES.EXEL_FILE_NAME)
+        val localFile =
+            File(applicationContext.getExternalFilesDir(null), CONSTS.FILES.EXEL_FILE_NAME)
         try {
             val remoteVal = if (remoteFile == null) {
                 null
@@ -578,8 +667,10 @@ class BackgroundIntentService : IntentService("BackgroundIntentService") {
         val EXTRA_KEY_FINISH_SUCCESS = "BackgroundIntentService.operation.success"
         val EXTRA_KEY_IMPORT_SD_FILENAME = "BackgroundIntentService.operation.import.sd.filename"
         val EXTRA_KEY_OPERATION_DATA = "BackgroundIntentService.operation.data"
-        val EXTRA_KEY_OPERATION_DATA_REMOTE_DATE = "BackgroundIntentService.operation.data.remote.date"
-        val EXTRA_KEY_OPERATION_DATA_LOCAL_DATE = "BackgroundIntentService.operation.data.local.date"
+        val EXTRA_KEY_OPERATION_DATA_REMOTE_DATE =
+            "BackgroundIntentService.operation.data.remote.date"
+        val EXTRA_KEY_OPERATION_DATA_LOCAL_DATE =
+            "BackgroundIntentService.operation.data.local.date"
         /*Opearations*/
         val OPERATION_IMPORT_SD = 100
         val OPERATION_DBX_SYNC = 102

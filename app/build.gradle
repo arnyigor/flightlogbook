@@ -25,7 +25,7 @@ android {
         release {
             keyAlias 'androidapps'
             keyPassword KEY_PASSWORD
-            storeFile file('../../keystore/mykeystore.jks')
+            storeFile file('../flb.jks')
             storePassword KEYSTORE_PASSWORD
         }
     }
@@ -144,6 +144,7 @@ dependencies {
     implementation libs.jodaTime
     implementation libs.materialTypeface
     implementation libs.materialDialogsCore
+    implementation libs.materialDialogsColor
     implementation libs.materialDialogsInput
     implementation("com.mikepenz:materialdrawer:6.0.9@aar") {
         transitive = true
