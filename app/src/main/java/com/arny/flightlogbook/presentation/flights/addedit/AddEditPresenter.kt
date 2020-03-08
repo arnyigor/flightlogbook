@@ -1,7 +1,5 @@
 package com.arny.flightlogbook.presentation.flights.addedit
 
-import android.graphics.Color.*
-import android.util.Log
 import com.arny.domain.common.PreferencesInteractor
 import com.arny.domain.common.ResourcesInteractor
 import com.arny.domain.flights.FlightsInteractor
@@ -64,10 +62,32 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
         viewState.setRegNo(flight.regNo)
         viewState.setTitle(flight.title)
         viewState.setToolbarTitle(resourcesInteractor.getString(R.string.str_edt_flight))
+        loadColor(flight)
         loadDateTime(flight)
         loadTimes(flight)
         loadFlightType()
         loadPlaneTypes()
+    }
+
+    private fun loadColor(flight: Flight) {
+        flight.colorInt?.let {
+            viewState.setViewColor(it)
+        }?.run {
+            fromNullable { flight.params?.getParam(PARAM_COLOR, "") }
+                .map {
+                    val hexColor = it.value
+                    if (!hexColor.isNullOrBlank()) {
+                        hexColor.toIntColor()
+                    } else {
+                        -1
+                    }
+                }
+                .observeSubscribeAdd({
+                    if (it != -1) {
+                        viewState.setViewColor(it)
+                    }
+                })
+        }
     }
 
     private fun loadPlaneTypes() {
@@ -220,7 +240,6 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
     }
 
     fun onDateSet(dayOfMonth: Int, monthOfYear: Int, year: Int) {
-        Log.i(AddEditPresenter::class.java.simpleName, "onDateSet: ");
         fromCallable {
             mDateTime = DateTimeUtils
                 .getJodaDateTime("$dayOfMonth.${(monthOfYear + 1)}.$year", "dd.MM.yyyy", true)
@@ -234,7 +253,6 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
     }
 
     private fun setDayToday() {
-        Log.i(AddEditPresenter::class.java.simpleName, "setDayToday: ");
         fromCallable {
             mDateTime = DateTime.now().withTimeAtStartOfDay().millis
             convertDateTime()
@@ -446,11 +464,16 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
     }
 
     fun menuColorClick() {
-        val colors = intArrayOf(RED, GREEN, BLUE)
-        viewState.onColorSelect(colors)
+        fromCallable { getColorsIntArray() }
+            .observeSubscribeAdd({ colors ->
+                viewState.onColorSelect(colors)
+            })
+
     }
 
     fun onColorSelected(color: Int) {
-        flight?.params?.setParam(PARAM_COLOR, color.toHexColor())
+        val hexColor = color.toHexColor()
+        flight?.params?.setParam(PARAM_COLOR, hexColor)
+        viewState.setViewColor(color)
     }
 }

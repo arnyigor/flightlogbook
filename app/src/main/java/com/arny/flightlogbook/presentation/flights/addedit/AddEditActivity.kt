@@ -413,6 +413,10 @@ class AddEditActivity :
         tvFlightTitle.text = title
     }
 
+    override fun setViewColor(color: Int) {
+        vColor.setBackgroundColor(color)
+    }
+
     override fun onDateSet(dialog: CalendarDatePickerDialogFragment, year: Int, monthOfYear: Int, dayOfMonth: Int) {
         addEditPresenter.onDateSet(dayOfMonth, monthOfYear, year)
     }

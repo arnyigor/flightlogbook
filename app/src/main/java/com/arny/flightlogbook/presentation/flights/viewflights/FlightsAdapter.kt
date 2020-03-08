@@ -10,15 +10,18 @@ class FlightsAdapter : SimpleAbstractAdapter<Flight>() {
     override fun bindView(item: Flight, viewHolder: VH) {
         val position = viewHolder.adapterPosition
         viewHolder.itemView.apply {
-            val datetime = item.datetime ?: 0
-            if (datetime > 0) {
-                tvDate.text = item.datetimeFormatted
-            }
-            tv_log_time_flight.text = item.logtimeFormatted
-            tv_log_time_flight_total.text = item.totalTimeFormatted
+            tvDate.text = item.datetimeFormatted
+            tv_log_time_flight.text = item.logtimeFormatted ?: "00:00"
+            tvTotalTime.text = item.totalTimeFormatted ?: "00:00"
             tvFlightTitle.text = item.flightType?.typeTitle
             tvPlaneRegNo.text = item.regNo
             tv_plane_type.text = item.planeType?.typeName
+            item.colorText?.let {
+                tvTotalTime.setTextColor(it)
+            }
+            item.colorInt?.takeIf { it != 0 && it != -1 }?.let {
+                clFlightsItemContainer.setBackgroundColor(it)
+            }
             setOnClickListener {
                 listener?.onItemClick(position, item)
             }

@@ -1,5 +1,6 @@
 package com.arny.domain.flights
 
+import android.graphics.Color
 import android.net.Uri
 import com.arny.constants.CONSTS
 import com.arny.domain.R
@@ -8,6 +9,7 @@ import com.arny.domain.common.ResourcesProvider
 import com.arny.domain.flighttypes.FlightTypesRepository
 import com.arny.domain.models.Flight
 import com.arny.domain.models.FlightType
+import com.arny.domain.models.PARAM_COLOR
 import com.arny.domain.models.PlaneType
 import com.arny.domain.planetypes.PlaneTypesRepository
 import com.arny.helpers.utils.*
@@ -52,8 +54,9 @@ class FlightsInteractor @Inject constructor(
     fun getFlight(id: Long?): Flight? {
         return flightsRepository.getFlight(id)
             ?.apply {
-                this.planeType = planeTypesRepository.loadPlaneType(planeId)
-                this.flightType = flightTypesRepository.loadDBFlightType(flightTypeId?.toLong())
+                colorInt = params?.getParam(PARAM_COLOR, "")?.toIntColor()
+                planeType = planeTypesRepository.loadPlaneType(planeId)
+                flightType = flightTypesRepository.loadDBFlightType(flightTypeId?.toLong())
             }
     }
 
@@ -135,6 +138,10 @@ class FlightsInteractor @Inject constructor(
             val planeTypes = planeTypesRepository.loadPlaneTypes()
             val flights = flightsRepository.getDbFlights(order)
             flights.map { flight ->
+                flight.colorInt = flight.params?.getParam(PARAM_COLOR, "")?.toIntColor()
+                flight.colorInt?.let { colorWillBeMasked(it) }?.takeIf { true }?.let {
+                    flight.colorText = Color.WHITE
+                }
                 flight.planeType = planeTypes.find { it.typeId == flight.planeId }
                 flight.flightType = flightTypes.find { it.id == flight.flightTypeId?.toLong() }
                 flight
@@ -183,6 +190,7 @@ class FlightsInteractor @Inject constructor(
         myWorkBook = HSSFWorkbook(fileInputStream)
         // Get the first sheet from workbook
         val mySheet = myWorkBook.getSheetAt(0)
+
         /** We now need something to iterate through the cells. */
         val numberOfRows = mySheet.physicalNumberOfRows
         val rowIter = mySheet.rowIterator()

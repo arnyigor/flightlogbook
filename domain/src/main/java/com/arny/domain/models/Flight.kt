@@ -22,6 +22,8 @@ class Flight(var id: Long? = null) {
     var totalTimeFormatted: String? = null
     var title: String? = null
     var params: Params? = null
+    var colorInt: Int? = null
+    var colorText: Int? = null
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
