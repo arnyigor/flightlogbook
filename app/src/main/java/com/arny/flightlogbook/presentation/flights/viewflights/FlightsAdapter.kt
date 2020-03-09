@@ -11,13 +11,17 @@ class FlightsAdapter : SimpleAbstractAdapter<Flight>() {
         val position = viewHolder.adapterPosition
         viewHolder.itemView.apply {
             tvDate.text = item.datetimeFormatted
-            tv_log_time_flight.text = item.logtimeFormatted ?: "00:00"
+            tvFlightTime.text = item.logtimeFormatted ?: "00:00"
             tvTotalTime.text = item.totalTimeFormatted ?: "00:00"
             tvFlightTitle.text = item.flightType?.typeTitle
             tvPlaneRegNo.text = item.regNo
-            tv_plane_type.text = item.planeType?.typeName
+            tvPlaneType.text = item.planeType?.typeName
             item.colorText?.let {
                 tvTotalTime.setTextColor(it)
+                tvFlightTime.setTextColor(it)
+                tvDate.setTextColor(it)
+                tvPlaneRegNo.setTextColor(it)
+                tvPlaneType.setTextColor(it)
             }
             item.colorInt?.takeIf { it != 0 && it != -1 }?.let {
                 clFlightsItemContainer.setBackgroundColor(it)

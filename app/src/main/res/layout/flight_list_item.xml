@@ -53,7 +53,7 @@
             app:srcCompat="@drawable/ic_totals" />
 
         <TextView
-            android:id="@+id/tv_log_time_flight"
+            android:id="@+id/tvFlightTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
@@ -75,9 +75,9 @@
             android:id="@+id/iv_flight_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_log_time_flight"
-            app:layout_constraintEnd_toStartOf="@+id/tv_log_time_flight"
-            app:layout_constraintTop_toTopOf="@+id/tv_log_time_flight"
+            app:layout_constraintBottom_toBottomOf="@+id/tvFlightTime"
+            app:layout_constraintEnd_toStartOf="@+id/tvFlightTime"
+            app:layout_constraintTop_toTopOf="@+id/tvFlightTime"
             app:srcCompat="@drawable/ic_plane" />
 
         <TextView
@@ -96,7 +96,7 @@
             android:textSize="@dimen/font_size_xmedium"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_log_time_flight"
+            app:layout_constraintTop_toBottomOf="@+id/tvFlightTime"
             tools:text="@string/str_time_zero" />
 
         <androidx.constraintlayout.widget.Barrier
@@ -107,7 +107,7 @@
             app:constraint_referenced_ids="tvDate,tvFlightTitle" />
 
         <TextView
-            android:id="@+id/tv_plane_type"
+            android:id="@+id/tvPlaneType"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
