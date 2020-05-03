@@ -1,6 +1,5 @@
 package com.arny.domain.flights
 
-import android.graphics.Color
 import android.net.Uri
 import com.arny.constants.CONSTS
 import com.arny.domain.R
@@ -9,7 +8,6 @@ import com.arny.domain.common.ResourcesProvider
 import com.arny.domain.flighttypes.FlightTypesRepository
 import com.arny.domain.models.Flight
 import com.arny.domain.models.FlightType
-import com.arny.domain.models.PARAM_COLOR
 import com.arny.domain.models.PlaneType
 import com.arny.domain.planetypes.PlaneTypesRepository
 import com.arny.helpers.utils.*
@@ -25,11 +23,11 @@ import javax.inject.Singleton
 
 @Singleton
 class FlightsInteractor @Inject constructor(
-    private val flightTypesRepository: FlightTypesRepository,
-    private val flightsRepository: FlightsRepository,
-    private val resourcesProvider: ResourcesProvider,
-    private val planeTypesRepository: PlaneTypesRepository,
-    private val preferencesProvider: PreferencesProvider
+        private val flightTypesRepository: FlightTypesRepository,
+        private val flightsRepository: FlightsRepository,
+        private val resourcesProvider: ResourcesProvider,
+        private val planeTypesRepository: PlaneTypesRepository,
+        private val preferencesProvider: PreferencesProvider
 ) {
     fun insertFlights(flights: List<Flight>): Observable<Boolean> {
         return fromCallable { flightsRepository.insertFlights(flights) }
@@ -53,11 +51,10 @@ class FlightsInteractor @Inject constructor(
 
     fun getFlight(id: Long?): Flight? {
         return flightsRepository.getFlight(id)
-            ?.apply {
-                colorInt = params?.getParam(PARAM_COLOR, "")?.toIntColor()
-                planeType = planeTypesRepository.loadPlaneType(planeId)
-                flightType = flightTypesRepository.loadDBFlightType(flightTypeId?.toLong())
-            }
+                ?.apply {
+                    this.planeType = planeTypesRepository.loadPlaneType(planeId)
+                    this.flightType = flightTypesRepository.loadDBFlightType(flightTypeId?.toLong())
+                }
     }
 
     fun loadPlaneTypes(): Observable<List<PlaneType>> {
@@ -91,15 +88,13 @@ class FlightsInteractor @Inject constructor(
         val sumlogTime = flightsTime + totalTimes
         val sumFlightTime = flightsTime + totalFlightTimes
         val flightsCount = flightsRepository.getFlightsCount()
-        return String.format(
-            "%s %s\n%s %s\n%s %d",
-            resourcesProvider.getString(R.string.str_total_time),
-            DateTimeUtils.strLogTime(sumlogTime),
-            resourcesProvider.getString(R.string.str_total_flight_time),
-            DateTimeUtils.strLogTime(sumFlightTime),
-            resourcesProvider.getString(R.string.total_records),
-            flightsCount
-        )
+        return String.format("%s %s\n%s %s\n%s %d",
+                resourcesProvider.getString(R.string.str_total_time),
+                DateTimeUtils.strLogTime(sumlogTime),
+                resourcesProvider.getString(R.string.str_total_flight_time),
+                DateTimeUtils.strLogTime(sumFlightTime),
+                resourcesProvider.getString(R.string.total_records),
+                flightsCount)
     }
 
     fun getTotalflightsTimeInfo(): Observable<String> {
@@ -120,14 +115,13 @@ class FlightsInteractor @Inject constructor(
 
     fun loadDBFlights(): List<Flight> {
         return flightsRepository.getDbFlights()
-            .map { flight ->
-                flight.planeType = planeTypesRepository.loadPlaneType(flight.planeId)
-                flight.flightType =
-                    flightTypesRepository.loadDBFlightType(flight.flightTypeId?.toLong())
+                .map { flight ->
+                    flight.planeType = planeTypesRepository.loadPlaneType(flight.planeId)
+                    flight.flightType = flightTypesRepository.loadDBFlightType(flight.flightTypeId?.toLong())
 //                    flight.sumFlightTime = (flight.flightTime?:0) + (flight.times?.filter { it.addToFlightTime }?.sumBy { it.time }?:0)
 //                    flight.sumGroundTime = (flight.times?.filter { !it.addToFlightTime }?.sumBy { it.time }?:0)
-                flight
-            }
+                    flight
+                }
     }
 
     fun getFilterFlightsObs(): Observable<List<Flight>> {
@@ -138,14 +132,12 @@ class FlightsInteractor @Inject constructor(
             val planeTypes = planeTypesRepository.loadPlaneTypes()
             val flights = flightsRepository.getDbFlights(order)
             flights.map { flight ->
-                flight.colorInt = flight.params?.getParam(PARAM_COLOR, "")?.toIntColor()
-                flight.colorInt?.let { colorWillBeMasked(it) }?.takeIf { true }?.let {
-                    flight.colorText = Color.WHITE
-                }
-                flight.planeType = planeTypes.find { it.typeId == flight.planeId }
-                flight.flightType = flightTypes.find { it.id == flight.flightTypeId?.toLong() }
-                flight
-            }
+                        flight.planeType = planeTypes.find { it.typeId == flight.planeId }
+                        flight.flightType = flightTypes.find { it.id == flight.flightTypeId?.toLong() }
+//                        flight.sumFlightTime = (flight.flightTime?:0) + (flight.times?.filter { it.addToFlightTime }?.sumBy { it.time }?:0)
+//                        flight.sumGroundTime = (flight.times?.filter { !it.addToFlightTime }?.sumBy { it.time }?:0)
+                        flight
+                    }
         }.map { flights ->
             val res = when (orderType) {
                 0 -> flights.sortedBy { it.datetime }
@@ -162,11 +154,7 @@ class FlightsInteractor @Inject constructor(
         return fromCallable { flightsRepository.removeFlight(id) }
     }
 
-    fun readExcelFile(
-        path: String?,
-        fromSystem: Boolean,
-        onProgress: (state: String, iter: Int, total: Int) -> Unit
-    ): Boolean {
+    fun readExcelFile(path: String?, fromSystem: Boolean, onProgress: (state: String, iter: Int, total: Int) -> Unit): Boolean {
         val ctx = resourcesProvider.provideContext()
         val saving = resourcesProvider.getString(R.string.saving)
         val loadingFile = resourcesProvider.getString(R.string.loading_file)
@@ -176,8 +164,7 @@ class FlightsInteractor @Inject constructor(
         val filename = FileUtils.getSDFilePath(ctx, fileUri)
         val myWorkBook: HSSFWorkbook
         val xlsfile: File
-        val notAccess =
-            !FileUtils.isExternalStorageAvailable() || FileUtils.isExternalStorageReadOnly()
+        val notAccess = !FileUtils.isExternalStorageAvailable() || FileUtils.isExternalStorageReadOnly()
         if (notAccess) {
             return false
         }
@@ -190,7 +177,6 @@ class FlightsInteractor @Inject constructor(
         myWorkBook = HSSFWorkbook(fileInputStream)
         // Get the first sheet from workbook
         val mySheet = myWorkBook.getSheetAt(0)
-
         /** We now need something to iterate through the cells. */
         val numberOfRows = mySheet.physicalNumberOfRows
         val rowIter = mySheet.rowIterator()
@@ -207,10 +193,7 @@ class FlightsInteractor @Inject constructor(
         return true
     }
 
-    private fun getFlightsFromExcel(
-        rowIter: Iterator<*>,
-        onProgress: (iter: Int) -> Unit
-    ): ArrayList<Flight> {
+    private fun getFlightsFromExcel(rowIter: Iterator<*>, onProgress: (iter: Int) -> Unit): ArrayList<Flight> {
         val flights = ArrayList<Flight>()
         var rowCnt = 0
         var strDate: String? = null
@@ -242,21 +225,14 @@ class FlightsInteractor @Inject constructor(
                             try {
                                 strDate = myCell.toString()
                             } catch (e: Exception) {
-                                strDate = DateTimeUtils.getDateTime(
-                                    System.currentTimeMillis(),
-                                    "dd MMM yyyy"
-                                )
+                                strDate = DateTimeUtils.getDateTime(System.currentTimeMillis(), "dd MMM yyyy")
                                 e.printStackTrace()
                             }
                         }
                         2 -> {
                             try {
                                 strTime = if (myCell.cellType == Cell.CELL_TYPE_NUMERIC) {
-                                    Utility.match(
-                                        myCell.dateCellValue.toString(),
-                                        "(\\d{2}:\\d{2})",
-                                        1
-                                    )
+                                    Utility.match(myCell.dateCellValue.toString(), "(\\d{2}:\\d{2})", 1)
                                 } else {
                                     myCell.toString()
                                 }
@@ -276,11 +252,10 @@ class FlightsInteractor @Inject constructor(
                                 airplane_type = myCell.toString()
                                 val planeType = planeTypes.find { it.typeName == airplane_type }
                                 if (planeType != null) {
-                                    airplane_type_id = planeType.typeId ?: 0
+                                    airplane_type_id = planeType.typeId
                                 } else {
                                     if (!airplane_type.isNullOrBlank()) {
-                                        airplane_type_id =
-                                            planeTypesRepository.addTypeAndGet(airplane_type)
+                                        airplane_type_id = planeTypesRepository.addTypeAndGet(airplane_type)
                                         planeTypes = planeTypesRepository.loadPlaneTypes()
                                     }
                                 }
@@ -302,8 +277,7 @@ class FlightsInteractor @Inject constructor(
                         7 -> {
                             try {
                                 val fTypeStr = myCell.toString()
-                                flight_type =
-                                    if (fTypeStr.contains(".")) fTypeStr.parseDouble()?.toLong()
+                                flight_type = if (fTypeStr.contains(".")) fTypeStr.parseDouble()?.toLong()
                                         ?: -1 else fTypeStr.parseLong() ?: -1
                                 val planeType = flightTypes.find { it.id == flight_type }
                                 if (planeType != null) {
@@ -311,13 +285,11 @@ class FlightsInteractor @Inject constructor(
                                 } else {
                                     if (flight_type != -1L) {
                                         val type = getOldFlightType(flight_type)
-                                        val flightTypeEntity =
-                                            flightTypes.find { it.typeTitle == type }
+                                        val flightTypeEntity = flightTypes.find { it.typeTitle == type }
                                         if (flightTypeEntity != null) {
                                             airplane_type_id = flightTypeEntity.id ?: -1
                                         } else {
-                                            flight_type =
-                                                flightTypesRepository.addFlightTypeAndGet(type)
+                                            flight_type = flightTypesRepository.addFlightTypeAndGet(type)
                                             flightTypes = flightTypesRepository.loadDBFlightTypes()
                                         }
                                     }
@@ -358,8 +330,7 @@ class FlightsInteractor @Inject constructor(
                     }
                     if (lastCell == cellCnt) {
                         var format = "dd MMM yyyy"
-                        strDate = strDate!!.replace("-", " ").replace(".", " ")
-                            .replace("\\s+".toRegex(), " ")
+                        strDate = strDate!!.replace("-", " ").replace(".", " ").replace("\\s+".toRegex(), " ")
                         try {
                             format = DateTimeUtils.dateFormatChooser(strDate)
                         } catch (e: Exception) {

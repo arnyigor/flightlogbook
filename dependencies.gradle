@@ -1,11 +1,12 @@
 ext.versions = [
+        'androidPlugin'    : '3.6.3',
         'minSdk'           : 16,
         'targetSdk'        : 29,
         'compileSdk'       : 29,
         'buildTools'       : '29.0.0',
         'supportLibrary'   : '28.0.0',
         'constraint'       : '2.0.0-beta3',
-        'kotlin'           : '1.3.61',
+        'kotlin'           : '1.3.72',
         'coroutines'       : '1.3.2',
         'gms'              : '3.1.0',
         'appcompatx'       : '1.1.0',
@@ -22,7 +23,7 @@ ext.versions = [
         'okhttpDownloader' : '1.1.0',
         'picasso'          : '2.5.2',
         'rxJava'           : '2.2.15',
-        'moxy'             : '2.1.1',
+        'moxy'             : '2.0.2',
         'rxAndroid'        : '2.1.1',
         'rxKotlin'         : '2.4.0',
         'stetho'           : '1.5.1',
@@ -64,7 +65,7 @@ ext.libs = [
         'constraint'          : 'androidx.constraintlayout:constraintlayout:1.1.3',
 
         //kotlin
-        'kotlinStdlib'        : "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin}",
+        'kotlinStdlib'        : "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versions.kotlin}",
         'coroutinesCore'      : "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.coroutines}",
         'coroutinesAndroid'   : "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.coroutines}",
 
@@ -104,12 +105,12 @@ ext.libs = [
 
         'jodaTime'            : 'joda-time:joda-time:2.10.3',
         'toasty'              : 'com.github.GrenderG:Toasty:1.4.2',
-        'materialDialogsCore' : 'com.afollestad.material-dialogs:core:3.3.0',//https://github.com/afollestad/material-dialogs
-        'materialDialogsInput': 'com.afollestad.material-dialogs:input:3.3.0',
-        'materialDialogsColor': 'com.afollestad.material-dialogs:color:3.3.0',
+        'materialDialogsCore' : 'com.afollestad.material-dialogs:core:3.1.1',//https://github.com/afollestad/material-dialogs
+        'materialDialogsInput': 'com.afollestad.material-dialogs:input:3.1.1',
+        'materialDialogsColor': 'com.afollestad.material-dialogs:color:3.1.1',
         'betterpickers'       : 'com.code-troopers.betterpickers:library:3.1.0',
         'rxpermissions'       : 'com.github.tbruyelle:rxpermissions:0.10.2',
-        'inputmask'           : 'com.redmadrobot:input-mask-android:5.0.0',
+        'inputmask'           : 'com.redmadrobot:input-mask-android:4.3.1',
         'leakcanary'          : 'com.squareup.leakcanary:leakcanary-android:1.6.3',
 
         //tests
