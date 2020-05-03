@@ -191,7 +191,7 @@ class AddEditActivity :
             }
         }, object : MaskedTextChangedListener.ValueListener {
             override fun onTextChanged(maskFilled: Boolean, extractedValue: String, formattedValue: String) {
-                if (maskFilled) {
+                if (maskFilled && tiedt_date.isFocused) {
                     addEditPresenter.initDateFromMask(extractedValue)
                 }
             }
@@ -201,7 +201,9 @@ class AddEditActivity :
     private fun setMaskedChanges(editText: EditText, onMasked: (value: String) -> Unit = {}) {
         MaskedTextChangedListener.installOn(editText, CONSTS.STRINGS.LOG_TIME_FORMAT, object : MaskedTextChangedListener.ValueListener {
             override fun onTextChanged(maskFilled: Boolean, extractedValue: String, formattedValue: String) {
-                onMasked.invoke(extractedValue)
+                if (editText.isFocused) {
+                    onMasked.invoke(extractedValue)
+                }
             }
         })
     }

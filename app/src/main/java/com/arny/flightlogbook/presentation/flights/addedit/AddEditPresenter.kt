@@ -18,17 +18,23 @@ import javax.inject.Inject
 class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableComponent {
     @Inject
     lateinit var flightsInteractor: FlightsInteractor
+
     @Inject
     lateinit var resourcesInteractor: ResourcesInteractor
+
     @Inject
     lateinit var preferencesInteractor: PreferencesInteractor
     private var id: Long? = null
+
     @Volatile
     private var intFlightTime: Int = 0
+
     @Volatile
     private var intNightTime: Int = 0
+
     @Volatile
     private var intGroundTime: Int = 0
+
     @Volatile
     private var intTotalTime: Int = 0
     private var flight: Flight? = null
@@ -85,8 +91,15 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
 
     private fun loadTimes(flight: Flight) {
         intFlightTime = flight.flightTime
+        intNightTime = flight.nightTime
+        intGroundTime = flight.groundTime
         fromCallable { DateTimeUtils.strLogTime(intFlightTime) }
-                .observeSubscribeAdd({ viewState?.setDate(it) })
+                .observeSubscribeAdd({ viewState?.setEdtFlightTimeText(it) })
+        fromCallable { DateTimeUtils.strLogTime(intNightTime) }
+                .observeSubscribeAdd({ viewState?.setEdtNightTimeText(it) })
+        fromCallable { DateTimeUtils.strLogTime(intGroundTime) }
+                .observeSubscribeAdd({ viewState?.setEdtGroundTimeText(it) })
+        timeSummChanged()
     }
 
     private fun timeSummChanged() {

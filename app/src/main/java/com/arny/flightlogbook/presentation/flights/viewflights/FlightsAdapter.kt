@@ -18,10 +18,8 @@ class FlightsAdapter : SimpleAbstractAdapter<Flight>() {
             if (datetime > 0) {
                 tv_date.text = item.datetimeFormatted
             }
-            val strLogTime = DateTimeUtils.strLogTime(item.totalTime)
-            val strFlightTime = DateTimeUtils.strLogTime(item.totalTime)
-            tv_log_time_flight.text = strFlightTime
-            tv_log_time_flight_total.text = strLogTime
+            tv_log_time_flight.text = item.logtimeFormatted
+            tv_log_time_flight_total.text = DateTimeUtils.strLogTime(item.totalTime)
             tvFlightType.text = item.flightType?.typeTitle
             tv_plane_reg_no.text = item.regNo
             tv_plane_type.text = item.planeType?.typeName

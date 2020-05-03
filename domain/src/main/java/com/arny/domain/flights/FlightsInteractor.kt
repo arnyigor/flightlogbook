@@ -1,6 +1,8 @@
 package com.arny.domain.flights
 
+import android.content.ContentResolver
 import android.net.Uri
+import android.provider.OpenableColumns
 import com.arny.constants.CONSTS
 import com.arny.domain.R
 import com.arny.domain.common.PreferencesProvider
@@ -52,8 +54,8 @@ class FlightsInteractor @Inject constructor(
     fun getFlight(id: Long?): Flight? {
         return flightsRepository.getFlight(id)
                 ?.apply {
-                    this.planeType = planeTypesRepository.loadPlaneType(planeId)
-                    this.flightType = flightTypesRepository.loadDBFlightType(flightTypeId?.toLong())
+                    planeType = planeTypesRepository.loadPlaneType(planeId)
+                    flightType = flightTypesRepository.loadDBFlightType(flightTypeId?.toLong())
                 }
     }
 
@@ -118,8 +120,7 @@ class FlightsInteractor @Inject constructor(
                 .map { flight ->
                     flight.planeType = planeTypesRepository.loadPlaneType(flight.planeId)
                     flight.flightType = flightTypesRepository.loadDBFlightType(flight.flightTypeId?.toLong())
-//                    flight.sumFlightTime = (flight.flightTime?:0) + (flight.times?.filter { it.addToFlightTime }?.sumBy { it.time }?:0)
-//                    flight.sumGroundTime = (flight.times?.filter { !it.addToFlightTime }?.sumBy { it.time }?:0)
+                    flight.totalTime = flight.flightTime + flight.groundTime
                     flight
                 }
     }
@@ -132,12 +133,11 @@ class FlightsInteractor @Inject constructor(
             val planeTypes = planeTypesRepository.loadPlaneTypes()
             val flights = flightsRepository.getDbFlights(order)
             flights.map { flight ->
-                        flight.planeType = planeTypes.find { it.typeId == flight.planeId }
-                        flight.flightType = flightTypes.find { it.id == flight.flightTypeId?.toLong() }
-//                        flight.sumFlightTime = (flight.flightTime?:0) + (flight.times?.filter { it.addToFlightTime }?.sumBy { it.time }?:0)
-//                        flight.sumGroundTime = (flight.times?.filter { !it.addToFlightTime }?.sumBy { it.time }?:0)
-                        flight
-                    }
+                flight.planeType = planeTypes.find { it.typeId == flight.planeId }
+                flight.flightType = flightTypes.find { it.id == flight.flightTypeId?.toLong() }
+                flight.totalTime = flight.flightTime + flight.groundTime
+                flight
+            }
         }.map { flights ->
             val res = when (orderType) {
                 0 -> flights.sortedBy { it.datetime }
@@ -154,7 +154,19 @@ class FlightsInteractor @Inject constructor(
         return fromCallable { flightsRepository.removeFlight(id) }
     }
 
-    fun readExcelFile(path: String?, fromSystem: Boolean, onProgress: (state: String, iter: Int, total: Int) -> Unit): Boolean {
+    fun ContentResolver.getFileName(fileUri: Uri): String {
+        var name = ""
+        val returnCursor = this.query(fileUri, null, null, null, null)
+        if (returnCursor != null) {
+            val nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            returnCursor.moveToFirst()
+            name = returnCursor.getString(nameIndex)
+            returnCursor.close()
+        }
+        return name
+    }
+
+    fun readExcelFile(path: String?, fromSystem: Boolean, onProgress: (state: String, iter: Int, total: Int) -> Unit?): Boolean {
         val ctx = resourcesProvider.provideContext()
         val saving = resourcesProvider.getString(R.string.saving)
         val loadingFile = resourcesProvider.getString(R.string.loading_file)
@@ -177,6 +189,7 @@ class FlightsInteractor @Inject constructor(
         myWorkBook = HSSFWorkbook(fileInputStream)
         // Get the first sheet from workbook
         val mySheet = myWorkBook.getSheetAt(0)
+
         /** We now need something to iterate through the cells. */
         val numberOfRows = mySheet.physicalNumberOfRows
         val rowIter = mySheet.rowIterator()
@@ -188,9 +201,9 @@ class FlightsInteractor @Inject constructor(
             onProgress.invoke(fileImport, percent, 100)
         }
         onProgress.invoke(saving, 50, 100)
-        flightsRepository.insertFlights(flightsFromExel)
+        val insertFlights = flightsRepository.insertFlights(flightsFromExel)
         onProgress.invoke(saving, 100, 100)
-        return true
+        return insertFlights
     }
 
     private fun getFlightsFromExcel(rowIter: Iterator<*>, onProgress: (iter: Int) -> Unit): ArrayList<Flight> {

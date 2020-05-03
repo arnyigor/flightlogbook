@@ -1,5 +1,6 @@
 package com.arny.helpers.utils;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -23,6 +24,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 
@@ -50,6 +52,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Objects;
 
 import okhttp3.ResponseBody;
 
@@ -243,8 +246,9 @@ public class FileUtils {
             String folders = "", type = "", external;
             for (String segm : uri.getPathSegments()) {
                 if (segm.contains(DOCUMENT_SEPARATOR)) {
-                    type = segm.split(DOCUMENT_SEPARATOR)[0];
-                    folders = segm.split(DOCUMENT_SEPARATOR)[1];
+                    String path = uri.getPath();
+                    type = path.split(DOCUMENT_SEPARATOR)[0];
+                    folders = path.split(DOCUMENT_SEPARATOR)[1];
                     document = true;
                     break;
                 }
@@ -252,10 +256,30 @@ public class FileUtils {
             if (type.equals("primary")) {
                 external = Environment.getExternalStorageDirectory().getPath();
             } else {
-                external = "/storage/" + type;
+                String id = DocumentsContract.getDocumentId(uri);
+                if (!TextUtils.isEmpty(id)) {
+                    if (id.startsWith("raw:")) {
+                        external = id.replaceFirst("raw:", "");
+                    } else {
+                        try {
+                            Uri contentUri =
+                                    ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.parseLong(id));
+                            type = getDataColumn(context, contentUri, null, null);
+                        } catch (NumberFormatException e) {
+                            e.printStackTrace();
+                        }
+                        external = "/storage/" + type;
+                    }
+                } else {
+                    external = "/storage/" + type;
+                }
             }
             if (document) {
-                return external + FOLDER_SEPARATOR + folders + FOLDER_SEPARATOR + uri.getLastPathSegment();
+                if(folders.contains(Objects.requireNonNull(uri.getLastPathSegment()))){
+                    return external + FOLDER_SEPARATOR + folders;
+                }else{
+                    return external + FOLDER_SEPARATOR + folders + FOLDER_SEPARATOR + uri.getLastPathSegment();
+                }
             } else {
                 return uri.getPath();
             }
@@ -279,7 +303,8 @@ public class FileUtils {
         final String column = "_data";
         final String[] projection = {column};
         try {
-            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
+            cursor = context.getContentResolver().query(uri, null, selection, selectionArgs, null);
+            String s = Utility.dumpCursor(cursor);
             if (cursor != null && cursor.moveToFirst()) {
                 final int index = cursor.getColumnIndexOrThrow(column);
                 return cursor.getString(index);
@@ -915,6 +940,7 @@ public class FileUtils {
         return bitmapToString(b);
     }
 
+    @SuppressLint("NewApi")
     public static String getPublicFilePath(int mediaType, String filename) {
         String dir = FileUtils.class.getSimpleName();
         if (mediaType == 0) {
