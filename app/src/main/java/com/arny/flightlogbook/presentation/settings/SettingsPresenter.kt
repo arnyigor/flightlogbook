@@ -5,7 +5,6 @@ import com.arny.domain.flights.FlightsInteractor
 import com.arny.flightlogbook.FlightApp
 import com.arny.helpers.utils.CompositeDisposableComponent
 import com.arny.helpers.utils.fromCallable
-import com.arny.helpers.utils.runOnUI
 import io.reactivex.disposables.CompositeDisposable
 import moxy.InjectViewState
 import moxy.MvpPresenter
@@ -30,11 +29,7 @@ class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableCompo
         viewState?.showProgress("Импорт данных...")
         Log.i(SettingsPresenter::class.java.simpleName, "onFileImport: $path,useCase:$interactor")
         fromCallable {
-            interactor.readExcelFile(path, false) { state, perc, total ->
-                runOnUI {
-                    viewState?.showProgress("$state $perc%")
-                }
-            }
+            interactor.readExcelFile(path, false){state, iter, total ->  }
         }.observeSubscribeAdd({
             viewState?.hideProgress()
             Log.i(SettingsPresenter::class.java.simpleName, "onFileImport result: $it");

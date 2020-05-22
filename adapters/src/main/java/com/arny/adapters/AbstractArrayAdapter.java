@@ -71,7 +71,7 @@ public abstract class AbstractArrayAdapter<T> extends BaseAdapter implements Fil
      *                           views.
      */
     public AbstractArrayAdapter(Context context, int textViewResourceId) {
-        init(context, textViewResourceId, 0, new ArrayList<T>());
+        init(context, textViewResourceId, 0, new ArrayList<>());
     }
 
     /**
@@ -349,7 +349,7 @@ public abstract class AbstractArrayAdapter<T> extends BaseAdapter implements Fil
                 text = (TextView) view;
             } else {
                 //  Otherwise, find the TextView field within the layout
-                text = (TextView) view.findViewById(mFieldId);
+                text = view.findViewById(mFieldId);
             }
         } catch (ClassCastException e) {
             Log.e("ArrayAdapter", "You must supply a resource ID for a TextView");

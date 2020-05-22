@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 
 @InjectViewState
-class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>(), CompositeDisposableComponent {
+class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>(),CompositeDisposableComponent {
     override val compositeDisposable = CompositeDisposable()
     @Inject
     lateinit var flightsInteractor: FlightsInteractor
@@ -22,22 +22,21 @@ class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>(), CompositeDisposabl
         FlightApp.appComponent.inject(this)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun detachView(view: ViewFlightsView?) {
+        super.detachView(view)
         resetCompositeDisposable()
     }
 
     fun loadFlights() {
-        viewState.viewLoadProgress(true)
+        viewState?.viewLoadProgress(true)
         flightsInteractor.getFilterFlightsObs()
                 .observeSubscribeAdd({
-                    viewState.updateAdapter(it)
-                    viewState.showEmptyView(it.isEmpty())
-                    viewState.viewLoadProgress(false)
+                    viewState?.updateAdapter(it)
+                    viewState?.showEmptyView(it.isEmpty())
+                    viewState?.viewLoadProgress(false)
                 }, {
-                    it.printStackTrace()
-                    viewState.viewLoadProgress(false)
-                    viewState.toastError(it.message)
+                    viewState?.viewLoadProgress(false)
+                    viewState?.toastError(it.message)
                 })
     }
 

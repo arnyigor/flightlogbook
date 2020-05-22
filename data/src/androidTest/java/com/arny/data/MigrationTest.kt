@@ -4,8 +4,8 @@ import androidx.room.testing.MigrationTestHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.arny.data.db.DatabaseMigrations
 import com.arny.data.db.MainDB
+import com.arny.data.db.daos.DatabaseMigrations
 import com.arny.helpers.utils.getIntValue
 import com.arny.helpers.utils.toList
 import org.junit.Rule
@@ -36,7 +36,7 @@ class MigrationTest {
                     close()
                 }
         // Re-open the database with version 2 and provide
-        val db = helper.runMigrationsAndValidate(TEST_DB, 16, true, DatabaseMigrations.MIGRATION_12_13)
+        val db = helper.runMigrationsAndValidate(TEST_DB, 16, true, DatabaseMigrations.MIGRATION_15_16)
         val cursor = db.query("SELECT * FROM main_table LIMIT 1")
         var time = 0
         cursor.toList {

@@ -10,9 +10,5 @@
         android:icon="@android:drawable/ic_menu_delete"
         android:title="@string/remove"
         app:showAsAction="ifRoom" />
-    <item
-        android:id="@+id/action_color"
-        android:title="@string/color"
-        app:showAsAction="never" />
 
 </menu>

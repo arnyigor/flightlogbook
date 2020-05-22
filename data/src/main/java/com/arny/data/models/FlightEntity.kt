@@ -4,14 +4,10 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.arny.domain.models.Flight
-import com.arny.domain.models.Params
 import com.arny.helpers.utils.DateTimeUtils
 
 @Entity(tableName = "main_table")
-class FlightEntity {
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "_id")
-    var id: Long? = null
+data class FlightEntity(@PrimaryKey(autoGenerate = true) @ColumnInfo(name = "_id") var id: Long? = null) {
     var date: String? = null
     var datetime: Long? = null
 
@@ -39,23 +35,9 @@ class FlightEntity {
     @ColumnInfo(name = "flight_type")
     var flighttype: Int? = null
     var description: String? = null
-    var title: String? = null
-    var params: String? = null
 
     override fun toString(): String {
-        return """FlightEntity(id=$id,
-            |date=$date,
-            |datetime=$datetime,
-            |logtime=$logtime,
-            |groundTime=$groundTime,
-            |nightTime=$nightTime,
-            |regNo=$regNo,
-            |planeId=$planeId,
-            |daynight=$daynight,
-            |ifrvfr=$ifrvfr,
-            |flighttype=$flighttype,
-            |title=$title,
-            |description=$description)""".trimMargin()
+        return "FlightEntity(id=$id, date=$date, datetime=$datetime, logtime=$logtime, regNo=$regNo, groundTime=$groundTime,  nightTime=$nightTime, planeId=$planeId, daynight=$daynight, ifrvfr=$ifrvfr, flighttype=$flighttype, description=$description)"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -74,8 +56,6 @@ class FlightEntity {
         if (ifrvfr != other.ifrvfr) return false
         if (flighttype != other.flighttype) return false
         if (description != other.description) return false
-        if (title != other.title) return false
-        if (params != other.params) return false
         return true
     }
 
@@ -92,51 +72,38 @@ class FlightEntity {
         result = 31 * result + (ifrvfr ?: 0)
         result = 31 * result + (flighttype ?: 0)
         result = 31 * result + (description?.hashCode() ?: 0)
-        result = 31 * result + (title?.hashCode() ?: 0)
-        result = 31 * result + (params?.hashCode() ?: 0)
         return result
     }
 
     fun toFlight(): Flight {
         val flight = Flight(id)
-        flight.datetime = datetime
-        flight.datetimeFormatted = datetime?.let { DateTimeUtils.getDateTime(it, "dd MMM yyyy") }
-        flight.flightTime = logtime ?: 0
-        flight.logtimeFormatted = logtime?.let { DateTimeUtils.strLogTime(it) }
-        flight.totalTimeFormatted = calcTotalTimeFormatted()
-        flight.groundTime = groundTime ?: 0
-        flight.nightTime = nightTime ?: 0
-        flight.regNo = regNo
-        flight.planeId = planeId
-        flight.daynight = daynight
-        flight.ifrvfr = ifrvfr
-        flight.flightTypeId = flighttype
-        flight.description = description
-        flight.title = title
-        flight.params = Params(params)
+        flight.datetime = this.datetime
+        flight.datetimeFormatted = this.datetime?.let { DateTimeUtils.getDateTime(it, "dd MMM yyyy") }
+        flight.flightTime = this.logtime ?: 0
+        flight.logtimeFormatted = this.logtime?.let { DateTimeUtils.strLogTime(it) }
+        flight.regNo = this.regNo
+        flight.totalTime = (this.logtime ?: 0) + (this.groundTime ?: 0)
+        flight.nightTime = this.nightTime ?: 0
+        flight.groundTime = this.groundTime ?: 0
+        flight.planeId = this.planeId
+        flight.daynight = this.daynight
+        flight.ifrvfr = this.ifrvfr
+        flight.flightTypeId = this.flighttype
+        flight.description = this.description
         return flight
     }
 
-    private fun calcTotalTimeFormatted(): String? {
-        val total = (logtime ?: 0) + (groundTime ?: 0)
-        return total.takeIf { it > 0 }?.let { DateTimeUtils.strLogTime(it) }
-    }
 }
 
 fun Flight.toFlightEntity(): FlightEntity {
-    val flight = FlightEntity()
-    flight.id = id
-    flight.datetime = datetime ?: System.currentTimeMillis()
-    flight.logtime = flightTime
-    flight.groundTime = groundTime
-    flight.nightTime = nightTime
-    flight.regNo = regNo
-    flight.planeId = planeId
-    flight.daynight = daynight
-    flight.ifrvfr = ifrvfr
-    flight.flighttype = flightTypeId
-    flight.description = description
-    flight.title = title
-    flight.params = params?.stringParams
+    val flight = FlightEntity(id)
+    flight.datetime = this.datetime
+    flight.logtime = this.flightTime
+    flight.regNo = this.regNo
+    flight.planeId = this.planeId
+    flight.daynight = this.daynight
+    flight.ifrvfr = this.ifrvfr
+    flight.flighttype = this.flightTypeId
+    flight.description = this.description
     return flight
 }

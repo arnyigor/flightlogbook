@@ -91,8 +91,9 @@ class FlightsRepositoryImpl @Inject constructor(private val flightDAO: FlightDAO
     }
 
     override fun insertFlights(flights: List<Flight>): Boolean {
-        val list = flights.map { it.toFlightEntity() }
-        return flightDAO.insertReplace(list).any { it > 0 }
+        return flightDAO.insertReplace(
+                flights.map { it.toFlightEntity() }
+        ).any { it > 0 }
     }
 
     override fun getFlight(id: Long?): Flight? {

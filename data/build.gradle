@@ -22,9 +22,6 @@ android {
         debug {
             debuggable true
         }
-        prerelease {
-            debuggable true
-        }
         release {
             debuggable false
         }

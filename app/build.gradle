@@ -25,7 +25,7 @@ android {
         release {
             keyAlias 'androidapps'
             keyPassword KEY_PASSWORD
-            storeFile file('../flb.jks')
+            storeFile file('../../keystore/mykeystore.jks')
             storePassword KEYSTORE_PASSWORD
         }
     }
@@ -49,19 +49,11 @@ android {
     }
     buildTypes {
         debug {
-            debuggable true
             minifyEnabled false
             useProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguardTest-rules.pro'
-        }
-        prerelease {
             debuggable true
-            minifyEnabled true
-            useProguard true
-            signingConfig signingConfigs.release
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguardTest-rules.pro'
         }
         release {
             debuggable false
@@ -144,7 +136,6 @@ dependencies {
     implementation libs.jodaTime
     implementation libs.materialTypeface
     implementation libs.materialDialogsCore
-    implementation libs.materialDialogsColor
     implementation libs.materialDialogsInput
     implementation("com.mikepenz:materialdrawer:6.0.9@aar") {
         transitive = true
