@@ -102,6 +102,10 @@ class SettingsFragment : MvpAppCompatFragment(), SettingsView {
         tvResultInfo.text = getString(intRes, path)
     }
 
+    override fun hideResults() {
+        tvResultInfo.text = ""
+    }
+
     override fun showProgress(msg: Int) {
         Utility.showProgress(pDialog, getString(msg))
     }

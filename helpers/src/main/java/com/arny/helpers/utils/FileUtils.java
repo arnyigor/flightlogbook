@@ -24,7 +24,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -208,11 +207,9 @@ public class FileUtils {
     }
 
     public static String getSDFilePath(Context context, Uri uri) {
-        // DocumentProvider
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT &&
                 DocumentsContract.isDocumentUri(context, uri) &&
                 Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            // ExternalStorageProvider
             if (isExternalStorageDocument(uri)) {
                 final String docId = DocumentsContract.getDocumentId(uri);
                 final String[] split = docId.split(DOCUMENT_SEPARATOR);
@@ -225,7 +222,7 @@ public class FileUtils {
             else if (isDownloadsDocument(uri)) {
                 final String id = DocumentsContract.getDocumentId(uri);
                 final Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.parseLong(id));
-                return getDataColumn(context, contentUri, null, null, "_data");
+                return getDataColumn(context, contentUri, null, null);
             }
             // MediaProvider
             else if (isMediaDocument(uri)) {
@@ -242,7 +239,7 @@ public class FileUtils {
                 }
                 final String selection = "_id=?";
                 final String[] selectionArgs = new String[]{split[1]};
-                return getDataColumn(context, contentUri, selection, selectionArgs, "_data");
+                return getDataColumn(context, contentUri, selection, selectionArgs);
             }
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT &&
                 !DocumentsContract.isDocumentUri(context, uri) &&
@@ -269,7 +266,7 @@ public class FileUtils {
                         try {
                             Uri contentUri =
                                     ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.parseLong(id));
-                            type = getDataColumn(context, contentUri, null, null, "_data");
+                            type = getDataColumn(context, contentUri, null, null);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -300,30 +297,19 @@ public class FileUtils {
                     break;
                 }
             }
-            if (type.equals("primary")) {
-                external = Environment.getExternalStorageDirectory().getPath();
+            if (type.contains("primary")) {
+                return Environment.getExternalStorageDirectory().getPath() + FOLDER_SEPARATOR + folders;
             } else {
-                String fileName = FileAccessUtils.Companion.getFileName(context, uri, OpenableColumns.DISPLAY_NAME);
-                if (isDownloadsDocument(uri)) {
-                    String documentId = DocumentsContract.getDocumentId(uri);
-                    if (!TextUtils.isEmpty(documentId) && documentId.contains(":")) {
-                        String[] split = documentId.split(":");
-                        if (split.length > 1) {
-                            final String id = split[1];
-                            try {
-                                final Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.parseLong(id));
-                                type = getDataColumn(context, contentUri, null, null, "_data");
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            try {
-                                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://com.android.providers.downloads.documents"), Long.parseLong(id));
-                                context.getContentResolver().takePersistableUriPermission(contentUri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                                type = getDataColumn(context, contentUri, null, null, "_data");
-                                HashMap<String, String> mediaData = getMediaData(context, contentUri);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+                String documentId = DocumentsContract.getDocumentId(uri);
+                if (!TextUtils.isEmpty(documentId) && documentId.contains(":")) {
+                    String[] split = documentId.split(":");
+                    if (split.length > 1) {
+                        final String id = split[1];
+                        try {
+                            final Uri contentUri = ContentUris.withAppendedId(MediaStore.Files.getContentUri("external"), Long.parseLong(id));
+                            return getDataColumn(context, contentUri, null, null);
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
                     }
                 }
@@ -344,7 +330,7 @@ public class FileUtils {
             // Return the remote address
             if (isGooglePhotosUri(uri))
                 return uri.getLastPathSegment();
-            return getDataColumn(context, uri, null, null, "_data");
+            return getDataColumn(context, uri, null, null);
         }
         // File
         else if ("file".equalsIgnoreCase(uri.getScheme())) {
@@ -353,11 +339,11 @@ public class FileUtils {
         return null;
     }
 
-    private static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs, String column) {
+    private static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
         try (Cursor cursor = context.getContentResolver().query(uri, null, selection, selectionArgs, null)) {
             String s = Utility.dumpCursor(cursor);
             if (cursor != null && cursor.moveToFirst()) {
-                final int index = cursor.getColumnIndexOrThrow(column);
+                final int index = cursor.getColumnIndexOrThrow("_data");
                 return cursor.getString(index);
             }
         }

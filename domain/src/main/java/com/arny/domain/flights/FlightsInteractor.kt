@@ -181,14 +181,14 @@ class FlightsInteractor @Inject constructor(
         return name
     }
 
-    fun readExcelFile(uri: Uri, fromSystem: Boolean): Boolean {
+    fun readExcelFile(uri: Uri, fromSystem: Boolean): String? {
         val ctx = resourcesProvider.provideContext()
         val filename = FileUtils.getSDFilePath(ctx, uri)
         val myWorkBook: HSSFWorkbook
         val xlsfile: File
         val notAccess = !FileUtils.isExternalStorageAvailable() || FileUtils.isExternalStorageReadOnly()
         if (notAccess) {
-            return false
+            return null
         }
         xlsfile = if (fromSystem) {
             File(ctx.getExternalFilesDir(null), filename)
@@ -201,7 +201,8 @@ class FlightsInteractor @Inject constructor(
         val rowIter = mySheet.rowIterator()
         flightsRepository.removeAllFlights()
         flightsRepository.resetTableFlights()
-        return flightsRepository.insertFlights(getFlightsFromExcel(rowIter))
+        val insertFlights = flightsRepository.insertFlights(getFlightsFromExcel(rowIter))
+        return if (insertFlights) filename else null
     }
 
     private fun getFlightsFromExcel(rowIter: Iterator<*>): ArrayList<Flight> {
@@ -210,10 +211,8 @@ class FlightsInteractor @Inject constructor(
         var strDate: String? = null
         var strTime: String?
         var airplane_type: String?
-        var reg_no: String?
         var strDesc: String
         var airplane_type_id: Long = 0
-        var flightTypeId: Long
         var logTime = 0
         var mDateTime: Long = 0
         var planeTypes = planeTypesRepository.loadPlaneTypes()
@@ -267,7 +266,7 @@ class FlightsInteractor @Inject constructor(
                                 airplane_type = myCell.toString()
                                 val planeType = planeTypes.find { it.typeName == airplane_type }
                                 if (planeType != null) {
-                                    airplane_type_id = planeType.typeId
+                                    airplane_type_id = planeType.typeId ?: 0
                                 } else {
                                     if (!airplane_type.isNullOrBlank()) {
                                         airplane_type_id =
@@ -282,20 +281,13 @@ class FlightsInteractor @Inject constructor(
                             flight.planeId = airplane_type_id
                         }
                         4 -> {
-                            try {
-                                reg_no = myCell.toString()
-                            } catch (e: Exception) {
-                                reg_no = ""
-                                e.printStackTrace()
-                            }
-                            flight.regNo = reg_no
+                            flight.regNo = getRegNo(myCell)
                         }
                         7 -> {
+                            var flightTypeId: Long
                             try {
                                 val fTypeStr = myCell.toString()
-                                flightTypeId =
-                                        if (fTypeStr.contains(".")) fTypeStr.parseDouble()?.toLong()
-                                                ?: -1 else fTypeStr.parseLong() ?: -1
+                                flightTypeId = getFlightTypeId(fTypeStr)
                                 val dbFlightType = dbFlightTypes.find { it.id == flightTypeId }
                                 if (dbFlightType != null) {
                                     flightTypeId = dbFlightType.id ?: -1
@@ -309,8 +301,7 @@ class FlightsInteractor @Inject constructor(
                                         } else {
                                             flightTypeId =
                                                     flightTypesRepository.addFlightTypeAndGet(oldTypeName)
-                                            dbFlightTypes =
-                                                    flightTypesRepository.loadDBFlightTypes()
+                                            dbFlightTypes = flightTypesRepository.loadDBFlightTypes()
                                         }
                                     }
                                 }
@@ -318,7 +309,8 @@ class FlightsInteractor @Inject constructor(
                                 flightTypeId = -1
                                 e.printStackTrace()
                             }
-                            flight.flightTypeId = flightTypeId.toInt()
+                            val toInt = flightTypeId.toInt()
+                            flight.flightTypeId = toInt
                         }
                         8 -> {
                             try {
@@ -331,14 +323,22 @@ class FlightsInteractor @Inject constructor(
 
                         }
                         9 -> {
+                            var title:String
                             try {
-                                strDesc = myCell.toString()
+                                title = myCell.toString()
                             } catch (e: Exception) {
-                                strDesc = ""
+                                title = ""
                                 e.printStackTrace()
                             }
-                            flight.description = strDesc
+                            flight.title = title
 
+                        }
+                        10 -> {
+                            val cell = try {
+                                myCell.toString()
+                            } catch (e: Exception) {
+                                ""
+                            }
                         }
                         10 -> {
                             val cell = try {
@@ -372,6 +372,25 @@ class FlightsInteractor @Inject constructor(
             rowCnt++
         }//while (rowIter.hasNext())
         return flights
+    }
+
+    private fun getRegNo(myCell: HSSFCell): String {
+        var regNo = ""
+        try {
+            regNo = myCell.toString()
+        } catch (e: Exception) {
+            regNo = ""
+            e.printStackTrace()
+        }
+        return regNo
+    }
+
+    private fun getFlightTypeId(fTypeStr: String): Long {
+        return if (fTypeStr.contains(".")) {
+            fTypeStr.parseDouble()?.toLong() ?: -1
+        } else {
+            fTypeStr.parseLong() ?: -1
+        }
     }
 
     private fun getOldFlightType(flight_type: Long): String {
@@ -411,8 +430,10 @@ class FlightsInteractor @Inject constructor(
         c = row.createCell(7)
         c.setCellValue(getString(R.string.str_desc))
         c = row.createCell(8)
-        c.setCellValue(getString(R.string.cell_night_time))
+        c.setCellValue(getString(R.string.str_flight_title))
         c = row.createCell(9)
+        c.setCellValue(getString(R.string.cell_night_time))
+        c = row.createCell(10)
         c.setCellValue(getString(R.string.cell_ground_time))
         val exportData = flightsRepository.getDbFlights()
                 .map { flight ->
@@ -443,8 +464,10 @@ class FlightsInteractor @Inject constructor(
             c = row.createCell(7)
             c.setCellValue(flight.description)
             c = row.createCell(8)
-            c.setCellValue(flight.nightTime.toDouble())
+            c.setCellValue(flight.title)
             c = row.createCell(9)
+            c.setCellValue(flight.nightTime.toDouble())
+            c = row.createCell(10)
             c.setCellValue(flight.groundTime.toDouble())
             rows++
         }
@@ -457,8 +480,9 @@ class FlightsInteractor @Inject constructor(
         mainSheet.setColumnWidth(5, 15 * 300)
         mainSheet.setColumnWidth(6, 15 * 200)
         mainSheet.setColumnWidth(7, 15 * 500)
-        mainSheet.setColumnWidth(8, 15 * 200)
+        mainSheet.setColumnWidth(8, 15 * 500)
         mainSheet.setColumnWidth(9, 15 * 200)
+        mainSheet.setColumnWidth(10, 15 * 200)
         val file = File(
                 resourcesProvider.provideContext().getExternalFilesDir(null),
                 CONSTS.FILES.EXEL_FILE_NAME

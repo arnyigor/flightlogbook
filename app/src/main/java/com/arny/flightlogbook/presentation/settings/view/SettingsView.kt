@@ -10,4 +10,5 @@ interface SettingsView : MvpView {
     fun hideProgress()
     fun toastError(msg: Int, error: String? = null)
     fun showResults(intRes: Int, path: String)
+    fun hideResults()
 }

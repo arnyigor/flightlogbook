@@ -6,7 +6,6 @@ import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.presentation.settings.view.SettingsView
 import com.arny.helpers.utils.CompositeDisposableComponent
-import com.arny.helpers.utils.fromCallable
 import com.arny.helpers.utils.fromNullable
 import io.reactivex.disposables.CompositeDisposable
 import moxy.InjectViewState
@@ -38,12 +37,18 @@ class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableCompo
     }
 
     private fun importFile(uri: Uri) {
+        viewState.hideResults()
         viewState.showProgress(R.string.import_data)
-        fromCallable {
+        fromNullable {
             interactor.readExcelFile(uri, false)
         }.observeSubscribeAdd({
             viewState.hideProgress()
-            viewState.showResults(R.string.import_file_success, "")
+            val path = it.value
+            if (path != null) {
+                viewState.showResults(R.string.import_file_success, path)
+            } else {
+                viewState.toastError(R.string.error_import_file)
+            }
         }, {
             viewState.toastError(R.string.error_import_file, it.message)
             viewState.hideProgress()
@@ -51,6 +56,7 @@ class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableCompo
     }
 
     fun exportToFile() {
+        viewState.hideResults()
         viewState.showProgress(R.string.exporting_file)
         fromNullable {
             interactor.saveExcelFile()
