@@ -23,4 +23,17 @@
     <string name="night_time_info">Ночь:</string>
     <string name="ground_time_info">На земле:</string>
     <string name="error_enter_date">Ошибка ввода даты</string>
+    <string name="color">Цвет</string>
+    <string name="select">Выбрать</string>
+    <string name="select_color">Выбрать цвет</string>
+    <string name="import_data">Импорт данных…</string>
+    <string name="error_import_file">Ошибка импорта файла:%s</string>
+    <string name="import_file_success">Файл %s успешно импортирован</string>
+    <string name="import_export_settings">Настройки импорта/экспорта</string>
+    <string name="import_from_file">Загрузить из файла</string>
+    <string name="export_to_file">Выгрузить в файл</string>
+    <string name="error_empty_file_path">Ошибка, путь файла пустой</string>
+    <string name="exporting_file">Экспорт в файл</string>
+    <string name="export_file_success">Файл сохранен %s</string>
+    <string name="error_export_file">Ошибка экспорта %s</string>
 </resources>

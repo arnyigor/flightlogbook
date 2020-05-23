@@ -15,8 +15,12 @@ class Flight(var id: Long? = null) {
     var flightTypeId: Int? = null
     var flightType: FlightType? = null
     var description: String? = null
+    var title: String? = null
     var datetimeFormatted: String? = null
     var logtimeFormatted: String? = null
+    var params: Params? = null
+    var colorInt: Int? = null
+    var colorText: Int? = null
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -35,7 +39,8 @@ class Flight(var id: Long? = null) {
         if (ifrvfr != other.ifrvfr) return false
         if (flightTypeId != other.flightTypeId) return false
         if (description != other.description) return false
-
+        if (title != other.title) return false
+        if (params != params) return false
         return true
     }
 
@@ -53,6 +58,7 @@ class Flight(var id: Long? = null) {
         result = 31 * result + (ifrvfr ?: 0)
         result = 31 * result + (flightTypeId ?: 0)
         result = 31 * result + (description?.hashCode() ?: 0)
+        result = 31 * result + (title?.hashCode() ?: 0)
         return result
     }
 
@@ -69,6 +75,7 @@ class Flight(var id: Long? = null) {
                 "daynight=$daynight, " +
                 "ifrvfr=$ifrvfr, " +
                 "flightTypeId=$flightTypeId, " +
+                "title=$title, " +
                 "description=$description)"
     }
 }

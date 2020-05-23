@@ -24,6 +24,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -208,7 +209,9 @@ public class FileUtils {
 
     public static String getSDFilePath(Context context, Uri uri) {
         // DocumentProvider
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && DocumentsContract.isDocumentUri(context, uri)) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT &&
+                DocumentsContract.isDocumentUri(context, uri) &&
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             // ExternalStorageProvider
             if (isExternalStorageDocument(uri)) {
                 final String docId = DocumentsContract.getDocumentId(uri);
@@ -221,8 +224,8 @@ public class FileUtils {
             // DownloadsProvider
             else if (isDownloadsDocument(uri)) {
                 final String id = DocumentsContract.getDocumentId(uri);
-                final Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
-                return getDataColumn(context, contentUri, null, null);
+                final Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.parseLong(id));
+                return getDataColumn(context, contentUri, null, null, "_data");
             }
             // MediaProvider
             else if (isMediaDocument(uri)) {
@@ -239,9 +242,11 @@ public class FileUtils {
                 }
                 final String selection = "_id=?";
                 final String[] selectionArgs = new String[]{split[1]};
-                return getDataColumn(context, contentUri, selection, selectionArgs);
+                return getDataColumn(context, contentUri, selection, selectionArgs, "_data");
             }
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && !DocumentsContract.isDocumentUri(context, uri)) {
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT &&
+                !DocumentsContract.isDocumentUri(context, uri) &&
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             boolean document = false;
             String folders = "", type = "", external;
             for (String segm : uri.getPathSegments()) {
@@ -264,8 +269,8 @@ public class FileUtils {
                         try {
                             Uri contentUri =
                                     ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.parseLong(id));
-                            type = getDataColumn(context, contentUri, null, null);
-                        } catch (NumberFormatException e) {
+                            type = getDataColumn(context, contentUri, null, null, "_data");
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                         external = "/storage/" + type;
@@ -275,9 +280,59 @@ public class FileUtils {
                 }
             }
             if (document) {
-                if(folders.contains(Objects.requireNonNull(uri.getLastPathSegment()))){
+                if (folders.contains(Objects.requireNonNull(uri.getLastPathSegment()))) {
                     return external + FOLDER_SEPARATOR + folders;
-                }else{
+                } else {
+                    return external + FOLDER_SEPARATOR + folders + FOLDER_SEPARATOR + uri.getLastPathSegment();
+                }
+            } else {
+                return uri.getPath();
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && DocumentsContract.isDocumentUri(context, uri)) {
+            boolean document = false;
+            String folders = "", type = "", external;
+            for (String segm : uri.getPathSegments()) {
+                if (segm.contains(DOCUMENT_SEPARATOR)) {
+                    String path = uri.getPath();
+                    type = path.split(DOCUMENT_SEPARATOR)[0];
+                    folders = path.split(DOCUMENT_SEPARATOR)[1];
+                    document = true;
+                    break;
+                }
+            }
+            if (type.equals("primary")) {
+                external = Environment.getExternalStorageDirectory().getPath();
+            } else {
+                String fileName = FileAccessUtils.Companion.getFileName(context, uri, OpenableColumns.DISPLAY_NAME);
+                if (isDownloadsDocument(uri)) {
+                    String documentId = DocumentsContract.getDocumentId(uri);
+                    if (!TextUtils.isEmpty(documentId) && documentId.contains(":")) {
+                        String[] split = documentId.split(":");
+                        if (split.length > 1) {
+                            final String id = split[1];
+                            try {
+                                final Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.parseLong(id));
+                                type = getDataColumn(context, contentUri, null, null, "_data");
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            try {
+                                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://com.android.providers.downloads.documents"), Long.parseLong(id));
+                                context.getContentResolver().takePersistableUriPermission(contentUri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                                type = getDataColumn(context, contentUri, null, null, "_data");
+                                HashMap<String, String> mediaData = getMediaData(context, contentUri);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }
+                external = "/storage/" + type;
+            }
+            if (document) {
+                if (folders.contains(Objects.requireNonNull(uri.getLastPathSegment()))) {
+                    return external + FOLDER_SEPARATOR + folders;
+                } else {
                     return external + FOLDER_SEPARATOR + folders + FOLDER_SEPARATOR + uri.getLastPathSegment();
                 }
             } else {
@@ -289,7 +344,7 @@ public class FileUtils {
             // Return the remote address
             if (isGooglePhotosUri(uri))
                 return uri.getLastPathSegment();
-            return getDataColumn(context, uri, null, null);
+            return getDataColumn(context, uri, null, null, "_data");
         }
         // File
         else if ("file".equalsIgnoreCase(uri.getScheme())) {
@@ -298,20 +353,13 @@ public class FileUtils {
         return null;
     }
 
-    private static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
-        Cursor cursor = null;
-        final String column = "_data";
-        final String[] projection = {column};
-        try {
-            cursor = context.getContentResolver().query(uri, null, selection, selectionArgs, null);
+    private static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs, String column) {
+        try (Cursor cursor = context.getContentResolver().query(uri, null, selection, selectionArgs, null)) {
             String s = Utility.dumpCursor(cursor);
             if (cursor != null && cursor.moveToFirst()) {
                 final int index = cursor.getColumnIndexOrThrow(column);
                 return cursor.getString(index);
             }
-        } finally {
-            if (cursor != null)
-                cursor.close();
         }
         return null;
     }

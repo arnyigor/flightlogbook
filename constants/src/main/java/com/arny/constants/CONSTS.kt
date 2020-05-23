@@ -2,6 +2,7 @@ package com.arny.constants
 object CONSTS {
     object STRINGS {
         const val LOG_TIME_FORMAT = "[00]:[00]"
+        const val PARAM_COLOR = "color"
     }
 
     object DB {

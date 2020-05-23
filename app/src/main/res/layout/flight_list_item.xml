@@ -1,130 +1,149 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	android:clickable="true"
-	android:focusable="true"
-	android:foreground="?attr/selectableItemBackground"
-	app:cardUseCompatPadding="true">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardUseCompatPadding="true">
 
-	<androidx.constraintlayout.widget.ConstraintLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		tools:paddingBottom="8dp">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/clFlightsItemContainer"
+        tools:paddingBottom="8dp">
 
-		<TextView
-			android:id="@+id/tv_date"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentStart="true"
-			android:layout_alignParentLeft="true"
-			android:layout_centerVertical="true"
-			android:layout_margin="8dp"
-			android:layout_marginStart="8dp"
-			android:layout_marginLeft="8dp"
-			android:layout_marginTop="8dp"
-			android:padding="2dp"
-			android:textSize="@dimen/font_size"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toTopOf="parent"
-			app:layout_constraintVertical_chainStyle="packed"
-			tools:text="22.05.2012" />
+        <TextView
+            android:id="@+id/tvDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_margin="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:padding="2dp"
+            android:textSize="@dimen/font_size"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed"
+            tools:text="22.05.2012" />
 
-		<ImageView
-			android:id="@+id/iv_total_time"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			app:layout_constraintBottom_toBottomOf="@+id/tv_log_time_flight_total"
-			app:layout_constraintEnd_toStartOf="@+id/tv_log_time_flight_total"
-			app:layout_constraintTop_toTopOf="@+id/tv_log_time_flight_total"
-			app:srcCompat="@drawable/ic_totals" />
+        <ImageView
+            android:id="@+id/iv_total_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@+id/tvLogTimeFlightTotal"
+            app:layout_constraintEnd_toStartOf="@+id/tvLogTimeFlightTotal"
+            app:layout_constraintTop_toTopOf="@+id/tvLogTimeFlightTotal"
+            app:srcCompat="@drawable/ic_totals" />
 
-		<TextView
-			android:id="@+id/tv_log_time_flight"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_centerVertical="true"
-			android:layout_marginTop="8dp"
-			android:layout_marginEnd="8dp"
-			android:layout_marginRight="8dp"
-			android:layout_toEndOf="@+id/tv_date"
-			android:layout_toRightOf="@+id/tv_date"
-			android:gravity="center_horizontal"
-			android:padding="2dp"
-			android:textColor="@color/md_grey_600"
-			android:textSize="@dimen/font_size_xmedium"
-			app:layout_constraintBottom_toTopOf="@+id/tv_log_time_flight_total"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintTop_toTopOf="parent"
-			tools:text="@string/str_time_zero" />
+        <TextView
+            android:id="@+id/tvLogTimeFlight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_toEndOf="@+id/tvDate"
+            android:layout_toRightOf="@+id/tvDate"
+            android:gravity="center_horizontal"
+            android:padding="2dp"
+            android:textColor="@color/md_grey_600"
+            android:textSize="@dimen/font_size_xmedium"
+            app:layout_constraintBottom_toTopOf="@+id/tvLogTimeFlightTotal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="@string/str_time_zero" />
 
-		<ImageView
-			android:id="@+id/iv_flight_time"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			app:layout_constraintBottom_toBottomOf="@+id/tv_log_time_flight"
-			app:layout_constraintEnd_toStartOf="@+id/tv_log_time_flight"
-			app:layout_constraintTop_toTopOf="@+id/tv_log_time_flight"
-			app:srcCompat="@drawable/ic_plane" />
+        <ImageView
+            android:id="@+id/ivFlightTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@+id/tvLogTimeFlight"
+            app:layout_constraintEnd_toStartOf="@+id/tvLogTimeFlight"
+            app:layout_constraintTop_toTopOf="@+id/tvLogTimeFlight"
+            app:srcCompat="@drawable/ic_plane" />
 
-		<TextView
-			android:id="@+id/tv_log_time_flight_total"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_centerVertical="true"
-			android:layout_marginTop="8dp"
-			android:layout_marginEnd="8dp"
-			android:layout_marginRight="8dp"
-			android:layout_toEndOf="@+id/tv_date"
-			android:layout_toRightOf="@+id/tv_date"
-			android:gravity="center_horizontal"
-			android:padding="2dp"
-			android:textColor="@color/md_grey_600"
-			android:textSize="@dimen/font_size_xmedium"
-			app:layout_constraintBottom_toBottomOf="parent"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/tv_log_time_flight"
-			tools:text="@string/str_time_zero" />
+        <TextView
+            android:id="@+id/tvLogTimeFlightTotal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_toEndOf="@+id/tvDate"
+            android:layout_toRightOf="@+id/tvDate"
+            android:gravity="center_horizontal"
+            android:padding="2dp"
+            android:textColor="@color/md_grey_600"
+            android:textSize="@dimen/font_size_xmedium"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvLogTimeFlight"
+            tools:text="@string/str_time_zero" />
 
-		<TextView
-			android:id="@+id/tv_plane_type"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_marginStart="8dp"
-			android:layout_marginLeft="8dp"
-			android:layout_marginTop="8dp"
-			android:textSize="@dimen/font_size"
-			android:textStyle="bold"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/tv_date"
-			tools:text="Airbus A321" />
+        <TextView
+            android:id="@+id/tvPlaneType"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:textSize="@dimen/font_size"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvDate"
+            tools:text="Airbus A321" />
 
-		<TextView
-			android:id="@+id/tv_plane_reg_no"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_marginStart="8dp"
-			android:layout_marginLeft="8dp"
-			android:textSize="@dimen/font_size_small"
-			app:layout_constraintBottom_toBottomOf="@+id/tv_plane_type"
-			app:layout_constraintStart_toEndOf="@+id/tv_plane_type"
-			app:layout_constraintTop_toTopOf="@+id/tv_plane_type"
-			tools:text="Airbus A321" />
+        <TextView
+            android:id="@+id/tvPlaneRegNo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:textSize="@dimen/font_size_small"
+            app:layout_constraintBottom_toBottomOf="@+id/tvPlaneType"
+            app:layout_constraintStart_toEndOf="@+id/tvPlaneType"
+            app:layout_constraintTop_toTopOf="@+id/tvPlaneType"
+            tools:text="Airbus A321" />
 
-		<TextView
-			android:id="@+id/tvFlightType"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginStart="8dp"
-			android:layout_marginLeft="8dp"
-			android:textSize="@dimen/font_size"
-			app:layout_constraintBottom_toBottomOf="@+id/tv_date"
-			app:layout_constraintStart_toEndOf="@+id/tv_date"
-			app:layout_constraintTop_toTopOf="@+id/tv_date"
-			tools:text="Тип полета" />
+        <TextView
+            android:id="@+id/tvFlightType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:textSize="@dimen/font_size"
+            app:layout_constraintBottom_toBottomOf="@+id/tvDate"
+            app:layout_constraintStart_toEndOf="@+id/tvDate"
+            app:layout_constraintTop_toTopOf="@+id/tvDate"
+            tools:text="Тип полета" />
 
-	</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="8dp"
+            android:ellipsize="end"
+            android:maxLines="3"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/iv_total_time"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvPlaneType"
+            tools:text="@tools:sample/lorem/random" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.cardview.widget.CardView>

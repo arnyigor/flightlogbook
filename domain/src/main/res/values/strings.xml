@@ -21,6 +21,8 @@
     <string name="str_vfr_ifr">визуально/по приборам</string>
     <string name="str_flight_type">круги/зона/маршрут</string>
     <string name="str_desc">Описание</string>
+    <string name="cell_night_time">Ночное время</string>
+    <string name="cell_ground_time">Время на земле</string>
     <string name="dropbox_login">Войти в Dropbox</string>
     <string name="dropbox_app_key" translatable="false">rzzuhol6y1aibdx</string>
     <string name="dropbox_sync_files">Синхронизация:</string>
@@ -68,7 +70,7 @@
     <string name="str_export_excel">Экспорт XLS</string>
     <string name="str_open_file">Открыть XLS</string>
     <string name="str_import_attention">Предупреждение!</string>
-    <string name="str_import_massage">При импроте данных из файла база данных будет заменена.</string>
+    <string name="str_import_massage">При импорте данных из файла база данных будет заменена.</string>
     <string name="str_export_attention">Экспорт в файл?</string>
     <string name="str_settings">Настройки</string>
     <string name="str_moto">Cчетчик моточасов</string>

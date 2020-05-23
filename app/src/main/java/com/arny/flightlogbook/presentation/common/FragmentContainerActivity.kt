@@ -1,17 +1,15 @@
 package com.arny.flightlogbook.presentation.common
 
-import android.app.Activity
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.data.interfaces.FragmentResultListener
-import com.arny.flightlogbook.presentation.planetypes.PlaneTypesFragment
+import com.arny.flightlogbook.presentation.planetypes.view.PlaneTypesFragment
 import com.arny.helpers.utils.getExtra
 import com.arny.helpers.utils.replaceFragmentInActivity
 
-class FragmentContainerActivity : AppCompatActivity(), FragmentResultListener {
+class FragmentContainerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,13 +32,6 @@ class FragmentContainerActivity : AppCompatActivity(), FragmentResultListener {
     override fun onBackPressed() {
         super.onBackPressed()
         overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_out_right)
-    }
-
-    override fun onSuccess(map: HashMap<String, String>) {
-        for (entry in map) {
-            intent.putExtra(entry.key, entry.value)
-        }
-        setResult(Activity.RESULT_OK, intent)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

@@ -1,11 +1,11 @@
 package com.arny.flightlogbook.di
 
-import com.arny.flightlogbook.presentation.flights.addedit.AddEditPresenter
-import com.arny.flightlogbook.presentation.flights.viewflights.ViewFlightsPresenter
-import com.arny.flightlogbook.presentation.flighttypes.FlightTypesPresenter
-import com.arny.flightlogbook.presentation.planetypes.PlaneTypesPresenter
-import com.arny.flightlogbook.presentation.settings.SettingsPresenter
-import com.arny.flightlogbook.presentation.statistic.StatisticsPresenter
+import com.arny.flightlogbook.presentation.flights.addedit.presenter.AddEditPresenter
+import com.arny.flightlogbook.presentation.flights.viewflights.presenter.ViewFlightsPresenter
+import com.arny.flightlogbook.presentation.flighttypes.presenter.FlightTypesPresenter
+import com.arny.flightlogbook.presentation.planetypes.presenter.PlaneTypesPresenter
+import com.arny.flightlogbook.presentation.settings.presenter.SettingsPresenter
+import com.arny.flightlogbook.presentation.statistic.presenter.StatisticsPresenter
 import dagger.Component
 import javax.inject.Singleton
 

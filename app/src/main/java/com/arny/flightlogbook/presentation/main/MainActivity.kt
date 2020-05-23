@@ -22,11 +22,11 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.arny.constants.CONSTS
 import com.arny.data.service.BackgroundIntentService
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.presentation.flights.viewflights.FlightListFragment
-import com.arny.flightlogbook.presentation.flighttypes.FlightTypesFragment
-import com.arny.flightlogbook.presentation.planetypes.PlaneTypesFragment
-import com.arny.flightlogbook.presentation.settings.SettingsFragment
-import com.arny.flightlogbook.presentation.statistic.StatisticFragment
+import com.arny.flightlogbook.presentation.flights.viewflights.view.FlightListFragment
+import com.arny.flightlogbook.presentation.flighttypes.view.FlightTypesFragment
+import com.arny.flightlogbook.presentation.planetypes.view.PlaneTypesFragment
+import com.arny.flightlogbook.presentation.settings.view.SettingsFragment
+import com.arny.flightlogbook.presentation.statistic.view.StatisticFragment
 import com.arny.flightlogbook.presentation.sync.DropboxSyncFragment
 import com.arny.helpers.utils.*
 import com.mikepenz.google_material_typeface_library.GoogleMaterial

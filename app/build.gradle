@@ -83,6 +83,10 @@ android {
             returnDefaultValues = true
         }
     }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
 }
 
 dependencies {
@@ -95,6 +99,7 @@ dependencies {
     implementation libs.multidex
     implementation libs.kotlinStdlib
     implementation libs.support
+    implementation libs.ktxCore
     implementation libs.lifecycleExt
     debugImplementation libs.leakcanary
     /*tests*/
@@ -136,6 +141,7 @@ dependencies {
     implementation libs.jodaTime
     implementation libs.materialTypeface
     implementation libs.materialDialogsCore
+    implementation libs.materialDialogsColor
     implementation libs.materialDialogsInput
     implementation("com.mikepenz:materialdrawer:6.0.9@aar") {
         transitive = true
