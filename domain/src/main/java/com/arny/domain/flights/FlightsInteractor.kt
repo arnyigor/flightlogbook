@@ -240,26 +240,27 @@ class FlightsInteractor @Inject constructor(
                             }
                         }
                         2 -> {
+                            var timeStr: String
+                            var time = 0
                             try {
-                                strTime = if (myCell.cellType == Cell.CELL_TYPE_NUMERIC) {
+                                timeStr = if (myCell.cellType == Cell.CELL_TYPE_NUMERIC) {
                                     Utility.match(
                                             myCell.dateCellValue.toString(),
-                                            "(\\d{2}:\\d{2})",
-                                            1
+                                            "(\\d{2}:\\d{2})", 1
                                     )
                                 } else {
                                     myCell.toString()
                                 }
                             } catch (e: Exception) {
-                                strTime = "00:00"
+                                timeStr = "00:00"
                                 e.printStackTrace()
                             }
                             try {
-                                logTime = DateTimeUtils.convertStringToTime(strTime!!)
+                                time = DateTimeUtils.convertStringToTime(timeStr)
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
-                            flight.flightTime = logTime
+                            flight.flightTime = time
                         }
                         3 -> {
                             try {
@@ -281,7 +282,14 @@ class FlightsInteractor @Inject constructor(
                             flight.planeId = airplane_type_id
                         }
                         4 -> {
-                            flight.regNo = getRegNo(myCell)
+                            var regNo = ""
+                            try {
+                                regNo = myCell.toString()
+                            } catch (e: Exception) {
+                                regNo = ""
+                                e.printStackTrace()
+                            }
+                            flight.regNo = regNo
                         }
                         7 -> {
                             var flightTypeId: Long
@@ -309,8 +317,7 @@ class FlightsInteractor @Inject constructor(
                                 flightTypeId = -1
                                 e.printStackTrace()
                             }
-                            val toInt = flightTypeId.toInt()
-                            flight.flightTypeId = toInt
+                            flight.flightTypeId = flightTypeId.toInt()
                         }
                         8 -> {
                             try {
@@ -323,29 +330,50 @@ class FlightsInteractor @Inject constructor(
 
                         }
                         9 -> {
-                            var title:String
+                            var timeStr: String
+                            var time = 0
                             try {
-                                title = myCell.toString()
+                                timeStr = if (myCell.cellType == Cell.CELL_TYPE_NUMERIC) {
+                                    Utility.match(
+                                            myCell.dateCellValue.toString(),
+                                            "(\\d{2}:\\d{2})", 1
+                                    )
+                                } else {
+                                    myCell.toString()
+                                }
                             } catch (e: Exception) {
-                                title = ""
+                                timeStr = "00:00"
                                 e.printStackTrace()
                             }
-                            flight.title = title
-
+                            try {
+                                time = DateTimeUtils.convertStringToTime(timeStr)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                            flight.nightTime = time
                         }
                         10 -> {
-                            val cell = try {
-                                myCell.toString()
+                            var timeStr: String
+                            var time = 0
+                            try {
+                                timeStr = if (myCell.cellType == Cell.CELL_TYPE_NUMERIC) {
+                                    Utility.match(
+                                            myCell.dateCellValue.toString(),
+                                            "(\\d{2}:\\d{2})", 1
+                                    )
+                                } else {
+                                    myCell.toString()
+                                }
                             } catch (e: Exception) {
-                                ""
+                                timeStr = "00:00"
+                                e.printStackTrace()
                             }
-                        }
-                        10 -> {
-                            val cell = try {
-                                myCell.toString()
+                            try {
+                                time = DateTimeUtils.convertStringToTime(timeStr)
                             } catch (e: Exception) {
-                                ""
+                                e.printStackTrace()
                             }
+                            flight.groundTime = time
                         }
                     }
                     if (lastCell == cellCnt) {
@@ -372,17 +400,6 @@ class FlightsInteractor @Inject constructor(
             rowCnt++
         }//while (rowIter.hasNext())
         return flights
-    }
-
-    private fun getRegNo(myCell: HSSFCell): String {
-        var regNo = ""
-        try {
-            regNo = myCell.toString()
-        } catch (e: Exception) {
-            regNo = ""
-            e.printStackTrace()
-        }
-        return regNo
     }
 
     private fun getFlightTypeId(fTypeStr: String): Long {
@@ -430,10 +447,8 @@ class FlightsInteractor @Inject constructor(
         c = row.createCell(7)
         c.setCellValue(getString(R.string.str_desc))
         c = row.createCell(8)
-        c.setCellValue(getString(R.string.str_flight_title))
-        c = row.createCell(9)
         c.setCellValue(getString(R.string.cell_night_time))
-        c = row.createCell(10)
+        c = row.createCell(9)
         c.setCellValue(getString(R.string.cell_ground_time))
         val exportData = flightsRepository.getDbFlights()
                 .map { flight ->
@@ -464,10 +479,8 @@ class FlightsInteractor @Inject constructor(
             c = row.createCell(7)
             c.setCellValue(flight.description)
             c = row.createCell(8)
-            c.setCellValue(flight.title)
-            c = row.createCell(9)
             c.setCellValue(flight.nightTime.toDouble())
-            c = row.createCell(10)
+            c = row.createCell(9)
             c.setCellValue(flight.groundTime.toDouble())
             rows++
         }
@@ -482,7 +495,6 @@ class FlightsInteractor @Inject constructor(
         mainSheet.setColumnWidth(7, 15 * 500)
         mainSheet.setColumnWidth(8, 15 * 500)
         mainSheet.setColumnWidth(9, 15 * 200)
-        mainSheet.setColumnWidth(10, 15 * 200)
         val file = File(
                 resourcesProvider.provideContext().getExternalFilesDir(null),
                 CONSTS.FILES.EXEL_FILE_NAME

@@ -61,7 +61,6 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
     private fun initUI(flight: Flight) {
         viewState.setDescription(flight.description ?: "")
         viewState.setRegNo(flight.regNo)
-        viewState.setTitle(flight.title ?: "")
         viewState.setToolbarTitle(resourcesInteractor.getString(R.string.str_edt_flight))
         loadColor(flight)
         loadDateTime(flight)
@@ -302,8 +301,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
             descr: String,
             sFlightTime: String,
             sGroundTime: String,
-            sNightTime: String,
-            title: String
+            sNightTime: String
     ) {
         val flightTimeObs = correctTimeObs(sFlightTime, intFlightTime)
         val groundTimeObs = correctTimeObs(sGroundTime, intGroundTime)
@@ -332,7 +330,6 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
                         flt.groundTime = intGroundTime
                         flt.totalTime = intTotalTime
                         flt.regNo = regNo
-                        flt.title = title
                         flt.description = descr
                         if (flt.id != null) {
                             updateFlight(flt)

@@ -24,15 +24,15 @@ class FlightsAdapter : SimpleAbstractAdapter<Flight>() {
             tvFlightType.text = item.flightType?.typeTitle
             tvPlaneRegNo.text = item.regNo
             tvPlaneType.text = item.planeType?.typeName
-            tvTitle.text = item.title
-            tvTitle.isVisible = !item.title.isNullOrBlank()
+            tvDescr.isVisible = !item.description.isNullOrBlank()
+            tvDescr.text = item.description
             item.colorText?.let {
                 tvLogTimeFlightTotal.setTextColor(it)
                 tvLogTimeFlight.setTextColor(it)
                 tvDate.setTextColor(it)
                 tvPlaneRegNo.setTextColor(it)
                 tvPlaneType.setTextColor(it)
-                tvTitle.setTextColor(it)
+                tvDescr.setTextColor(it)
                 tvFlightType.setTextColor(it)
             }
             item.colorInt?.takeIf { it != 0 && it != -1 }?.let {

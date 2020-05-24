@@ -79,8 +79,8 @@ class AddEditActivity :
     private fun initUI() {
         select_plane_type.setOnClickListener(this)
         btnSelectFlightType.setOnClickListener(this)
-        btn_moto.setOnClickListener(this)
-        iv_date.setOnClickListener(this)
+        btnMoto.setOnClickListener(this)
+        ivDate.setOnClickListener(this)
         imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         onDateTimeChanges()
         onFlightTimeChanges()
@@ -234,7 +234,7 @@ class AddEditActivity :
 
     override fun onClick(v: View?) {
         when (v?.id) {
-            R.id.iv_date -> {
+            R.id.ivDate -> {
                 addEditPresenter.correctFlightTime(sFlightTime)
                 val cdp = CalendarDatePickerDialogFragment()
                         .setOnDateSetListener(this@AddEditActivity)
@@ -254,7 +254,7 @@ class AddEditActivity :
                 }
                 overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
             }
-            R.id.btn_moto -> {
+            R.id.btnMoto -> {
                 showMotoDialog()
             }
         }
@@ -289,10 +289,6 @@ class AddEditActivity :
 
     override fun setEdtNightTimeText(nightTimeText: String) {
         edtNightTime.setText(nightTimeText)
-    }
-
-    override fun setTitle(title: String) {
-        tiedtTitle.setText(title)
     }
 
     override fun setDescription(desc: String) {
@@ -330,7 +326,7 @@ class AddEditActivity :
             R.id.action_save -> {
                 val descr = edtDesc.text.toString()
                 val regNo = edtRegNo.text.toString()
-                addEditPresenter.saveFlight(regNo, descr, sFlightTime, sGroundTime, sNightTime,tiedtTitle.text.toString())
+                addEditPresenter.saveFlight(regNo, descr, sFlightTime, sGroundTime, sNightTime)
             }
             R.id.action_remove -> {
                 alertDialog(

@@ -36,7 +36,6 @@ data class FlightEntity(@PrimaryKey(autoGenerate = true) @ColumnInfo(name = "_id
     @ColumnInfo(name = "flight_type")
     var flighttype: Int? = null
     var description: String? = null
-    var title: String? = null
     var params: String? = null
 
     override fun toString(): String {
@@ -51,7 +50,6 @@ data class FlightEntity(@PrimaryKey(autoGenerate = true) @ColumnInfo(name = "_id
                 "daynight=$daynight, " +
                 "ifrvfr=$ifrvfr, " +
                 "flighttype=$flighttype, " +
-                "title=$title, " +
                 "description=$description)"
     }
 
@@ -71,7 +69,6 @@ data class FlightEntity(@PrimaryKey(autoGenerate = true) @ColumnInfo(name = "_id
         if (ifrvfr != other.ifrvfr) return false
         if (flighttype != other.flighttype) return false
         if (description != other.description) return false
-        if (title != other.title) return false
         if (params != other.params) return false
         return true
     }
@@ -89,7 +86,6 @@ data class FlightEntity(@PrimaryKey(autoGenerate = true) @ColumnInfo(name = "_id
         result = 31 * result + (ifrvfr ?: 0)
         result = 31 * result + (flighttype ?: 0)
         result = 31 * result + (description?.hashCode() ?: 0)
-        result = 31 * result + (title?.hashCode() ?: 0)
         result = 31 * result + (params?.hashCode() ?: 0)
         return result
     }
@@ -110,7 +106,6 @@ data class FlightEntity(@PrimaryKey(autoGenerate = true) @ColumnInfo(name = "_id
         flight.ifrvfr = this.ifrvfr
         flight.flightTypeId = this.flighttype
         flight.description = this.description
-        flight.title = this.title
         flight.params = Params(params)
         return flight
     }
@@ -128,7 +123,6 @@ fun Flight.toFlightEntity(): FlightEntity {
     flight.ifrvfr = this.ifrvfr
     flight.flighttype = this.flightTypeId
     flight.description = this.description
-    flight.title = this.title
     flight.params = params?.stringParams
     return flight
 }

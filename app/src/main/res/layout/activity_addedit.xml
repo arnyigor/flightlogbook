@@ -20,31 +20,10 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="8dp">
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/tiedtTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:focusable="true"
-                    android:focusableInTouchMode="true"
-                    android:gravity="center_horizontal"
-                    android:hint="@string/flight_title"
-                    tools:text="" />
-            </com.google.android.material.textfield.TextInputLayout>
+            android:padding="8dp">
 
             <ImageView
-                android:id="@+id/iv_date"
+                android:id="@+id/ivDate"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginStart="8dp"
@@ -60,12 +39,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
-                android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
-                app:layout_constraintEnd_toStartOf="@+id/btn_moto"
-                app:layout_constraintStart_toEndOf="@+id/iv_date"
-                app:layout_constraintTop_toBottomOf="@+id/til_title"
+                app:layout_constraintEnd_toStartOf="@+id/btnMoto"
+                app:layout_constraintStart_toEndOf="@+id/ivDate"
+                app:layout_constraintTop_toTopOf="parent"
                 tools:visibility="visible">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -82,7 +60,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <Button
-                android:id="@+id/btn_moto"
+                android:id="@+id/btnMoto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
