@@ -29,6 +29,7 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
     private var positionIndex: Int = 0
     private var mLayoutManager: LinearLayoutManager? = null
     private var topView: Int = 0
+
     @InjectPresenter
     lateinit var viewFlightsPresenter: ViewFlightsPresenter
 
@@ -55,7 +56,7 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         fab_add_flight.setOnClickListener {
-            launchActivity<AddEditActivity> { }
+            launchActivity<AddEditActivity>(CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT)
             activity?.overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
         }
         mLayoutManager = LinearLayoutManager(context)
@@ -171,7 +172,8 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
         when (item.itemId) {
             R.id.action_filter -> {
                 val filters = resources.getStringArray(R.array.flights_filers)
-                val filterPos = Prefs.getInstance(activity as Context).get<Int>(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS) ?: 0
+                val filterPos = Prefs.getInstance(activity as Context).get<Int>(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS)
+                        ?: 0
                 val filter = filters[filterPos]
                 listDialog(
                         context = requireActivity(),

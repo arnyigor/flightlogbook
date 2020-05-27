@@ -16,6 +16,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
+import androidx.core.view.isVisible
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.color.colorChooser
 import com.arny.constants.CONSTS
@@ -43,6 +44,7 @@ class AddEditActivity :
     private var sFlightTime = ""
     private var sNightTime = ""
     private var sGroundTime = ""
+
     @InjectPresenter
     lateinit var addEditPresenter: AddEditPresenter
 
@@ -81,6 +83,19 @@ class AddEditActivity :
         btnSelectFlightType.setOnClickListener(this)
         btnMoto.setOnClickListener(this)
         ivDate.setOnClickListener(this)
+        tvColor.setOnClickListener(this)
+        vColor.setOnClickListener(this)
+        ivRemoveColor.setOnClickListener(this)
+        radioGroupIfrVfr.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.rbVfr -> {
+                    addEditPresenter.setVfrIfr(0)
+                }
+                else -> {
+                    addEditPresenter.setVfrIfr(1)
+                }
+            }
+        }
         imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         onDateTimeChanges()
         onFlightTimeChanges()
@@ -257,12 +272,18 @@ class AddEditActivity :
             R.id.btnMoto -> {
                 showMotoDialog()
             }
+            R.id.vColor,
+            R.id.tvColor -> {
+                addEditPresenter.colorClick()
+            }
+            R.id.ivRemoveColor -> {
+                addEditPresenter.removeColor()
+            }
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-//        Log.i(AddEditActivity::class.java.simpleName, "onActivityResult: requestCode:$requestCode;resultCode:$resultCode;data:" + Utility.dumpIntent(data) )
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
                 CONSTS.REQUESTS.REQUEST_SELECT_PLANE_TYPE -> {
@@ -336,9 +357,6 @@ class AddEditActivity :
                         onConfirm = { addEditPresenter.removeFlight() }
                 )
             }
-            R.id.action_color -> {
-                addEditPresenter.menuColorClick()
-            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -407,8 +425,16 @@ class AddEditActivity :
         tvFlightType.text = title
     }
 
+    override fun setIfrSelected(selected: Boolean) {
+        radioGroupIfrVfr.check(if (selected) R.id.rbIfr else R.id.rbVfr)
+    }
+
     override fun setViewColor(color: Int) {
         vColor.setBackgroundColor(color)
+    }
+
+    override fun setRemoveColorVisible(visible: Boolean) {
+        ivRemoveColor.isVisible = visible
     }
 
     override fun onDateSet(dialog: CalendarDatePickerDialogFragment, year: Int, monthOfYear: Int, dayOfMonth: Int) {
@@ -419,7 +445,7 @@ class AddEditActivity :
         MaterialDialog(this).show {
             title(R.string.select_color)
             colorChooser(colors, initialSelection = BLUE) { _, color ->
-                 addEditPresenter.onColorSelected(color)
+                addEditPresenter.onColorSelected(color)
             }
             positiveButton(R.string.select)
         }

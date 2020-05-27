@@ -1,5 +1,6 @@
 package com.arny.flightlogbook.presentation.flights.viewflights.view
 
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.arny.adapters.SimpleAbstractAdapter
 import com.arny.domain.models.Flight
@@ -35,8 +36,11 @@ class FlightsAdapter : SimpleAbstractAdapter<Flight>() {
                 tvDescr.setTextColor(it)
                 tvFlightType.setTextColor(it)
             }
-            item.colorInt?.takeIf { it != 0 && it != -1 }?.let {
-                clFlightsItemContainer.setBackgroundColor(it)
+            val colorInt = item.colorInt
+            if (colorInt == 0 || colorInt == -1 || colorInt == null) {
+                clFlightsItemContainer.setBackgroundColor(ContextCompat.getColor(context, R.color.colorTransparent))
+            } else {
+                clFlightsItemContainer.setBackgroundColor(colorInt)
             }
             setOnClickListener {
                 listener?.onItemClick(position, item)

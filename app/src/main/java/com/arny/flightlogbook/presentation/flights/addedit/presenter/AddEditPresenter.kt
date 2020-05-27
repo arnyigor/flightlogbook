@@ -65,13 +65,19 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
         loadColor(flight)
         loadDateTime(flight)
         loadTimes(flight)
+        loadIfrVfr(flight)
         loadFlightType()
         loadPlaneTypes()
+    }
+
+    private fun loadIfrVfr(flight: Flight) {
+        viewState.setIfrSelected(flight.ifrvfr == 1)
     }
 
     private fun loadColor(flight: Flight) {
         flight.colorInt?.let {
             viewState.setViewColor(it)
+            viewState.setRemoveColorVisible(true)
         }?.run {
             fromNullable { flight.params?.getParam(PARAM_COLOR, "") }
                     .map {
@@ -83,7 +89,9 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
                         }
                     }
                     .observeSubscribeAdd({
-                        if (it != -1) {
+                        val hasColor = it != -1
+                        viewState.setRemoveColorVisible(hasColor)
+                        if (hasColor) {
                             viewState.setViewColor(it)
                         }
                     })
@@ -453,7 +461,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
         }
     }
 
-    fun menuColorClick() {
+    fun colorClick() {
         fromCallable { getColorsIntArray() }
                 .observeSubscribeAdd({ colors ->
                     viewState.onColorSelect(colors)
@@ -462,8 +470,18 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
     }
 
     fun onColorSelected(color: Int) {
-        val hexColor = color.toHexColor()
-        flight?.params?.setParam(PARAM_COLOR, hexColor)
+        flight?.params?.setParam(PARAM_COLOR, color.toHexColor())
         viewState.setViewColor(color)
+        viewState.setRemoveColorVisible(true)
+    }
+
+    fun removeColor() {
+        flight?.params?.removeParam(PARAM_COLOR)
+        viewState.setViewColor(android.R.color.transparent)
+        viewState.setRemoveColorVisible(false)
+    }
+
+    fun setVfrIfr(vfrIfrId: Int) {
+        flight?.ifrvfr = vfrIfrId
     }
 }

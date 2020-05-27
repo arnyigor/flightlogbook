@@ -309,6 +309,39 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/select_plane_type" />
 
+            <RadioGroup
+                android:id="@+id/radioGroupIfrVfr"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvFlightType">
+
+                <RadioButton
+                    android:id="@+id/rbVfr"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/str_vfr" />
+
+                <RadioButton
+                    android:id="@+id/rbIfr"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/str_ifr" />
+            </RadioGroup>
+
             <TextView
                 android:id="@+id/tvColor"
                 android:layout_width="wrap_content"
@@ -320,17 +353,30 @@
                 android:text="@string/color"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvFlightType" />
+                app:layout_constraintTop_toBottomOf="@+id/radioGroupIfrVfr" />
 
             <View
                 android:id="@+id/vColor"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
+                android:background="@color/colorTransparent"
                 app:layout_constraintBottom_toBottomOf="@+id/tvColor"
                 app:layout_constraintStart_toEndOf="@+id/tvColor"
                 app:layout_constraintTop_toTopOf="@+id/tvColor" />
+
+            <ImageView
+                android:id="@+id/ivRemoveColor"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@+id/vColor"
+                app:layout_constraintStart_toEndOf="@+id/vColor"
+                app:layout_constraintTop_toTopOf="@+id/vColor"
+                app:srcCompat="@android:drawable/ic_delete" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
