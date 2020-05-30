@@ -29,15 +29,16 @@ class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>(),CompositeDisposable
     }
 
     fun loadFlights() {
-        viewState?.viewLoadProgress(true)
+        viewState.viewLoadProgress(true)
         flightsInteractor.getFilterFlightsObs()
                 .observeSubscribeAdd({
-                    viewState?.updateAdapter(it)
-                    viewState?.showEmptyView(it.isEmpty())
-                    viewState?.viewLoadProgress(false)
+                    viewState.updateAdapter(it)
+                    viewState.showEmptyView(it.isEmpty())
+                    viewState.viewLoadProgress(false)
                 }, {
-                    viewState?.viewLoadProgress(false)
-                    viewState?.toastError(it.message)
+                    it.printStackTrace()
+                    viewState.viewLoadProgress(false)
+                    viewState.toastError(it.message)
                 })
     }
 

@@ -370,11 +370,6 @@ public class DateTimeUtils {
         return sdf.format(d);
     }
 
-    /**
-     * @param date
-     * @param format
-     * @return String datetime
-     */
     public static String getDateTime(Date date, String format) {
         try {
             Calendar calendar = Calendar.getInstance();
@@ -479,7 +474,7 @@ public class DateTimeUtils {
             e.printStackTrace();
             return -1;
         }
-        return date.getTime();
+        return date != null ? date.getTime() : -1;
     }
 
 

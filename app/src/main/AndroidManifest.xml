@@ -50,10 +50,6 @@
             android:name=".presentation.common.FragmentContainerActivity"
             android:screenOrientation="fullSensor" />
 
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="8bd3520e90d7d645d3151ea3044114aab59429c0" />
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileProvider"

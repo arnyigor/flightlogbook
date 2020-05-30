@@ -60,8 +60,8 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
             activity?.overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
         }
         mLayoutManager = LinearLayoutManager(context)
-        rv_flights.layoutManager = mLayoutManager
-        rv_flights.itemAnimator = DefaultItemAnimator()
+        rvflights.layoutManager = mLayoutManager
+        rvflights.itemAnimator = DefaultItemAnimator()
         adapter = FlightsAdapter()
         adapter?.setViewHolderListener(object : SimpleAbstractAdapter.OnViewHolderListener<Flight> {
             override fun onItemClick(position: Int, item: Flight) {
@@ -71,7 +71,7 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
                 activity?.overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
             }
         })
-        rv_flights.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        rvflights.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 if (dy < 0 && !fab_add_flight.isShown)
                     fab_add_flight.show()
@@ -80,7 +80,7 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
             }
 
         })
-        rv_flights.adapter = adapter
+        rvflights.adapter = adapter
         viewFlightsPresenter.loadFlights()
     }
 
@@ -103,28 +103,12 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
     override fun onPause() {
         saveListPosition()
         super.onPause()
-//        context?.let { LocalBroadcastManager.getInstance(it).unregisterReceiver(broadcastReceiver) }
     }
 
     override fun onResume() {
         super.onResume()
         fab_add_flight.show()
         restoreListPosition()
-        /*val filter = IntentFilter(BackgroundIntentService.ACTION)
-        filter.addCategory(Intent.CATEGORY_DEFAULT)
-        context?.let { ctx ->
-            LocalBroadcastManager.getInstance(ctx).registerReceiver(broadcastReceiver, filter)
-            fromCallable { Utility.isMyServiceRunning(BackgroundIntentService::class.java, ctx) }
-                    .observeOnMain()
-                    .subscribe({ running ->
-                        if (!running) {
-                            initFlights()
-                        }
-                    }, {
-                        it.printStackTrace()
-                    })
-
-        }*/
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -161,9 +145,9 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
 
     private fun saveListPosition() {
         positionIndex = mLayoutManager?.findFirstVisibleItemPosition() ?: 0
-        val startView = rv_flights.getChildAt(0)
+        val startView = rvflights.getChildAt(0)
         topView = if (startView == null) 0 else {
-            val paddingTop = rv_flights.paddingTop
+            val paddingTop = rvflights.paddingTop
             startView.top - paddingTop
         }
     }

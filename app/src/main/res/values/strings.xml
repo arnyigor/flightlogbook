@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Pilot Logbook</string>
+    <string name="app_name" translatable="false">Pilot Logbook</string>
     <string name="str_flight_types">Типы полетов</string>
     <string name="no_flight_types">Нет типов полетов</string>
     <string name="str_select_flight_type">Выбрать тип полета</string>

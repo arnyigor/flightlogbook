@@ -20,6 +20,9 @@ android {
         release {
             debuggable false
         }
+        prerelease {
+            debuggable true
+        }
     }
 
     compileOptions {

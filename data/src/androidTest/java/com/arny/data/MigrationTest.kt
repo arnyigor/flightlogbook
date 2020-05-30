@@ -4,8 +4,8 @@ import androidx.room.testing.MigrationTestHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.arny.data.db.DatabaseMigrations
 import com.arny.data.db.MainDB
-import com.arny.data.db.daos.DatabaseMigrations
 import com.arny.helpers.utils.getIntValue
 import com.arny.helpers.utils.toList
 import org.junit.Rule

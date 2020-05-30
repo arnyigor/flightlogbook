@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">domain</string>
+    <string name="app_name" translatable="false">domain</string>
     <!--service-->
     <string name="service_file_download_success">Загрузка файла завершена</string>
     <string name="service_file_upload_success">Выгрузка файла завершена</string>
@@ -19,6 +19,8 @@
     <string name="str_regnum">Рег.№</string>
     <string name="str_day_night">День/Ночь</string>
     <string name="str_vfr_ifr">визуально/по приборам</string>
+    <string name="str_ifr">по приборам</string>
+    <string name="str_vfr">визуально</string>
     <string name="str_flight_type">круги/зона/маршрут</string>
     <string name="str_desc">Описание</string>
     <string name="cell_night_time">Ночное время</string>
@@ -55,7 +57,7 @@
     <string name="str_type_remove_succesfull">Тип ВС удален</string>
     <string name="str_types_removes_succesfull">Типы ВС удалены</string>
     <string name="str_type_remove_fail">Тип ВС не удален</string>
-    <string name="str_types_removes_fail">Типы ВС не удален</string>
+    <string name="str_types_removes_fail">Типы ВС не удалены</string>
     <string name="str_type_add_succesfull">Тип ВС добавлен</string>
     <string name="str_type_add_fail">Тип ВС не добавлен</string>
     <string name="str_type">Тип ВС:</string>
@@ -140,7 +142,6 @@
     <string name="fragment_logbook">Список полетов</string>
     <string name="fragment_plane_types">Типы ВС</string>
     <string name="fragment_flight_types">Типы полетов</string>
-    <string name="fragment_time_types">Типы времени</string>
     <string name="fragment_stats">Статистика</string>
     <string name="fragment_dropbox_sync">Dropbox синхронизация</string>
     <string name="str_sort_by">Сортировка по</string>
@@ -173,18 +174,15 @@
     <string name="str_time_remove_from_flight_time">Убрать из налета</string>
     <string name="add_time">Добавить время</string>
     <string name="empty_list">Список пуст</string>
-    <string name="str_edt_time_type">Название типа времени</string>
     <string name="str_edt_flight_type">Название типа полета</string>
-    <string name="confirm_delete_time_type">Удалить тип времени?</string>
     <string name="confirm_delete_flight_type">Удалить тип полета?</string>
-    <string name="str_add_time_type">Добавить тип времени</string>
     <string name="str_select">Выбрать</string>
     <string name="flights_not_removed">Записи не удалены</string>
     <string name="enter_time">Введите время</string>
     <string name="date_time_input_error">Ошибка ввода даты</string>
     <string name="empty_flight">Данные полета не найдены</string>
     <string name="str_total_flight_time">Общее летное время:</string>
-    <string name="saving">Сохранение...</string>
+    <string name="saving">Сохранение</string>
     <string name="loading_file">Загрузка файла</string>
     <string name="importing_file">Импорт файла</string>
     <string name="flight_type_circle">Круги</string>

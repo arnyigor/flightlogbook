@@ -16,7 +16,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.Html
 import android.text.Spanned
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
@@ -31,6 +30,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
@@ -485,11 +485,7 @@ fun checkContextTheme(context: Context?): Boolean {
 }
 
 fun fromHtml(html: String): Spanned {
-    return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-        Html.fromHtml(html);
-    } else {
-        Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY);
-    }
+    return HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_MODE_LEGACY)
 }
 
 inline fun <reified T> getIntentExtra(intent: Intent?, extraName: String): T? {

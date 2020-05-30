@@ -27,18 +27,24 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
     private var filterSelection = arrayListOf<Long?>()
     private var extendedStatistic = false
     private var enableFilter = false
+
     @Inject
     lateinit var flightsInteractor: FlightsInteractor
+
     @Inject
     lateinit var statisticUseCase: StatisticUseCase
+
     @Inject
     lateinit var resourcesInteractor: ResourcesInteractor
+
     @Volatile
     private var currentPeriodType: PeriodType = PeriodType.ALL
     private val dateAndTimeStart = GregorianCalendar.getInstance()
     private val dateAndTimeEnd = GregorianCalendar.getInstance()
+
     @Volatile
     private var startdatetime: Long = dateAndTimeStart.timeInMillis
+
     @Volatile
     private var enddatetime: Long = dateAndTimeEnd.timeInMillis
 
@@ -76,8 +82,8 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
     }
 
     private fun correctTimes() {
-        viewState?.setPeriodTypeVisible(currentPeriodType.canShowDialog)
-        viewState?.setCustomPeriodVisible(currentPeriodType.showCustomRange)
+        viewState.setPeriodTypeVisible(currentPeriodType.canShowDialog)
+        viewState.setCustomPeriodVisible(currentPeriodType.showCustomRange)
         fromCompletable { correctDateTime() }
                 .completableSubscribeAdd({
                     when (currentPeriodType) {
@@ -109,8 +115,8 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
     private fun setPeriodStartEnd(format: String) {
         fromCallable { Pair(DateTimeUtils.getDateTime(startdatetime, format), DateTimeUtils.getDateTime(enddatetime, format)) }
                 .observeSubscribeAdd({
-                    viewState?.setStartDateText(it.first)
-                    viewState?.setEndDateText(it.second)
+                    viewState.setStartDateText(it.first)
+                    viewState.setEndDateText(it.second)
                 })
     }
 
@@ -118,7 +124,7 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
         fromCallable {
             DateTimeUtils.getDateTime(startdatetime, format)
         }.observeSubscribeAdd({
-            viewState?.setPeriodItemText(it)
+            viewState.setPeriodItemText(it)
         })
     }
 
@@ -132,13 +138,13 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
         }.observeSubscribeAdd({ ranged ->
             if (ranged) {
                 if (startdatetime > enddatetime) {
-                    viewState?.toastError(resourcesInteractor.getString(R.string.stat_error_end_less_start))
+                    viewState.toastError(resourcesInteractor.getString(R.string.stat_error_end_less_start))
                     enddatetime = startdatetime
                 }
             }
             correctTimes()
         }, {
-            viewState?.toastError(it.message)
+            viewState.toastError(it.message)
         })
     }
 
@@ -160,9 +166,9 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
         } else {
             loadStat()
                     .observeSubscribeAdd({
-                        viewState?.clearAdapter()
-                        viewState?.updateAdapter(it)
-                        viewState?.showEmptyView(it.isEmpty())
+                        viewState.clearAdapter()
+                        viewState.updateAdapter(it)
+                        viewState.showEmptyView(it.isEmpty())
                     })
         }
     }
@@ -176,16 +182,16 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
     }
 
     private fun filterBySelectedTimetypes(filterSelection: List<Long?>) {
-        return if (isRanged()) {
+        if (isRanged()) {
             getMinMaxDateRange().flatMap { statisticUseCase.loadDBFlightsByTimes(startdatetime, enddatetime, extendedStatistic, filterSelection, true) }
         } else {
             statisticUseCase.loadDBFlightsByTimes(startdatetime, enddatetime, extendedStatistic, filterSelection, false)
         }
                 .observeOnMain()
                 .subscribe({
-                    viewState?.clearAdapter()
-                    viewState?.updateAdapter(it)
-                    viewState?.showEmptyView(it.isEmpty())
+                    viewState.clearAdapter()
+                    viewState.updateAdapter(it)
+                    viewState.showEmptyView(it.isEmpty())
                 }, {
                     it.printStackTrace()
                 })
@@ -193,16 +199,26 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
     }
 
     private fun filterBySelectedFlightTypes(filterSelection: List<Long?>) {
-        return if (isRanged()) {
-            getMinMaxDateRange().flatMap { statisticUseCase.loadFilteredFlightsByFlightTypes(startdatetime, enddatetime, extendedStatistic, filterSelection, true) }
+        if (isRanged()) {
+            getMinMaxDateRange().flatMap {
+                statisticUseCase.loadFilteredFlightsByFlightTypes(
+                        startdatetime,
+                        enddatetime,
+                        extendedStatistic,
+                        filterSelection,
+                        true
+                )
+            }
         } else {
-            statisticUseCase.loadFilteredFlightsByFlightTypes(startdatetime, enddatetime, extendedStatistic, filterSelection, false)
+            statisticUseCase.loadFilteredFlightsByFlightTypes(
+                    startdatetime, enddatetime, extendedStatistic, filterSelection, false
+            )
         }
                 .observeOnMain()
                 .subscribe({
-                    viewState?.clearAdapter()
-                    viewState?.updateAdapter(it)
-                    viewState?.showEmptyView(it.isEmpty())
+                    viewState.clearAdapter()
+                    viewState.updateAdapter(it)
+                    viewState.showEmptyView(it.isEmpty())
                 }, {
                     it.printStackTrace()
                 })
@@ -217,7 +233,7 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
             val d = dateAndTimeStart.get(Calendar.DAY_OF_MONTH)
             Triple(y, m, d)
         }.observeSubscribeAdd({
-            viewState?.showDateDialogStart(it.first, it.second, it.third)
+            viewState.showDateDialogStart(it.first, it.second, it.third)
         })
 
     }
@@ -230,7 +246,7 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
             val d = dateAndTimeEnd.get(Calendar.DAY_OF_MONTH)
             Triple(y, m, d)
         }.observeSubscribeAdd({
-            viewState?.showDateDialogEnd(it.first, it.second, it.third)
+            viewState.showDateDialogEnd(it.first, it.second, it.third)
         })
     }
 
@@ -240,13 +256,13 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
         }.observeSubscribeAdd({ ranged ->
             if (ranged) {
                 if (startdatetime > enddatetime) {
-                    viewState?.toastError(resourcesInteractor.getString(R.string.stat_error_end_less_start))
+                    viewState.toastError(resourcesInteractor.getString(R.string.stat_error_end_less_start))
                     enddatetime = startdatetime
                 }
             }
             correctTimes()
         }, {
-            viewState?.toastError(it.message)
+            viewState.toastError(it.message)
         })
     }
 
@@ -337,7 +353,7 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
 
     fun onFilterChanged(isChecked: Boolean) {
         enableFilter = isChecked
-        viewState?.setFilterStatisticVisible(isChecked)
+        viewState.setFilterStatisticVisible(isChecked)
         correctTimes()
     }
 
@@ -350,15 +366,17 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
 
     private fun filterBySelectedPlanetypes(types: List<Long?>) {
         if (isRanged()) {
-            getMinMaxDateRange().flatMap { statisticUseCase.loadFilteredFlightsByPlaneTypes(types, startdatetime, enddatetime, extendedStatistic, true) }
+            getMinMaxDateRange().flatMap {
+                statisticUseCase.loadFilteredFlightsByPlaneTypes(
+                        types, startdatetime, enddatetime, extendedStatistic, true) }
         } else {
             statisticUseCase.loadFilteredFlightsByPlaneTypes(types, startdatetime, enddatetime, extendedStatistic, false)
         }
                 .observeOnMain()
                 .subscribe({
-                    viewState?.clearAdapter()
-                    viewState?.updateAdapter(it)
-                    viewState?.showEmptyView(it.isEmpty())
+                    viewState.clearAdapter()
+                    viewState.updateAdapter(it)
+                    viewState.showEmptyView(it.isEmpty())
                 }, {
                     it.printStackTrace()
                 })
@@ -409,7 +427,7 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
                 .map { list -> list.map { it.title ?: "" } }
                 .observeOnMain()
                 .subscribe({
-                    viewState?.setFilterSpinnerItems(it)
+                    viewState.setFilterSpinnerItems(it)
                 }, {
                     it.printStackTrace()
                 })
