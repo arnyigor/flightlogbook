@@ -1,6 +1,7 @@
 package com.arny.flightlogbook.presentation.settings.presenter
 
 import android.net.Uri
+import android.os.Handler
 import com.arny.domain.common.PreferencesInteractor
 import com.arny.domain.flights.FlightsInteractor
 import com.arny.flightlogbook.FlightApp
@@ -35,6 +36,19 @@ class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableCompo
 
     private fun initState() {
         viewState.setAutoExportChecked(prefs.isAutoExportXLS())
+        showFileData()
+    }
+
+    private fun showFileData() {
+        viewState.setShareFileVisible(false)
+        fromNullable { interactor.getFileData() }
+                .observeSubscribeAdd({
+                    val value = it.value
+                    viewState.setShareFileVisible(value != null)
+                    if (value != null) {
+                        viewState.showResults(value)
+                    }
+                })
     }
 
     override fun detachView(view: SettingsView?) {
@@ -44,7 +58,7 @@ class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableCompo
 
     fun onFileImport(uri: Uri?) {
         if (uri == null) {
-            viewState.toastError(R.string.error_empty_file_path)
+            viewState.showError(R.string.error_empty_file_path)
         } else {
             importFile(uri)
         }
@@ -61,10 +75,10 @@ class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableCompo
             if (path != null) {
                 viewState.showResults(R.string.import_file_success, path)
             } else {
-                viewState.toastError(R.string.error_import_file)
+                viewState.showError(R.string.error_import_file)
             }
         }, {
-            viewState.toastError(R.string.error_import_file, it.message)
+            viewState.showError(R.string.error_import_file, it.message)
             viewState.hideProgress()
         })
     }
@@ -72,6 +86,7 @@ class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableCompo
     fun exportToFile() {
         viewState.hideResults()
         viewState.showProgress(R.string.exporting_file)
+        viewState.setShareFileVisible(false)
         interactor.getDbFlightsObs()
                 .map { interactor.saveExcelFile(it).toOptionalNull() }
                 .observeSubscribeAdd({
@@ -79,11 +94,14 @@ class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableCompo
                     val path = it.value
                     if (path != null) {
                         viewState.showResults(R.string.export_file_success, path)
+                        Handler().postDelayed({
+                            showFileData()
+                        }, 1500)
                     } else {
-                        viewState.toastError(R.string.error_export_file, null)
+                        viewState.showError(R.string.error_export_file, null)
                     }
                 }, {
-                    viewState.toastError(R.string.error_export_file, it.message)
+                    viewState.showError(R.string.error_export_file, it.message)
                     viewState.hideProgress()
                 })
     }
@@ -103,11 +121,27 @@ class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableCompo
             if (path != null) {
                 viewState.showResults(R.string.import_file_success, path)
             } else {
-                viewState.toastError(R.string.error_import_file)
+                viewState.showError(R.string.error_import_file)
             }
         }, {
-            viewState.toastError(R.string.error_import_file, it.message)
+            viewState.showError(R.string.error_import_file, it.message)
             viewState.hideProgress()
         })
+    }
+
+    fun onShareFileClick() {
+        fromNullable { interactor.getDefaultFileUri() }
+                .observeSubscribeAdd({
+                    val value = it.value
+                    if (value != null) {
+                        viewState.shareFile(value, "application/xls")
+                    } else {
+                        viewState.showError(R.string.error_share_file)
+                        viewState.setShareFileVisible(false)
+                    }
+                }, {
+                    viewState.showError(R.string.error_share_file, it.message)
+                    viewState.setShareFileVisible(false)
+                })
     }
 }

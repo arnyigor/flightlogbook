@@ -258,21 +258,25 @@ public class FileUtils {
             if (type.equals("primary")) {
                 external = Environment.getExternalStorageDirectory().getPath();
             } else {
-                String id = DocumentsContract.getDocumentId(uri);
-                if (!TextUtils.isEmpty(id)) {
-                    if (id.startsWith("raw:")) {
-                        external = id.replaceFirst("raw:", "");
-                    } else {
-                        try {
-                            Uri contentUri =
-                                    ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.parseLong(id));
-                            type = getDataColumn(context, contentUri, null, null);
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                if (document) {
+                    String id = DocumentsContract.getDocumentId(uri);
+                    if (!TextUtils.isEmpty(id)) {
+                        if (id.startsWith("raw:")) {
+                            external = id.replaceFirst("raw:", "");
+                        } else {
+                            try {
+                                Uri contentUri =
+                                        ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.parseLong(id));
+                                type = getDataColumn(context, contentUri, null, null);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            external = "/storage/" + type;
                         }
+                    } else {
                         external = "/storage/" + type;
                     }
-                } else {
+                }else{
                     external = "/storage/" + type;
                 }
             }
@@ -1279,15 +1283,17 @@ public class FileUtils {
     }
 
     public static Uri getFileUri(Context context, File file) {
-        Uri uri;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            String authority = context.getApplicationContext().getPackageName() + ".provider";
-            System.out.println("authority:" + authority + " file:" + file);
-            uri = FileProvider.getUriForFile(context, authority, file);
-        } else {
-            uri = Uri.fromFile(file);
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                String authority = context.getApplicationContext().getPackageName() + ".provider";
+                System.out.println("authority:" + authority + " file:" + file);
+                return FileProvider.getUriForFile(context, authority, file);
+            } else {
+                return Uri.fromFile(file);
+            }
+        } catch (Exception e) {
+            return Uri.fromFile(file);
         }
-        return uri;
     }
 
     @NonNull

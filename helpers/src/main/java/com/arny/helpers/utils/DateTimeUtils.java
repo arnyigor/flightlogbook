@@ -6,6 +6,7 @@ import android.text.format.DateUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
@@ -31,6 +32,7 @@ public class DateTimeUtils {
     private static final String[] RU_MONTHES_LO = new String[]{"янв", "фев", "мар", "апр", "май", "июн", "июл", "авг", "сен", "окт", "ноя", "дек",};
     private static final String[] RU_MONTHES_LO_EXT = new String[]{"янв", "февр", "мар", "апр", "май", "июн", "июл", "авг", "сент", "окт", "нояб", "дек",};
     private static final String[] RU_MONTHES_UP = new String[]{"Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"};
+    private static final String[] RU_MONTHES_NUMS = new String[]{"01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"};
     private static final String TIME_SEPARATOR_TWICE_DOT = ":";
     private static final String TIME_SEPARATOR_DOT = ".";
 
@@ -54,6 +56,20 @@ public class DateTimeUtils {
         return isUS ? Locale.US : Locale.getDefault();
     }
 
+    public static @Nullable String convertStrMonthToNum(String myTimestamp){
+        DateFormatSymbols formatSimbols = getFormatString(myTimestamp);
+        String[] months = formatSimbols.getMonths();
+        int index = 0;
+        for (String month : months) {
+            String monthRegex = getMonthRegex(month);
+            if (matcher(monthRegex, myTimestamp)) {
+                return myTimestamp.replace(month, RU_MONTHES_NUMS[index]);
+            }
+            index++;
+        }
+        return null;
+    }
+
     public static String dateFormatChooser(String myTimestamp) {
         HashMap<String, String> pregs = new HashMap<>();
         pregs.put("^\\d{1,2}\\.\\d{2}\\.\\d{4}$", "dd.MM.yyyy");
@@ -63,6 +79,7 @@ public class DateTimeUtils {
         pregs.put("^\\d{1,2}\\s+\\D+\\s\\d{2}$", "dd MMM yy");
         pregs.put("^\\d{1,2}\\s+\\D+\\s+\\d{4}$", "dd MMM yyyy");
         pregs.put("^\\d{1,2}\\s+\\d{2}\\s\\d{2}$", "dd MM yy");
+        pregs.put("^\\d{1,2}\\s+\\d{2}\\s\\d{4}$", "dd MM yyyy");
         pregs.put("^\\d{1,2}\\d{2}\\d{4}$", "ddMMyyyy");
         String format = "dd MMM yyyy";
         for (HashMap.Entry<String, String> entry : pregs.entrySet()) {
@@ -518,26 +535,31 @@ public class DateTimeUtils {
     private static DateFormatSymbols getFormatString(String myTimestamp) {
         DateFormatSymbols formatSymbols = myDateFormatSymbolsFull;
         for (String s : RU_MONTHES_LO) {
-            if (matcher(".*[\\s+|\\d|-]"+s+"[\\s+|\\d|-].*", myTimestamp)) {
+            if (matcher(getMonthRegex(s), myTimestamp)) {
                 return myDateFormatSymbols;
             }
         }
         for (String s : RU_MONTHES_LO_EXT) {
-            if (matcher(".*[\\s+|\\d|-]"+s+"[\\s+|\\d|-].*", myTimestamp)) {
+            if (matcher(getMonthRegex(s), myTimestamp)) {
                 return myDateFormatSymbolsExt;
             }
         }
         for (String s : RU_MONTHES_UP) {
-            if (matcher(".*[\\s+|\\d|-]"+s+"[\\s+|\\d|-].*", myTimestamp)) {
+            if (matcher(getMonthRegex(s), myTimestamp)) {
                 return myDateFormatSymbolsUp;
             }
         }
         for (String s : RU_MONTHES_FULL) {
-            if (matcher(".*[\\s+|\\d|-]"+s+"[\\s+|\\d|-].*", myTimestamp)) {
+            if (matcher(getMonthRegex(s), myTimestamp)) {
                 return myDateFormatSymbolsFull;
             }
         }
         return formatSymbols;
+    }
+
+    @NotNull
+    private static String getMonthRegex(String s) {
+        return ".*[\\s+|\\d|-]"+s+"[\\s+|\\d|-].*";
     }
 
     public static int logTimeMinutes(int hh, int mm) {

@@ -36,4 +36,5 @@
     <string name="exporting_file">Экспорт в файл</string>
     <string name="export_file_success">Файл сохранен %s</string>
     <string name="error_export_file">Ошибка экспорта %s</string>
+    <string name="error_share_file">Ошибка передачи файла %s</string>
 </resources>

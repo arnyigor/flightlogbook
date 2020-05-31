@@ -3,23 +3,26 @@ package com.arny.flightlogbook.presentation.settings.view
 import android.app.Activity
 import android.app.ProgressDialog
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import com.arny.constants.CONSTS
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.presentation.settings.presenter.SettingsPresenter
-import com.arny.helpers.utils.ToastMaker
 import com.arny.helpers.utils.Utility
 import com.arny.helpers.utils.alertDialog
 import com.arny.helpers.utils.launchIntent
+import com.arny.helpers.utils.shareFileWithType
 import com.tbruyelle.rxpermissions2.RxPermissions
 import kotlinx.android.synthetic.main.settings_fragment.*
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
+
 
 class SettingsFragment : MvpAppCompatFragment(), SettingsView {
     private var pDialog: ProgressDialog? = null
@@ -62,6 +65,9 @@ class SettingsFragment : MvpAppCompatFragment(), SettingsView {
         }
         chbAutoExport.setOnCheckedChangeListener { _, isChecked ->
             settingsPresenter.onAutoExportChanged(isChecked)
+        }
+        ivShareFile.setOnClickListener {
+            settingsPresenter.onShareFileClick()
         }
     }
 
@@ -114,11 +120,15 @@ class SettingsFragment : MvpAppCompatFragment(), SettingsView {
         }
     }
 
-    override fun toastError(msg: Int, error: String?) {
+    override fun shareFile(uri: Uri, fileType: String) {
+        requireActivity().shareFileWithType(uri, fileType)
+    }
+
+    override fun showError(msg: Int, error: String?) {
         if (error.isNullOrBlank()) {
-            ToastMaker.toastError(requireContext(), getString(msg))
+            tvResultInfo.text = getString(msg)
         } else {
-            ToastMaker.toastError(requireContext(), getString(msg, error))
+            tvResultInfo.text = getString(msg, error)
         }
     }
 
@@ -126,8 +136,16 @@ class SettingsFragment : MvpAppCompatFragment(), SettingsView {
         chbAutoExport.isChecked = checked
     }
 
+    override fun setShareFileVisible(visible: Boolean) {
+        ivShareFile.isVisible = visible
+    }
+
     override fun showResults(intRes: Int, path: String) {
         tvResultInfo.text = getString(intRes, path)
+    }
+
+    override fun showResults(results: String) {
+        tvResultInfo.text = results
     }
 
     override fun hideResults() {

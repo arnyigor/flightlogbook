@@ -182,6 +182,7 @@
     <string name="saving">Сохранение</string>
     <string name="loading_file">Загрузка файла</string>
     <string name="importing_file">Импорт файла</string>
+    <string name="error_file_not_found">Файл %s не найден</string>
     <string name="flight_type_circle">Круги</string>
     <string name="flight_type_zone">Зона</string>
     <string name="flight_type_route">Маршрут</string>
@@ -196,5 +197,8 @@
     <string name="period_month">Месяц</string>
     <string name="period_year">Год</string>
     <string name="period_custom">Другой период</string>
+    <string name="file_size">Размер: </string>
+    <string name="file_name">Файл: </string>
+    <string name="file_last_modify">Последние изменения: </string>
 
 </resources>

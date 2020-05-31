@@ -23,8 +23,10 @@ import org.apache.poi.ss.usermodel.Row
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.collections.ArrayList
 
 @Singleton
 class FlightsInteractor @Inject constructor(
@@ -134,24 +136,24 @@ class FlightsInteractor @Inject constructor(
     }
 
     fun readExcelFile(uri: Uri?, fromSystem: Boolean): String? {
-        var filename = ""
-        val myWorkBook: HSSFWorkbook
-        val xlsfile: File
+        val ctx = resourcesProvider.provideContext()
+        val filename: String = if (fromSystem)
+            getDefaultFilePath(ctx)
+        else
+            FileUtils.getSDFilePath(ctx, uri)
         val notAccess =
                 !FileUtils.isExternalStorageAvailable() || FileUtils.isExternalStorageReadOnly()
         if (notAccess) {
             return null
         }
-        xlsfile = if (fromSystem) {
-            val defaultExportFile = getDefaultExportFile(resourcesProvider.provideContext())
-            filename = defaultExportFile.path
-            defaultExportFile
-        } else {
-            filename = FileUtils.getSDFilePath(resourcesProvider.provideContext(), uri)
-            File("", filename)
+        val xlsfile = File(filename)
+        if (!xlsfile.isFile || !xlsfile.exists()) {
+            throw Exception(String.format(
+                    Locale.getDefault(), getString(R.string.error_file_not_found), filename
+            ))
         }
         val fileInputStream = FileInputStream(xlsfile)
-        myWorkBook = HSSFWorkbook(fileInputStream)
+        val myWorkBook = HSSFWorkbook(fileInputStream)
         val mySheet = myWorkBook.getSheetAt(0)
         val rowIter = mySheet.rowIterator()
         flightsRepository.removeAllFlights()
@@ -341,6 +343,7 @@ class FlightsInteractor @Inject constructor(
                         var format = "dd MMM yyyy"
                         strDate = strDate!!.replace("-", " ").replace(".", " ")
                                 .replace("\\s+".toRegex(), " ")
+                        strDate = DateTimeUtils.convertStrMonthToNum(strDate) ?: strDate
                         try {
                             format = DateTimeUtils.dateFormatChooser(strDate)
                         } catch (e: Exception) {
@@ -380,9 +383,9 @@ class FlightsInteractor @Inject constructor(
 
     private fun getOldFlightType(flight_type: Long): String {
         return when (flight_type) {
-            0L -> resourcesProvider.getString(R.string.flight_type_circle)
-            1L -> resourcesProvider.getString(R.string.flight_type_zone)
-            2L -> resourcesProvider.getString(R.string.flight_type_route)
+            0L -> getString(R.string.flight_type_circle)
+            1L -> getString(R.string.flight_type_zone)
+            2L -> getString(R.string.flight_type_route)
             else -> ""
         }
     }
@@ -462,7 +465,7 @@ class FlightsInteractor @Inject constructor(
         mainSheet.setColumnWidth(7, 15 * 500)
         mainSheet.setColumnWidth(8, 15 * 500)
         mainSheet.setColumnWidth(9, 15 * 200)
-        val file = getDefaultExportFile(resourcesProvider.provideContext())
+        val file = File(getDefaultFilePath(resourcesProvider.provideContext()))
         var os: FileOutputStream? = null
         val success: Boolean
         try {
@@ -485,5 +488,31 @@ class FlightsInteractor @Inject constructor(
         return null
     }
 
-    private fun getDefaultExportFile(context: Context) = File(context.getExternalFilesDir(null), CONSTS.FILES.EXEL_FILE_NAME)
+    fun getFileData(): String? {
+        val context = resourcesProvider.provideContext()
+        val file = File(getDefaultFilePath(context))
+        return if (file.isFile && file.exists()) {
+            StringBuilder()
+                    .apply {
+                        append(getString(R.string.file_name))
+                        append(file.path)
+                        append(",\n")
+                        append(getString(R.string.file_size))
+                        append(FileUtils.formatFileSize(file.length()))
+                        append(",\n")
+                        append(getString(R.string.file_last_modify))
+                        append(DateTimeUtils.getDateTime(Date(file.lastModified()), "dd MM yyyy HH:mm:ss"))
+                    }.toString()
+        } else {
+            null
+        }
+    }
+
+    private fun getDefaultFilePath(context: Context) =
+            FileUtils.getWorkDir(context) + File.separator + CONSTS.FILES.EXEL_FILE_NAME
+
+    fun getDefaultFileUri(): Uri? {
+        val context = resourcesProvider.provideContext()
+        return FileUtils.getFileUri(context, File(getDefaultFilePath(context)))
+    }
 }

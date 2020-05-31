@@ -12,10 +12,8 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.os.Build
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.os.*
+import android.os.Build.VERSION_CODES.Q
 import android.text.Spanned
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
@@ -42,7 +40,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.mikepenz.google_material_typeface_library.GoogleMaterial
 import com.mikepenz.iconics.IconicsDrawable
-import java.io.File
 import java.lang.reflect.Type
 import java.util.*
 import kotlin.math.roundToInt
@@ -226,11 +223,15 @@ fun Activity.shareImage(uri: Uri) {
     this.startActivity(Intent.createChooser(shareIntent, "Share with"));
 }
 
-fun Activity.shareFile(file: File) {
+fun Activity.shareFileWithType(uri: Uri, fileType: String) {
+    StrictMode.setVmPolicy(StrictMode.VmPolicy.Builder().build())
     val shareIntent: Intent = Intent().apply {
         action = Intent.ACTION_SEND
-        putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file))
-        type = "image/*"
+        putExtra(Intent.EXTRA_STREAM, uri)
+        type = fileType
+        if (Build.VERSION.SDK_INT >= Q) {
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
     }
     this.startActivity(Intent.createChooser(shareIntent, "Share with"));
 }

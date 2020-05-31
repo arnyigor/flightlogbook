@@ -164,4 +164,11 @@
     <string name="period_month">Month</string>
     <string name="period_year">Year</string>
     <string name="period_custom">Custom period</string>
+    <string name="str_import_local_file_or_disk">Import default file or choose from disk?</string>
+    <string name="str_import_local_file">Default</string>
+    <string name="str_import_file_from_disk">Choose</string>
+    <string name="error_file_not_found">File %s not found</string>
+    <string name="file_size">Size:</string>
+    <string name="file_name">File:</string>
+    <string name="file_last_modify">Last modified:</string>
 </resources>
