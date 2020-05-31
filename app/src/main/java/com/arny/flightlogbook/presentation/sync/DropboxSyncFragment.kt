@@ -104,7 +104,6 @@ class DropboxSyncFragment : Fragment(), CompositeDisposableComponent {
         tvDpxEmail.text = String.format(getString(R.string.dropbox_email), dbxEmail)
         tvDpxName.text = String.format(getString(R.string.dropbox_name), dbxName)
         val autoImport = preferencesProvider.getPrefBoolean(CONSTS.PREFS.PREF_DROPBOX_AUTOIMPORT_TO_DB, false)
-        checkBoxAutoImport.isChecked = autoImport
         setSyncDataFileDateTime()
     }
 
@@ -132,9 +131,9 @@ class DropboxSyncFragment : Fragment(), CompositeDisposableComponent {
                     onConfirm = { downLoadFile() }
             )
         }
-        checkBoxAutoImport.setOnCheckedChangeListener { _, b ->
+        /*checkBoxAutoImport.setOnCheckedChangeListener { _, b ->
             preferencesProvider.setPrefBoolean(CONSTS.PREFS.PREF_DROPBOX_AUTOIMPORT_TO_DB, b)
-        }
+        }*/
     }
 
     private fun setSyncDataFileDateTime() {

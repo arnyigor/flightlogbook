@@ -38,6 +38,8 @@ class Flight(var id: Long? = null) {
         if (ifrvfr != other.ifrvfr) return false
         if (flightTypeId != other.flightTypeId) return false
         if (description != other.description) return false
+        if (colorInt != other.colorInt) return false
+        if (colorText != other.colorText) return false
         if (params != params) return false
         return true
     }
@@ -56,6 +58,8 @@ class Flight(var id: Long? = null) {
         result = 31 * result + (ifrvfr ?: 0)
         result = 31 * result + (flightTypeId ?: 0)
         result = 31 * result + (description?.hashCode() ?: 0)
+        result = 31 * result + (colorInt?.hashCode() ?: 0)
+        result = 31 * result + (colorText?.hashCode() ?: 0)
         return result
     }
 
@@ -72,6 +76,8 @@ class Flight(var id: Long? = null) {
                 "daynight=$daynight, " +
                 "ifrvfr=$ifrvfr, " +
                 "flightTypeId=$flightTypeId, " +
+                "colorInt=$colorInt, " +
+                "colorText=$colorText, " +
                 "description=$description)"
     }
 }

@@ -112,7 +112,7 @@ class PlaneTypesActivity : MvpAppCompatActivity(), PlaneTypesView, View.OnClickL
     override fun showRemoveDialog(item: PlaneType, position: Int) {
         alertDialog(
                 this,
-                "Вы хотите удалить ${item.typeName}?",
+                "${getString(R.string.str_delete)} ${item.typeName}?",
                 null,
                 "Да",
                 "Нет",

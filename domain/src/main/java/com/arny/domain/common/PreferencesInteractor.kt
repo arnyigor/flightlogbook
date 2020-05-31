@@ -10,6 +10,14 @@ class PreferencesInteractor @Inject constructor(private val provider: Preference
         return provider.getPrefBoolean(CONSTS.PREFS.PREF_DROPBOX_AUTOIMPORT_TO_DB, false)
     }
 
+    fun isAutoExportXLS(): Boolean {
+        return provider.getPrefBoolean(CONSTS.PREFS.AUTO_EXPORT_XLS, false)
+    }
+
+    fun setAutoExportXLS(checked: Boolean) {
+        return provider.setPref(CONSTS.PREFS.AUTO_EXPORT_XLS, checked)
+    }
+
     fun isShowMoto(): Boolean {
         return provider.getPrefBoolean(CONSTS.PREFS.PREF_MOTO_TIME, false)
     }

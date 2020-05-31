@@ -20,6 +20,7 @@ import moxy.presenter.ProvidePresenter
 
 class FlightTypesFragment : MvpAppCompatFragment(), FlightTypesView {
     private var typesAdapter: FlightTypesAdapter? = null
+
     @InjectPresenter
     lateinit var flightTypesPresenter: FlightTypesPresenter
 
@@ -45,6 +46,7 @@ class FlightTypesFragment : MvpAppCompatFragment(), FlightTypesView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        requireActivity().title = getString(R.string.str_flight_types)
         fab_add_flight_type.setOnClickListener {
             inputDialog(
                     requireActivity(),

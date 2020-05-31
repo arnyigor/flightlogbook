@@ -1,5 +1,6 @@
 package com.arny.domain.flights
 
+import android.content.Context
 import android.graphics.Color
 import android.net.Uri
 import com.arny.constants.CONSTS
@@ -27,11 +28,11 @@ import javax.inject.Singleton
 
 @Singleton
 class FlightsInteractor @Inject constructor(
-    private val flightTypesRepository: FlightTypesRepository,
-    private val flightsRepository: FlightsRepository,
-    private val resourcesProvider: ResourcesProvider,
-    private val planeTypesRepository: PlaneTypesRepository,
-    private val preferencesProvider: PreferencesProvider
+        private val flightTypesRepository: FlightTypesRepository,
+        private val flightsRepository: FlightsRepository,
+        private val resourcesProvider: ResourcesProvider,
+        private val planeTypesRepository: PlaneTypesRepository,
+        private val preferencesProvider: PreferencesProvider
 ) {
     companion object {
         private const val LOG_SHEET_MAIN = "Timelog"
@@ -47,11 +48,11 @@ class FlightsInteractor @Inject constructor(
 
     fun getFlight(id: Long?): Flight? {
         return flightsRepository.getFlight(id)
-            ?.apply {
-                colorInt = params?.getParam(PARAM_COLOR, "")?.toIntColor()
-                planeType = planeTypesRepository.loadPlaneType(planeId)
-                flightType = flightTypesRepository.loadDBFlightType(flightTypeId?.toLong())
-            }
+                ?.apply {
+                    colorInt = params?.getParam(PARAM_COLOR, "")?.toIntColor()
+                    planeType = planeTypesRepository.loadPlaneType(planeId)
+                    flightType = flightTypesRepository.loadDBFlightType(flightTypeId?.toLong())
+                }
     }
 
     fun loadPlaneType(id: Long?): PlaneType? {
@@ -76,61 +77,77 @@ class FlightsInteractor @Inject constructor(
 
     fun loadDBFlights(): List<Flight> {
         return flightsRepository.getDbFlights()
-            .map { flight ->
-                flight.planeType = planeTypesRepository.loadPlaneType(flight.planeId)
-                flight.flightType =
-                    flightTypesRepository.loadDBFlightType(flight.flightTypeId?.toLong())
-                flight.totalTime = flight.flightTime + flight.groundTime
-                flight
-            }
+                .map { flight ->
+                    flight.planeType = planeTypesRepository.loadPlaneType(flight.planeId)
+                    flight.flightType =
+                            flightTypesRepository.loadDBFlightType(flight.flightTypeId?.toLong())
+                    flight.totalTime = flight.flightTime + flight.groundTime
+                    flight
+                }
     }
 
-    fun getFilterFlightsObs(): Observable<List<Flight>> {
-        val orderType = preferencesProvider.getPrefInt(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS)
+    fun getDbFlightsObs(checkAutoExport: Boolean = false): Observable<List<Flight>> {
         return fromCallable {
-            val order = getPrefOrderflights(orderType)
-            val flightTypes = flightTypesRepository.loadDBFlightTypes()
-            val planeTypes = planeTypesRepository.loadPlaneTypes()
-            val flights = flightsRepository.getDbFlights(order)
-            flights.map { flight ->
-                flight.colorInt = flight.params?.getParam(PARAM_COLOR, "")?.toIntColor()
-                flight.colorInt?.let { colorWillBeMasked(it) }?.takeIf { true }?.let {
-                    flight.colorText = Color.WHITE
-                }
-                flight.planeType = planeTypes.find { it.typeId == flight.planeId }
-                flight.flightType = flightTypes.find { it.id == flight.flightTypeId?.toLong() }
-                flight.totalTime = flight.flightTime + flight.groundTime
-                flight
+            flightsRepository.getDbFlights(
+                    getPrefOrderflights(preferencesProvider.getPrefInt(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS))
+            )
+        }.doOnNext {
+            if (checkAutoExport && preferencesProvider.getPrefBoolean(CONSTS.PREFS.AUTO_EXPORT_XLS, false)) {
+                saveExcelFile(it)
             }
-        }.map { flights ->
-            val res = when (orderType) {
-                0 -> flights.sortedBy { it.datetime }
-                1 -> flights.sortedByDescending { it.datetime }
-                2 -> flights.sortedBy { it.flightTime }
-                3 -> flights.sortedByDescending { it.flightTime }
-                else -> flights
-            }
-            res
         }
+    }
+
+    fun getFilterFlightsObs(checkAutoExport: Boolean = false): Observable<List<Flight>> {
+        val orderType = preferencesProvider.getPrefInt(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS)
+        return getDbFlightsObs(checkAutoExport)
+                .flatMap { flights ->
+                    fromCallable {
+                        val flightTypes = flightTypesRepository.loadDBFlightTypes()
+                        val planeTypes = planeTypesRepository.loadPlaneTypes()
+                        flights.map { flight ->
+                            flight.colorInt = flight.params?.getParam(PARAM_COLOR, "")?.toIntColor()
+                            flight.colorInt?.let { colorWillBeMasked(it) }?.takeIf { true }?.let {
+                                flight.colorText = Color.WHITE
+                            }
+                            flight.planeType = planeTypes.find { it.typeId == flight.planeId }
+                            flight.flightType = flightTypes.find { it.id == flight.flightTypeId?.toLong() }
+                            flight.totalTime = flight.flightTime + flight.groundTime
+                            flight
+                        }
+                    }
+                }
+                .map { flights ->
+                    val res = when (orderType) {
+                        0 -> flights.sortedBy { it.datetime }
+                        1 -> flights.sortedByDescending { it.datetime }
+                        2 -> flights.sortedBy { it.flightTime }
+                        3 -> flights.sortedByDescending { it.flightTime }
+                        else -> flights
+                    }
+                    res
+                }
     }
 
     fun removeFlight(id: Long?): Observable<Boolean> {
         return fromCallable { flightsRepository.removeFlight(id) }
     }
 
-    fun readExcelFile(uri: Uri, fromSystem: Boolean): String? {
-        val ctx = resourcesProvider.provideContext()
-        val filename = FileUtils.getSDFilePath(ctx, uri)
+    fun readExcelFile(uri: Uri?, fromSystem: Boolean): String? {
+        var filename = ""
         val myWorkBook: HSSFWorkbook
         val xlsfile: File
         val notAccess =
-            !FileUtils.isExternalStorageAvailable() || FileUtils.isExternalStorageReadOnly()
+                !FileUtils.isExternalStorageAvailable() || FileUtils.isExternalStorageReadOnly()
         if (notAccess) {
             return null
         }
         xlsfile = if (fromSystem) {
-            File(ctx.getExternalFilesDir(null), filename)
+            val defaultExportFile = getDefaultExportFile(resourcesProvider.provideContext())
+            filename = defaultExportFile.path
+            defaultExportFile
         } else {
+            filename = FileUtils.getSDFilePath(resourcesProvider.provideContext(), uri)
             File("", filename)
         }
         val fileInputStream = FileInputStream(xlsfile)
@@ -183,8 +200,8 @@ class FlightsInteractor @Inject constructor(
                             try {
                                 timeStr = if (myCell.cellType == Cell.CELL_TYPE_NUMERIC) {
                                     Utility.match(
-                                        myCell.dateCellValue.toString(),
-                                        "(\\d{2}:\\d{2})", 1
+                                            myCell.dateCellValue.toString(),
+                                            "(\\d{2}:\\d{2})", 1
                                     )
                                 } else {
                                     myCell.toString()
@@ -209,7 +226,7 @@ class FlightsInteractor @Inject constructor(
                                 } else {
                                     if (!airplaneTypeName.isBlank()) {
                                         airplaneTypeId =
-                                            planeTypesRepository.addTypeAndGet(airplaneTypeName)
+                                                planeTypesRepository.addTypeAndGet(airplaneTypeName)
                                         planeTypes = planeTypesRepository.loadPlaneTypes()
                                     }
                                 }
@@ -241,16 +258,16 @@ class FlightsInteractor @Inject constructor(
                                     if (flightTypeId != -1L) {
                                         val oldTypeName = getOldFlightType(flightTypeId)
                                         val oldFlightType =
-                                            dbFlightTypes.find { it.typeTitle == oldTypeName }
+                                                dbFlightTypes.find { it.typeTitle == oldTypeName }
                                         if (oldFlightType != null) {
                                             flightTypeId = oldFlightType.id ?: -1
                                         } else {
                                             flightTypeId =
-                                                flightTypesRepository.addFlightTypeAndGet(
-                                                    oldTypeName
-                                                )
+                                                    flightTypesRepository.addFlightTypeAndGet(
+                                                            oldTypeName
+                                                    )
                                             dbFlightTypes =
-                                                flightTypesRepository.loadDBFlightTypes()
+                                                    flightTypesRepository.loadDBFlightTypes()
                                         }
                                     }
                                 }
@@ -276,8 +293,8 @@ class FlightsInteractor @Inject constructor(
                             try {
                                 timeStr = if (myCell.cellType == Cell.CELL_TYPE_NUMERIC) {
                                     Utility.match(
-                                        myCell.dateCellValue.toString(),
-                                        "(\\d{2}:\\d{2})", 1
+                                            myCell.dateCellValue.toString(),
+                                            "(\\d{2}:\\d{2})", 1
                                     )
                                 } else {
                                     myCell.toString()
@@ -299,8 +316,8 @@ class FlightsInteractor @Inject constructor(
                             try {
                                 timeStr = if (myCell.cellType == Cell.CELL_TYPE_NUMERIC) {
                                     Utility.match(
-                                        myCell.dateCellValue.toString(),
-                                        "(\\d{2}:\\d{2})", 1
+                                            myCell.dateCellValue.toString(),
+                                            "(\\d{2}:\\d{2})", 1
                                     )
                                 } else {
                                     myCell.toString()
@@ -323,7 +340,7 @@ class FlightsInteractor @Inject constructor(
                     if (lastCell == cellCnt) {
                         var format = "dd MMM yyyy"
                         strDate = strDate!!.replace("-", " ").replace(".", " ")
-                            .replace("\\s+".toRegex(), " ")
+                                .replace("\\s+".toRegex(), " ")
                         try {
                             format = DateTimeUtils.dateFormatChooser(strDate)
                         } catch (e: Exception) {
@@ -348,8 +365,8 @@ class FlightsInteractor @Inject constructor(
 
     private fun defaultCurrentTime(): String? {
         return DateTimeUtils.getDateTime(
-            System.currentTimeMillis(),
-            "dd MMM yyyy"
+                System.currentTimeMillis(),
+                "dd MMM yyyy"
         )
     }
 
@@ -374,7 +391,7 @@ class FlightsInteractor @Inject constructor(
         return resourcesProvider.getString(strRes)
     }
 
-    fun saveExcelFile(): String? {
+    fun saveExcelFile(dbFlights: List<Flight>): String? {
         var row: Row
         val wb = HSSFWorkbook()
         var c: Cell
@@ -400,13 +417,13 @@ class FlightsInteractor @Inject constructor(
         c.setCellValue(getString(R.string.cell_night_time))
         c = row.createCell(9)
         c.setCellValue(getString(R.string.cell_ground_time))
-        val exportData = flightsRepository.getDbFlights()
-            .map { flight ->
-                flight.planeType = planeTypesRepository.loadPlaneType(flight.planeId)
-                flight.flightType =
-                    flightTypesRepository.loadDBFlightType(flight.flightTypeId?.toLong())
-                flight
-            }
+        val exportData = dbFlights
+                .map { flight ->
+                    flight.planeType = planeTypesRepository.loadPlaneType(flight.planeId)
+                    flight.flightType =
+                            flightTypesRepository.loadDBFlightType(flight.flightTypeId?.toLong())
+                    flight
+                }
         var rows = 1
         for (flight in exportData) {
             val planeType = flight.planeType
@@ -445,10 +462,7 @@ class FlightsInteractor @Inject constructor(
         mainSheet.setColumnWidth(7, 15 * 500)
         mainSheet.setColumnWidth(8, 15 * 500)
         mainSheet.setColumnWidth(9, 15 * 200)
-        val file = File(
-            resourcesProvider.provideContext().getExternalFilesDir(null),
-            CONSTS.FILES.EXEL_FILE_NAME
-        )
+        val file = getDefaultExportFile(resourcesProvider.provideContext())
         var os: FileOutputStream? = null
         val success: Boolean
         try {
@@ -470,4 +484,6 @@ class FlightsInteractor @Inject constructor(
         }
         return null
     }
+
+    private fun getDefaultExportFile(context: Context) = File(context.getExternalFilesDir(null), CONSTS.FILES.EXEL_FILE_NAME)
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">Pilot Logbook</string>
     <string name="str_flight_types">Flight types</string>
     <string name="no_flight_types">No flight types</string>
     <string name="str_select_flight_type">Choose flight type</string>

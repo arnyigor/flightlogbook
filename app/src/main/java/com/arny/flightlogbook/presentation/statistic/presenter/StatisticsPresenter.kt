@@ -1,11 +1,10 @@
 package com.arny.flightlogbook.presentation.statistic.presenter
 
-import android.util.Log
 import com.arny.domain.common.ResourcesInteractor
 import com.arny.domain.flights.FlightsInteractor
 import com.arny.domain.models.Statistic
 import com.arny.domain.models.StatisticFilter
-import com.arny.domain.statistic.StatisticUseCase
+import com.arny.domain.statistic.StatisticInteractor
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.presentation.statistic.view.StatisticsView
@@ -32,7 +31,7 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
     lateinit var flightsInteractor: FlightsInteractor
 
     @Inject
-    lateinit var statisticUseCase: StatisticUseCase
+    lateinit var statisticInteractor: StatisticInteractor
 
     @Inject
     lateinit var resourcesInteractor: ResourcesInteractor
@@ -105,7 +104,7 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
     }
 
     private fun getMinMaxDateRange(): Observable<Pair<Long, Long>> {
-        return statisticUseCase.getFightsMinMaxDateTimes()
+        return statisticInteractor.getFightsMinMaxDateTimes()
                 .doOnNext {
                     startdatetime = it.first
                     enddatetime = it.second
@@ -175,17 +174,17 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
 
     private fun loadStat(): Observable<ArrayList<Statistic>> {
         return if (isRanged()) {
-            getMinMaxDateRange().flatMap { statisticUseCase.loadDBFlights(startdatetime, enddatetime, extendedStatistic, true) }
+            getMinMaxDateRange().flatMap { statisticInteractor.loadDBFlights(startdatetime, enddatetime, extendedStatistic, true) }
         } else {
-            statisticUseCase.loadDBFlights(startdatetime, enddatetime, extendedStatistic, false)
+            statisticInteractor.loadDBFlights(startdatetime, enddatetime, extendedStatistic, false)
         }
     }
 
     private fun filterBySelectedTimetypes(filterSelection: List<Long?>) {
         if (isRanged()) {
-            getMinMaxDateRange().flatMap { statisticUseCase.loadDBFlightsByTimes(startdatetime, enddatetime, extendedStatistic, filterSelection, true) }
+            getMinMaxDateRange().flatMap { statisticInteractor.loadDBFlightsByTimes(startdatetime, enddatetime, extendedStatistic, filterSelection, true) }
         } else {
-            statisticUseCase.loadDBFlightsByTimes(startdatetime, enddatetime, extendedStatistic, filterSelection, false)
+            statisticInteractor.loadDBFlightsByTimes(startdatetime, enddatetime, extendedStatistic, filterSelection, false)
         }
                 .observeOnMain()
                 .subscribe({
@@ -201,7 +200,7 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
     private fun filterBySelectedFlightTypes(filterSelection: List<Long?>) {
         if (isRanged()) {
             getMinMaxDateRange().flatMap {
-                statisticUseCase.loadFilteredFlightsByFlightTypes(
+                statisticInteractor.loadFilteredFlightsByFlightTypes(
                         startdatetime,
                         enddatetime,
                         extendedStatistic,
@@ -210,7 +209,7 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
                 )
             }
         } else {
-            statisticUseCase.loadFilteredFlightsByFlightTypes(
+            statisticInteractor.loadFilteredFlightsByFlightTypes(
                     startdatetime, enddatetime, extendedStatistic, filterSelection, false
             )
         }
@@ -322,7 +321,6 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
 
     private fun correctYearFirst(plusYears: DateTime) {
         val startOfDay = plusYears.withDayOfYear(1).withTimeAtStartOfDay()
-        //                startOfDay.withZone(DateTimeZone.UTC)
         startdatetime = startOfDay.millis
         dateAndTimeStart.timeInMillis = startdatetime
         enddatetime = startOfDay.plusYears(1).millis
@@ -331,7 +329,6 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
 
     private fun correctMonthFirst(plusMonths: DateTime) {
         val startOfDay = plusMonths.withDayOfMonth(1).withTimeAtStartOfDay()
-        //                startOfDay.withZone(DateTimeZone.UTC)
         startdatetime = startOfDay.millis
         dateAndTimeStart.timeInMillis = startdatetime
         enddatetime = startOfDay.plusMonths(1).millis
@@ -367,10 +364,11 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
     private fun filterBySelectedPlanetypes(types: List<Long?>) {
         if (isRanged()) {
             getMinMaxDateRange().flatMap {
-                statisticUseCase.loadFilteredFlightsByPlaneTypes(
-                        types, startdatetime, enddatetime, extendedStatistic, true) }
+                statisticInteractor.loadFilteredFlightsByPlaneTypes(
+                        types, startdatetime, enddatetime, extendedStatistic, true)
+            }
         } else {
-            statisticUseCase.loadFilteredFlightsByPlaneTypes(types, startdatetime, enddatetime, extendedStatistic, false)
+            statisticInteractor.loadFilteredFlightsByPlaneTypes(types, startdatetime, enddatetime, extendedStatistic, false)
         }
                 .observeOnMain()
                 .subscribe({
@@ -388,16 +386,14 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
     }
 
     fun onFilterTypeSelect(position: Int) {
-        Log.i(StatisticsPresenter::class.java.simpleName, "onFilterTypeSelect: $position")
         when (position) {
             0 -> loadFilterPlaneTypes()
             2 -> loadFilterFlightTypes()
-//            3 -> loadFilterRegNums()
         }
     }
 
     private fun loadFilterFlightTypes() {
-        statisticUseCase.loadFlightTypes()
+        statisticInteractor.loadFlightTypes()
                 .map { flTypes -> flTypes.map { StatisticFilter(2, it.id, it.typeTitle ?: "") } }
                 .observeOnMain()
                 .subscribe({
@@ -410,7 +406,7 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
     }
 
     private fun loadFilterPlaneTypes() {
-        statisticUseCase.loadPlaneTypes()
+        statisticInteractor.loadPlaneTypes()
                 .map { types -> types.map { StatisticFilter(0, it.typeId, it.typeName ?: "") } }
                 .observeOnMain()
                 .subscribe({

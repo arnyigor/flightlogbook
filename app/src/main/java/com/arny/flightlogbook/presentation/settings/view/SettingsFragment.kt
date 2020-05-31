@@ -49,32 +49,56 @@ class SettingsFragment : MvpAppCompatFragment(), SettingsView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        requireActivity().title = getString(R.string.str_settings)
         pDialog = ProgressDialog(context)
         pDialog?.setCancelable(false)
         pDialog?.setCanceledOnTouchOutside(false)
         rxPermissions = RxPermissions(this)
         btnLoadFromFile.setOnClickListener {
-            alertDialog(
-                    context,
-                    getString(R.string.str_import_attention),
-                    getString(R.string.str_import_massage),
-                    getString(R.string.str_ok),
-                    getString(R.string.str_cancel),
-                    true,
-                    {
-                        launchIntent(CONSTS.REQUESTS.REQUEST_OPEN_FILE) {
-                            action = Intent.ACTION_GET_CONTENT
-                            addCategory(Intent.CATEGORY_OPENABLE)
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                                addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
-                            }
-                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                            type = "*/*"
-                        }
-                    })
+            showAlertImport()
         }
         btnExportToFile.setOnClickListener {
             settingsPresenter.exportToFile()
+        }
+        chbAutoExport.setOnCheckedChangeListener { _, isChecked ->
+            settingsPresenter.onAutoExportChanged(isChecked)
+        }
+    }
+
+    private fun showAlertImport() {
+        alertDialog(
+                context,
+                getString(R.string.str_import_attention),
+                getString(R.string.str_import_massage),
+                getString(R.string.str_ok),
+                getString(R.string.str_cancel),
+                true,
+                (::chooseFile)
+        )
+    }
+
+    private fun chooseFile() {
+        alertDialog(
+                context,
+                getString(R.string.str_import_attention),
+                getString(R.string.str_import_local_file_or_disk),
+                getString(R.string.str_import_local_file),
+                getString(R.string.str_import_file_from_disk),
+                true, {
+            settingsPresenter.loadDefaultFile()
+        }, (::requestFile)
+        )
+    }
+
+    private fun requestFile() {
+        launchIntent(CONSTS.REQUESTS.REQUEST_OPEN_FILE) {
+            action = Intent.ACTION_GET_CONTENT
+            addCategory(Intent.CATEGORY_OPENABLE)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+            }
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            type = "*/*"
         }
     }
 
@@ -96,6 +120,10 @@ class SettingsFragment : MvpAppCompatFragment(), SettingsView {
         } else {
             ToastMaker.toastError(requireContext(), getString(msg, error))
         }
+    }
+
+    override fun setAutoExportChecked(checked: Boolean) {
+        chbAutoExport.isChecked = checked
     }
 
     override fun showResults(intRes: Int, path: String) {

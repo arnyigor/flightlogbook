@@ -11,4 +11,5 @@ interface SettingsView : MvpView {
     fun toastError(msg: Int, error: String? = null)
     fun showResults(intRes: Int, path: String)
     fun hideResults()
+    fun setAutoExportChecked(checked: Boolean)
 }

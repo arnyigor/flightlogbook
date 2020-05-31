@@ -1,5 +1,7 @@
 package com.arny.domain.statistic
 
+import com.arny.domain.R
+import com.arny.domain.common.ResourcesProvider
 import com.arny.domain.flights.FlightsRepository
 import com.arny.domain.flighttypes.FlightTypesRepository
 import com.arny.domain.models.Flight
@@ -13,14 +15,12 @@ import io.reactivex.Observable
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- *Created by Sedoy on 27.08.2019
- */
 @Singleton
-class StatisticUseCase @Inject constructor(
+class StatisticInteractor @Inject constructor(
         private val flightsRepository: FlightsRepository,
         private val planeTypesRepository: PlaneTypesRepository,
-        private val flightTypesRepository: FlightTypesRepository
+        private val flightTypesRepository: FlightTypesRepository,
+        private val resourcesProvider: ResourcesProvider
 ) {
     fun loadDBFlights(startDate: Long, endDate: Long, extendedStatistic: Boolean, includeEnd: Boolean): Observable<ArrayList<Statistic>> {
         return returnStatistic(extendedStatistic, fromCallable { flightsRepository.getStatisticDbFlights(startDate, endDate, includeEnd) })
@@ -82,18 +82,18 @@ class StatisticUseCase @Inject constructor(
         val statistic = Statistic(type = 1)
         statistic.dateTimeStart = list.first().datetimeFormatted
         statistic.dateTimeEnd = list.last().datetimeFormatted
-        builder.append("<b>Всего полетов:</b>")
+        builder.append("<b>${resourcesProvider.getString(R.string.stat_total_flights)}:</b>")
         builder.append(list.size).append("<br>")
-        builder.append("<b>Общее летное время:</b>")
+        builder.append("<b>${resourcesProvider.getString(R.string.stat_total_flight_time)}:</b>")
         val sumFlightTime = list.sumBy { it.totalTime }
         builder.append(getTime(sumFlightTime)).append("<br>")
-        builder.append("<b>Общее ночное время:</b>")
+        builder.append("<b>${resourcesProvider.getString(R.string.stat_total_night_time)}:</b>")
         val sumNightFlightTime = list.sumBy { it.nightTime }
         builder.append(getTime(sumNightFlightTime)).append("<br>")
-        builder.append("<b>Общее время на земле:</b>")
+        builder.append("<b>${resourcesProvider.getString(R.string.stat_total_ground_time)}:</b>")
         val sumGroundTime = list.sumBy { it.groundTime }
         builder.append(getTime(sumGroundTime)).append("<br>")
-        builder.append("<b>Общее время:</b>")
+        builder.append("<b>${resourcesProvider.getString(R.string.stat_total_time)}:</b>")
         val totalTime = list.sumBy { it.groundTime + it.flightTime }
         builder.append(getTime(totalTime)).append("<br>")
         statistic.data = builder.toString()
@@ -103,17 +103,26 @@ class StatisticUseCase @Inject constructor(
     private fun fightsStringStatisticBuilder(list: List<Flight>): ArrayList<Statistic> {
         val stats = arrayListOf<Statistic>()
         for (flightInd in list.withIndex()) {
-            val builder = StringBuilder()
             val statistic = Statistic()
             val flight = flightInd.value
             statistic.dateTimeStart = flight.datetimeFormatted
-            builder.append("Налет:").append(getTime(flight.flightTime)).append("<br>")
-            builder.append("<b>Время на земле:</b>").append(getTime(flight.groundTime)).append("<br>")
             val totalTime = flight.flightTime + flight.groundTime
-            builder.append("<b>Время общее:</b>").append(getTime(totalTime)).append("<br>")
-            builder.append("<b>Тип ВС:</b>").append(flight.planeType?.typeName
-                    ?: "-").append("<br>")
-            builder.append("<b>Тип полета:</b>").append(flight.flightType?.typeTitle ?: "-")
+            val builder = StringBuilder().apply {
+                append("${resourcesProvider.getString(R.string.str_itemlogtime)}:")
+                append(getTime(flight.flightTime))
+                append("<br>")
+                append("<b>${resourcesProvider.getString(R.string.cell_ground_time)}:</b>")
+                append(getTime(flight.groundTime))
+                append("<br>")
+                append("<b>${resourcesProvider.getString(R.string.stat_total_time)}:</b>")
+                append(getTime(totalTime))
+                append("<br>")
+                append("<b>${resourcesProvider.getString(R.string.str_type)}:</b>")
+                append(flight.planeType?.typeName ?: "-")
+                append("<br>")
+                append("<b>${resourcesProvider.getString(R.string.stat_flight_type)}:</b>")
+                append(flight.flightType?.typeTitle ?: "-")
+            }
             statistic.data = builder.toString()
             stats.add(statistic)
         }
@@ -129,11 +138,4 @@ class StatisticUseCase @Inject constructor(
     fun loadFlightTypes(): Observable<List<FlightType>> {
         return fromCallable { flightTypesRepository.loadDBFlightTypes() }
     }
-
-    fun loadPlanesRegNums(): Observable<List<String>> {
-        return fromCallable { flightsRepository.getDbFlights() }
-                .map { flts -> flts.filter { it.regNo.isNullOrBlank() } }
-                .map { list -> list.map { it.regNo!! } }
-    }
-
 }

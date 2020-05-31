@@ -56,10 +56,6 @@
 				android:gravity="start|center_vertical"
 				android:visibility="gone"/>
 	</LinearLayout>
-	<CheckBox
-			android:text="Импорт в БД при загрузке файла"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content" android:id="@+id/checkBoxAutoImport" android:layout_weight="1"/>
 
 
 </LinearLayout>

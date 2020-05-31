@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
     private var mOperationResult: String? = null
     private var notif: String? = null
     private var drawer: Drawer? = null
-    private var toolbar: Toolbar? = null
+    private lateinit var toolbar: Toolbar
     private var fileintent: Intent? = null
     private var mMyServiceIntent: Intent? = null
     private var context: Context? = null
@@ -58,7 +58,6 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
     private val MENU_PLANE_TYPES = 1
     private val MENU_FLIGHT_TYPES = 2
     private val MENU_STATS = 3
-    private val MENU_DROPBOX_SYNC = 4
     private val MENU_SETTINGS = 5
     private val DRAWER_SELECTION = "drawer_selection"
     private val TIME_DELAY = 2000
@@ -71,24 +70,33 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
         pDialog = ProgressDialog(context)
         pDialog?.setCancelable(false)
         initBgService()
-        toolbar = findViewById<Toolbar>(R.id.home_toolbar)
+        toolbar = findViewById(R.id.home_toolbar)
         setSupportActionBar(toolbar)
-        toolbar?.title = getString(R.string.fragment_logbook)
+        toolbar.title = getString(R.string.fragment_logbook)
         rxPermissions = RxPermissions(this)
         drawer = DrawerBuilder()
                 .withActivity(this)
                 .withOnDrawerListener(this)
                 .withRootView(R.id.drawer_container)
-                .withToolbar(toolbar!!)
+                .withToolbar(toolbar)
                 .withActionBarDrawerToggle(true)
                 .withActionBarDrawerToggleAnimated(true)
                 .addDrawerItems(
-                        PrimaryDrawerItem().withIdentifier(MENU_FLIGHTS.toLong()).withName(R.string.fragment_logbook).withIcon(GoogleMaterial.Icon.gmd_flight_takeoff),
-                        PrimaryDrawerItem().withIdentifier(MENU_PLANE_TYPES.toLong()).withName(R.string.fragment_plane_types).withIcon(GoogleMaterial.Icon.gmd_flight),
-                        PrimaryDrawerItem().withIdentifier(MENU_FLIGHT_TYPES.toLong()).withName(R.string.fragment_flight_types).withIcon(GoogleMaterial.Icon.gmd_flight),
-                        PrimaryDrawerItem().withIdentifier(MENU_STATS.toLong()).withName(R.string.fragment_stats).withIcon(GoogleMaterial.Icon.gmd_equalizer),
-//                        PrimaryDrawerItem().withIdentifier(MENU_DROPBOX_SYNC.toLong()).withName(R.string.fragment_dropbox_sync).withIcon(R.drawable.ic_dropbox_sync),
-                        PrimaryDrawerItem().withIdentifier(MENU_SETTINGS.toLong()).withName(R.string.str_settings).withIcon(GoogleMaterial.Icon.gmd_settings_applications)
+                        PrimaryDrawerItem().withIdentifier(MENU_FLIGHTS.toLong())
+                                .withName(R.string.fragment_logbook)
+                                .withIcon(GoogleMaterial.Icon.gmd_flight_takeoff),
+                        PrimaryDrawerItem().withIdentifier(MENU_PLANE_TYPES.toLong())
+                                .withName(R.string.fragment_plane_types)
+                                .withIcon(GoogleMaterial.Icon.gmd_flight),
+                        PrimaryDrawerItem().withIdentifier(MENU_FLIGHT_TYPES.toLong())
+                                .withName(R.string.fragment_flight_types)
+                                .withIcon(GoogleMaterial.Icon.gmd_flight),
+                        PrimaryDrawerItem().withIdentifier(MENU_STATS.toLong())
+                                .withName(R.string.fragment_stats)
+                                .withIcon(GoogleMaterial.Icon.gmd_equalizer),
+                        PrimaryDrawerItem().withIdentifier(MENU_SETTINGS.toLong())
+                                .withName(R.string.str_settings)
+                                .withIcon(GoogleMaterial.Icon.gmd_settings_applications)
                 )
                 .withOnDrawerItemClickListener { _, _, drawerItem ->
                     selectItem(drawerItem.identifier.toInt())
@@ -119,43 +127,34 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            /* R.id.action_about -> {
-                 val intent = Intent(context, AboutActivity::class.java)
-                 startActivity(intent)
-             }
-             R.id.action_settings -> {
-                 val intentSettings = Intent(context, Preferences::class.java)
-                 startActivity(intentSettings)
-             }*/
-            R.id.action_import_excel -> rxPermissions!!.request(android.Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            R.id.action_import_excel -> requireNotNull(rxPermissions)
+                    .request(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     .subscribe({ permissionGranded ->
-                        if (permissionGranded!!) {
+                        if (permissionGranded) {
                             showImportAlert()
                         }
                     }, { throwable -> ToastMaker.toastError(this, getString(R.string.str_error_import) + ":" + throwable.message) }
                     )
-            R.id.action_export_excel -> rxPermissions!!.request(android.Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            R.id.action_export_excel -> requireNotNull(rxPermissions)
+                    .request(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     .subscribe({ permissionGranded ->
                         if (permissionGranded!!) {
                             showExportAlert()
                         }
                     }, { throwable -> ToastMaker.toastError(this, getString(R.string.str_error_import) + ":" + throwable.message) }
                     )
-            R.id.action_open_file -> rxPermissions!!.request(android.Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            R.id.action_open_file -> requireNotNull(rxPermissions)
+                    .request(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     .subscribe({ permissionGranded ->
                         if (permissionGranded!!) {
                             openFileWith()
                         }
                     }, { throwable -> ToastMaker.toastError(this, getString(R.string.str_error_import) + ":" + throwable.message) }
                     )
-            /*R.id.action_type_edit -> {
-                val i = Intent(this, FragmentContainerActivity::class.java)
-                i.putExtra("fragment_tag", "type_list")
-                startActivity(i)
-            }*/
-            R.id.action_import_from_file -> rxPermissions!!.request(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            R.id.action_import_from_file -> requireNotNull(rxPermissions)
+                    .request(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     .subscribe({ permissionGranded ->
-                        if (permissionGranded!!) {
+                        if (permissionGranded) {
                             showImportDialogSD()
                         }
                     }, { throwable -> ToastMaker.toastError(this, getString(R.string.str_error_import) + ":" + throwable.message) }
@@ -168,27 +167,13 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
         val fragmentTag = getFragmentTag(position)
         var fragment = getFragmentByTag(fragmentTag)
         if (fragment == null) {
-            when (position) {
-                MENU_FLIGHTS -> {
-                    fragment = FlightListFragment.getInstance()
-                    toolbar!!.title = getString(R.string.fragment_logbook)
-                }
-                MENU_PLANE_TYPES -> {
-                    fragment = PlaneTypesFragment.getInstance()
-                    toolbar!!.title = getString(R.string.str_airplane_types)
-                }
-                MENU_FLIGHT_TYPES -> {
-                    fragment = FlightTypesFragment.getInstance()
-                    toolbar!!.title = getString(R.string.str_flight_types)
-                }
-                MENU_STATS -> {
-                    fragment = StatisticFragment.getInstance()
-                    toolbar!!.title = getString(R.string.fragment_stats)
-                }
-                MENU_SETTINGS -> {
-                    fragment = SettingsFragment.getInstance()
-                    toolbar!!.title = getString(R.string.str_settings)
-                }
+            fragment = when (position) {
+                MENU_FLIGHTS -> FlightListFragment.getInstance()
+                MENU_PLANE_TYPES -> PlaneTypesFragment.getInstance()
+                MENU_FLIGHT_TYPES -> FlightTypesFragment.getInstance()
+                MENU_STATS -> StatisticFragment.getInstance()
+                MENU_SETTINGS -> SettingsFragment.getInstance()
+                else -> null
             }
         }
         if (fragment != null) {
@@ -293,7 +278,7 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
     }
 
     private fun showProgress(notif: String?) {
-        Utility.showProgress(pDialog,notif)
+        Utility.showProgress(pDialog, notif)
     }
 
     public override fun onPause() {

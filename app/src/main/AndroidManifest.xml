@@ -40,9 +40,6 @@
             android:label="@string/str_about"
             android:screenOrientation="fullSensor" />
         <activity
-            android:name=".presentation.settings.view.Preferences"
-            android:label="@string/str_settings" />
-        <activity
             android:name=".presentation.planetypes.view.PlaneTypesActivity"
             android:label="@string/str_airplane_types"
             android:screenOrientation="fullSensor" />

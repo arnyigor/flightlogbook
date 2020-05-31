@@ -35,6 +35,7 @@ object CONSTS {
         const val PREF_DROPBOX_AUTOIMPORT_TO_DB = "dropbox_autoimport_to_db"
         const val PREF_USER_FILTER_FLIGHTS = "config_user_filter_flights"
         const val PREF_MOTO_TIME = "motoCheckPref"
+        const val AUTO_EXPORT_XLS = "autoExportXLSPref"
     }
 
     object REQUESTS {

@@ -284,7 +284,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
         }.observeSubscribeAdd({
             val planeType = it.value
             this.flight?.planeId = planeType?.typeId
-            val title = "${resourcesInteractor.getString(R.string.str_type)}${planeType?.typeName}"
+            val title = "${resourcesInteractor.getString(R.string.str_type)}:${planeType?.typeName}"
             viewState.setPlaneTypeTitle(title)
         }, {
             viewState.toastError(resourcesInteractor.getString(R.string.err_plane_type_not_found))
@@ -297,7 +297,7 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
                     val flightType = it.value
                     this.flight?.flightTypeId = flightType?.id?.toInt()
                     val title =
-                            "${resourcesInteractor.getString(R.string.str_flight_type_title)}${flightType?.typeTitle}"
+                            "${resourcesInteractor.getString(R.string.str_flight_type_title)}:${flightType?.typeTitle}"
                     viewState.setFligtTypeTitle(title)
                 }, {
                     viewState.toastError(resourcesInteractor.getString(R.string.err_flight_type_not_found))

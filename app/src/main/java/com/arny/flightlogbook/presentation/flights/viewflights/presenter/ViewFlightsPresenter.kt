@@ -28,9 +28,9 @@ class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>(),CompositeDisposable
         resetCompositeDisposable()
     }
 
-    fun loadFlights() {
+    fun loadFlights(checkAutoExport: Boolean = false) {
         viewState.viewLoadProgress(true)
-        flightsInteractor.getFilterFlightsObs()
+        flightsInteractor.getFilterFlightsObs(checkAutoExport)
                 .observeSubscribeAdd({
                     viewState.updateAdapter(it)
                     viewState.showEmptyView(it.isEmpty())
@@ -44,6 +44,6 @@ class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>(),CompositeDisposable
 
     fun changeOrder(orderType: Int) {
         flightsInteractor.setFlightsOrder(orderType)
-        loadFlights()
+        loadFlights(false)
     }
 }

@@ -59,18 +59,20 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
             launchActivity<AddEditActivity>(CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT)
             activity?.overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
         }
+        requireActivity().title = getString(R.string.fragment_logbook)
         mLayoutManager = LinearLayoutManager(context)
         rvflights.layoutManager = mLayoutManager
         rvflights.itemAnimator = DefaultItemAnimator()
-        adapter = FlightsAdapter()
-        adapter?.setViewHolderListener(object : SimpleAbstractAdapter.OnViewHolderListener<Flight> {
-            override fun onItemClick(position: Int, item: Flight) {
-                launchActivity<AddEditActivity>(CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT) {
-                    putExtra(CONSTS.DB.COLUMN_ID, item.id)
+        adapter = FlightsAdapter().apply {
+            setViewHolderListener(object : SimpleAbstractAdapter.OnViewHolderListener<Flight> {
+                override fun onItemClick(position: Int, item: Flight) {
+                    launchActivity<AddEditActivity>(CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT) {
+                        putExtra(CONSTS.DB.COLUMN_ID, item.id)
+                    }
+                    requireActivity().overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
                 }
-                activity?.overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
-            }
-        })
+            })
+        }
         rvflights.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 if (dy < 0 && !fab_add_flight.isShown)
@@ -90,7 +92,7 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
                 CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT -> {
-                    viewFlightsPresenter.loadFlights()
+                    viewFlightsPresenter.loadFlights(true)
                 }
             }
         }

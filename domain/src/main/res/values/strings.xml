@@ -60,8 +60,8 @@
     <string name="str_types_removes_fail">Типы ВС не удалены</string>
     <string name="str_type_add_succesfull">Тип ВС добавлен</string>
     <string name="str_type_add_fail">Тип ВС не добавлен</string>
-    <string name="str_type">Тип ВС:</string>
-    <string name="str_flight_type_title">Тип полета:</string>
+    <string name="str_type">Тип ВС</string>
+    <string name="str_flight_type_title">Тип полета</string>
     <string name="str_flight_title">Название полета</string>
     <string name="str_type_empty">Тип ВС: нет</string>
     <string name="str_add_airplane_types">Добавить тип ВС</string>
@@ -74,6 +74,9 @@
     <string name="str_open_file">Открыть XLS</string>
     <string name="str_import_attention">Предупреждение!</string>
     <string name="str_import_massage">При импорте данных из файла база данных будет заменена.</string>
+    <string name="str_import_local_file_or_disk">Хотите импортировать стандартный файл или выбрать другой?</string>
+    <string name="str_import_local_file">Стандартный файл</string>
+    <string name="str_import_file_from_disk">Выбрать</string>
     <string name="str_export_attention">Экспорт в файл?</string>
     <string name="str_settings">Настройки</string>
     <string name="str_moto">Cчетчик моточасов</string>
@@ -92,26 +95,22 @@
     <string name="str_fitre_stat">Фильтр статистики</string>
 
 
-    <!--Preferences-->
-
     <string-array name="daynight">
         <item>день</item>
         <item>ночь</item>
     </string-array>
 
-
     <string-array name="statistic_time_period">
-        <item>Все записи</item>
-        <item>День</item>
-        <item>Месяц</item>
-        <item>Год</item>
-        <item>Другой период</item>
+        <item>@string/all_records</item>
+        <item>@string/period_day</item>
+        <item>@string/period_month</item>
+        <item>@string/period_year</item>
+        <item>@string/period_custom</item>
     </string-array>
 
     <string-array name="statistic_filter_type">
-        <item>Тип ВС</item>
-        <item>Тип времени</item>
-        <item>Тип полета</item>
+        <item>@string/str_type_null</item>
+        <item>@string/stat_flight_type</item>
     </string-array>
 
     <string-array name="ifrvfr">
@@ -120,12 +119,10 @@
     </string-array>
 
     <string-array name="flighttype">
-        <item>круги</item>
-        <item>зона</item>
-        <item>маршрут</item>
+        <item>@string/flight_type_circle</item>
+        <item>@string/flight_type_zone</item>
+        <item>@string/flight_type_route</item>
     </string-array>
-
-    <!--Drawer-->
 
     <string-array name="flights_filers">
         <item>@string/str_date_asc</item>
@@ -155,7 +152,7 @@
     <string name="stat_error_end_less_start">Конечная дата меньше начальной</string>
 
     <string name="press_back_again_to_exit">Нажмите еще раз для выхода</string>
-    <string name="auto_export_xls_on_exit">Автоэкспорт XLS при выходе</string>
+    <string name="auto_export_xls_on_list_changes">Автоэкспорт XLS при изменении списка</string>
     <string name="str_date_desc">Дата по убыванию</string>
     <string name="str_date_asc">Дата по возрастанию</string>
     <string name="str_logtime_desc">Налет по убыванию</string>
@@ -188,5 +185,16 @@
     <string name="flight_type_circle">Круги</string>
     <string name="flight_type_zone">Зона</string>
     <string name="flight_type_route">Маршрут</string>
+    <string name="stat_total_flights">Всего полетов</string>
+    <string name="stat_total_flight_time">Общее летное время</string>
+    <string name="stat_total_night_time">Общее ночное время</string>
+    <string name="stat_total_ground_time">Общее время на земле</string>
+    <string name="stat_total_time">Общее время</string>
+    <string name="stat_flight_type">Тип полета</string>
+    <string name="all_records">Все записи</string>
+    <string name="period_day">День</string>
+    <string name="period_month">Месяц</string>
+    <string name="period_year">Год</string>
+    <string name="period_custom">Другой период</string>
 
 </resources>

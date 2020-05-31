@@ -45,6 +45,7 @@ class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickL
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        requireActivity().title = getString(R.string.str_airplane_types)
         rv_plane_types.layoutManager = LinearLayoutManager(context)
         rv_plane_types.itemAnimator = DefaultItemAnimator()
         adapter = PlaneTypesAdapter(object : PlaneTypesAdapter.PlaneTypesListener {
@@ -127,10 +128,10 @@ class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickL
     override fun showRemoveDialog(item: PlaneType, position: Int) {
         alertDialog(
                 requireActivity(),
-                "Вы хотите удалить ${item.typeName}?",
+                "${getString(R.string.str_delete)} ${item.typeName}?",
                 null,
-                "Да",
-                "Нет",
+                getString(R.string.str_ok),
+                getString(R.string.str_cancel),
                 false,
                 onConfirm = {
                     typeListPresenter.removeType(item)

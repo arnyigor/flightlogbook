@@ -20,6 +20,7 @@ import java.util.*
 
 class StatisticFragment : MvpAppCompatFragment(), StatisticsView, View.OnClickListener {
     private var statAdapter: StatisticAdapter? = null
+
     @InjectPresenter
     lateinit var statisticsPresenter: StatisticsPresenter
 
@@ -41,6 +42,7 @@ class StatisticFragment : MvpAppCompatFragment(), StatisticsView, View.OnClickLi
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        requireActivity().title = getString(R.string.fragment_stats)
         tv_start_date.setOnClickListener(this)
         tv_end_date.setOnClickListener(this)
         tv_pediod_type.setOnClickListener(this)
@@ -155,26 +157,26 @@ class StatisticFragment : MvpAppCompatFragment(), StatisticsView, View.OnClickLi
     override fun showDateDialogStart(year: Int, month: Int, day: Int) {
         fragmentManager?.let {
             CalendarDatePickerDialogFragment()
-                .setPreselectedDate(year, month, day)
-                .setOnDateSetListener { dialog, y, monthOfYear, dayOfMonth ->
-                    dialog.dismiss()
-                    statisticsPresenter.onDateStartSet(y, monthOfYear, dayOfMonth)
-                }.show(it, "fragment_date_start_picker_name")
+                    .setPreselectedDate(year, month, day)
+                    .setOnDateSetListener { dialog, y, monthOfYear, dayOfMonth ->
+                        dialog.dismiss()
+                        statisticsPresenter.onDateStartSet(y, monthOfYear, dayOfMonth)
+                    }.show(it, "fragment_date_start_picker_name")
         }
     }
 
     override fun toastError(string: String?) {
-         ToastMaker.toastError(context,string)
+        ToastMaker.toastError(context, string)
     }
 
     override fun showDateDialogEnd(year: Int, month: Int, day: Int) {
         fragmentManager?.let {
             CalendarDatePickerDialogFragment()
-                .setPreselectedDate(year, month, day)
-                .setOnDateSetListener { dialog, y, monthOfYear, dayOfMonth ->
-                    dialog.dismiss()
-                    statisticsPresenter.onDateEndSet(y, monthOfYear, dayOfMonth)
-                }.show(it, "fragment_date_end_picker_name")
+                    .setPreselectedDate(year, month, day)
+                    .setOnDateSetListener { dialog, y, monthOfYear, dayOfMonth ->
+                        dialog.dismiss()
+                        statisticsPresenter.onDateEndSet(y, monthOfYear, dayOfMonth)
+                    }.show(it, "fragment_date_end_picker_name")
         }
     }
 }
