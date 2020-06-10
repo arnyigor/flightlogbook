@@ -53,7 +53,6 @@ dependencies {
     androidTestImplementation libs.rules
     implementation libs.assertjCore
     androidTestImplementation libs.assertjAndroid
-    androidTestImplementation libs.assertjSupport
     implementation libs.mockitoCore
     androidTestImplementation libs.mockitoAndroid
     //di

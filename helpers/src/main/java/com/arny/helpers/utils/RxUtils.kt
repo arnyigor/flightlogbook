@@ -38,6 +38,10 @@ fun <T> fromCallable(callable: () -> T): Observable<T> {
     return Observable.fromCallable(callable)
 }
 
+fun <T> fromSingle(callable: () -> T): Single<T> {
+    return Single.fromCallable(callable)
+}
+
 fun fromCompletable(action: (() -> Unit)): Completable {
     return Completable.fromAction(action)
 }

@@ -2,20 +2,20 @@ package com.arny.data.utils
 
 import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.os.Environment
 import android.util.Log
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.arny.helpers.utils.FileUtils
-import com.arny.helpers.utils.Stopwatch
-import com.arny.helpers.utils.Utility
+import com.arny.helpers.utils.*
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.util.ArrayList
 import kotlin.Comparator
+import kotlin.text.isEmpty
 
 class DBUtils {
     companion object {
@@ -242,5 +242,19 @@ class DBUtils {
             return success
         }
 
+        fun queryItem(db: RoomDatabase, sql: String, function: (Cursor) -> Unit) {
+            queryDb(db, sql).toItem(function)
+        }
+
+        fun queryList(db: RoomDatabase, sql: String, function: (c: Cursor) -> Unit) {
+            queryDb(db, sql).toList(function)
+
+        }
+
+        private fun queryDb(db: RoomDatabase, sql: String): Cursor? {
+            return db.openHelper
+                    .writableDatabase
+                    .query(sql)
+        }
     }
 }

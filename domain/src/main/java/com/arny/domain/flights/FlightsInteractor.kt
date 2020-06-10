@@ -65,6 +65,32 @@ class FlightsInteractor @Inject constructor(
         return flightTypesRepository.loadDBFlightType(id)
     }
 
+    private fun getFormattedFlightTimes(): String {
+        val flightsCount = flightsRepository.getFlightsCount()
+        if (flightsCount == 0) {
+            throw Exception("Flights not found")
+        }
+        val flightsTime = flightsRepository.getFlightsTime()
+        val groundTime = flightsRepository.getGroundTime()
+        val nightTime = flightsRepository.getNightTime()
+        val sumlogTime = flightsTime + groundTime
+        return String.format("%s %s\n%s %s\n%s %s\n%s %s\n%s %d",
+                resourcesProvider.getString(R.string.str_total_flight_time),
+                DateTimeUtils.strLogTime(flightsTime),
+                resourcesProvider.getString(R.string.stat_total_night_time),
+                DateTimeUtils.strLogTime(nightTime),
+                resourcesProvider.getString(R.string.cell_ground_time) + ":",
+                DateTimeUtils.strLogTime(groundTime),
+                resourcesProvider.getString(R.string.str_total_time),
+                DateTimeUtils.strLogTime(sumlogTime),
+                resourcesProvider.getString(R.string.total_records),
+                flightsCount)
+    }
+
+    fun getTotalflightsTimeInfo(): Observable<String> {
+        return fromCallable { getFormattedFlightTimes() }
+    }
+
     private fun getPrefOrderflights(filtertype: Int): String = when (filtertype) {
         0 -> CONSTS.DB.COLUMN_DATETIME
         1 -> CONSTS.DB.COLUMN_DATETIME + " DESC"
@@ -109,9 +135,8 @@ class FlightsInteractor @Inject constructor(
                         val planeTypes = planeTypesRepository.loadPlaneTypes()
                         flights.map { flight ->
                             flight.colorInt = flight.params?.getParam(PARAM_COLOR, "")?.toIntColor()
-                            flight.colorInt?.let { colorWillBeMasked(it) }?.takeIf { true }?.let {
-                                flight.colorText = Color.WHITE
-                            }
+                            val masked = flight.colorInt?.let { colorWillBeMasked(it) } ?: false
+                            flight.colorText = if (masked) Color.WHITE else null
                             flight.planeType = planeTypes.find { it.typeId == flight.planeId }
                             flight.flightType = flightTypes.find { it.id == flight.flightTypeId?.toLong() }
                             flight.totalTime = flight.flightTime + flight.groundTime
@@ -463,8 +488,8 @@ class FlightsInteractor @Inject constructor(
         mainSheet.setColumnWidth(5, 15 * 300)
         mainSheet.setColumnWidth(6, 15 * 200)
         mainSheet.setColumnWidth(7, 15 * 500)
-        mainSheet.setColumnWidth(8, 15 * 500)
-        mainSheet.setColumnWidth(9, 15 * 200)
+        mainSheet.setColumnWidth(8, 15 * 250)
+        mainSheet.setColumnWidth(9, 15 * 300)
         val file = File(getDefaultFilePath(resourcesProvider.provideContext()))
         var os: FileOutputStream? = null
         val success: Boolean

@@ -23,6 +23,18 @@ class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>(),CompositeDisposable
         FlightApp.appComponent.inject(this)
     }
 
+    override fun onFirstViewAttach() {
+        super.onFirstViewAttach()
+        getTimeInfo()
+    }
+
+    fun getTimeInfo() {
+        flightsInteractor.getTotalflightsTimeInfo()
+                .subsribeFromPresenter({
+                    viewState.showTotalsInfo(it)
+                })
+    }
+
     override fun detachView(view: ViewFlightsView?) {
         super.detachView(view)
         resetCompositeDisposable()
@@ -31,7 +43,7 @@ class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>(),CompositeDisposable
     fun loadFlights(checkAutoExport: Boolean = false) {
         viewState.viewLoadProgress(true)
         flightsInteractor.getFilterFlightsObs(checkAutoExport)
-                .observeSubscribeAdd({
+                .subsribeFromPresenter({
                     viewState.updateAdapter(it)
                     viewState.showEmptyView(it.isEmpty())
                     viewState.viewLoadProgress(false)

@@ -214,7 +214,7 @@ class DropboxSyncFragment : Fragment(), CompositeDisposableComponent {
             fromCallable {
                 getAccessToken()
                 true
-            }.observeSubscribeAdd({
+            }.subsribeFromPresenter({
                 setUiVisibility()
             })
         }

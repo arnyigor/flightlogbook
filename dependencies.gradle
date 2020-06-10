@@ -12,7 +12,7 @@ ext.versions = [
         'gms'              : '4.3.3',
         'appcompatx'       : '1.1.0',
         'material'         : '1.0.0',
-        'roomx'            : '2.2.3',
+        'roomx'            : '2.2.5',
         'room'             : '1.1.1',
         'lifecycle'        : '1.1.1',
         'realm'            : '5.8.0',

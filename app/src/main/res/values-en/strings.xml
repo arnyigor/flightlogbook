@@ -37,4 +37,5 @@
     <string name="exporting_file">Export to file</string>
     <string name="export_file_success">File saved %s</string>
     <string name="error_export_file">Export error %s</string>
+    <string name="error_share_file">Error sharing file %s</string>
 </resources>

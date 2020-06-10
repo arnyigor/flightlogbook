@@ -104,21 +104,29 @@ class AddEditActivity :
     }
 
     private fun onNightTimeChanges() {
+        val timeZero = getTimeZero()
         setMaskedChanges(edtNightTime) {
             if (edtNightTime.text.toString().isBlank()) {
-                edtNightTime.hint = getString(R.string.str_time_zero)
+                edtNightTime.hint = timeZero
             }
             sNightTime = it
         }
         edtNightTime.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
+                edtNightTime.setSelectAllOnFocus(false)
                 addEditPresenter.correctNightTime(sNightTime)
             }
-            if (edtNightTime.text.toString().isBlank()) {
+            val nightTime = edtNightTime.text.toString()
+            if (nightTime.isBlank()) {
                 if (hasFocus) {
-                    edtNightTime?.hint = getString(R.string.str_time_zero)
+                    edtNightTime?.hint = timeZero
                 } else {
                     edtNightTime?.hint = null
+                }
+            } else {
+                if (hasFocus && nightTime == timeZero) {
+                    edtNightTime.setSelectAllOnFocus(true)
+                    edtNightTime.selectAll()
                 }
             }
         }
@@ -135,21 +143,30 @@ class AddEditActivity :
     }
 
     private fun onGroundTimeChanges() {
+        val timeZero = getTimeZero()
         setMaskedChanges(edtGroundTime) {
             if (edtGroundTime.text.toString().isBlank()) {
-                edtGroundTime.hint = getString(R.string.str_time_zero)
+                edtGroundTime.hint = timeZero
             }
             sGroundTime = it
         }
+
         edtGroundTime.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
+                edtGroundTime.setSelectAllOnFocus(false)
                 addEditPresenter.correctGroundTime(sGroundTime)
             }
-            if (edtGroundTime.text.toString().isBlank()) {
+            val grTime = edtGroundTime.text.toString()
+            if (grTime.isBlank()) {
                 if (hasFocus) {
-                    edtGroundTime?.hint = getString(R.string.str_time_zero)
+                    edtGroundTime?.hint = timeZero
                 } else {
                     edtGroundTime?.hint = null
+                }
+            } else {
+                if (hasFocus && grTime == timeZero) {
+                    edtGroundTime.setSelectAllOnFocus(true)
+                    edtGroundTime.selectAll()
                 }
             }
         }
@@ -217,21 +234,29 @@ class AddEditActivity :
     }
 
     private fun onFlightTimeChanges() {
+        val timeZero = getTimeZero()
         setMaskedChanges(edtFlightTime) {
             if (edtFlightTime.text.toString().isBlank()) {
-                edtFlightTime.hint = getString(R.string.str_time_zero)
+                edtFlightTime.hint = timeZero
             }
             sFlightTime = it
         }
         edtFlightTime.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
+                edtFlightTime.setSelectAllOnFocus(false)
                 addEditPresenter.correctFlightTime(sFlightTime)
             }
-            if (edtFlightTime.text.toString().isBlank()) {
+            val flTime = edtFlightTime.text.toString()
+            if (flTime.isBlank()) {
                 if (hasFocus) {
-                    edtFlightTime?.hint = getString(R.string.str_time_zero)
+                    edtFlightTime?.hint = timeZero
                 } else {
                     edtFlightTime?.hint = null
+                }
+            } else {
+                if (hasFocus && flTime == timeZero) {
+                    edtFlightTime.setSelectAllOnFocus(true)
+                    edtFlightTime.selectAll()
                 }
             }
         }
@@ -246,6 +271,8 @@ class AddEditActivity :
             }
         }
     }
+
+    private fun getTimeZero() = getString(R.string.str_time_zero)
 
     override fun onClick(v: View?) {
         when (v?.id) {

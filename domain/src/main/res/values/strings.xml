@@ -111,6 +111,7 @@
     <string-array name="statistic_filter_type">
         <item>@string/str_type_null</item>
         <item>@string/stat_flight_type</item>
+        <item>@string/stat_color</item>
     </string-array>
 
     <string-array name="ifrvfr">
@@ -178,7 +179,7 @@
     <string name="enter_time">Введите время</string>
     <string name="date_time_input_error">Ошибка ввода даты</string>
     <string name="empty_flight">Данные полета не найдены</string>
-    <string name="str_total_flight_time">Общее летное время:</string>
+    <string name="str_total_flight_time">Полётное время:</string>
     <string name="saving">Сохранение</string>
     <string name="loading_file">Загрузка файла</string>
     <string name="importing_file">Импорт файла</string>
@@ -186,10 +187,10 @@
     <string name="flight_type_circle">Круги</string>
     <string name="flight_type_zone">Зона</string>
     <string name="flight_type_route">Маршрут</string>
-    <string name="stat_total_flights">Всего полетов</string>
-    <string name="stat_total_flight_time">Общее летное время</string>
-    <string name="stat_total_night_time">Общее ночное время</string>
-    <string name="stat_total_ground_time">Общее время на земле</string>
+    <string name="stat_total_flights">Всего полётов</string>
+    <string name="stat_total_flight_time">Полётное время</string>
+    <string name="stat_total_night_time">Ночное время</string>
+    <string name="stat_total_ground_time">Время на земле</string>
     <string name="stat_total_time">Общее время</string>
     <string name="stat_flight_type">Тип полета</string>
     <string name="all_records">Все записи</string>
@@ -200,5 +201,6 @@
     <string name="file_size">Размер: </string>
     <string name="file_name">Файл: </string>
     <string name="file_last_modify">Последние изменения: </string>
+    <string name="stat_color">Цвету</string>
 
 </resources>

@@ -24,4 +24,8 @@ interface StatisticsView : MvpView {
     fun setFilterStatisticVisible(vis: Boolean)
     fun showEmptyView(showEmpty: Boolean)
     fun setFilterSpinnerItems(items: List<String>)
+    fun onColorSelect(colors: IntArray)
+    fun setViewColorVisible(visible: Boolean)
+    fun setFilterTypeVisible(visible: Boolean)
+    fun setViewColor(color: Int)
 }

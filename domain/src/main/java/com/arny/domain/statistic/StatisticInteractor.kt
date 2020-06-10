@@ -1,5 +1,6 @@
 package com.arny.domain.statistic
 
+import com.arny.constants.CONSTS.STRINGS.PARAM_COLOR
 import com.arny.domain.R
 import com.arny.domain.common.ResourcesProvider
 import com.arny.domain.flights.FlightsRepository
@@ -11,7 +12,10 @@ import com.arny.domain.models.Statistic
 import com.arny.domain.planetypes.PlaneTypesRepository
 import com.arny.helpers.utils.DateTimeUtils
 import com.arny.helpers.utils.fromCallable
+import com.arny.helpers.utils.toHexColor
+import com.arny.helpers.utils.toIntColorsArray
 import io.reactivex.Observable
+import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -33,6 +37,13 @@ class StatisticInteractor @Inject constructor(
 
     fun loadFilteredFlightsByPlaneTypes(types: List<Long?>, startdatetime: Long, enddatetime: Long, extendedStatistic: Boolean, includeEnd: Boolean): Observable<ArrayList<Statistic>> {
         return returnStatistic(extendedStatistic, fromCallable { flightsRepository.getStatisticDbFlightsByPlanes(startdatetime, enddatetime, types, includeEnd) })
+    }
+
+    fun loadFilteredFlightsByColor(color: Int, startdatetime: Long, enddatetime: Long, extendedStatistic: Boolean, includeEnd: Boolean): Observable<ArrayList<Statistic>> {
+        return returnStatistic(extendedStatistic, fromCallable {
+            val query = "%\"$PARAM_COLOR\":\"${color.toHexColor()}\"%"
+            flightsRepository.getStatisticDbFlightsByColor(startdatetime, enddatetime, includeEnd, query)
+        })
     }
 
     fun loadFilteredFlightsByFlightTypes(startdatetime: Long, enddatetime: Long, extendedStatistic: Boolean, types: List<Long?>, includeEnd: Boolean): Observable<ArrayList<Statistic>> {
@@ -108,8 +119,11 @@ class StatisticInteractor @Inject constructor(
             statistic.dateTimeStart = flight.datetimeFormatted
             val totalTime = flight.flightTime + flight.groundTime
             val builder = StringBuilder().apply {
-                append("${resourcesProvider.getString(R.string.str_itemlogtime)}:")
+                append("<b>${resourcesProvider.getString(R.string.stat_total_flight_time)}:</b>")
                 append(getTime(flight.flightTime))
+                append("<br>")
+                append("<b>${resourcesProvider.getString(R.string.stat_total_night_time)}:</b>")
+                append(getTime(flight.nightTime))
                 append("<br>")
                 append("<b>${resourcesProvider.getString(R.string.cell_ground_time)}:</b>")
                 append(getTime(flight.groundTime))
@@ -137,5 +151,10 @@ class StatisticInteractor @Inject constructor(
 
     fun loadFlightTypes(): Observable<List<FlightType>> {
         return fromCallable { flightTypesRepository.loadDBFlightTypes() }
+    }
+
+    fun loadColors(): Single<IntArray> {
+        return flightsRepository.getNotEmptyColors()
+                .map { it.toIntColorsArray() }
     }
 }

@@ -1,10 +1,14 @@
 package com.arny.flightlogbook.presentation.statistic.view
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.*
 import android.widget.Adapter
 import android.widget.AdapterView
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.color.colorChooser
 import com.arny.adapters.MultiSelectionSpinner
 import com.arny.domain.models.Statistic
 import com.arny.flightlogbook.R
@@ -48,10 +52,11 @@ class StatisticFragment : MvpAppCompatFragment(), StatisticsView, View.OnClickLi
         tv_pediod_type.setOnClickListener(this)
         iv_period_left.setOnClickListener(this)
         iv_period_right.setOnClickListener(this)
+        vColor.setOnClickListener(this)
         statAdapter = StatisticAdapter()
         rv_statistic.layoutManager = LinearLayoutManager(context)
         rv_statistic.adapter = statAdapter
-        spin_period.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        spinnerPeriod.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
 
             }
@@ -60,43 +65,53 @@ class StatisticFragment : MvpAppCompatFragment(), StatisticsView, View.OnClickLi
                 statisticsPresenter.onPeriodChanged(position)
             }
         }
-        chbox_extended_stat.setOnCheckedChangeListener { _, isChecked ->
+        chboxExtendedStat.setOnCheckedChangeListener { _, isChecked ->
             statisticsPresenter.onExtendedStatisticChanged(isChecked)
         }
 
-        chbox_filter.setOnCheckedChangeListener { _, isChecked ->
+        chboxFilter.setOnCheckedChangeListener { _, isChecked ->
             statisticsPresenter.onFilterChanged(isChecked)
         }
 
-        spin_stat_filter.setSelection(Adapter.NO_SELECTION, true)
-        spin_stat_filter.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        spinStatFilter.setSelection(Adapter.NO_SELECTION, true)
+        spinStatFilter.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
 
             }
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                statisticsPresenter.onFilterTypeSelect(position)
+                statisticsPresenter.onFilterSelected(position)
             }
         }
-        spin_stat_filter_type.setOnSelectionListener(object : MultiSelectionSpinner.OnMultiSelectionChooseListener {
+        mssFilterType.setOnSelectionListener(object : MultiSelectionSpinner.OnMultiSelectionChooseListener {
             override fun onSelected(mSelection: List<Int>, items: Array<String>?) {
-                statisticsPresenter.onFilter(spin_stat_filter.selectedItemPosition, mSelection)
+                statisticsPresenter.onFilterTypeSelected(spinStatFilter.selectedItemPosition, mSelection)
             }
         })
     }
 
     override fun setFilterStatisticVisible(vis: Boolean) {
-        tv_filter_stat_by.setVisible(vis)
-        spin_stat_filter.setVisible(vis)
-        spin_stat_filter_type.setVisible(vis)
+        tv_filter_stat_by.isVisible = vis
+        spinStatFilter.isVisible = vis
+        mssFilterType.isVisible = vis
+        vColor.isVisible = false
         if (vis) {
-            statisticsPresenter.onFilterTypeSelect(spin_stat_filter.selectedItemPosition)
+            statisticsPresenter.onFilterSelected(spinStatFilter.selectedItemPosition)
         }
     }
 
+
+    override fun setViewColorVisible(visible: Boolean) {
+        vColor.isVisible = visible
+    }
+
+    override fun setFilterTypeVisible(visible: Boolean) {
+        mssFilterType.isVisible = visible
+    }
+
     override fun setFilterSpinnerItems(items: List<String>) {
-        spin_stat_filter_type.setItems(items)
-        spin_stat_filter_type.setSelection(0)
+        mssFilterType.setItems(items)
+        mssFilterType.setSelection(0)
     }
 
     override fun showEmptyView(showEmpty: Boolean) {
@@ -110,6 +125,7 @@ class StatisticFragment : MvpAppCompatFragment(), StatisticsView, View.OnClickLi
             R.id.tv_pediod_type -> statisticsPresenter.onPeriodTypeClick()
             R.id.iv_period_left -> statisticsPresenter.decreasePeriod()
             R.id.iv_period_right -> statisticsPresenter.increasePeriod()
+            R.id.vColor -> statisticsPresenter.colorClick()
         }
     }
 
@@ -133,15 +149,19 @@ class StatisticFragment : MvpAppCompatFragment(), StatisticsView, View.OnClickLi
     }
 
     override fun setPeriodItemText(periodItem: String?) {
-        tv_pediod_type.setText(periodItem)
+        tv_pediod_type.text = periodItem
     }
 
     override fun setStartDateText(date: String?) {
-        tv_start_date.setText(date)
+        tv_start_date.text = date
     }
 
     override fun setEndDateText(date: String?) {
-        tv_end_date.setText(date)
+        tv_end_date.text = date
+    }
+
+    override fun setViewColor(color: Int) {
+        vColor.setBackgroundColor(color)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -177,6 +197,16 @@ class StatisticFragment : MvpAppCompatFragment(), StatisticsView, View.OnClickLi
                         dialog.dismiss()
                         statisticsPresenter.onDateEndSet(y, monthOfYear, dayOfMonth)
                     }.show(it, "fragment_date_end_picker_name")
+        }
+    }
+
+    override fun onColorSelect(colors: IntArray) {
+        MaterialDialog(requireContext()).show {
+            title(R.string.select_color)
+            colorChooser(colors, initialSelection = Color.BLUE) { _, color ->
+                statisticsPresenter.onColorSelected(color)
+            }
+            positiveButton(R.string.select)
         }
     }
 }

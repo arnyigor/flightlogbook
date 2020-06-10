@@ -27,7 +27,9 @@ class FlightsAdapter : SimpleAbstractAdapter<Flight>() {
             tvPlaneType.text = item.planeType?.typeName
             tvDescr.isVisible = !item.description.isNullOrBlank()
             tvDescr.text = item.description
-            item.colorText?.let {
+            val colorText = item.colorText
+                    ?: ContextCompat.getColor(context, R.color.colorTextPrimary)
+            colorText.let {
                 tvLogTimeFlightTotal.setTextColor(it)
                 tvLogTimeFlight.setTextColor(it)
                 tvDate.setTextColor(it)

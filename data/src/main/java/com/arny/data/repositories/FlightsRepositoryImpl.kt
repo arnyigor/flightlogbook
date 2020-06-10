@@ -1,13 +1,16 @@
 package com.arny.data.repositories
 
+import android.database.Cursor
+import com.arny.constants.CONSTS.STRINGS.PARAM_COLOR
 import com.arny.data.db.MainDB
 import com.arny.data.db.daos.FlightDAO
 import com.arny.data.models.toFlightEntity
 import com.arny.data.utils.DBUtils
 import com.arny.domain.flights.FlightsRepository
 import com.arny.domain.models.Flight
-import com.arny.helpers.utils.getLongValue
-import com.arny.helpers.utils.toItem
+import com.arny.domain.models.Params
+import com.arny.helpers.utils.*
+import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -26,6 +29,19 @@ class FlightsRepositoryImpl @Inject constructor(private val flightDAO: FlightDAO
         )
     }
 
+    override fun getNotEmptyColors(): Single<List<String>> {
+        return fromSingle { queryDBColors() }
+    }
+
+    private fun queryDBColors(): List<String> {
+        val colors = mutableListOf<String>()
+        flightDAO.queryNotEmptyColorParams().toList {
+            val params = Params(it.getStringValue("params"))
+            params.getParam(PARAM_COLOR)?.let { it1 -> colors.add(it1) }
+        }
+        return colors.distinct()
+    }
+
     override fun getDbFlights(): List<Flight> {
         return flightDAO.queryFlights()
                 .map { it.toFlight() }
@@ -37,6 +53,15 @@ class FlightsRepositoryImpl @Inject constructor(private val flightDAO: FlightDAO
                     .map { it.toFlight() }
         }
         return flightDAO.queryFlights(startDate, endDate)
+                .map { it.toFlight() }
+    }
+
+    override fun getStatisticDbFlightsByColor(startDate: Long, endDate: Long, includeEnd: Boolean, query: String): List<Flight> {
+        if (includeEnd) {
+            return flightDAO.queryFlightsByColorInclude(startDate, endDate, query)
+                    .map { it.toFlight() }
+        }
+        return flightDAO.queryFlightsByColor(startDate, endDate, query)
                 .map { it.toFlight() }
     }
 
@@ -100,8 +125,7 @@ class FlightsRepositoryImpl @Inject constructor(private val flightDAO: FlightDAO
         return flightDAO.queryFlight(id)?.toFlight()
     }
 
-    override fun getFlightsTime(): Int {
-        val cursor = flightDAO.queryFlightTime()
+    private fun getCursorInt(cursor: Cursor): Int {
         var count = 0
         if (cursor.moveToFirst()) {
             count = cursor.getInt(0)
@@ -110,22 +134,16 @@ class FlightsRepositoryImpl @Inject constructor(private val flightDAO: FlightDAO
         return count
     }
 
-    override fun getFlightsCount(): Int {
-        val cursor = flightDAO.queryFlightsCount()
-        var count = 0
-        if (cursor.moveToFirst()) {
-            count = cursor.getInt(0)
-            cursor.close()
-        }
-        return count
-    }
+    override fun getFlightsTime(): Int = getCursorInt(flightDAO.queryFlightTime())
 
-    override fun removeAllFlights(): Boolean {
-        return flightDAO.delete() > 0
-    }
+    override fun getNightTime(): Int = getCursorInt(flightDAO.queryNightTime())
 
-    override fun removeFlight(id: Long?): Boolean {
-        return flightDAO.delete(id) > 0
-    }
+    override fun getGroundTime(): Int = getCursorInt(flightDAO.queryGroundTime())
+
+    override fun getFlightsCount(): Int = getCursorInt(flightDAO.queryFlightsCount())
+
+    override fun removeAllFlights(): Boolean = flightDAO.delete() > 0
+
+    override fun removeFlight(id: Long?): Boolean = flightDAO.delete(id) > 0
 
 }

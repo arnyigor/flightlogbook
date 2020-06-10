@@ -42,7 +42,7 @@ class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableCompo
     private fun showFileData() {
         viewState.setShareFileVisible(false)
         fromNullable { interactor.getFileData() }
-                .observeSubscribeAdd({
+                .subsribeFromPresenter({
                     val value = it.value
                     viewState.setShareFileVisible(value != null)
                     if (value != null) {
@@ -69,7 +69,7 @@ class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableCompo
         viewState.showProgress(R.string.import_data)
         fromNullable {
             interactor.readExcelFile(uri, false)
-        }.observeSubscribeAdd({
+        }.subsribeFromPresenter({
             viewState.hideProgress()
             val path = it.value
             if (path != null) {
@@ -89,7 +89,7 @@ class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableCompo
         viewState.setShareFileVisible(false)
         interactor.getDbFlightsObs()
                 .map { interactor.saveExcelFile(it).toOptionalNull() }
-                .observeSubscribeAdd({
+                .subsribeFromPresenter({
                     viewState.hideProgress()
                     val path = it.value
                     if (path != null) {
@@ -115,7 +115,7 @@ class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableCompo
         viewState.showProgress(R.string.import_data)
         fromNullable {
             interactor.readExcelFile(null, true)
-        }.observeSubscribeAdd({
+        }.subsribeFromPresenter({
             viewState.hideProgress()
             val path = it.value
             if (path != null) {
@@ -131,7 +131,7 @@ class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableCompo
 
     fun onShareFileClick() {
         fromNullable { interactor.getDefaultFileUri() }
-                .observeSubscribeAdd({
+                .subsribeFromPresenter({
                     val value = it.value
                     if (value != null) {
                         viewState.shareFile(value, "application/xls")

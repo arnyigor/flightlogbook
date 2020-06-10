@@ -5,8 +5,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.*
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -88,11 +88,11 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        Log.i(FlightListFragment::class.java.simpleName, "onActivityResult: requestCode:$requestCode;resultCode:$resultCode;data:" + data.dump())
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
                 CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT -> {
                     viewFlightsPresenter.loadFlights(true)
+                    viewFlightsPresenter.getTimeInfo()
                 }
             }
         }
@@ -142,7 +142,8 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
     }
 
     override fun showTotalsInfo(content: String?) {
-//        tv_totals.setText(content)
+        tvTotalTime.isVisible = !content.isNullOrBlank()
+        tvTotalTime.text = content
     }
 
     private fun saveListPosition() {

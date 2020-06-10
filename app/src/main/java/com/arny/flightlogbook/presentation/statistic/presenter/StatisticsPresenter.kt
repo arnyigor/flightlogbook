@@ -1,7 +1,9 @@
 package com.arny.flightlogbook.presentation.statistic.presenter
 
+import android.graphics.Color
 import com.arny.domain.common.ResourcesInteractor
 import com.arny.domain.flights.FlightsInteractor
+import com.arny.domain.models.FilterType
 import com.arny.domain.models.Statistic
 import com.arny.domain.models.StatisticFilter
 import com.arny.domain.statistic.StatisticInteractor
@@ -20,12 +22,14 @@ import javax.inject.Inject
 
 @InjectViewState
 class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableComponent {
+    private var color: Int = Color.BLACK
     override val compositeDisposable = CompositeDisposable()
     private var filterList = listOf<StatisticFilter>()
-    private var filterType = 0
+    private var filterType = FilterType.FLIGHT
     private var filterSelection = arrayListOf<Long?>()
     private var extendedStatistic = false
     private var enableFilter = false
+    private var colors: IntArray? = null
 
     @Inject
     lateinit var flightsInteractor: FlightsInteractor
@@ -51,14 +55,6 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
         FlightApp.appComponent.inject(this)
     }
 
-    sealed class PeriodType(val canShowDialog: Boolean, val showCustomRange: Boolean) {
-        object ALL : PeriodType(false, false)
-        object DAY : PeriodType(true, false)
-        object MONTH : PeriodType(true, false)
-        object YEAR : PeriodType(true, false)
-        object CUSTOM : PeriodType(false, true)
-    }
-
     private fun getPeriod(position: Int): PeriodType {
         return when (position) {
             0 -> PeriodType.ALL
@@ -68,6 +64,14 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
             4 -> PeriodType.CUSTOM
             else -> PeriodType.ALL
         }
+    }
+
+    override fun onFirstViewAttach() {
+        super.onFirstViewAttach()
+        statisticInteractor.loadColors()
+                .subsribeFromPresenter({
+                    colors = it
+                })
     }
 
     override fun detachView(view: StatisticsView?) {
@@ -84,7 +88,7 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
         viewState.setPeriodTypeVisible(currentPeriodType.canShowDialog)
         viewState.setCustomPeriodVisible(currentPeriodType.showCustomRange)
         fromCompletable { correctDateTime() }
-                .completableSubscribeAdd({
+                .subsribeFromPresenter({
                     when (currentPeriodType) {
                         PeriodType.DAY -> setPeriod("dd.MM.yyyy")
                         PeriodType.MONTH -> setPeriod("MMMM yyyy")
@@ -113,7 +117,7 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
 
     private fun setPeriodStartEnd(format: String) {
         fromCallable { Pair(DateTimeUtils.getDateTime(startdatetime, format), DateTimeUtils.getDateTime(enddatetime, format)) }
-                .observeSubscribeAdd({
+                .subsribeFromPresenter({
                     viewState.setStartDateText(it.first)
                     viewState.setEndDateText(it.second)
                 })
@@ -122,7 +126,7 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
     private fun setPeriod(format: String) {
         fromCallable {
             DateTimeUtils.getDateTime(startdatetime, format)
-        }.observeSubscribeAdd({
+        }.subsribeFromPresenter({
             viewState.setPeriodItemText(it)
         })
     }
@@ -134,7 +138,7 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
     fun onDateStartSet(year: Int, monthOfYear: Int, dayOfMonth: Int) {
         fromCallable {
             startDateChange(year, monthOfYear, dayOfMonth)
-        }.observeSubscribeAdd({ ranged ->
+        }.subsribeFromPresenter({ ranged ->
             if (ranged) {
                 if (startdatetime > enddatetime) {
                     viewState.toastError(resourcesInteractor.getString(R.string.stat_error_end_less_start))
@@ -158,13 +162,13 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
     private fun loadStatisticData() {
         if (enableFilter && filterSelection.isNotEmpty()) {
             when (filterType) {
-                0 -> filterBySelectedPlanetypes(filterSelection)
-                1 -> filterBySelectedTimetypes(filterSelection)
-                2 -> filterBySelectedFlightTypes(filterSelection)
+                FilterType.FLIGHT -> filterBySelectedPlanetypes(filterSelection)
+                FilterType.PLANE -> filterBySelectedFlightTypes(filterSelection)
+                FilterType.COLOR -> filterBySelectedColor()
             }
         } else {
-            loadStat()
-                    .observeSubscribeAdd({
+            loadAllFlights()
+                    .subsribeFromPresenter({
                         viewState.clearAdapter()
                         viewState.updateAdapter(it)
                         viewState.showEmptyView(it.isEmpty())
@@ -172,7 +176,22 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
         }
     }
 
-    private fun loadStat(): Observable<ArrayList<Statistic>> {
+    private fun filterBySelectedColor() {
+        updateStatistic(statColor())
+    }
+
+    private fun statColor(): Observable<ArrayList<Statistic>> {
+        return if (isRanged()) {
+            getMinMaxDateRange().flatMap {
+                statisticInteractor.loadFilteredFlightsByColor(
+                        color, startdatetime, enddatetime, extendedStatistic, true)
+            }
+        } else {
+            statisticInteractor.loadFilteredFlightsByColor(color, startdatetime, enddatetime, extendedStatistic, false)
+        }
+    }
+
+    private fun loadAllFlights(): Observable<ArrayList<Statistic>> {
         return if (isRanged()) {
             getMinMaxDateRange().flatMap { statisticInteractor.loadDBFlights(startdatetime, enddatetime, extendedStatistic, true) }
         } else {
@@ -180,25 +199,29 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
         }
     }
 
-    private fun filterBySelectedTimetypes(filterSelection: List<Long?>) {
-        if (isRanged()) {
-            getMinMaxDateRange().flatMap { statisticInteractor.loadDBFlightsByTimes(startdatetime, enddatetime, extendedStatistic, filterSelection, true) }
-        } else {
-            statisticInteractor.loadDBFlightsByTimes(startdatetime, enddatetime, extendedStatistic, filterSelection, false)
-        }
-                .observeOnMain()
-                .subscribe({
-                    viewState.clearAdapter()
-                    viewState.updateAdapter(it)
-                    viewState.showEmptyView(it.isEmpty())
-                }, {
-                    it.printStackTrace()
-                })
-                .addTo(compositeDisposable)
-    }
+    /* private fun filterBySelectedTimetypes(filterSelection: List<Long?>) {
+         if (isRanged()) {
+             getMinMaxDateRange().flatMap { statisticInteractor.loadDBFlightsByTimes(startdatetime, enddatetime, extendedStatistic, filterSelection, true) }
+         } else {
+             statisticInteractor.loadDBFlightsByTimes(startdatetime, enddatetime, extendedStatistic, filterSelection, false)
+         }
+                 .observeOnMain()
+                 .subscribe({
+                     viewState.clearAdapter()
+                     viewState.updateAdapter(it)
+                     viewState.showEmptyView(it.isEmpty())
+                 }, {
+                     it.printStackTrace()
+                 })
+                 .addTo(compositeDisposable)
+     }*/
 
     private fun filterBySelectedFlightTypes(filterSelection: List<Long?>) {
-        if (isRanged()) {
+        updateStatistic(getFlightTypeStat(filterSelection))
+    }
+
+    private fun getFlightTypeStat(filterSelection: List<Long?>): Observable<ArrayList<Statistic>> {
+        return if (isRanged()) {
             getMinMaxDateRange().flatMap {
                 statisticInteractor.loadFilteredFlightsByFlightTypes(
                         startdatetime,
@@ -213,15 +236,6 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
                     startdatetime, enddatetime, extendedStatistic, filterSelection, false
             )
         }
-                .observeOnMain()
-                .subscribe({
-                    viewState.clearAdapter()
-                    viewState.updateAdapter(it)
-                    viewState.showEmptyView(it.isEmpty())
-                }, {
-                    it.printStackTrace()
-                })
-                .addTo(compositeDisposable)
     }
 
     fun initDateStart() {
@@ -231,7 +245,7 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
             val m = dateAndTimeStart.get(Calendar.MONTH)
             val d = dateAndTimeStart.get(Calendar.DAY_OF_MONTH)
             Triple(y, m, d)
-        }.observeSubscribeAdd({
+        }.subsribeFromPresenter({
             viewState.showDateDialogStart(it.first, it.second, it.third)
         })
 
@@ -244,7 +258,7 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
             val m = dateAndTimeEnd.get(Calendar.MONTH)
             val d = dateAndTimeEnd.get(Calendar.DAY_OF_MONTH)
             Triple(y, m, d)
-        }.observeSubscribeAdd({
+        }.subsribeFromPresenter({
             viewState.showDateDialogEnd(it.first, it.second, it.third)
         })
     }
@@ -252,7 +266,7 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
     fun onDateEndSet(year: Int, monthOfYear: Int, dayOfMonth: Int) {
         fromCallable {
             endDateTimeChange(year, monthOfYear, dayOfMonth)
-        }.observeSubscribeAdd({ ranged ->
+        }.subsribeFromPresenter({ ranged ->
             if (ranged) {
                 if (startdatetime > enddatetime) {
                     viewState.toastError(resourcesInteractor.getString(R.string.stat_error_end_less_start))
@@ -276,7 +290,7 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
     fun decreasePeriod() {
         fromCallable {
             onAddPeriod(-1)
-        }.observeSubscribeAdd({
+        }.subsribeFromPresenter({
             setPeriod(it)
             setPeriodStartEnd(it)
             loadStatisticData()
@@ -286,7 +300,7 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
     fun increasePeriod() {
         fromCallable {
             onAddPeriod(1)
-        }.observeSubscribeAdd({
+        }.subsribeFromPresenter({
             setPeriod(it)
             setPeriodStartEnd(it)
             loadStatisticData()
@@ -354,15 +368,21 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
         correctTimes()
     }
 
-    fun onFilter(selectedfilterPosition: Int, mSelection: List<Int>) {
-        filterType = selectedfilterPosition
+    fun onFilterTypeSelected(selectedfilterPosition: Int, mSelection: List<Int>) {
+        val statisticType = when (selectedfilterPosition) {
+            0 -> FilterType.FLIGHT
+            1 -> FilterType.PLANE
+            2 -> FilterType.COLOR
+            else -> FilterType.FLIGHT
+        }
+        filterType = statisticType
         filterSelection.clear()
         filterSelection.addAll(filterList.withIndex().filter { it.index in mSelection }.map { it.value.id })
         loadStatisticData()
     }
 
     private fun filterBySelectedPlanetypes(types: List<Long?>) {
-        if (isRanged()) {
+        val statList = if (isRanged()) {
             getMinMaxDateRange().flatMap {
                 statisticInteractor.loadFilteredFlightsByPlaneTypes(
                         types, startdatetime, enddatetime, extendedStatistic, true)
@@ -370,7 +390,11 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
         } else {
             statisticInteractor.loadFilteredFlightsByPlaneTypes(types, startdatetime, enddatetime, extendedStatistic, false)
         }
-                .observeOnMain()
+        updateStatistic(statList)
+    }
+
+    private fun updateStatistic(statList: Observable<ArrayList<Statistic>>) {
+        statList.observeOnMain()
                 .subscribe({
                     viewState.clearAdapter()
                     viewState.updateAdapter(it)
@@ -385,16 +409,23 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
         return currentPeriodType == PeriodType.ALL || currentPeriodType == PeriodType.CUSTOM
     }
 
-    fun onFilterTypeSelect(position: Int) {
+    fun onFilterSelected(position: Int) {
+        viewState.setViewColorVisible(position == 2)
+        viewState.setFilterTypeVisible(position != 2)
         when (position) {
             0 -> loadFilterPlaneTypes()
-            2 -> loadFilterFlightTypes()
+            1 -> loadFilterFlightTypes()
+            2 -> loadFilterColor()
         }
     }
 
     private fun loadFilterFlightTypes() {
         statisticInteractor.loadFlightTypes()
-                .map { flTypes -> flTypes.map { StatisticFilter(2, it.id, it.typeTitle ?: "") } }
+                .map { flTypes ->
+                    flTypes.map {
+                        StatisticFilter(FilterType.FLIGHT, it.id, it.typeTitle ?: "")
+                    }
+                }
                 .observeOnMain()
                 .subscribe({
                     filterList = it
@@ -405,9 +436,19 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
                 .addTo(compositeDisposable)
     }
 
+    private fun loadFilterColor() {
+        filterType = FilterType.COLOR
+        filterList = listOf(StatisticFilter(FilterType.COLOR, 0, color.toHexColor()))
+        loadStatisticData()
+    }
+
     private fun loadFilterPlaneTypes() {
         statisticInteractor.loadPlaneTypes()
-                .map { types -> types.map { StatisticFilter(0, it.typeId, it.typeName ?: "") } }
+                .map { types ->
+                    types.map {
+                        StatisticFilter(FilterType.PLANE, it.typeId, it.typeName ?: "")
+                    }
+                }
                 .observeOnMain()
                 .subscribe({
                     filterList = it
@@ -430,4 +471,16 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
                 .addTo(compositeDisposable)
     }
 
+    fun colorClick() {
+        fromCallable { colors ?: getColorsIntArray() }
+                .subsribeFromPresenter({ colors ->
+                    viewState.onColorSelect(colors)
+                })
+    }
+
+    fun onColorSelected(color: Int) {
+        this.color = color
+        viewState.setViewColor(color)
+        loadFilterColor()
+    }
 }

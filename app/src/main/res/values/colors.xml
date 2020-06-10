@@ -11,4 +11,6 @@
     <color name="colorTransparent">#00ffffff</color>
     <color name="colorAccentLight">#7295A6</color>
     <color name="colorAccentDark">#4F6773</color>
+    <color name="md_brown_300">#A1887F</color>
+    <color name="md_brown_400">#8D6E63</color>
 </resources>
