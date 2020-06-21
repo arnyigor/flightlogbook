@@ -270,9 +270,11 @@ class AddEditPresenter : MvpPresenter<AddEditView>(), CompositeDisposableCompone
         fromCallable {
             val dateTime = DateTimeUtils.getJodaDateTime(extractedValue, "ddMMyyyy", true)
             mDateTime = dateTime.withTimeAtStartOfDay().millis
+            convertDateTime()
         }.subsribeFromPresenter({
-            setDayToday()
+            viewState.setDate(it)
         }, {
+            setDayToday()
             viewState.toastError(resourcesInteractor.getString(R.string.date_time_input_error))
         })
 

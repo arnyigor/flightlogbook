@@ -550,16 +550,17 @@ public class FileUtils {
 
     public static int getMediaType(String file) {
         try {
-            if (file.substring(file.lastIndexOf("/.k/") + 4, file.lastIndexOf("/")).equals(".Image")) {
+            String substring = file.substring(file.lastIndexOf("/.k/") + 4, file.lastIndexOf("/"));
+            if (substring.equals(".Image")) {
                 return 0;
             }
-            if (file.substring(file.lastIndexOf("/.k/") + 4, file.lastIndexOf("/")).equals(".Video")) {
+            if (substring.equals(".Video")) {
                 return 1;
             }
-            if (file.substring(file.lastIndexOf("/.k/") + 4, file.lastIndexOf("/")).equals(".Audio")) {
+            if (substring.equals(".Audio")) {
                 return 2;
             }
-            if (file.substring(file.lastIndexOf("/.k/") + 4, file.lastIndexOf("/")).equals(".Documents")) {
+            if (substring.equals(".Documents")) {
                 return 3;
             }
             return 0;
@@ -1286,7 +1287,6 @@ public class FileUtils {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 String authority = context.getApplicationContext().getPackageName() + ".provider";
-                System.out.println("authority:" + authority + " file:" + file);
                 return FileProvider.getUriForFile(context, authority, file);
             } else {
                 return Uri.fromFile(file);

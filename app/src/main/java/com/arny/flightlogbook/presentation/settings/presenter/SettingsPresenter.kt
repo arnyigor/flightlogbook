@@ -18,6 +18,7 @@ import javax.inject.Inject
 @InjectViewState
 class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableComponent {
     override val compositeDisposable = CompositeDisposable()
+    private val handler = Handler()
 
     @Inject
     lateinit var interactor: FlightsInteractor
@@ -74,6 +75,10 @@ class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableCompo
             val path = it.value
             if (path != null) {
                 viewState.showResults(R.string.import_file_success, path)
+                handler.removeCallbacksAndMessages(null)
+                handler.postDelayed({
+                    showFileData()
+                }, 1500)
             } else {
                 viewState.showError(R.string.error_import_file)
             }
@@ -94,7 +99,8 @@ class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableCompo
                     val path = it.value
                     if (path != null) {
                         viewState.showResults(R.string.export_file_success, path)
-                        Handler().postDelayed({
+                        handler.removeCallbacksAndMessages(null)
+                        handler.postDelayed({
                             showFileData()
                         }, 1500)
                     } else {
@@ -120,6 +126,10 @@ class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableCompo
             val path = it.value
             if (path != null) {
                 viewState.showResults(R.string.import_file_success, path)
+                handler.removeCallbacksAndMessages(null)
+                handler.postDelayed({
+                    showFileData()
+                }, 1500)
             } else {
                 viewState.showError(R.string.error_import_file)
             }

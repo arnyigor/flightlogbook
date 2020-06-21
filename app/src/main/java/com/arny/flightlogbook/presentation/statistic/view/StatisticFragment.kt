@@ -21,7 +21,6 @@ import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 import java.util.*
-
 class StatisticFragment : MvpAppCompatFragment(), StatisticsView, View.OnClickListener {
     private var statAdapter: StatisticAdapter? = null
 

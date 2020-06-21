@@ -464,7 +464,9 @@ class StatisticsPresenter : MvpPresenter<StatisticsView>(), CompositeDisposableC
                 .map { list -> list.map { it.title ?: "" } }
                 .observeOnMain()
                 .subscribe({
-                    viewState.setFilterSpinnerItems(it)
+                    if (it.isNotEmpty()) {
+                        viewState.setFilterSpinnerItems(it)
+                    }
                 }, {
                     it.printStackTrace()
                 })
