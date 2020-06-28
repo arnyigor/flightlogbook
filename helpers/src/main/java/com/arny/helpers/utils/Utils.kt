@@ -15,11 +15,9 @@ import android.net.Uri
 import android.os.*
 import android.os.Build.VERSION_CODES.Q
 import android.text.Spanned
-import android.view.ContextThemeWrapper
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.*
@@ -448,6 +446,21 @@ fun AppCompatActivity.setupActionBar(toolbar: Toolbar?, action: (ActionBar?.() -
 fun View.showSnackBar(message: String?, duration: Int = Snackbar.LENGTH_SHORT) {
     message?.let {
         Snackbar.make(this, message, duration).show()
+    }
+}
+
+@SuppressLint("ClickableViewAccessibility")
+fun EditText.setDrawableRightClick(onClick: () -> Unit) {
+    this.setOnTouchListener { v, event ->
+        if (v is TextView) {
+            if (event.action == MotionEvent.ACTION_UP) {
+                if (event.rawX >= (v.right - v.compoundDrawables[2].bounds.width())) {
+                    onClick.invoke()
+                    return@setOnTouchListener true
+                }
+            }
+        }
+        return@setOnTouchListener false
     }
 }
 

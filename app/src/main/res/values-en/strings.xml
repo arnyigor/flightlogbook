@@ -38,4 +38,7 @@
     <string name="export_file_success">File saved %s</string>
     <string name="error_export_file">Export error %s</string>
     <string name="error_share_file">Error sharing file %s</string>
+    <string name="info">Info</string>
+    <string name="title_code_info">When entering the airport code, you can separate it with a space or dash</string>
+    <string name="route_info">Route $s - $s</string>
 </resources>

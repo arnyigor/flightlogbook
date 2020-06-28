@@ -37,4 +37,7 @@
     <string name="export_file_success">Файл сохранен %s</string>
     <string name="error_export_file">Ошибка экспорта %s</string>
     <string name="error_share_file">Ошибка передачи файла %s</string>
+    <string name="info">Информация</string>
+    <string name="title_code_info">Название может содержать коды аэропортов. Код аэропорта должен быть из 4 заглавных латинских символов,может содержать цифры</string>
+    <string name="route_info">Маршрут: %1$s - %2$s</string>
 </resources>
