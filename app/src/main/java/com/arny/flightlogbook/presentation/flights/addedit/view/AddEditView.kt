@@ -28,4 +28,6 @@ interface AddEditView : MvpView {
     fun setViewColor(color: Int)
     fun setRemoveColorVisible(visible: Boolean)
     fun setIfrSelected(selected: Boolean)
+    fun requestStorageAndSave()
+    fun saveFlight()
 }

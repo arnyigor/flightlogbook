@@ -45,11 +45,9 @@ fun colorWillBeMasked(color: Int): Boolean {
             Color.green(color),
             Color.blue(color)
     )
-    val brightness = sqrt(
+    return sqrt(
             rgb[0] * rgb[0] * .241 + rgb[1] * rgb[1] * .691 + rgb[2] * rgb[2] * .068
-    ).toInt()
-    println("COLOR: $color, BRIGHT: $brightness")
-    return brightness <= 144
+    ).toInt() <= 144
 }
 
 fun Int.toHexColor(): String {

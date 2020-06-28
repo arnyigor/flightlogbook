@@ -2,12 +2,10 @@ package com.arny.flightlogbook.presentation.flights.viewflights.view
 
 import com.arny.domain.models.Flight
 import moxy.MvpView
+import moxy.viewstate.strategy.AddToEndSingleStrategy
 import moxy.viewstate.strategy.OneExecutionStateStrategy
 import moxy.viewstate.strategy.StateStrategyType
 
-/**
- *Created by Sedoy on 09.07.2019
- */
 @StateStrategyType(value = OneExecutionStateStrategy::class)
 interface ViewFlightsView : MvpView {
     fun updateAdapter(flights: List<Flight>)
@@ -15,5 +13,7 @@ interface ViewFlightsView : MvpView {
     fun clearAdaper()
     fun showEmptyView(vis: Boolean)
     fun showTotalsInfo(content: String?)
+    @StateStrategyType(value = AddToEndSingleStrategy::class)
     fun viewLoadProgress(vis: Boolean)
+    fun showError(message: String?)
 }

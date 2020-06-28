@@ -29,7 +29,7 @@
     <string name="select_color">Choose color</string>
     <string name="import_data">Importing data</string>
     <string name="error_import_file">File import error:%s</string>
-    <string name="import_file_success">File %s imported successfully</string>
+    <string name="import_file_success">File %s imported successfully in database</string>
     <string name="import_export_settings">Import/export settings</string>
     <string name="import_from_file">Load from file</string>
     <string name="export_to_file">Save to file</string>

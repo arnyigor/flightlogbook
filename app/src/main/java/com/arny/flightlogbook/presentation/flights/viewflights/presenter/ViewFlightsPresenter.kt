@@ -2,20 +2,19 @@ package com.arny.flightlogbook.presentation.flights.viewflights.presenter
 
 import com.arny.domain.common.ResourcesInteractor
 import com.arny.domain.flights.FlightsInteractor
+import com.arny.domain.models.Result
 import com.arny.flightlogbook.FlightApp
+import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import com.arny.flightlogbook.presentation.flights.viewflights.view.ViewFlightsView
-import com.arny.helpers.utils.CompositeDisposableComponent
-import io.reactivex.disposables.CompositeDisposable
 import moxy.InjectViewState
-import moxy.MvpPresenter
 import javax.inject.Inject
 
 
 @InjectViewState
-class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>(),CompositeDisposableComponent {
-    override val compositeDisposable = CompositeDisposable()
+class ViewFlightsPresenter : BaseMvpPresenter<ViewFlightsView>() {
     @Inject
     lateinit var flightsInteractor: FlightsInteractor
+
     @Inject
     lateinit var resourcesInteractor: ResourcesInteractor
 
@@ -30,23 +29,30 @@ class ViewFlightsPresenter : MvpPresenter<ViewFlightsView>(),CompositeDisposable
 
     fun getTimeInfo() {
         flightsInteractor.getTotalflightsTimeInfo()
-                .subsribeFromPresenter({
-                    viewState.showTotalsInfo(it)
+                .subscribeFromPresenter({
+                    if (it is Result.Success) {
+                        viewState.showTotalsInfo(it.data)
+                    } else {
+                        viewState.showTotalsInfo(null)
+                    }
                 })
-    }
-
-    override fun detachView(view: ViewFlightsView?) {
-        super.detachView(view)
-        resetCompositeDisposable()
     }
 
     fun loadFlights(checkAutoExport: Boolean = false) {
         viewState.viewLoadProgress(true)
         flightsInteractor.getFilterFlightsObs(checkAutoExport)
-                .subsribeFromPresenter({
-                    viewState.updateAdapter(it)
-                    viewState.showEmptyView(it.isEmpty())
+                .subscribeFromPresenter({
                     viewState.viewLoadProgress(false)
+                    when (it) {
+                        is Result.Success -> {
+                            val data = it.data
+                            viewState.updateAdapter(data)
+                            viewState.showEmptyView(data.isEmpty())
+                        }
+                        is Result.Error -> {
+                            viewState.showError(it.exception?.message)
+                        }
+                    }
                 }, {
                     it.printStackTrace()
                     viewState.viewLoadProgress(false)

@@ -2,7 +2,6 @@ package com.arny.adapters;
 
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -352,7 +351,6 @@ public abstract class AbstractArrayAdapter<T> extends BaseAdapter implements Fil
                 text = view.findViewById(mFieldId);
             }
         } catch (ClassCastException e) {
-            Log.e("ArrayAdapter", "You must supply a resource ID for a TextView");
             throw new IllegalStateException("ArrayAdapter requires the resource ID to be a TextView", e);
         }
 

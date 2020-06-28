@@ -1,10 +1,11 @@
 package com.arny.domain.flights
 
 import com.arny.domain.models.Flight
+import com.arny.domain.models.Result
 import io.reactivex.Single
 
 interface FlightsRepository {
-    fun getDbFlights(order: String): List<Flight>
+    fun getDbFlights(order: String): Result<List<Flight>>
     fun getDbFlights(): List<Flight>
     fun getStatisticDbFlights(startDate: Long, endDate: Long, includeEnd: Boolean): List<Flight>
     fun getStatisticDbFlightsByFlightTypes(

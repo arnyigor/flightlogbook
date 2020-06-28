@@ -1,8 +1,12 @@
 package com.arny.domain;
 
-import com.arny.data.repositories.RepositoryImpl;
+import com.arny.domain.common.PreferencesProvider;
+import com.arny.domain.common.ResourcesProvider;
 import com.arny.domain.flights.FlightsInteractor;
+import com.arny.domain.flights.FlightsRepository;
+import com.arny.domain.flighttypes.FlightTypesRepository;
 import com.arny.domain.models.Flight;
+import com.arny.domain.planetypes.PlaneTypesRepository;
 
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -25,13 +29,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class FlightUseCaseTests {
     private FlightsInteractor flightsInteractor;
     @Mock
-    private RepositoryImpl mockRepository;
+    private FlightTypesRepository flightTypesRepository;
+    @Mock
+    private FlightsRepository flightsRepository;
+    @Mock
+    private ResourcesProvider resourcesProvider;
+    @Mock
+    private PlaneTypesRepository planeTypesRepository;
+    @Mock
+    private PreferencesProvider preferencesProvider;
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
     @Rule public ExpectedException expectedException = ExpectedException.none();
     @Before
     public void setUp() {
-        flightsInteractor = new FlightsInteractor(mockRepository);
+        flightsInteractor = new FlightsInteractor(
+                flightTypesRepository,
+                flightsRepository,
+                resourcesProvider,
+                planeTypesRepository,
+                preferencesProvider
+        );
     }
 
     @Test

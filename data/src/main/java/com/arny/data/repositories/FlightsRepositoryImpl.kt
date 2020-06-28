@@ -9,6 +9,8 @@ import com.arny.data.utils.DBUtils
 import com.arny.domain.flights.FlightsRepository
 import com.arny.domain.models.Flight
 import com.arny.domain.models.Params
+import com.arny.domain.models.Result
+import com.arny.domain.models.toResult
 import com.arny.helpers.utils.*
 import io.reactivex.Single
 import javax.inject.Inject
@@ -16,9 +18,10 @@ import javax.inject.Singleton
 
 @Singleton
 class FlightsRepositoryImpl @Inject constructor(private val flightDAO: FlightDAO, private val mainDB: MainDB) : FlightsRepository {
-    override fun getDbFlights(order: String): List<Flight> {
+    override fun getDbFlights(order: String): Result<List<Flight>> {
         return flightDAO.queryFlightsWithOrder(order)
-                .map { it.toFlight() }
+                .map {it.toFlight() }
+                .toResult()
     }
 
     override fun resetTableFlights(): Boolean {

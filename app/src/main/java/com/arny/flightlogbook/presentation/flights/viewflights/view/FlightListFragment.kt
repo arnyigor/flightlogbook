@@ -1,7 +1,6 @@
 package com.arny.flightlogbook.presentation.flights.viewflights.view
 
 import android.app.Activity
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -12,7 +11,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.arny.adapters.SimpleAbstractAdapter
 import com.arny.constants.CONSTS
-import com.arny.data.service.BackgroundIntentService
 import com.arny.domain.models.Flight
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.presentation.flights.addedit.view.AddEditActivity
@@ -51,6 +49,10 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_flight_list, container, false)
+    }
+
+    override fun showError(message: String?) {
+        requireView().showSnackBar(message)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -178,19 +180,5 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
 
     override fun clearAdaper() {
         adapter?.clear()
-    }
-
-    private val broadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            try {
-                finishOperation = intent.getBooleanExtra(BackgroundIntentService.EXTRA_KEY_FINISH, false)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-
-            if (finishOperation) {
-                initFlights()
-            }
-        }
     }
 }

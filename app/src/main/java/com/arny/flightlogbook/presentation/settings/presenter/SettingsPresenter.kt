@@ -4,20 +4,17 @@ import android.net.Uri
 import android.os.Handler
 import com.arny.domain.common.PreferencesInteractor
 import com.arny.domain.flights.FlightsInteractor
+import com.arny.domain.models.Result
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import com.arny.flightlogbook.presentation.settings.view.SettingsView
-import com.arny.helpers.utils.CompositeDisposableComponent
 import com.arny.helpers.utils.fromNullable
-import com.arny.helpers.utils.toOptionalNull
-import io.reactivex.disposables.CompositeDisposable
 import moxy.InjectViewState
-import moxy.MvpPresenter
 import javax.inject.Inject
 
 @InjectViewState
-class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableComponent {
-    override val compositeDisposable = CompositeDisposable()
+class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
     private val handler = Handler()
 
     @Inject
@@ -43,18 +40,13 @@ class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableCompo
     private fun showFileData() {
         viewState.setShareFileVisible(false)
         fromNullable { interactor.getFileData() }
-                .subsribeFromPresenter({
+                .subscribeFromPresenter({
                     val value = it.value
                     viewState.setShareFileVisible(value != null)
                     if (value != null) {
                         viewState.showResults(value)
                     }
                 })
-    }
-
-    override fun detachView(view: SettingsView?) {
-        super.detachView(view)
-        resetCompositeDisposable()
     }
 
     fun onFileImport(uri: Uri?) {
@@ -70,7 +62,7 @@ class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableCompo
         viewState.showProgress(R.string.import_data)
         fromNullable {
             interactor.readExcelFile(uri, false)
-        }.subsribeFromPresenter({
+        }.subscribeFromPresenter({
             viewState.hideProgress()
             val path = it.value
             if (path != null) {
@@ -83,8 +75,8 @@ class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableCompo
                 viewState.showError(R.string.error_import_file)
             }
         }, {
-            viewState.showError(R.string.error_import_file, it.message)
             viewState.hideProgress()
+            viewState.showError(R.string.error_import_file, it.message)
         })
     }
 
@@ -92,19 +84,25 @@ class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableCompo
         viewState.hideResults()
         viewState.showProgress(R.string.exporting_file)
         viewState.setShareFileVisible(false)
-        interactor.getDbFlightsObs()
-                .map { interactor.saveExcelFile(it).toOptionalNull() }
-                .subsribeFromPresenter({
+        interactor.exportFile()
+                .subscribeFromPresenter({
                     viewState.hideProgress()
-                    val path = it.value
-                    if (path != null) {
-                        viewState.showResults(R.string.export_file_success, path)
-                        handler.removeCallbacksAndMessages(null)
-                        handler.postDelayed({
-                            showFileData()
-                        }, 1500)
-                    } else {
-                        viewState.showError(R.string.error_export_file, null)
+                    when (it) {
+                        is Result.Success -> {
+                            val path = it.data
+                            if (!path.isBlank()) {
+                                viewState.showResults(R.string.export_file_success, path)
+                                handler.removeCallbacksAndMessages(null)
+                                handler.postDelayed({
+                                    showFileData()
+                                }, 1500)
+                            } else {
+                                viewState.showError(R.string.error_export_file, null)
+                            }
+                        }
+                        is Result.Error-> {
+                            viewState.showError(R.string.error_export_file, it.exception?.message)
+                        }
                     }
                 }, {
                     viewState.showError(R.string.error_export_file, it.message)
@@ -121,7 +119,7 @@ class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableCompo
         viewState.showProgress(R.string.import_data)
         fromNullable {
             interactor.readExcelFile(null, true)
-        }.subsribeFromPresenter({
+        }.subscribeFromPresenter({
             viewState.hideProgress()
             val path = it.value
             if (path != null) {
@@ -141,7 +139,7 @@ class SettingsPresenter : MvpPresenter<SettingsView>(), CompositeDisposableCompo
 
     fun onShareFileClick() {
         fromNullable { interactor.getDefaultFileUri() }
-                .subsribeFromPresenter({
+                .subscribeFromPresenter({
                     val value = it.value
                     if (value != null) {
                         viewState.shareFile(value, "application/xls")

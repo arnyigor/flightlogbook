@@ -1,5 +1,6 @@
 package com.arny.flightlogbook.presentation.flights.addedit.view
 
+import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
@@ -28,6 +29,8 @@ import com.arny.helpers.interfaces._TextWatcher
 import com.arny.helpers.utils.*
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment
 import com.redmadrobot.inputmask.MaskedTextChangedListener
+import com.tbruyelle.rxpermissions2.RxPermissions
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_addedit.*
 import moxy.MvpAppCompatActivity
 import moxy.presenter.InjectPresenter
@@ -44,6 +47,8 @@ class AddEditActivity :
     private var sFlightTime = ""
     private var sNightTime = ""
     private var sGroundTime = ""
+    private var rxPermissions: RxPermissions? = null
+    private val compositeDisposable = CompositeDisposable()
 
     @InjectPresenter
     lateinit var addEditPresenter: AddEditPresenter
@@ -54,6 +59,7 @@ class AddEditActivity :
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_addedit)
+        rxPermissions = RxPermissions(this)
         setupActionBar(R.id.edit_toolbar) {
             title = getString(R.string.str_add_flight)
             this?.setDisplayHomeAsUpEnabled(true)
@@ -64,6 +70,11 @@ class AddEditActivity :
         }
         initUI()
         addEditPresenter.initState(flightId)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        compositeDisposable.dispose()
     }
 
     override fun setTotalFlightTime(flightTime: String) {
@@ -371,11 +382,7 @@ class AddEditActivity :
                 onBackPressed()
                 return true
             }
-            R.id.action_save -> {
-                val descr = edtDesc.text.toString()
-                val regNo = edtRegNo.text.toString()
-                addEditPresenter.saveFlight(regNo, descr, sFlightTime, sGroundTime, sNightTime)
-            }
+            R.id.action_save -> addEditPresenter.checkAutoExportFile()
             R.id.action_remove -> {
                 alertDialog(
                         context = this,
@@ -386,6 +393,28 @@ class AddEditActivity :
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun requestStorageAndSave() {
+        rxPermissions?.request(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+        )
+                ?.subscribe { granted ->
+                    if (granted) {
+                        saveDataFlight()
+                    }
+                }?.addTo(compositeDisposable)
+    }
+
+    private fun saveDataFlight() {
+        val description = edtDesc.text.toString()
+        val regNo = edtRegNo.text.toString()
+        addEditPresenter.saveFlight(regNo, description, sFlightTime, sGroundTime, sNightTime)
+    }
+
+    override fun saveFlight() {
+        saveDataFlight()
     }
 
     override fun setMotoTimeResult(motoTime: String?) {
@@ -430,7 +459,7 @@ class AddEditActivity :
             }
         })
         alertDialog.setTitle(getString(R.string.str_moto))
-        alertDialog.setCancelable(false).setPositiveButton(getString(R.string.str_ok)) { _, id ->
+        alertDialog.setCancelable(false).setPositiveButton(getString(R.string.str_ok)) { _, _ ->
             addEditPresenter.setMotoResult()
         }.setNegativeButton(getString(R.string.str_cancel)) { dialog, _ -> dialog.cancel() }
         alertDialog.show()

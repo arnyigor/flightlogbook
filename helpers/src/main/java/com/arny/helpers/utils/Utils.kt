@@ -445,8 +445,10 @@ fun AppCompatActivity.setupActionBar(toolbar: Toolbar?, action: (ActionBar?.() -
     }
 }
 
-fun View.showSnackBar(message: String, duration: Int) {
-    Snackbar.make(this, message, duration).show()
+fun View.showSnackBar(message: String?, duration: Int = Snackbar.LENGTH_SHORT) {
+    message?.let {
+        Snackbar.make(this, message, duration).show()
+    }
 }
 
 fun View.showSnackBar(message: String, actionText: String, duration: Int? = null, @ColorInt actionColor: Int? = null, action: () -> Unit) {

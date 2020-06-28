@@ -42,7 +42,7 @@ ext.gradle = [
         'gradlePlugin'       : "com.android.tools.build:gradle:${versions.androidPlugin}",
         'kotlinGradlePlugin' : "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}",
         'realmPlugin'        : "io.realm:realm-gradle-plugin:${versions.realm}",
-        'googleServices'      : "com.google.gms:google-services:${versions.gms}",
+        'googleServices'     : "com.google.gms:google-services:${versions.gms}",
         'firebaseCrashPlugin': "com.google.firebase:firebase-crashlytics-gradle:2.1.1",
 ]
 

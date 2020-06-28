@@ -30,7 +30,6 @@ class ExampleUnitTest {
     fun ab_convertStringToTime() {
         val stopwatch = Stopwatch(true)
         val time = DateTimeUtils.convertStringToTime("00:05")
-        println("ab_convertStringToTime time:${stopwatch.formatTime(3)}")
 //        assertThat(time).isEqualTo(5)
     }
 

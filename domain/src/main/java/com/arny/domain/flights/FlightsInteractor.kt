@@ -9,9 +9,7 @@ import com.arny.domain.R
 import com.arny.domain.common.PreferencesProvider
 import com.arny.domain.common.ResourcesProvider
 import com.arny.domain.flighttypes.FlightTypesRepository
-import com.arny.domain.models.Flight
-import com.arny.domain.models.FlightType
-import com.arny.domain.models.PlaneType
+import com.arny.domain.models.*
 import com.arny.domain.planetypes.PlaneTypesRepository
 import com.arny.helpers.utils.*
 import io.reactivex.Observable
@@ -65,15 +63,19 @@ class FlightsInteractor @Inject constructor(
         return flightTypesRepository.loadDBFlightType(id)
     }
 
-    private fun getFormattedFlightTimes(): String {
+    private fun getFormattedFlightTimes(): Result<String> {
         val flightsCount = flightsRepository.getFlightsCount()
         if (flightsCount == 0) {
-            throw Exception("Flights not found")
+            return BusinessException("Flights not found").toResult()
         }
         val flightsTime = flightsRepository.getFlightsTime()
         val groundTime = flightsRepository.getGroundTime()
         val nightTime = flightsRepository.getNightTime()
         val sumlogTime = flightsTime + groundTime
+        return formattedInfo(flightsTime, nightTime, groundTime, sumlogTime, flightsCount)
+    }
+
+    private fun formattedInfo(flightsTime: Int, nightTime: Int, groundTime: Int, sumlogTime: Int, flightsCount: Int): Result<String> {
         return String.format("%s %s\n%s %s\n%s %s\n%s %s\n%s %d",
                 resourcesProvider.getString(R.string.str_total_flight_time),
                 DateTimeUtils.strLogTime(flightsTime),
@@ -84,10 +86,10 @@ class FlightsInteractor @Inject constructor(
                 resourcesProvider.getString(R.string.str_total_time),
                 DateTimeUtils.strLogTime(sumlogTime),
                 resourcesProvider.getString(R.string.total_records),
-                flightsCount)
+                flightsCount).toResult()
     }
 
-    fun getTotalflightsTimeInfo(): Observable<String> {
+    fun getTotalflightsTimeInfo(): Observable<Result<String>> {
         return fromCallable { getFormattedFlightTimes() }
     }
 
@@ -114,33 +116,54 @@ class FlightsInteractor @Inject constructor(
                 }
     }
 
-    fun getDbFlightsObs(checkAutoExport: Boolean = false): Observable<List<Flight>> {
+    fun exportFile(): Observable<Result<String>> {
+        return getDbFlightsObs()
+                .map { result ->
+                    var resultPath = ""
+                    if (result is Result.Success) {
+                        saveExcelFile(result.data)?.let {
+                            resultPath = it
+                        }
+                    }
+                    resultPath.toResult()
+                }
+    }
+
+    private fun getDbFlightsObs(checkAutoExport: Boolean = false): Observable<Result<List<Flight>>> {
         return fromCallable {
             flightsRepository.getDbFlights(
                     getPrefOrderflights(preferencesProvider.getPrefInt(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS))
             )
         }.doOnNext {
             if (checkAutoExport && preferencesProvider.getPrefBoolean(CONSTS.PREFS.AUTO_EXPORT_XLS, false)) {
-                saveExcelFile(it)
+                if (it is Result.Success) {
+                    saveExcelFile(it.data)
+                }
             }
         }
     }
 
-    fun getFilterFlightsObs(checkAutoExport: Boolean = false): Observable<List<Flight>> {
+    fun getFilterFlightsObs(checkAutoExport: Boolean = false): Observable<Result<List<Flight>>> {
         val orderType = preferencesProvider.getPrefInt(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS)
         return getDbFlightsObs(checkAutoExport)
-                .flatMap { flights ->
+                .flatMap { flightsResult ->
                     fromCallable {
                         val flightTypes = flightTypesRepository.loadDBFlightTypes()
                         val planeTypes = planeTypesRepository.loadPlaneTypes()
-                        flights.map { flight ->
-                            flight.colorInt = flight.params?.getParam(PARAM_COLOR, "")?.toIntColor()
-                            val masked = flight.colorInt?.let { colorWillBeMasked(it) } ?: false
-                            flight.colorText = if (masked) Color.WHITE else null
-                            flight.planeType = planeTypes.find { it.typeId == flight.planeId }
-                            flight.flightType = flightTypes.find { it.id == flight.flightTypeId?.toLong() }
-                            flight.totalTime = flight.flightTime + flight.groundTime
-                            flight
+                        when (flightsResult) {
+                            is Result.Success -> {
+                                flightsResult.data.map { flight ->
+                                    flight.colorInt = flight.params?.getParam(PARAM_COLOR, "")?.toIntColor()
+                                    val masked = flight.colorInt?.let { colorWillBeMasked(it) }
+                                            ?: false
+                                    flight.colorText = if (masked) Color.WHITE else null
+                                    flight.planeType = planeTypes.find { it.typeId == flight.planeId }
+                                    flight.flightType = flightTypes.find { it.id == flight.flightTypeId?.toLong() }
+                                    flight.totalTime = flight.flightTime + flight.groundTime
+                                    flight
+                                }
+                            }
+                            is Result.Error -> throw BusinessException(flightsResult.exception)
                         }
                     }
                 }
@@ -152,7 +175,7 @@ class FlightsInteractor @Inject constructor(
                         3 -> flights.sortedByDescending { it.flightTime }
                         else -> flights
                     }
-                    res
+                    res.toResult()
                 }
     }
 
@@ -166,14 +189,12 @@ class FlightsInteractor @Inject constructor(
             getDefaultFilePath(ctx)
         else
             FileUtils.getSDFilePath(ctx, uri)
-        val notAccess =
-                !FileUtils.isExternalStorageAvailable() || FileUtils.isExternalStorageReadOnly()
-        if (notAccess) {
+        if (!FileUtils.isExternalStorageAvailable() || FileUtils.isExternalStorageReadOnly()) {
             return null
         }
         val xlsfile = File(filename)
         if (!xlsfile.isFile || !xlsfile.exists()) {
-            throw Exception(String.format(
+            throw BusinessException(String.format(
                     Locale.getDefault(), getString(R.string.error_file_not_found), filename
             ))
         }
@@ -183,8 +204,7 @@ class FlightsInteractor @Inject constructor(
         val rowIter = mySheet.rowIterator()
         flightsRepository.removeAllFlights()
         flightsRepository.resetTableFlights()
-        val insertFlights = flightsRepository.insertFlights(getFlightsFromExcel(rowIter))
-        return if (insertFlights) filename else null
+        return if (flightsRepository.insertFlights(getFlightsFromExcel(rowIter))) filename else null
     }
 
     private fun getFlightsFromExcel(rowIter: Iterator<*>): ArrayList<Flight> {
@@ -419,7 +439,7 @@ class FlightsInteractor @Inject constructor(
         return resourcesProvider.getString(strRes)
     }
 
-    fun saveExcelFile(dbFlights: List<Flight>): String? {
+    private fun saveExcelFile(dbFlights: List<Flight>): String? {
         var row: Row
         val wb = HSSFWorkbook()
         var c: Cell

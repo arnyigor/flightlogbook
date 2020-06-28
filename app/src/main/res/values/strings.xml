@@ -28,7 +28,7 @@
     <string name="select_color">Выбрать цвет</string>
     <string name="import_data">Импорт данных…</string>
     <string name="error_import_file">Ошибка импорта файла:%s</string>
-    <string name="import_file_success">Файл %s успешно импортирован</string>
+    <string name="import_file_success">Файл %s успешно импортирован в базу</string>
     <string name="import_export_settings">Настройки импорта/экспорта</string>
     <string name="import_from_file">Загрузить из файла</string>
     <string name="export_to_file">Выгрузить в файл</string>

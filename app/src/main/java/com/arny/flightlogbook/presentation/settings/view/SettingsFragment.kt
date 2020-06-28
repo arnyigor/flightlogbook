@@ -1,11 +1,13 @@
 package com.arny.flightlogbook.presentation.settings.view
 
+import android.Manifest
 import android.app.Activity
 import android.app.ProgressDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,6 +24,7 @@ import kotlinx.android.synthetic.main.settings_fragment.*
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
+import java.io.File
 
 
 class SettingsFragment : MvpAppCompatFragment(), SettingsView {
@@ -58,10 +61,26 @@ class SettingsFragment : MvpAppCompatFragment(), SettingsView {
         pDialog?.setCanceledOnTouchOutside(false)
         rxPermissions = RxPermissions(this)
         btnLoadFromFile.setOnClickListener {
-            showAlertImport()
+            rxPermissions?.request(
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+                    ?.subscribe { granted ->
+                        if (granted) {
+                            showAlertImport()
+                        }
+                    }
         }
         btnExportToFile.setOnClickListener {
-            settingsPresenter.exportToFile()
+            rxPermissions?.request(
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+                    ?.subscribe { granted ->
+                        if (granted) {
+                            settingsPresenter.exportToFile()
+                        }
+                    }
         }
         chbAutoExport.setOnCheckedChangeListener { _, isChecked ->
             settingsPresenter.onAutoExportChanged(isChecked)
@@ -158,5 +177,21 @@ class SettingsFragment : MvpAppCompatFragment(), SettingsView {
 
     override fun hideProgress() {
         Utility.hideProgress(pDialog)
+    }
+
+    // TODO: 28.06.2020 использовать позже
+    private fun openFileWith() {
+        try {
+            val myIntent = Intent(Intent.ACTION_VIEW)
+            val sdPath = Environment.getExternalStorageDirectory()
+            val file = File("$sdPath/Android/data/com.arny.flightlogbook/files", CONSTS.FILES.EXEL_FILE_NAME)
+            val fromFile = Uri.fromFile(file)
+            val extension = android.webkit.MimeTypeMap.getFileExtensionFromUrl(fromFile.toString())
+            val mimetype = android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+            myIntent.setDataAndType(fromFile, mimetype)
+            startActivity(myIntent)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }
