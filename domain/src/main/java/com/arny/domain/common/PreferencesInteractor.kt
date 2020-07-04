@@ -1,6 +1,6 @@
 package com.arny.domain.common
 
-import com.arny.constants.CONSTS
+import com.arny.flightlogbook.constants.CONSTS
 import javax.inject.Inject
 import javax.inject.Singleton
 

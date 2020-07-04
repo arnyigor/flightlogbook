@@ -9,9 +9,9 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.color.colorChooser
-import com.arny.adapters.MultiSelectionSpinner
 import com.arny.domain.models.Statistic
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.adapters.MultiSelectionSpinner
 import com.arny.flightlogbook.presentation.statistic.presenter.StatisticsPresenter
 import com.arny.helpers.utils.ToastMaker
 import com.arny.helpers.utils.setVisible
@@ -21,6 +21,7 @@ import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 import java.util.*
+
 class StatisticFragment : MvpAppCompatFragment(), StatisticsView, View.OnClickListener {
     private var statAdapter: StatisticAdapter? = null
 

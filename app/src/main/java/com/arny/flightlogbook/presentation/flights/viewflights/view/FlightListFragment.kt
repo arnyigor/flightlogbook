@@ -9,10 +9,10 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.arny.adapters.SimpleAbstractAdapter
-import com.arny.constants.CONSTS
 import com.arny.domain.models.Flight
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
+import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.presentation.flights.addedit.view.AddEditActivity
 import com.arny.flightlogbook.presentation.flights.viewflights.presenter.ViewFlightsPresenter
 import com.arny.helpers.utils.*

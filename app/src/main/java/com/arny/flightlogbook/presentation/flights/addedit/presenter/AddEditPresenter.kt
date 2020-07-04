@@ -1,6 +1,5 @@
 package com.arny.flightlogbook.presentation.flights.addedit.presenter
 
-import com.arny.constants.CONSTS.STRINGS.PARAM_COLOR
 import com.arny.domain.common.PreferencesInteractor
 import com.arny.domain.common.ResourcesInteractor
 import com.arny.domain.flights.FlightsInteractor
@@ -8,6 +7,7 @@ import com.arny.domain.models.Flight
 import com.arny.domain.models.Params
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.constants.CONSTS.STRINGS.PARAM_COLOR
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import com.arny.flightlogbook.presentation.flights.addedit.models.CorrectedTimePair
 import com.arny.flightlogbook.presentation.flights.addedit.view.AddEditView

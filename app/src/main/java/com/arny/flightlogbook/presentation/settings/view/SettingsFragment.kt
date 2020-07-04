@@ -12,8 +12,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
-import com.arny.constants.CONSTS
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.presentation.settings.presenter.SettingsPresenter
 import com.arny.helpers.utils.Utility
 import com.arny.helpers.utils.alertDialog

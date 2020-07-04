@@ -99,6 +99,7 @@ dependencies {
     implementation project(path: ':adapters')
     implementation project(path: ':domain')
     implementation project(path: ':constants')
+    implementation project(path: ':customfields')
     implementation project(path: ':data')
     implementation libs.firebaseCrash
     implementation libs.multidex

@@ -1,1 +1,1 @@
-include ':app', ':data', ':domain', ':helpers', ':adapters', ':constants'
+include ':app', ':data', ':domain', ':helpers', ':adapters', ':constants',':customfields'

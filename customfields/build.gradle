@@ -1,0 +1,61 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdkVersion versions.compileSdk
+    buildToolsVersion versions.buildTools
+    defaultConfig {
+        minSdkVersion versions.minSdk
+        targetSdkVersion versions.targetSdk
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+        }
+        release {
+            debuggable false
+        }
+        prerelease {
+            debuggable true
+        }
+    }
+
+    compileOptions {
+        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation project(path: ':constants')
+    implementation project(path: ':helpers')
+    implementation project(path: ':data')
+    implementation libs.kotlinStdlib
+    /*support*/
+    implementation libs.appCompat
+    implementation libs.design
+    implementation libs.constraint
+    //rx2
+    implementation libs.rxJava
+    implementation libs.rxAndroid
+    implementation libs.rxKotlin
+    /*tests*/
+    implementation libs.junit
+    androidTestImplementation libs.extJunit
+    androidTestImplementation libs.rules
+    implementation libs.assertjCore
+    androidTestImplementation libs.assertjAndroid
+    implementation libs.mockitoCore
+    androidTestImplementation libs.mockitoAndroid
+    //di
+    implementation libs.dagger
+    kapt libs.daggerCompiler
+}

@@ -1,0 +1,14 @@
+<resources>
+    <declare-styleable name="CustomFieldView">
+        <attr name="type" format="enum">
+            <enum name="TYPE_TEXT" value="1" />
+            <enum name="TYPE_NUMBER_INT" value="2" />
+            <enum name="TYPE_TIME_INT" value="3" />
+            <enum name="TYPE_NUMBER_LONG" value="4" />
+            <enum name="TYPE_NUMBER_DOUBLE" value="5" />
+            <enum name="TYPE_BOOLEAN" value="6" />
+            <enum name="TYPE_DATE" value="7" />
+            <enum name="TYPE_NONE" value="0" />
+        </attr>
+    </declare-styleable>
+</resources>

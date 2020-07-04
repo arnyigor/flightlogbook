@@ -21,8 +21,9 @@ import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.color.colorChooser
-import com.arny.constants.CONSTS
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.constants.CONSTS
+import com.arny.flightlogbook.customfields.models.CustomFieldType
 import com.arny.flightlogbook.presentation.flights.addedit.presenter.AddEditPresenter
 import com.arny.flightlogbook.presentation.flighttypes.view.FlightTypesActivity
 import com.arny.flightlogbook.presentation.planetypes.view.PlaneTypesActivity
@@ -106,10 +107,14 @@ class AddEditActivity :
         actvTitle.setOnItemClickListener { _, _, _, _ ->
             customTokenizer.afterTextChar = null
         }
+        actvTitle.setOnFocusChangeListener { _, hasFocus ->
+            println("custom value:${cfvEdtText.value}")
+        }
         actvTitle.doAfterTextChanged {
             if (it.toString().isBlank()) {
                 customTokenizer.afterTextChar = '-'
             }
+            addEditPresenter.updateCodes(actvTitle.text.toString())
         }
         actvTitle.setTokenizer(customTokenizer)
         actvTitle.setDrawableRightClick {
@@ -118,9 +123,6 @@ class AddEditActivity :
                     title = getString(R.string.info),
                     content = getString(R.string.title_code_info)
             )
-        }
-        actvTitle.doAfterTextChanged {
-            addEditPresenter.updateCodes(actvTitle.text.toString())
         }
         actvTitle.threshold = 1
         actvTitle.onFilterComplete(3)
@@ -148,6 +150,11 @@ class AddEditActivity :
         onFlightTimeChanges()
         onNightTimeChanges()
         onGroundTimeChanges()
+        onCustomViewInit()
+    }
+
+    private fun onCustomViewInit() {
+        cfvEdtText.init(CustomFieldType.TYPE_BOOLEAN, "Подвеска")
     }
 
     private fun onNightTimeChanges() {

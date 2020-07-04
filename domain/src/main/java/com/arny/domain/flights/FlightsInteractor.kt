@@ -3,14 +3,14 @@ package com.arny.domain.flights
 import android.content.Context
 import android.graphics.Color
 import android.net.Uri
-import com.arny.constants.CONSTS
-import com.arny.constants.CONSTS.STRINGS.PARAM_COLOR
 import com.arny.domain.R
 import com.arny.domain.common.PreferencesProvider
 import com.arny.domain.common.ResourcesProvider
 import com.arny.domain.flighttypes.FlightTypesRepository
 import com.arny.domain.models.*
 import com.arny.domain.planetypes.PlaneTypesRepository
+import com.arny.flightlogbook.constants.CONSTS
+import com.arny.flightlogbook.constants.CONSTS.STRINGS.PARAM_COLOR
 import com.arny.helpers.utils.*
 import io.reactivex.Observable
 import org.apache.poi.hssf.usermodel.HSSFCell

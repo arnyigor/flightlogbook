@@ -1,6 +1,5 @@
 package com.arny.domain.statistic
 
-import com.arny.constants.CONSTS.STRINGS.PARAM_COLOR
 import com.arny.domain.R
 import com.arny.domain.common.ResourcesProvider
 import com.arny.domain.flights.FlightsRepository
@@ -10,6 +9,7 @@ import com.arny.domain.models.FlightType
 import com.arny.domain.models.PlaneType
 import com.arny.domain.models.Statistic
 import com.arny.domain.planetypes.PlaneTypesRepository
+import com.arny.flightlogbook.constants.CONSTS.STRINGS.PARAM_COLOR
 import com.arny.helpers.utils.DateTimeUtils
 import com.arny.helpers.utils.fromCallable
 import com.arny.helpers.utils.toHexColor

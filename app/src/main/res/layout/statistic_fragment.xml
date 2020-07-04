@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.arny.adapters.MultiSelectionSpinner
+    <com.arny.flightlogbook.adapters.MultiSelectionSpinner
         android:id="@+id/mssFilterType"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
