@@ -19,7 +19,7 @@
     <string name="filter_stat_by">Filter by:</string>
     <string name="no_statistic_data">No stats data</string>
     <string name="filtering">Filtering</string>
-    <string name="flight_title">Title/Route</string>
+    <string name="flight_title">Title</string>
     <string name="flight_time_info">Flight time:</string>
     <string name="night_time_info">Night time:</string>
     <string name="ground_time_info">Ground time:</string>

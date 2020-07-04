@@ -1,8 +1,8 @@
 package com.arny.flightlogbook.presentation.flights.addedit.view
 
-import com.arny.adapters.SimpleAbstractAdapter
 import com.arny.domain.models.TimeToFlight
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.helpers.utils.DateTimeUtils
 import com.arny.helpers.utils.setVisible
 import kotlinx.android.synthetic.main.flight_times_item_layout.view.*

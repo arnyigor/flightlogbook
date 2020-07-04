@@ -1,9 +1,9 @@
 package com.arny.flightlogbook.di
 
-import com.arny.data.repositories.PreferencesProviderImpl
-import com.arny.data.repositories.ResourcesProviderImpl
 import com.arny.domain.common.PreferencesProvider
 import com.arny.domain.common.ResourcesProvider
+import com.arny.flightlogbook.data.repositories.PreferencesProviderImpl
+import com.arny.flightlogbook.data.repositories.ResourcesProviderImpl
 import dagger.Binds
 import dagger.Module
 import javax.inject.Singleton

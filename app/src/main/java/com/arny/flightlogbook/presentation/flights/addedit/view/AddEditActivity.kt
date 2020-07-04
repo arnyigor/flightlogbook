@@ -18,11 +18,10 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
 import androidx.core.view.isVisible
-import androidx.core.widget.doAfterTextChanged
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.color.colorChooser
-import com.arny.constants.CONSTS
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.presentation.flights.addedit.presenter.AddEditPresenter
 import com.arny.flightlogbook.presentation.flighttypes.view.FlightTypesActivity
 import com.arny.flightlogbook.presentation.planetypes.view.PlaneTypesActivity
@@ -49,7 +48,6 @@ class AddEditActivity :
     private var sNightTime = ""
     private var sGroundTime = ""
     private var rxPermissions: RxPermissions? = null
-    private var multiAutoCompleteAdapter: MultiAutoCompleteAdapter? = null
     private val compositeDisposable = CompositeDisposable()
 
     @InjectPresenter
@@ -91,41 +89,8 @@ class AddEditActivity :
         tvTotalTime.text = total
     }
 
-    override fun updateMultiCompleteCodes(airportCodes: Array<String>) {
-        multiAutoCompleteAdapter?.clear()
-        multiAutoCompleteAdapter?.addAll(airportCodes.toMutableList())
-    }
-
-    override fun setRoute(from: String?, to: String?) {
-        tvRouteInfo.isVisible = from != null && to != null
-        tvRouteInfo.text = String.format(getString(R.string.route_info), from, to)
-    }
 
     private fun initUI() {
-        val customTokenizer = CustomTokenizer(charArrayOf('-', ' ', ','), '-')
-        actvTitle.setOnItemClickListener { _, _, _, _ ->
-            customTokenizer.afterTextChar = null
-        }
-        actvTitle.doAfterTextChanged {
-            if (it.toString().isBlank()) {
-                customTokenizer.afterTextChar = '-'
-            }
-        }
-        actvTitle.setTokenizer(customTokenizer)
-        actvTitle.setDrawableRightClick {
-            alertDialog(
-                    context = this,
-                    title = getString(R.string.info),
-                    content = getString(R.string.title_code_info)
-            )
-        }
-        actvTitle.doAfterTextChanged {
-            addEditPresenter.updateCodes(actvTitle.text.toString())
-        }
-        actvTitle.threshold = 1
-        actvTitle.onFilterComplete(3)
-        multiAutoCompleteAdapter = MultiAutoCompleteAdapter(this)
-        actvTitle.setAdapter(multiAutoCompleteAdapter)
         select_plane_type.setOnClickListener(this)
         btnSelectFlightType.setOnClickListener(this)
         btnMoto.setOnClickListener(this)
@@ -234,14 +199,14 @@ class AddEditActivity :
             val empty = Utility.empty(tiedt_date?.text.toString())
             if (empty) {
                 if (hasFocus) {
-                    til_date?.hint = getString(R.string.str_date)
+                    tilDate?.hint = getString(R.string.str_date)
                     tiedt_date?.hint = getString(R.string.str_date_format)
                 } else {
-                    til_date?.hint = null
+                    tilDate?.hint = null
                     tiedt_date?.hint = getString(R.string.str_date)
                 }
             } else {
-                til_date?.hint = getString(R.string.str_date)
+                tilDate?.hint = getString(R.string.str_date)
                 tiedt_date?.hint = getString(R.string.str_date)
                 if (!hasFocus) {
                     val dat = tiedt_date?.text.toString()
@@ -257,7 +222,7 @@ class AddEditActivity :
         tiedt_date?.addTextChangedListener(MaskedTextChangedListener("[00].[00].[0000]", ArrayList(), false, tiedt_date, object : _TextWatcher {
             override fun afterTextChanged(s: Editable) {
                 if (Utility.empty(tiedt_date.text.toString())) {
-                    til_date?.hint = getString(R.string.str_date)
+                    tilDate?.hint = getString(R.string.str_date)
                     tiedt_date?.hint = null
                 }
             }

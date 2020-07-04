@@ -8,9 +8,9 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.arny.constants.CONSTS
 import com.arny.domain.models.PlaneType
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.presentation.planetypes.presenter.PlaneTypesPresenter
 import com.arny.helpers.utils.*
 import kotlinx.android.synthetic.main.plane_types_layout.*

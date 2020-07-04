@@ -1,6 +1,5 @@
 package com.arny.flightlogbook.presentation.flights.addedit.presenter
 
-import com.arny.constants.CONSTS.STRINGS.PARAM_COLOR
 import com.arny.domain.common.PreferencesInteractor
 import com.arny.domain.common.ResourcesInteractor
 import com.arny.domain.flights.FlightsInteractor
@@ -8,6 +7,7 @@ import com.arny.domain.models.Flight
 import com.arny.domain.models.Params
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.constants.CONSTS.STRINGS.PARAM_COLOR
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import com.arny.flightlogbook.presentation.flights.addedit.models.CorrectedTimePair
 import com.arny.flightlogbook.presentation.flights.addedit.view.AddEditView
@@ -46,7 +46,6 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     private var mMotoStart: Float = 0.toFloat()
     private var mMotoFinish: Float = 0.toFloat()
     private var mMotoResult: Float = 0.toFloat()
-    private var airportCodes = mutableListOf<String>()
 
     init {
         FlightApp.appComponent.inject(this)
@@ -200,7 +199,6 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         } else {
             initEmptyUI()
         }
-        requestCodes()
     }
 
     fun onMotoTimeChange(startTime: String, finishTime: String) {
@@ -486,52 +484,6 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
             viewState.requestStorageAndSave()
         } else {
             viewState.saveFlight()
-        }
-    }
-
-    private fun requestCodes() {
-        fromCallable { resourcesInteractor.getAssetFileString("codes/Codes.dat") }
-                .map { it.split(",") }
-                .subscribeFromPresenter({
-                    airportCodes = it.toMutableList()
-                    viewState.updateMultiCompleteCodes(airportCodes.toTypedArray())
-                })
-
-    }
-
-    private fun getNewCodes(sequence: Sequence<String>, baseList: List<String>): List<String> {
-        return sequence
-                .filter { !baseList.contains(it) }
-                .distinct()
-                .filter { it.isNotBlank() }
-                .toList()
-    }
-
-    private fun getInputCodes(text: String): Sequence<String> {
-        return text.split("-", " ", ",", " ")
-                .asSequence()
-                .filter { it.length == 4 }
-                .filter { item ->
-                    item.toCharArray().any {
-                        (it.isUpperCase() && (it in 'A'..'Z')) or it.isDigit()
-                    }
-                }
-    }
-
-    fun updateCodes(input: String) {
-        val inputCodesSeq = getInputCodes(input)
-        val newCodes = getNewCodes(inputCodesSeq, airportCodes)
-        if (newCodes.isNotEmpty()) {
-            airportCodes.addAll(newCodes)
-            viewState.updateMultiCompleteCodes(airportCodes.toTypedArray())
-        }
-        val inputCodes = inputCodesSeq.toList()
-        if (inputCodes.size >= 2) {
-            val from = inputCodes.first()
-            val to = inputCodes[1]
-            viewState.setRoute(from, to)
-        } else {
-            viewState.setRoute(null, null)
         }
     }
 }

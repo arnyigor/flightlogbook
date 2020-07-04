@@ -1,8 +1,8 @@
 package com.arny.flightlogbook.presentation.flighttypes.view
 
-import com.arny.adapters.SimpleAbstractAdapter
 import com.arny.domain.models.FlightType
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.helpers.utils.setVisible
 import kotlinx.android.synthetic.main.type_list_item_layout.view.*
 
