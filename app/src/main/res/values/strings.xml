@@ -18,7 +18,7 @@
     <string name="filter_stat_by">Фильтровать по:</string>
     <string name="no_statistic_data">Нет данных статистики</string>
     <string name="filtering">Фильтрация</string>
-    <string name="flight_title">Название/Маршрут</string>
+    <string name="flight_title">Название</string>
     <string name="flight_time_info">Летное время:</string>
     <string name="night_time_info">Ночь:</string>
     <string name="ground_time_info">На земле:</string>
@@ -40,4 +40,8 @@
     <string name="info">Информация</string>
     <string name="title_code_info">Название может содержать коды аэропортов. Код аэропорта должен быть из 4 заглавных латинских символов,может содержать цифры</string>
     <string name="route_info">Маршрут: %1$s - %2$s</string>
+    <string name="departure">Вылет</string>
+    <string name="arrival">Прилет</string>
+    <string name="dep_time">Время вылета</string>
+    <string name="arrival_time">Время прилета</string>
 </resources>

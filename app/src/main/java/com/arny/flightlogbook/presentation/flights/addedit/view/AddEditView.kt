@@ -30,6 +30,4 @@ interface AddEditView : MvpView {
     fun setIfrSelected(selected: Boolean)
     fun requestStorageAndSave()
     fun saveFlight()
-    fun updateMultiCompleteCodes(airportCodes: Array<String>)
-    fun setRoute(from: String?, to: String?)
 }
