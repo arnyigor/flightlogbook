@@ -1,1 +1,2 @@
-include ':app', ':data', ':domain', ':helpers', ':adapters', ':constants'
+include ':coreui'
+include ':app', ':data', ':domain', ':helpers', ':adapters', ':constants',':customfields'

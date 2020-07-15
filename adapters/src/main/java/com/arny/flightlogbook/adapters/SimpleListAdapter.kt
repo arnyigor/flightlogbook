@@ -6,69 +6,21 @@ import android.view.ViewGroup
 import android.widget.Filter
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 
 
-abstract class SimpleAbstractAdapter<T>(private var items: ArrayList<T> = arrayListOf()) : RecyclerView.Adapter<SimpleAbstractAdapter.VH>() {
+abstract class SimpleListAdapter<T>(private var items: MutableList<T> = mutableListOf(), callback: DiffUtil
+.ItemCallback<T>) :
+        ListAdapter<T,
+        SimpleListAdapter.VH>(callback) {
     protected var listener: OnViewHolderListener<T>? = null
     private val filter = ArrayFilter()
     private val lock = Any()
     protected abstract fun getLayout(viewType: Int = 0): Int
     protected abstract fun bindView(item: T, viewHolder: VH)
-    protected open fun getDiffCallback(): DiffCallback<T>? = null
     private var onFilterObjectCallback: OnFilterObjectCallback? = null
     private var constraint: CharSequence? = ""
-
-    override fun onBindViewHolder(vh: VH, position: Int) {
-        getItem(position)?.let { bindView(it, vh) }
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        return VH(parent, getLayout(viewType))
-    }
-
-    override fun getItemCount(): Int = items.size
-
-    protected abstract class DiffCallback<T> : DiffUtil.Callback() {
-        private val mOldItems = ArrayList<T>()
-        private val mNewItems = ArrayList<T>()
-
-        fun setItems(oldItems: List<T>, newItems: List<T>) {
-            mOldItems.clear()
-            mOldItems.addAll(oldItems)
-            mNewItems.clear()
-            mNewItems.addAll(newItems)
-        }
-
-        override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int) = Any()
-
-        override fun getOldListSize(): Int {
-            return mOldItems.size
-        }
-
-        override fun getNewListSize(): Int {
-            return mNewItems.size
-        }
-
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return areItemsTheSame(mOldItems[oldItemPosition], mNewItems[newItemPosition])
-        }
-
-        abstract fun areItemsTheSame(oldItem: T, newItem: T): Boolean
-
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return areContentsTheSame(
-                    mOldItems[oldItemPosition],
-                    mNewItems[newItemPosition]
-            )
-        }
-
-        abstract fun areContentsTheSame(oldItem: T, newItem: T): Boolean
-    }
-
-    class VH(itemView: View) : RecyclerView.ViewHolder(itemView){
-        constructor(parent: ViewGroup, @LayoutRes layout: Int):this(LayoutInflater.from(parent.context).inflate(layout, parent, false))
-    }
 
     interface OnViewHolderListener<T> {
         fun onItemClick(position: Int, item: T)
@@ -78,76 +30,63 @@ abstract class SimpleAbstractAdapter<T>(private var items: ArrayList<T> = arrayL
         this.listener = listener
     }
 
-    fun getItem(position: Int): T? {
-        return items.getOrNull(position)
+    override fun onBindViewHolder(vh: VH, position: Int) {
+        getItem(position)?.let { bindView(it, vh) }
     }
 
-    fun getItems(): ArrayList<T> {
-        return items
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+        return VH(parent, getLayout(viewType))
     }
 
-    fun addAll(list: List<T>, useDiffUtils: Boolean = true) {
-        //Log.i(SimpleAbstractAdapter::class.java.simpleName, "addAll: useDiffUtils:$useDiffUtils,list:$list,items:$items");
-        if (useDiffUtils) {
-            if (items.isNotEmpty()) {
-                val diffCallback = getDiffCallback()
-                if (diffCallback != null) {
-                    diffCallback.setItems(items, list)
-                    val diffResult = DiffUtil.calculateDiff(diffCallback)
-                    items.clear()
-                    items.addAll(list)
-                    diffResult.dispatchUpdatesTo(this)
-                }
-            }else{
-                items.addAll(list)
-                notifyDataSetChanged()
-            }
-        } else {
-            items.addAll(list)
-        }
+    override fun getItemCount(): Int = currentList.size
+
+    class VH(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        constructor(parent: ViewGroup, @LayoutRes layout: Int) : this(LayoutInflater.from(parent.context).inflate(layout, parent, false))
     }
+
+    fun addAll(list: List<T>) {
+        items = list.toMutableList()
+        submitList(items)
+    }
+
 
     fun add(item: T) {
-        //Log.i(SimpleAbstractAdapter::class.java.simpleName, "add: position: item:$item");
         try {
             items.add(item)
-            notifyDataSetChanged()
+            submitList(items)
         } catch (e: Exception) {
         }
     }
 
-    fun add(position:Int, item: T) {
-        //Log.i(SimpleAbstractAdapter::class.java.simpleName, "add: position:$position,item:$item");
+    fun add(position: Int, item: T) {
         try {
-            items.add(position,item)
-            notifyItemInserted(position)
+            items.add(position, item)
+            submitList(items)
         } catch (e: Exception) {
         }
     }
 
     fun remove(position: Int) {
-        //Log.i(SimpleAbstractAdapter::class.java.simpleName, "remove: position:$position");
         try {
             items.removeAt(position)
-            notifyItemRemoved(position)
+            submitList(items)
         } catch (e: Exception) {
         }
     }
 
     fun remove(item: T) {
-        //Log.i(SimpleAbstractAdapter::class.java.simpleName, "remove: item:$item");
         try {
             items.remove(item)
-            notifyDataSetChanged()
+            submitList(items)
         } catch (e: Exception) {
         }
     }
 
-    fun clear(notify: Boolean=false) {
-        //Log.i(SimpleAbstractAdapter::class.java.simpleName, "clear: notify:$notify");
+    fun clear(notify: Boolean = false) {
         items.clear()
+        submitList(items)
         if (notify) {
-            notifyDataSetChanged()
+//            notifyDataSetChanged()
         }
     }
 
@@ -190,10 +129,10 @@ abstract class SimpleAbstractAdapter<T>(private var items: ArrayList<T> = arrayL
     }
 
     inner class ArrayFilter : Filter() {
-        private var original: ArrayList<T> = arrayListOf()
+        private var original: MutableList<T> = mutableListOf()
         private var filter: SimpleAdapterFilter<T> = DefaultFilter()
-        private var list: ArrayList<T> = arrayListOf()
-        private var values: ArrayList<T> = arrayListOf()
+        private var list: MutableList<T> = mutableListOf()
+        private var values: MutableList<T> = mutableListOf()
 
 
         fun setFilter(filter: SimpleAdapterFilter<T>): ArrayFilter {

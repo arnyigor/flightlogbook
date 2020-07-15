@@ -2,13 +2,14 @@ package com.arny.flightlogbook.di
 
 import android.app.Application
 import android.content.Context
+import com.arny.flightlogbook.customfields.di.CustomFieldsModule
 import com.arny.flightlogbook.data.di.DataModule
 import com.arny.helpers.utils.Prefs
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
 
-@Module(includes = [ResourceModule::class, DataModule::class])
+@Module(includes = [ResourceModule::class, DataModule::class, CustomFieldsModule::class])
 class AppModule(private val application: Application) {
     @Provides
     @Singleton

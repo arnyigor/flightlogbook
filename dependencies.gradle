@@ -59,12 +59,12 @@ ext.libs = [
         'roomRx'              : "androidx.room:room-rxjava2:${versions.roomx}",
 
         //support
-        'appCompat'           : 'androidx.appcompat:appcompat:1.0.0',
-        'recyclerView'        : 'androidx.recyclerview:recyclerview:1.0.0',
+        'appCompat'           : 'androidx.appcompat:appcompat:1.1.0',
+        'recyclerView'        : 'androidx.recyclerview:recyclerview:1.1.0',
         'cardView'            : 'androidx.cardview:cardview:1.0.0',
         'preference'          : 'androidx.preference:preference:1.1.0',
         'support'             : 'androidx.legacy:legacy-support-v4:1.0.0',
-        'design'              : 'com.google.android.material:material:1.0.0',
+        'design'              : 'com.google.android.material:material:1.1.0',
         'vector'              : 'androidx.vectordrawable:vectordrawable:1.0.0',
         'constraint'          : 'androidx.constraintlayout:constraintlayout:1.1.3',
 
