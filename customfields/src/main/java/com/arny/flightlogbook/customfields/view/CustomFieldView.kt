@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.customfields.presenter
+package com.arny.flightlogbook.customfields.view
 
 import android.content.Context
 import android.util.AttributeSet
@@ -9,7 +9,6 @@ import com.arny.flightlogbook.customfields.R
 import com.arny.flightlogbook.customfields.models.CustomFieldType
 import com.arny.flightlogbook.customfields.models.toCustomFieldType
 import com.google.android.material.textfield.TextInputEditText
-
 
 class CustomFieldView : LinearLayout {
     private var name: String? = null

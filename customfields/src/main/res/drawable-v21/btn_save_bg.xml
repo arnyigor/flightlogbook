@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/colorAccentDark">
+    <item>
+        <selector>
+            <item
+                android:drawable="@drawable/btn_save_normal"
+                android:state_focused="true" />
+            <item
+                android:drawable="@drawable/btn_save_pressed"
+                android:state_pressed="true" />
+            <item android:drawable="@drawable/btn_save_normal" />
+
+        </selector>
+    </item>
+</ripple>

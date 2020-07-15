@@ -248,7 +248,7 @@
                 app:layout_constraintStart_toStartOf="@+id/edtGroundTime"
                 app:layout_constraintTop_toBottomOf="@+id/edtGroundTime" />
 
-            <com.arny.flightlogbook.customfields.presenter.CustomFieldView
+            <com.arny.flightlogbook.customfields.view.CustomFieldView
                 android:id="@+id/cfvEdtText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

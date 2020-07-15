@@ -1,1 +1,22 @@
-<resources></resources>
+<resources>
+    <string name="custom_fields">Дополнительные поля</string>
+    <string name="approach_count">Количество заходов</string>
+    <string name="field_name">Название поля</string>
+    <string name="field_type_number">Число</string>
+    <string name="field_type_boolean">Булевое значение</string>
+    <string name="field_type">Тип поля</string>
+    <string name="add_field">Чтобы добавить поле нажмите на кнопку</string>
+    <string name="field_text_name">Текстовое значение</string>
+    <string name="field_num_name">Числовое значение</string>
+    <string name="field_bool_name">Булевое значение</string>
+    <string name="field_text_no_name">Нет названия</string>
+    <string name="field_text_descr">Текстовое значение поля.</string>
+    <string name="field_num_descr">Числовое значение.Например количество посадок или заходов</string>
+    <string name="field_bool_descr">Булевое значение. Например подвеска для вертолета</string>
+    <string name="field_text_no_descr">Нет описания</string>
+
+    <string-array name="custom_fields_types">
+        <item>@string/field_type_number</item>
+        <item>@string/field_type_boolean</item>
+    </string-array>
+</resources>

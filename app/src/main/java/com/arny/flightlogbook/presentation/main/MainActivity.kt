@@ -7,6 +7,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.customfields.presentation.list.view.CustomFieldsFragment
 import com.arny.flightlogbook.presentation.flights.viewflights.view.FlightListFragment
 import com.arny.flightlogbook.presentation.flighttypes.view.FlightTypesFragment
 import com.arny.flightlogbook.presentation.planetypes.view.PlaneTypesFragment
@@ -34,6 +35,7 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
         private const val MENU_PLANE_TYPES = 1
         private const val MENU_FLIGHT_TYPES = 2
         private const val MENU_STATS = 3
+        private const val MENU_CUSTOM_FIELDS = 4
         private const val MENU_SETTINGS = 5
         private const val DRAWER_SELECTION = "drawer_selection"
         private const val TIME_DELAY = 2000
@@ -67,6 +69,9 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
                                 .withIcon(GoogleMaterial.Icon.gmd_flight),
                         PrimaryDrawerItem().withIdentifier(MENU_STATS.toLong())
                                 .withName(R.string.fragment_stats)
+                                .withIcon(GoogleMaterial.Icon.gmd_equalizer),
+                        PrimaryDrawerItem().withIdentifier(MENU_CUSTOM_FIELDS.toLong())
+                                .withName(R.string.custom_fields)
                                 .withIcon(GoogleMaterial.Icon.gmd_equalizer),
                         PrimaryDrawerItem().withIdentifier(MENU_SETTINGS.toLong())
                                 .withName(R.string.str_settings)
@@ -102,6 +107,7 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
                 MENU_FLIGHTS -> FlightListFragment.getInstance()
                 MENU_PLANE_TYPES -> PlaneTypesFragment.getInstance()
                 MENU_FLIGHT_TYPES -> FlightTypesFragment.getInstance()
+                MENU_CUSTOM_FIELDS -> CustomFieldsFragment.getInstance()
                 MENU_STATS -> StatisticFragment.getInstance()
                 MENU_SETTINGS -> SettingsFragment.getInstance()
                 else -> null
@@ -118,6 +124,7 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener {
             MENU_FLIGHTS -> "fragment_tag_flights"
             MENU_PLANE_TYPES -> "fragment_tag_plane_types"
             MENU_FLIGHT_TYPES -> "fragment_tag_flight_types"
+            MENU_CUSTOM_FIELDS -> "fragment_tag_custom_fields"
             MENU_STATS -> "fragment_tag_statistic"
             MENU_SETTINGS -> "fragment_tag_settings"
             else -> null

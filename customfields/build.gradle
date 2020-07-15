@@ -35,14 +35,23 @@ android {
 }
 
 dependencies {
+    implementation project(path: ':coreui')
+    implementation project(path: ':adapters')
     implementation project(path: ':constants')
     implementation project(path: ':helpers')
     implementation project(path: ':data')
     implementation libs.kotlinStdlib
+    implementation libs.ktxCore
     /*support*/
     implementation libs.appCompat
     implementation libs.design
+    implementation libs.recyclerView
+    implementation libs.cardView
     implementation libs.constraint
+    //mvp
+    implementation libs.moxy
+    implementation libs.moxyAndroidX
+    kapt libs.moxyCompiler
     //rx2
     implementation libs.rxJava
     implementation libs.rxAndroid
