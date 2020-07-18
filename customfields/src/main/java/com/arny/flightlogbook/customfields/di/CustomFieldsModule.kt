@@ -14,5 +14,4 @@ interface CustomFieldsModule {
 
     @Binds
     fun bindCustomFieldsRepository(interactor: CustomFieldsRepository): ICustomFieldsRepository
-
 }

@@ -6,8 +6,11 @@ import com.arny.flightlogbook.customfields.models.CustomFieldValue
 import com.arny.flightlogbook.customfields.models.toCustomFieldType
 import com.arny.flightlogbook.data.db.daos.CustomFieldDAO
 import com.arny.flightlogbook.data.db.daos.CustomFieldValuesDAO
+import com.arny.flightlogbook.data.models.CustomFieldEntity
 import com.arny.flightlogbook.data.models.CustomFieldValueEntity
+import com.arny.helpers.utils.OptionalNull
 import com.arny.helpers.utils.fromSingle
+import com.arny.helpers.utils.toOptionalNull
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
@@ -40,6 +43,11 @@ class CustomFieldsRepository @Inject constructor(
                 .subscribeOn(Schedulers.io())
     }
 
+    override fun getAllCustomField(id: Long): Single<OptionalNull<CustomField?>> {
+        return fromSingle { customFieldDAO.getDbCustomField(id)?.let { toField(it) }.toOptionalNull() }
+                .subscribeOn(Schedulers.io())
+    }
+
     override fun getAllCustomFields(): Single<List<CustomField>> {
         return fromSingle { getAllFields() }
                 .subscribeOn(Schedulers.io())
@@ -52,13 +60,15 @@ class CustomFieldsRepository @Inject constructor(
 
     private fun getAllFields(): List<CustomField> {
         return customFieldDAO.getDbCustomFields()
-                .map {
-                    CustomField(
-                            it.id ?: 0,
-                            it.name ?: "",
-                            it.type.toCustomFieldType()
-                    )
-                }
+                .map(::toField)
+    }
+
+    private fun toField(it: CustomFieldEntity): CustomField {
+        return CustomField(
+                it.id ?: 0,
+                it.name ?: "",
+                it.type.toCustomFieldType()
+        )
     }
 
     private fun getValues(externalId: Long): List<CustomFieldValue> {

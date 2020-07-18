@@ -101,7 +101,6 @@ dependencies {
     implementation project(path: ':constants')
     implementation project(path: ':customfields')
     implementation project(path: ':data')
-    implementation project(path: ':coreui')
     implementation libs.firebaseCrash
     implementation libs.multidex
     implementation libs.kotlinStdlib

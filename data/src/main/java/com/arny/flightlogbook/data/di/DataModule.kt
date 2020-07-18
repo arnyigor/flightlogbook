@@ -35,4 +35,8 @@ class DataModule {
     @Provides
     @Singleton
     fun provideCustomFieldsDao(db: MainDB) = db.customFieldDAO
+
+    @Provides
+    @Singleton
+    fun provideCustomFieldValuesDao(db: MainDB) = db.customFieldValuesDAO
 }

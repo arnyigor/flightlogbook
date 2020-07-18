@@ -1,7 +1,7 @@
-package com.arny.flightlogbook.customfields.presentation.list.view
+package com.arny.flightlogbook.presentation.customfields.list.view
 
+import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
-import com.arny.flightlogbook.customfields.R
 import com.arny.flightlogbook.customfields.models.CustomField
 import kotlinx.android.synthetic.main.custom_field_list_item.view.*
 

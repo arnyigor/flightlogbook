@@ -4,6 +4,7 @@ import com.arny.flightlogbook.customfields.models.CustomField
 import com.arny.flightlogbook.customfields.models.CustomFieldType
 import com.arny.flightlogbook.customfields.models.CustomFieldValue
 import com.arny.flightlogbook.customfields.repository.ICustomFieldsRepository
+import com.arny.helpers.utils.OptionalNull
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -31,6 +32,18 @@ class CustomFieldInteractor @Inject constructor(
         return if (id != null) {
             repository.removeCustomField(id)
         } else Single.error(Throwable("id is null"))
+    }
+
+    override fun getCustomField(id: Long): Single<OptionalNull<CustomField?>> {
+        return repository.getAllCustomField(id)
+    }
+
+    override fun save(id: Long?, name: String?, type: CustomFieldType) {
+       /* if (id != null) {
+            repository.updateCustomField(id,name,)
+        }else{
+
+        }*/
     }
 
     override fun addCustomFieldValue(

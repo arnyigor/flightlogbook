@@ -5,7 +5,7 @@
     <string name="field_type_number">Число</string>
     <string name="field_type_boolean">Булевое значение</string>
     <string name="field_type">Тип поля</string>
-    <string name="add_field">Чтобы добавить поле нажмите на кнопку</string>
+    <string name="no_custom_fields">Нет дополнительных полей</string>
     <string name="field_text_name">Текстовое значение</string>
     <string name="field_num_name">Числовое значение</string>
     <string name="field_bool_name">Булевое значение</string>
@@ -15,8 +15,4 @@
     <string name="field_bool_descr">Булевое значение. Например подвеска для вертолета</string>
     <string name="field_text_no_descr">Нет описания</string>
 
-    <string-array name="custom_fields_types">
-        <item>@string/field_type_number</item>
-        <item>@string/field_type_boolean</item>
-    </string-array>
 </resources>

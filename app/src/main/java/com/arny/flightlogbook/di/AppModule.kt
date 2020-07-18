@@ -9,7 +9,11 @@ import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
 
-@Module(includes = [ResourceModule::class, DataModule::class, CustomFieldsModule::class])
+@Module(includes = [
+    ResourceModule::class,
+    DataModule::class,
+    CustomFieldsModule::class
+])
 class AppModule(private val application: Application) {
     @Provides
     @Singleton

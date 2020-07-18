@@ -42,10 +42,7 @@ import java.lang.reflect.Type
 import java.util.*
 import kotlin.math.roundToInt
 
-/**
- *Created by Sedoy on 15.07.2019
- */
-fun AppCompatActivity.replaceFragmentInActivity(
+fun AppCompatActivity.replaceFragment(
         fragment: Fragment, @IdRes frameId: Int,
         addToback: Boolean = false,
         tag: String? = null,
@@ -66,6 +63,30 @@ fun AppCompatActivity.replaceFragmentInActivity(
     }
     onLoadFunc()
 }
+
+fun Fragment.replaceFragment(
+        fragment: Fragment, @IdRes frameId: Int,
+        addToback: Boolean = false,
+        tag: String? = null,
+        onLoadFunc: () -> Unit? = {},
+        animResourses: Pair<Int, Int>? = null
+) {
+    val tg = tag ?: fragment.javaClass.simpleName
+    childFragmentManager.transact {
+        if (animResourses != null) {
+            val slideIn = animResourses.first
+            val slideOut = animResourses.second
+            setCustomAnimations(slideIn, slideOut)
+        }
+        replace(frameId, fragment, tg)
+        if (addToback) {
+            addToBackStack(tag)
+        }
+    }
+    onLoadFunc()
+}
+
+
 
 /**
  * Runs a FragmentTransaction, then calls commit().

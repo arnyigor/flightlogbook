@@ -44,4 +44,11 @@
     <string name="arrival">Прилет</string>
     <string name="dep_time">Время вылета</string>
     <string name="arrival_time">Время прилета</string>
+    <string name="edit">Редактирование</string>
+    <string name="error_empty_text_field">Пустое поле</string>
+
+    <string-array name="custom_fields_types">
+        <item>@string/field_type_number</item>
+        <item>@string/field_type_boolean</item>
+    </string-array>
 </resources>

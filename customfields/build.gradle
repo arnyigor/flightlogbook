@@ -35,7 +35,6 @@ android {
 }
 
 dependencies {
-    implementation project(path: ':coreui')
     implementation project(path: ':adapters')
     implementation project(path: ':constants')
     implementation project(path: ':helpers')

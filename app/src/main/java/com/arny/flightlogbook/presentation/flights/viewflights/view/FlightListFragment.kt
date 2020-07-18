@@ -23,7 +23,6 @@ import moxy.presenter.ProvidePresenter
 
 class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
     private var adapter: FlightsAdapter? = null
-    private var finishOperation = true
     private var positionIndex: Int = 0
     private var mLayoutManager: LinearLayoutManager? = null
     private var topView: Int = 0
@@ -41,6 +40,8 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
     }
 
     companion object {
+        private const val PARAM_RELOAD = "RAPRAM_RELOAD"
+
         @JvmStatic
         fun getInstance(): FlightListFragment {
             return FlightListFragment()

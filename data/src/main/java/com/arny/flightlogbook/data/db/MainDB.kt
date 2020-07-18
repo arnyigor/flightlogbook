@@ -3,10 +3,7 @@ package com.arny.flightlogbook.data.db
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.arny.flightlogbook.constants.CONSTS
-import com.arny.flightlogbook.data.db.daos.AircraftTypeDAO
-import com.arny.flightlogbook.data.db.daos.CustomFieldDAO
-import com.arny.flightlogbook.data.db.daos.FlightDAO
-import com.arny.flightlogbook.data.db.daos.FlightTypeDAO
+import com.arny.flightlogbook.data.db.daos.*
 import com.arny.flightlogbook.data.models.*
 
 @Database(
@@ -25,4 +22,5 @@ abstract class MainDB : RoomDatabase() {
     abstract val flightTypeDAO: FlightTypeDAO
     abstract val aircraftTypeDAO: AircraftTypeDAO
     abstract val customFieldDAO: CustomFieldDAO
+    abstract val customFieldValuesDAO: CustomFieldValuesDAO
 }

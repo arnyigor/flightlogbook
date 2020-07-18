@@ -87,6 +87,8 @@ ext.libs = [
         'dagger'              : "com.google.dagger:dagger:${versions.dagger}",
         'daggerCompiler'      : "com.google.dagger:dagger-compiler:${versions.dagger}",
 
+        'cicerone'            : "ru.terrakok.cicerone:cicerone:5.1.0",
+
         //network
         'gson'                : "com.google.code.gson:gson:${versions.gson}",
         'retrofit'            : "com.squareup.retrofit2:retrofit:${versions.retrofit}",
