@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_flights"
+        android:title="@string/fragment_logbook" />
+    <item
+        android:id="@+id/menu_plane_types"
+        android:title="@string/fragment_plane_types" />
+    <item
+        android:id="@+id/menu_flight_types"
+        android:title="@string/fragment_flight_types" />
+    <item
+        android:id="@+id/menu_stats"
+        android:title="@string/fragment_stats" />
+    <item
+        android:id="@+id/menu_fields"
+        android:title="@string/custom_fields" />
+    <item
+        android:id="@+id/menu_settings"
+        android:title="@string/str_settings" />
+</menu>

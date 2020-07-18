@@ -80,6 +80,7 @@ class CustomFieldsListFragment : MvpAppCompatFragment(), CustomFieldsListView {
         }
         if (reload) {
             presenter.loadCustomFields()
+            reload = false
         }
     }
 

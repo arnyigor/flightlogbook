@@ -118,6 +118,7 @@ dependencies {
     implementation libs.design
     implementation libs.recyclerView
     implementation libs.preference
+    implementation libs.drawerlayout
     implementation libs.cardView
     implementation libs.constraint
     implementation libs.vector
@@ -146,9 +147,9 @@ dependencies {
     implementation libs.materialDialogsCore
     implementation libs.materialDialogsColor
     implementation libs.materialDialogsInput
-    implementation("com.mikepenz:materialdrawer:6.0.9@aar") {
-        transitive = true
-    }
+    implementation libs.drawer
+    implementation libs.drawerNav
+    implementation libs.drawerIcon
     implementation libs.stetho
     implementation libs.inputmask
 }

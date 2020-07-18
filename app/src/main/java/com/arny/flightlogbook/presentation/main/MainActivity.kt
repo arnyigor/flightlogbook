@@ -1,12 +1,12 @@
 package com.arny.flightlogbook.presentation.main
 
 import android.app.ProgressDialog
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.view.View
+import android.view.MenuItem
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.presentation.customfields.edit.view.CustomFieldEditFragment
@@ -16,21 +16,19 @@ import com.arny.flightlogbook.presentation.flighttypes.view.FlightTypesFragment
 import com.arny.flightlogbook.presentation.planetypes.view.PlaneTypesFragment
 import com.arny.flightlogbook.presentation.settings.view.SettingsFragment
 import com.arny.flightlogbook.presentation.statistic.view.StatisticFragment
-import com.arny.helpers.utils.*
-import com.mikepenz.google_material_typeface_library.GoogleMaterial
-import com.mikepenz.materialdrawer.Drawer
-import com.mikepenz.materialdrawer.DrawerBuilder
-import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
+import com.arny.helpers.utils.getFragmentByTag
+import com.arny.helpers.utils.replaceFragment
+import com.arny.helpers.utils.showSnackBar
 import kotlinx.android.synthetic.main.activity_home.*
 
 
-class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener, Router {
+class MainActivity : AppCompatActivity(), Router {
     companion object {
         private const val DRAWER_SELECTION = "drawer_selection"
         private const val TIME_DELAY = 2000
     }
 
-    private var drawer: Drawer? = null
+    private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
     private lateinit var toolbar: Toolbar
     private var pDialog: ProgressDialog? = null
     private var backPressedTime: Long = 0
@@ -43,14 +41,28 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener, Router {
         toolbar = findViewById(R.id.home_toolbar)
         setSupportActionBar(toolbar)
         toolbar.title = getString(R.string.fragment_logbook)
-        drawer = DrawerBuilder()
-                .withActivity(this)
-                .withOnDrawerListener(this)
-                .withRootView(R.id.drawer_container)
-                .withToolbar(toolbar)
-                .withActionBarDrawerToggle(true)
-                .withActionBarDrawerToggleAnimated(true)
-                .addDrawerItems(
+        actionBarDrawerToggle = ActionBarDrawerToggle(
+                this,
+                dlMain,
+                toolbar,
+                R.string.openNavDrawer,
+                R.string.closeNavDrawer
+        )
+        dlMain.addDrawerListener(actionBarDrawerToggle)
+        actionBarDrawerToggle.isDrawerIndicatorEnabled = true;
+        actionBarDrawerToggle.syncState()
+        navViewMain.setNavigationItemSelectedListener { item ->
+            val navItem = toNavigateItem(item)
+            if (navItem != -1L) {
+                selectItem(navItem)
+                dlMain.closeDrawers()
+                true
+            } else {
+                false
+            }
+        }
+        /*slider.itemAdapter
+                .add(
                         PrimaryDrawerItem().withIdentifier(NavigateItems.MENU_FLIGHTS.index)
                                 .withName(R.string.fragment_logbook)
                                 .withIcon(GoogleMaterial.Icon.gmd_flight_takeoff),
@@ -70,35 +82,58 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener, Router {
                                 .withName(R.string.str_settings)
                                 .withIcon(GoogleMaterial.Icon.gmd_settings_applications)
                 )
-                .withOnDrawerItemClickListener { _, _, drawerItem ->
-                    selectItem(drawerItem.identifier)
-                    true
-                }
-                .build()
+        slider.onDrawerItemClickListener = { _, item, _ ->
+            selectItem(item.identifier)
+            false
+        }*/
         if (savedInstanceState == null) {
             selectItem(NavigateItems.MENU_FLIGHTS.index)
         } else {
             try {
-                savedInstanceState.getString(DRAWER_SELECTION)?.parseLong()?.let { drawer!!.setSelection(it) }
+                savedInstanceState.getString(DRAWER_SELECTION)?.toLong()?.let { index ->
+                    toMenuItem(index)?.let { navViewMain.setCheckedItem(it) }
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        Log.i(MainActivity::class.java.simpleName, "onActivityResult: requestCode:$requestCode,resultCode:$resultCode," +
-                "data:${data.dump()}");
-        for (fragment in supportFragmentManager.fragments) {
-            fragment.onActivityResult(requestCode, resultCode, data)
-        }
+    private fun toNavigateItem(item: MenuItem?) = when (item?.itemId) {
+        R.id.menu_flights -> NavigateItems.MENU_FLIGHTS.index
+        R.id.menu_flight_types -> NavigateItems.MENU_FLIGHT_TYPES.index
+        R.id.menu_plane_types -> NavigateItems.MENU_PLANE_TYPES.index
+        R.id.menu_fields -> NavigateItems.MENU_CUSTOM_FIELDS.index
+        R.id.menu_settings -> NavigateItems.MENU_SETTINGS.index
+        R.id.menu_stats -> NavigateItems.MENU_STATS.index
+        else -> -1
+    }
+
+    fun lockNavigationDrawer() {
+        dlMain.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        actionBarDrawerToggle.isDrawerIndicatorEnabled = false
+        actionBarDrawerToggle.syncState()
+    }
+
+    fun unLockNavigationDrawer() {
+        dlMain.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+        actionBarDrawerToggle.isDrawerIndicatorEnabled = true
+        actionBarDrawerToggle.syncState()
+    }
+
+    private fun toMenuItem(index: Long) = when (index) {
+        NavigateItems.MENU_FLIGHTS.index -> R.id.menu_flights
+        NavigateItems.MENU_FLIGHT_TYPES.index -> R.id.menu_flight_types
+        NavigateItems.MENU_PLANE_TYPES.index -> R.id.menu_plane_types
+        NavigateItems.MENU_CUSTOM_FIELDS.index -> R.id.menu_fields
+        NavigateItems.MENU_SETTINGS.index -> R.id.menu_settings
+        NavigateItems.MENU_STATS.index -> R.id.menu_stats
+        else -> null
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        val state = drawer!!.saveInstanceState(outState)
-        state.putString(DRAWER_SELECTION, drawer!!.currentSelection.toString())
-        super.onSaveInstanceState(state)
+        outState.putString(DRAWER_SELECTION, toNavigateItem(navViewMain.checkedItem).toString())
+        super.onSaveInstanceState(outState)
     }
 
     override fun navigateTo(item: NavigateItems, addToBackStack: Boolean, bundle: Bundle?, targetFragment: Fragment?, requestCode: Int?) {
@@ -140,13 +175,14 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener, Router {
                 fragment.setTargetFragment(targetFragment, requestCode ?: 0)
             }
             replaceFragment(fragment, R.id.container, addToBackStack)
-            drawer?.closeDrawer()
+            dlMain.closeDrawer(navViewMain)
         }
     }
 
     override fun onBackPressed() {
-        if (drawer!!.isDrawerOpen) {
-            drawer!!.closeDrawer()
+        val drawerLayout = dlMain
+        if (drawerLayout?.isDrawerOpen(navViewMain) == true) {
+            drawerLayout.closeDrawer(navViewMain)
         } else {
             val fragments = supportFragmentManager.fragments
             var isMain = false
@@ -154,6 +190,7 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener, Router {
             for (curFrag in fragments) {
                 if (curFrag is BackButtonListener) {
                     if (curFrag.onBackPressed()) {
+                        lockNavigationDrawer()
                         hasFragments = true
                         break
                     }
@@ -174,14 +211,9 @@ class MainActivity : AppCompatActivity(), Drawer.OnDrawerListener, Router {
                     backPressedTime = System.currentTimeMillis()
                 }
             } else {
+                unLockNavigationDrawer()
                 super.onBackPressed()
             }
         }
     }
-
-    override fun onDrawerOpened(drawerView: View) {}
-
-    override fun onDrawerClosed(drawerView: View) {}
-
-    override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
 }

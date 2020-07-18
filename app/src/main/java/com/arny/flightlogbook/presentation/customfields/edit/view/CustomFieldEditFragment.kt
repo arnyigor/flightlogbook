@@ -8,12 +8,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
+import androidx.annotation.StringRes
 import androidx.core.widget.doAfterTextChanged
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.customfields.models.CustomFieldType
 import com.arny.flightlogbook.presentation.customfields.edit.presenter.CustomFieldsEditPresenter
 import com.arny.flightlogbook.presentation.main.BackButtonListener
+import com.arny.flightlogbook.presentation.main.MainActivity
 import com.arny.flightlogbook.presentation.main.Router
+import com.arny.helpers.utils.ToastMaker
+import com.arny.helpers.utils.Utility
 import kotlinx.android.synthetic.main.fragment_edit_custom_field_layout.*
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
@@ -51,7 +56,7 @@ class CustomFieldEditFragment : MvpAppCompatFragment(), CustomFieldsEditView, Ba
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        presenter.setId(arguments?.getLong(PARAM_FIELD_ID))
+        arguments?.getLong(CONSTS.EXTRAS.EXTRA_CUSTOM_FIELD_ID)?.let { presenter.setId(it) }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -61,8 +66,11 @@ class CustomFieldEditFragment : MvpAppCompatFragment(), CustomFieldsEditView, Ba
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         types = resources.getStringArray(R.array.custom_fields_types)
+        val activity = activity
         activity?.title = getString(R.string.edit)
-
+        if (activity is MainActivity) {
+            activity.lockNavigationDrawer()
+        }
         tiedtCustomFieldName.doAfterTextChanged {
             if (tiedtCustomFieldName.isFocused) {
                 presenter.setFieldName(it.toString())
@@ -84,7 +92,34 @@ class CustomFieldEditFragment : MvpAppCompatFragment(), CustomFieldsEditView, Ba
 
     override fun onResultOk() {
         targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_OK, null)
+    }
+
+    override fun showError(@StringRes strRes: Int) {
+        ToastMaker.toastError(context, getString(strRes))
+    }
+
+    override fun onReturnBack() {
+        val activity = activity
+        if (activity is MainActivity) {
+            activity.unLockNavigationDrawer()
+        }
         router?.onBackPress()
+    }
+
+    override fun showResult(@StringRes strRes: Int) {
+        ToastMaker.toastSuccess(context, getString(strRes))
+    }
+
+    override fun hideKeyboard() {
+        Utility.hideSoftKeyboard(requireContext())
+    }
+
+    override fun showProgress(show: Boolean) {
+        if (show) {
+            clpbLoading.show()
+        } else {
+            clpbLoading.hide()
+        }
     }
 
     override fun onBackPressed(): Boolean {

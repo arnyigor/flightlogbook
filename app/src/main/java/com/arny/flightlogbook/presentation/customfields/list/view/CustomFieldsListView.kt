@@ -6,16 +6,16 @@ import moxy.viewstate.strategy.AddToEndSingleStrategy
 import moxy.viewstate.strategy.OneExecutionStateStrategy
 import moxy.viewstate.strategy.StateStrategyType
 
-@StateStrategyType(value = AddToEndSingleStrategy::class)
+@StateStrategyType(OneExecutionStateStrategy::class)
 interface CustomFieldsListView : MvpView {
+    @StateStrategyType(value = AddToEndSingleStrategy::class)
     fun showProgress(show: Boolean)
+
+    @StateStrategyType(value = AddToEndSingleStrategy::class)
     fun showEmptyView(show: Boolean)
+    @StateStrategyType(value = AddToEndSingleStrategy::class)
     fun showList(list: List<CustomField>)
-
-    @StateStrategyType(OneExecutionStateStrategy::class)
     fun toastError(message: String?)
-
-    @StateStrategyType(OneExecutionStateStrategy::class)
     fun navigateToFieldEdit(id: Long? = null)
 
 }

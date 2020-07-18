@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.arny.flightlogbook">
+    package="com.arny.flightlogbook" >
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -12,15 +12,15 @@
     <application
         android:name=".FlightApp"
         android:allowBackup="true"
-        android:requestLegacyExternalStorage="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:theme="@style/AppTheme"
-        tools:ignore="GoogleAppIndexingWarning">
+        tools:ignore="GoogleAppIndexingWarning" >
         <activity
             android:name=".presentation.main.MainActivity"
             android:label="@string/app_name"
-            android:screenOrientation="fullSensor">
+            android:screenOrientation="fullSensor" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -31,7 +31,6 @@
             android:name=".presentation.flights.addedit.view.AddEditActivity"
             android:screenOrientation="fullSensor"
             android:windowSoftInputMode="stateHidden" />
-
         <activity
             android:name=".presentation.flighttypes.view.FlightTypesActivity"
             android:screenOrientation="fullSensor" />
@@ -51,9 +50,9 @@
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
             android:enabled="true"
-            android:permission="android.permission.MANAGE_DOCUMENTS"
             android:exported="false"
-            android:grantUriPermissions="true">
+            android:grantUriPermissions="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS" >
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
@@ -62,7 +61,7 @@
         <receiver
             android:name=".presentation.widget.AppWidget"
             android:icon="@drawable/ic_launcher"
-            android:label="@string/app_name">
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

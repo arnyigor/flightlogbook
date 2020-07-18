@@ -20,4 +20,16 @@ class CustomFieldsAdapter : SimpleAbstractAdapter<CustomField>() {
             }
         }
     }
+
+    override fun getDiffCallback(): DiffCallback<CustomField>? {
+        return object : DiffCallback<CustomField>() {
+            override fun areItemsTheSame(oldItem: CustomField, newItem: CustomField): Boolean {
+                return oldItem == newItem
+            }
+
+            override fun areContentsTheSame(oldItem: CustomField, newItem: CustomField): Boolean {
+                return oldItem == newItem
+            }
+        }
+    }
 }

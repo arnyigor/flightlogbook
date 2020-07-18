@@ -46,9 +46,20 @@
     <string name="arrival_time">Время прилета</string>
     <string name="edit">Редактирование</string>
     <string name="error_empty_text_field">Пустое поле</string>
+    <string name="error_custom_field_not_saved">Поле не сохранено</string>
+    <string name="save_custom_field_success">Поле сохранено</string>
 
     <string-array name="custom_fields_types">
         <item>@string/field_type_number</item>
         <item>@string/field_type_boolean</item>
     </string-array>
+    <string name="title_activity_main2">MainActivity</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+    <string translatable="false" name="openNavDrawer">open</string>
+    <string translatable="false" name="closeNavDrawer">open</string>
 </resources>

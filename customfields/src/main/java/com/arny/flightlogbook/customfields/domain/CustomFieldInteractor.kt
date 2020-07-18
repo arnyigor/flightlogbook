@@ -38,12 +38,8 @@ class CustomFieldInteractor @Inject constructor(
         return repository.getAllCustomField(id)
     }
 
-    override fun save(id: Long?, name: String?, type: CustomFieldType) {
-       /* if (id != null) {
-            repository.updateCustomField(id,name,)
-        }else{
-
-        }*/
+    override fun save(id: Long?, name: String, type: CustomFieldType): Single<Boolean> {
+        return repository.addCustomField(CustomField(id, name, type))
     }
 
     override fun addCustomFieldValue(

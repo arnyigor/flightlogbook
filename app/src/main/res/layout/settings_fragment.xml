@@ -13,7 +13,7 @@
         android:layout_marginTop="8dp"
         android:padding="8dp"
         android:text="@string/import_export_settings"
-        android:textColor="@color/md_black_1000"
+        android:textColor="@color/colorTextBlack"
         android:textSize="@dimen/font_size_medium"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

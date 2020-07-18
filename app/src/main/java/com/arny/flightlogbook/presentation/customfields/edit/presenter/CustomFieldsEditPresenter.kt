@@ -25,7 +25,9 @@ class CustomFieldsEditPresenter : BaseMvpPresenter<CustomFieldsEditView>() {
     private var id: Long? = null
 
     fun setId(id: Long?) {
-        this.id = id
+        if (id != null && id != 0L) {
+            this.id = id
+        }
     }
 
     init {
@@ -34,8 +36,8 @@ class CustomFieldsEditPresenter : BaseMvpPresenter<CustomFieldsEditView>() {
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
-        id?.let { fieldId ->
-            customFieldInteractor.getCustomField(fieldId)
+        if (id != null && id != 0L) {
+            customFieldInteractor.getCustomField(id!!)
                     .subscribeFromPresenter({
                         val customField = it.value
                         if (customField != null) {
@@ -48,6 +50,7 @@ class CustomFieldsEditPresenter : BaseMvpPresenter<CustomFieldsEditView>() {
                         it.printStackTrace()
                     })
         }
+
     }
 
     fun onSaveClicked() {
@@ -55,8 +58,18 @@ class CustomFieldsEditPresenter : BaseMvpPresenter<CustomFieldsEditView>() {
             viewState.showNameError(R.string.error_empty_text_field)
             return
         }
-        customFieldInteractor.save(id, name, type)
-        viewState.onResultOk()
+        viewState.hideKeyboard()
+        viewState.showProgress(false)
+        customFieldInteractor.save(id, name!!, type)
+                .subscribeFromPresenter({
+                    viewState.showProgress(false)
+                    viewState.showResult(R.string.save_custom_field_success)
+                    viewState.onResultOk()
+                    viewState.onReturnBack()
+                }, {
+                    viewState.showProgress(false)
+                    viewState.showError(R.string.error_custom_field_not_saved)
+                })
     }
 
     fun setFieldName(name: String) {

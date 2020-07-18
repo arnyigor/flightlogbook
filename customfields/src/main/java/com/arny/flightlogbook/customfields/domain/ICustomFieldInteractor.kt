@@ -13,5 +13,5 @@ interface ICustomFieldInteractor {
     fun removeCustomField(id: Long? = null): Single<Boolean>
     fun addCustomFieldValue(id: Long?, fieldId: Long?, externalId: Long, type: CustomFieldType, value: Any? = null): Single<Boolean>
     fun getCustomField(id: Long): Single<OptionalNull<CustomField?>>
-    fun save(id: Long?, name: String?, type: CustomFieldType)
+    fun save(id: Long?, name: String, type: CustomFieldType): Single<Boolean>
 }

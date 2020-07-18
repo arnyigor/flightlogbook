@@ -27,7 +27,7 @@
         android:layout_height="32dp"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:background="@color/md_black_1000"
+        android:background="@color/colorTextBlack"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/spinStatFilter"
         app:layout_constraintStart_toEndOf="@+id/spinStatFilter"
