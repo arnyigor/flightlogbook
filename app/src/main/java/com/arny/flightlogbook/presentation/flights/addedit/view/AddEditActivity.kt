@@ -18,6 +18,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
 import androidx.core.view.isVisible
+import androidx.core.widget.addTextChangedListener
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.color.colorChooser
 import com.arny.flightlogbook.R
@@ -123,11 +124,11 @@ class AddEditActivity :
 
     private fun onNightTimeChanges() {
         val timeZero = getTimeZero()
-        setMaskedChanges(edtNightTime) {
-            if (edtNightTime.text.toString().isBlank()) {
+        edtNightTime.addTextChangedListener {
+            if (it.toString().isBlank()) {
                 edtNightTime.hint = timeZero
             }
-            sNightTime = it
+            sNightTime = it.toString()
         }
         edtNightTime.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
@@ -162,13 +163,12 @@ class AddEditActivity :
 
     private fun onGroundTimeChanges() {
         val timeZero = getTimeZero()
-        setMaskedChanges(edtGroundTime) {
-            if (edtGroundTime.text.toString().isBlank()) {
+        edtGroundTime.addTextChangedListener {
+            if (it.toString().isBlank()) {
                 edtGroundTime.hint = timeZero
             }
-            sGroundTime = it
+            sGroundTime = it.toString()
         }
-
         edtGroundTime.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
                 edtGroundTime.setSelectAllOnFocus(false)
@@ -253,11 +253,11 @@ class AddEditActivity :
 
     private fun onFlightTimeChanges() {
         val timeZero = getTimeZero()
-        setMaskedChanges(edtFlightTime) {
-            if (edtFlightTime.text.toString().isBlank()) {
+        edtFlightTime.addTextChangedListener {
+            if (it.toString().isBlank()) {
                 edtFlightTime.hint = timeZero
             }
-            sFlightTime = it
+            sFlightTime = it.toString()
         }
         edtFlightTime.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
