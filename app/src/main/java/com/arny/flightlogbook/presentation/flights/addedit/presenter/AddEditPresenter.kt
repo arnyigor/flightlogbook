@@ -9,8 +9,10 @@ import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.constants.CONSTS.STRINGS.PARAM_COLOR
 import com.arny.flightlogbook.customfields.domain.CustomFieldInteractor
+import com.arny.flightlogbook.customfields.models.CustomFieldType
+import com.arny.flightlogbook.customfields.models.CustomFieldValue
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
-import com.arny.flightlogbook.presentation.flights.addedit.models.CorrectedTimePair
+import com.arny.flightlogbook.presentation.flights.addedit.models.getCorrectTime
 import com.arny.flightlogbook.presentation.flights.addedit.view.AddEditView
 import com.arny.helpers.utils.*
 import io.reactivex.rxkotlin.Observables
@@ -20,6 +22,8 @@ import javax.inject.Inject
 
 @InjectViewState
 class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
+
+    private var customFieldsValues: List<CustomFieldValue>? = null
 
     @Inject
     lateinit var flightsInteractor: FlightsInteractor
@@ -71,6 +75,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     private fun loadCustomFields() {
         customFieldInteractor.getCustomFieldsWithValues(id)
                 .subscribeFromPresenter({
+                    this.customFieldsValues = it
                     viewState.setFieldsList(it)
                 }, {
                     it.printStackTrace()
@@ -150,7 +155,13 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
             fromCallable { DateTimeUtils.strLogTime(intFlightTime) }
                     .subscribeFromPresenter({ viewState.setEdtFlightTimeText(it) })
         }
-        intTotalTime = intFlightTime + intGroundTime
+        val customTimes = customFieldsValues?.filter {
+            val type = it.type
+            type is CustomFieldType.Time && type.addTime && it.value != null
+        }?.map {
+            DateTimeUtils.convertStringToTime(it.value.toString())
+        }?.sum() ?: 0
+        intTotalTime = intFlightTime + intGroundTime + customTimes
         fromCallable { DateTimeUtils.strLogTime(intTotalTime) }
                 .subscribeFromPresenter({ viewState.setTotalTime(it) })
     }
@@ -410,66 +421,6 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                 })
     }
 
-    private fun getCorrectTime(stringTime: String, initTime: Int): CorrectedTimePair {
-        var logMinutes: Int
-        var logHours = 0
-        var logTime = initTime
-        return when {
-            stringTime.isBlank() -> CorrectedTimePair(
-                    logTime,
-                    if (logTime != 0) DateTimeUtils.strLogTime(logTime) else ""
-            )
-            stringTime.length == 1 -> {
-                logTime = stringTime.parseInt(0)
-                CorrectedTimePair(
-                        logTime,
-                        if (logTime != 0) String.format("00:0%d", logTime) else ""
-                )
-            }
-            stringTime.length == 2 -> {
-                logMinutes = stringTime.parseInt(0)
-                logTime = stringTime.parseInt(0)
-                if (logMinutes > 59) {
-                    logHours = 1
-                    logMinutes -= 60
-                }
-                val format = String.format(
-                        "%s:%s",
-                        DateTimeUtils.pad(logHours),
-                        DateTimeUtils.pad(logMinutes)
-                )
-                CorrectedTimePair(
-                        logTime,
-                        format
-                )
-            }
-            stringTime.length > 2 -> {
-                if (stringTime.contains(":")) {
-                    logMinutes =
-                            stringTime.substring(stringTime.length - 2, stringTime.length).parseInt(0)
-                    logHours = stringTime.substring(0, stringTime.length - 3).parseInt(0)
-                } else {
-                    logMinutes =
-                            stringTime.substring(stringTime.length - 2, stringTime.length).parseInt(0)
-                    logHours = stringTime.substring(0, stringTime.length - 2).parseInt(0)
-                }
-                if (logMinutes > 59) {
-                    logHours += 1
-                    logMinutes -= 60
-                }
-                logTime = DateTimeUtils.logTimeMinutes(logHours, logMinutes)
-                CorrectedTimePair(
-                        logTime,
-                        DateTimeUtils.strLogTime(logTime)
-                )
-            }
-            else -> CorrectedTimePair(
-                    logTime,
-                    if (logTime != 0) DateTimeUtils.strLogTime(logTime) else ""
-            )
-        }
-    }
-
     fun colorClick() {
         fromCallable { getColorsIntArray() }
                 .subscribeFromPresenter({ colors ->
@@ -499,6 +450,17 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
             viewState.requestStorageAndSave()
         } else {
             viewState.saveFlight()
+        }
+    }
+
+    fun onCustomFieldValueChange(item: CustomFieldValue, value: String) {
+        if (item.type is CustomFieldType.Time) {
+            correctTimeObs(value, DateTimeUtils.convertStringToTime(item.value.toString()))
+                    .subscribeFromPresenter({
+                        item.value = DateTimeUtils.strLogTime(it.intTime)
+                        viewState.notifyCustomFieldUpdate(item)
+                        timeSummChanged()
+                    })
         }
     }
 }

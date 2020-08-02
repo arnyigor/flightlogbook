@@ -1,12 +1,12 @@
 package com.arny.flightlogbook.presentation.customfields.edit.view
 
-
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.view.*
 import android.widget.AdapterView
 import androidx.annotation.StringRes
+import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.AbstractArrayAdapter
@@ -21,7 +21,6 @@ import kotlinx.android.synthetic.main.fragment_edit_custom_field_layout.*
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
-
 
 class CustomFieldEditFragment : MvpAppCompatFragment(), CustomFieldsEditView, BackButtonListener {
     private var router: Router? = null
@@ -65,7 +64,7 @@ class CustomFieldEditFragment : MvpAppCompatFragment(), CustomFieldsEditView, Ba
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_save -> presenter.onSaveClicked()
+            R.id.action_save -> presenter.onSaveClicked(chbAddTime.isChecked)
         }
         return true
     }
@@ -87,7 +86,7 @@ class CustomFieldEditFragment : MvpAppCompatFragment(), CustomFieldsEditView, Ba
                 presenter.setFieldName(it.toString())
             }
         }
-        val map = CustomFieldType.values().map { getString(it.getTypeName()) }.toTypedArray()
+        val map = CustomFieldType.values().map { getString(it.nameRes) }.toTypedArray()
         val abstractArrayAdapter = object : AbstractArrayAdapter<String>(
                 context,
                 android.R.layout.simple_list_item_1,
@@ -108,6 +107,10 @@ class CustomFieldEditFragment : MvpAppCompatFragment(), CustomFieldsEditView, Ba
 
         chbDefault.setOnCheckedChangeListener { _, isChecked ->
             presenter.setDefaultChecked(isChecked)
+        }
+
+        chbAddTime.setOnCheckedChangeListener { _, isChecked ->
+            presenter.setAddTimeChecked(isChecked)
         }
     }
 
@@ -149,7 +152,7 @@ class CustomFieldEditFragment : MvpAppCompatFragment(), CustomFieldsEditView, Ba
 
     override fun setType(type: CustomFieldType?) {
         if (type != null) {
-            val element = getString(type.getTypeName())
+            val element = getString(type.nameRes)
             val indexOf = types.indexOf(element)
             spinFieldType.setSelection(indexOf)
         }
@@ -161,5 +164,13 @@ class CustomFieldEditFragment : MvpAppCompatFragment(), CustomFieldsEditView, Ba
 
     override fun setDefaultChecked(showByDefault: Boolean) {
         chbDefault.isChecked = showByDefault
+    }
+
+    override fun setAddTimeChecked(checked: Boolean) {
+        chbAddTime.isChecked = checked
+    }
+
+    override fun setChBoxAddTimeVisible(visible: Boolean) {
+        chbAddTime.isVisible = visible
     }
 }

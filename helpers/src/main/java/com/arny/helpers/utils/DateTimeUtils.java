@@ -56,7 +56,8 @@ public class DateTimeUtils {
         return isUS ? Locale.US : Locale.getDefault();
     }
 
-    public static @Nullable String convertStrMonthToNum(String myTimestamp){
+    public static @Nullable
+    String convertStrMonthToNum(String myTimestamp) {
         DateFormatSymbols formatSimbols = getFormatString(myTimestamp);
         String[] months = formatSimbols.getMonths();
         int index = 0;
@@ -188,6 +189,7 @@ public class DateTimeUtils {
     public static String getMonthName(Calendar calendar) {
         return getCalendarFieldName(calendar, Calendar.MONTH, Calendar.LONG);
     }
+
     public static String getWeekDayName(Calendar calendar) {
         return getCalendarFieldName(calendar, Calendar.DAY_OF_WEEK, Calendar.SHORT);
     }
@@ -236,7 +238,7 @@ public class DateTimeUtils {
         }
     };
 
-    public static long durationInMinutes(long start, long end){
+    public static long durationInMinutes(long start, long end) {
         Duration duration = new Duration(start, end);
         return duration.getStandardMinutes();
     }
@@ -344,10 +346,10 @@ public class DateTimeUtils {
     }
 
     public static String getDateTime(@Nullable String timestamp, String formatIn, String formatOut) {
-        return getDateTime(timestamp, formatIn, formatOut, false,null);
+        return getDateTime(timestamp, formatIn, formatOut, false, null);
     }
 
-    public static String getDateTime(@Nullable String timestamp, String formatIn, String formatOut, boolean useUTC,@Nullable TimeZone timeZone) {
+    public static String getDateTime(@Nullable String timestamp, String formatIn, String formatOut, boolean useUTC, @Nullable TimeZone timeZone) {
         long time = convertTimeStringToLong(timestamp, formatIn, timeZone);
         return getDateTime(time, formatOut, useUTC);
     }
@@ -373,7 +375,7 @@ public class DateTimeUtils {
         return getDateTime(timestamp, format, false);
     }
 
-    public static String getDateTime(long timestamp,String format,boolean useUTC) {
+    public static String getDateTime(long timestamp, String format, boolean useUTC) {
         Date d = new Date(timestamp);
         Locale locale = Locale.getDefault();
         SimpleDateFormat sdf = new SimpleDateFormat(format, locale);
@@ -400,10 +402,10 @@ public class DateTimeUtils {
         }
     }
 
-    public static String getDateTime(int day,int month,int year, String format) {
+    public static String getDateTime(int day, int month, int year, String format) {
         try {
             Calendar calendar = Calendar.getInstance();
-            calendar.set(year,month,day);
+            calendar.set(year, month, day);
             long milliseconds = calendar.getTimeInMillis();
             format = (format == null || format.trim().equals("")) ? "dd MMM yyyy HH:mm:ss.sss" : format;
             return (new SimpleDateFormat(format, Locale.getDefault())).format(new Date(milliseconds));
@@ -420,7 +422,7 @@ public class DateTimeUtils {
      * @param format
      * @return DateTime
      */
-    public static DateTime getJodaDateTime(String date, String format,boolean useUTC) {
+    public static DateTime getJodaDateTime(String date, String format, boolean useUTC) {
         DateTime dateTime = DateTimeFormat.forPattern(format).parseDateTime(date);
         if (useUTC) {
             dateTime.withZone(DateTimeZone.UTC);
@@ -450,17 +452,18 @@ public class DateTimeUtils {
 
     /**
      * Convert string timestamp to long
+     *
      * @param myTimestamp String
-     * @param format String
+     * @param format      String
      * @return long
      */
     public static long convertTimeStringToLong(String myTimestamp, String format) {
         return convertTimeStringToLong(myTimestamp, format, false);
     }
 
-    public static long convertTimeStringToLong(int day,int month,int year, String format, boolean useUTC) {
+    public static long convertTimeStringToLong(int day, int month, int year, String format, boolean useUTC) {
         Calendar calendar = Calendar.getInstance();
-        calendar.set(year,month,day);
+        calendar.set(year, month, day);
         if (useUTC) {
             calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
         }
@@ -469,8 +472,9 @@ public class DateTimeUtils {
 
     /**
      * Convert string timestamp to long
+     *
      * @param myTimestamp String
-     * @param format String
+     * @param format      String
      * @param useUTC
      * @return long
      */
@@ -495,7 +499,7 @@ public class DateTimeUtils {
     }
 
 
-    public static long convertTimeStringToLong(String myTimestamp, String format,@Nullable TimeZone timeZone ) {
+    public static long convertTimeStringToLong(String myTimestamp, String format, @Nullable TimeZone timeZone) {
         DateFormatSymbols formatSimbols = getFormatString(myTimestamp);
         Locale locale = getLocale(myTimestamp);
         SimpleDateFormat sdf = new SimpleDateFormat(format, locale);
@@ -559,23 +563,33 @@ public class DateTimeUtils {
 
     @NotNull
     private static String getMonthRegex(String s) {
-        return ".*[\\s+|\\d|-]"+s+"[\\s+|\\d|-].*";
+        return ".*[\\s+|\\d|-]" + s + "[\\s+|\\d|-].*";
     }
 
     public static int logTimeMinutes(int hh, int mm) {
         return (hh * 60) + mm;
     }
 
-    public static int convertStringToTime(String time) {
-     int hours = 0;
+    public static int convertStringToTime(@Nullable String time) {
+        if (time == null) return 0;
+        if (time.equalsIgnoreCase("null")) return 0;
+        int hours = 0;
         int mins = 0;
         String delimeter = (time.contains(TIME_SEPARATOR_TWICE_DOT)) ? TIME_SEPARATOR_TWICE_DOT : TIME_SEPARATOR_DOT;
         int posDelim = time.indexOf(delimeter);
-        try {
-            hours = Integer.parseInt(time.substring(0, posDelim));
-            mins = Integer.parseInt(time.substring(posDelim + 1));
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (posDelim != -1) {
+            try {
+                hours = Integer.parseInt(time.substring(0, posDelim));
+                mins = Integer.parseInt(time.substring(posDelim + 1));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                mins = Integer.parseInt(time);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return mins + (hours * 60);
     }
@@ -589,6 +603,7 @@ public class DateTimeUtils {
 
     /**
      * convert mins to hh:min
+     *
      * @param minutes
      * @return
      */

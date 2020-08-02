@@ -108,11 +108,16 @@ class CustomFieldsRepository @Inject constructor(
     }
 
     private fun toField(it: CustomFieldEntity): CustomField {
+        val type = it.type.toCustomFieldType()
+        if (type is CustomFieldType.Time) {
+            type.addTime = it.addTime
+        }
         return CustomField(
                 it.id ?: 0,
                 it.name ?: "",
-                it.type.toCustomFieldType(),
-                it.showByDefault ?: false
+                type,
+                it.addTime,
+                it.showByDefault
         )
     }
 
@@ -145,16 +150,16 @@ class CustomFieldsRepository @Inject constructor(
     private fun setValueFromType(field: CustomFieldValue, entity: CustomFieldValueEntity) {
         val value = entity.value.toString()
         when (field.type) {
-            CustomFieldType.TYPE_TEXT -> {
+            is CustomFieldType.Text -> {
                 field.value = value
             }
-            CustomFieldType.TYPE_NUMBER -> {
+            is CustomFieldType.Number -> {
                 field.value = value.toIntOrNull()
             }
-            CustomFieldType.TYPE_TIME -> {
+            is CustomFieldType.Time -> {
                 field.value = value.toIntOrNull()
             }
-            CustomFieldType.TYPE_BOOLEAN -> {
+            is CustomFieldType.Bool -> {
                 field.value = value.toBoolean() || value == "1"
             }
             else -> field.value = null

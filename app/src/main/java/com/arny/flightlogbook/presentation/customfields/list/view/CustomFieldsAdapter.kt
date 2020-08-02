@@ -13,9 +13,9 @@ class CustomFieldsAdapter : SimpleAbstractAdapter<CustomField>() {
         val position = viewHolder.adapterPosition
         viewHolder.itemView.apply {
             tvFieldName.text = item.name
-            val typeName = item.type.getTypeName()
-            tvFieldTypeName.text = context.getString(typeName)
-            tvFieldDescription.text = context.getString(item.type.getTypeDescr())
+            val type = item.type
+            tvFieldTypeName.text = context.getString(type.nameRes)
+            tvFieldDescription.text = context.getString(type.descRes)
             setOnClickListener {
                 listener?.onItemClick(position, item)
             }

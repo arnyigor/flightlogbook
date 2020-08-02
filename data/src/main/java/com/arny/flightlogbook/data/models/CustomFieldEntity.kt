@@ -12,5 +12,7 @@ data class CustomFieldEntity(
         val name: String? = null,
         val type: String? = null,
         @ColumnInfo(name = "show_by_default")
-        val showByDefault: Boolean? = null
+        val showByDefault: Boolean = false,
+        @ColumnInfo(name = "add_time")
+        val addTime: Boolean = false
 )

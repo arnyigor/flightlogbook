@@ -1,8 +1,8 @@
 package com.arny.flightlogbook
 
 import com.arny.helpers.utils.DateTimeUtils
-import com.arny.helpers.utils.Stopwatch
 import com.arny.helpers.utils.Utility.getTimeDiff
+import junit.framework.Assert.assertTrue
 import org.joda.time.DateTime
 import org.junit.FixMethodOrder
 import org.junit.Test
@@ -25,16 +25,46 @@ class ExampleUnitTest {
         val timeDiff = getTimeDiff(0)
 //        assertThat(timeDiff).isGreaterThan(0.0)
     }
+
     @Test
     @Throws(Exception::class)
     fun ab_convertStringToTime() {
-        val stopwatch = Stopwatch(true)
         val time = DateTimeUtils.convertStringToTime("00:05")
-//        assertThat(time).isEqualTo(5)
+        assert(time == 5)
     }
 
     @Test
     @Throws(Exception::class)
-    fun aa_getIntentExtra() {
+    fun ac_convertStringIntsToTime() {
+        val time = DateTimeUtils.convertStringToTime("0005")
+        assertTrue(time == 5)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun ad_convertStringIntsMoreToTime() {
+        val time = DateTimeUtils.convertStringToTime("75")
+        assertTrue(time == 75)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun af_convertStringIntsMoreToTime() {
+        val time = DateTimeUtils.convertStringToTime("01:05")
+        assertTrue(time == 65)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun ba_convertStringIntsMoreToTime() {
+        val time = DateTimeUtils.convertStringToTime("gg")
+        assertTrue(time == 0)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun bb_convertStringIntsMoreToTime() {
+        val time = DateTimeUtils.convertStringToTime("null")
+        assertTrue(time == 0)
     }
 }

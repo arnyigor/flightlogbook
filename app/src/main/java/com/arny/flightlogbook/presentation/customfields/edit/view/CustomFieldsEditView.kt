@@ -26,4 +26,6 @@ interface CustomFieldsEditView : MvpView {
     @StateStrategyType(OneExecutionStateStrategy::class)
     fun showResult(@StringRes strRes: Int)
     fun showProgress(show: Boolean)
+    fun setAddTimeChecked(checked: Boolean)
+    fun setChBoxAddTimeVisible(visible: Boolean)
 }

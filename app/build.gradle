@@ -108,6 +108,8 @@ dependencies {
     implementation libs.lifecycleExt
     /*tests*/
     implementation libs.junit
+    androidTestImplementation libs.assertjCore
+    androidTestImplementation libs.assertjAndroid
     androidTestImplementation libs.extJunit
     androidTestImplementation libs.rules
     androidTestImplementation libs.runner

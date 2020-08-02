@@ -1,6 +1,7 @@
 package com.arny.flightlogbook.customfields.models
 
 import com.arny.flightlogbook.data.models.CustomFieldValueEntity
+import com.arny.helpers.utils.DateTimeUtils
 
 data class CustomFieldValue(
         val id: Long? = null,
@@ -13,10 +14,17 @@ data class CustomFieldValue(
 
     private fun valueToString(value: Any?): String {
         return when (type) {
-            CustomFieldType.TYPE_TEXT -> value.toString()
+            is CustomFieldType.Text -> value.toString()
+            is CustomFieldType.Time -> DateTimeUtils.convertStringToTime(value.toString()).toString()
             else -> value.toString()
         }
     }
 
-    fun toDbValue() = CustomFieldValueEntity(id, fieldId, externalId, type.toString(), valueToString(value))
+    fun toDbValue() = CustomFieldValueEntity(
+            id,
+            fieldId,
+            externalId,
+            type.toString(),
+            valueToString(value)
+    )
 }

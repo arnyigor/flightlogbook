@@ -120,7 +120,11 @@ class AddEditActivity :
     }
 
     private fun onCustomViewsInit() {
-        customFieldValuesAdapter = CustomFieldValuesAdapter()
+        customFieldValuesAdapter = CustomFieldValuesAdapter(object : CustomFieldValuesAdapter.OnFieldChangeListener {
+            override fun onValueChange(item: CustomFieldValue, value: String) {
+                addEditPresenter.onCustomFieldValueChange(item, value)
+            }
+        })
         rvCustomFields.apply {
             layoutManager = CustomRVLayoutManager(this@AddEditActivity).apply {
                 setScrollEnabled(false)
@@ -501,6 +505,10 @@ class AddEditActivity :
 
     override fun setFieldsList(list: List<CustomFieldValue>) {
         customFieldValuesAdapter?.addAll(list)
+    }
+
+    override fun notifyCustomFieldUpdate(item: CustomFieldValue) {
+        customFieldValuesAdapter?.notifyDataSetChanged()
     }
 
     override fun setViewColor(color: Int) {

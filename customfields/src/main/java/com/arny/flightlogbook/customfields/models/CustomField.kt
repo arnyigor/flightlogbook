@@ -7,7 +7,8 @@ data class CustomField(
         val name: String,
         val type: CustomFieldType,
         val showByDefault: Boolean = false,
+        val addTime: Boolean = false,
         var values: List<CustomFieldValue>? = null
 ) {
-    fun toDBValue() = CustomFieldEntity(id, name, type.toString(), showByDefault)
+    fun toDBValue() = CustomFieldEntity(id, name, type.toString(), showByDefault, addTime)
 }

@@ -32,4 +32,6 @@ interface AddEditView : MvpView {
     fun requestStorageAndSave()
     fun saveFlight()
     fun setFieldsList(list: List<CustomFieldValue>)
+    @StateStrategyType(value = OneExecutionStateStrategy::class)
+    fun notifyCustomFieldUpdate(item: CustomFieldValue)
 }
