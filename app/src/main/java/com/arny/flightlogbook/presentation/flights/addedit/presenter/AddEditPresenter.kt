@@ -8,6 +8,7 @@ import com.arny.domain.models.Params
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.constants.CONSTS.STRINGS.PARAM_COLOR
+import com.arny.flightlogbook.customfields.domain.CustomFieldInteractor
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import com.arny.flightlogbook.presentation.flights.addedit.models.CorrectedTimePair
 import com.arny.flightlogbook.presentation.flights.addedit.view.AddEditView
@@ -22,6 +23,9 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
 
     @Inject
     lateinit var flightsInteractor: FlightsInteractor
+
+    @Inject
+    lateinit var customFieldInteractor: CustomFieldInteractor
 
     @Inject
     lateinit var resourcesInteractor: ResourcesInteractor
@@ -61,6 +65,16 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         loadIfrVfr(flight)
         loadFlightType()
         loadPlaneTypes()
+        loadCustomFields()
+    }
+
+    private fun loadCustomFields() {
+        customFieldInteractor.getCustomFieldsWithValues(id)
+                .subscribeFromPresenter({
+                    viewState.setFieldsList(it)
+                }, {
+                    it.printStackTrace()
+                })
     }
 
     private fun loadIfrVfr(flight: Flight) {
@@ -190,6 +204,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         viewState.setToolbarTitle(resourcesInteractor.getString(R.string.str_add_flight))
         flight = Flight()
         flight?.params = Params()
+        loadCustomFields()
     }
 
     fun initState(id: Long?) {

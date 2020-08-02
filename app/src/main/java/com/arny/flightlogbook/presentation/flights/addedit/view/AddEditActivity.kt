@@ -22,8 +22,9 @@ import androidx.core.widget.addTextChangedListener
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.color.colorChooser
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.adapters.CustomRVLayoutManager
 import com.arny.flightlogbook.constants.CONSTS
-import com.arny.flightlogbook.customfields.models.CustomFieldType
+import com.arny.flightlogbook.customfields.models.CustomFieldValue
 import com.arny.flightlogbook.presentation.flights.addedit.presenter.AddEditPresenter
 import com.arny.flightlogbook.presentation.flighttypes.view.FlightTypesActivity
 import com.arny.flightlogbook.presentation.planetypes.view.PlaneTypesActivity
@@ -44,6 +45,7 @@ class AddEditActivity :
         AddEditView,
         CalendarDatePickerDialogFragment.OnDateSetListener,
         View.OnClickListener {
+    private var customFieldValuesAdapter: CustomFieldValuesAdapter? = null
     private var tvMotoResult: TextView? = null
     private var imm: InputMethodManager? = null
     private var sFlightTime = ""
@@ -91,7 +93,6 @@ class AddEditActivity :
         tvTotalTime.text = total
     }
 
-
     private fun initUI() {
         select_plane_type.setOnClickListener(this)
         btnSelectFlightType.setOnClickListener(this)
@@ -115,11 +116,17 @@ class AddEditActivity :
         onFlightTimeChanges()
         onNightTimeChanges()
         onGroundTimeChanges()
-        onCustomViewInit()
+        onCustomViewsInit()
     }
 
-    private fun onCustomViewInit() {
-        cfvEdtText.init(CustomFieldType.TYPE_BOOLEAN, "Подвеска")
+    private fun onCustomViewsInit() {
+        customFieldValuesAdapter = CustomFieldValuesAdapter()
+        rvCustomFields.apply {
+            layoutManager = CustomRVLayoutManager(this@AddEditActivity).apply {
+                setScrollEnabled(false)
+            }
+            adapter = customFieldValuesAdapter
+        }
     }
 
     private fun onNightTimeChanges() {
@@ -490,6 +497,10 @@ class AddEditActivity :
 
     override fun setIfrSelected(selected: Boolean) {
         radioGroupIfrVfr.check(if (selected) R.id.rbIfr else R.id.rbVfr)
+    }
+
+    override fun setFieldsList(list: List<CustomFieldValue>) {
+        customFieldValuesAdapter?.addAll(list)
     }
 
     override fun setViewColor(color: Int) {

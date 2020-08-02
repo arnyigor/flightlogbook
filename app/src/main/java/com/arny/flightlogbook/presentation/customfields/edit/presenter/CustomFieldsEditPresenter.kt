@@ -14,9 +14,13 @@ class CustomFieldsEditPresenter : BaseMvpPresenter<CustomFieldsEditView>() {
 
     private var name: String? = null
     private var type: CustomFieldType = CustomFieldType.TYPE_NONE
+    private var showByDefault: Boolean = false
     private val uiTypes = listOf(
-            CustomFieldType.TYPE_NUMBER_INT,
-            CustomFieldType.TYPE_BOOLEAN
+            CustomFieldType.TYPE_TEXT,
+            CustomFieldType.TYPE_NUMBER,
+            CustomFieldType.TYPE_TIME,
+            CustomFieldType.TYPE_BOOLEAN,
+            CustomFieldType.TYPE_NONE
     )
 
     @Inject
@@ -45,6 +49,8 @@ class CustomFieldsEditPresenter : BaseMvpPresenter<CustomFieldsEditView>() {
                             viewState.setTitle(name)
                             type = customField.type
                             viewState.setType(type)
+                            showByDefault = customField.showByDefault
+                            viewState.setDefaultChecked(showByDefault)
                         }
                     }, {
                         it.printStackTrace()
@@ -58,9 +64,8 @@ class CustomFieldsEditPresenter : BaseMvpPresenter<CustomFieldsEditView>() {
             viewState.showNameError(R.string.error_empty_text_field)
             return
         }
-        viewState.hideKeyboard()
         viewState.showProgress(false)
-        customFieldInteractor.save(id, name!!, type)
+        customFieldInteractor.save(id, name!!, type, showByDefault)
                 .subscribeFromPresenter({
                     viewState.showProgress(false)
                     viewState.showResult(R.string.save_custom_field_success)
@@ -78,6 +83,10 @@ class CustomFieldsEditPresenter : BaseMvpPresenter<CustomFieldsEditView>() {
 
     fun setType(position: Int) {
         type = uiTypes.getOrNull(position) ?: CustomFieldType.TYPE_NONE
+    }
+
+    fun setDefaultChecked(checked: Boolean) {
+        showByDefault = checked
     }
 
 }

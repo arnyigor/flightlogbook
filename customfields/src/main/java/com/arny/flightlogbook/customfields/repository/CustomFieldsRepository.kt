@@ -8,6 +8,7 @@ import com.arny.flightlogbook.data.db.daos.CustomFieldDAO
 import com.arny.flightlogbook.data.db.daos.CustomFieldValuesDAO
 import com.arny.flightlogbook.data.models.CustomFieldEntity
 import com.arny.flightlogbook.data.models.CustomFieldValueEntity
+import com.arny.flightlogbook.data.models.FieldWithValues
 import com.arny.helpers.utils.OptionalNull
 import com.arny.helpers.utils.fromSingle
 import com.arny.helpers.utils.toOptionalNull
@@ -48,6 +49,49 @@ class CustomFieldsRepository @Inject constructor(
                 .subscribeOn(Schedulers.io())
     }
 
+    override fun getCustomFieldWithValues(externalId: Long?): Single<List<CustomFieldValue>> {
+        return fromSingle {
+            toValuesList(
+                    filterDefaultOrExternalId(
+                            externalId,
+                            customFieldDAO.getFieldsWithValues()
+                    ),
+                    externalId
+            )
+        }
+                .subscribeOn(Schedulers.io())
+    }
+
+    private fun toValuesList(flightValues: List<FieldWithValues>, externalId: Long?): List<CustomFieldValue> {
+        return flightValues.flatMap { flightValue ->
+            val field = toField(flightValue.field!!)
+            val values = flightValue.values
+            val map = if (!values.isNullOrEmpty()) {
+                values.map {
+                    toValue(it, externalId, field, it.fieldId)
+                }
+            } else {
+                listOf(CustomFieldValue(
+                        null,
+                        field.id,
+                        field,
+                        externalId,
+                        field.type,
+                        null
+                ))
+            }
+            field.values = map
+            field.values?.toList() ?: emptyList()
+        }
+    }
+
+    private fun filterDefaultOrExternalId(externalId: Long?, list: List<FieldWithValues>): List<FieldWithValues> {
+        return list.filter { field ->
+            field.values?.filter { it.externalId == externalId }?.isNullOrEmpty() == false
+                    || field.field?.showByDefault == true
+        }
+    }
+
     override fun getAllCustomFields(): Single<List<CustomField>> {
         return fromSingle { getAllFields() }
                 .subscribeOn(Schedulers.io())
@@ -67,7 +111,8 @@ class CustomFieldsRepository @Inject constructor(
         return CustomField(
                 it.id ?: 0,
                 it.name ?: "",
-                it.type.toCustomFieldType()
+                it.type.toCustomFieldType(),
+                it.showByDefault ?: false
         )
     }
 
@@ -75,39 +120,44 @@ class CustomFieldsRepository @Inject constructor(
         val allFields = getAllFields()
         return customFieldValuesDAO.getDbCustomFieldValues(externalId)
                 .map { entity ->
-                    val fieldId = entity.fieldId ?: 0
-                    val field = allFields.find { it.id == fieldId }
-                    val customFieldValue = CustomFieldValue(
-                            entity.id ?: 0,
-                            fieldId,
-                            field,
-                            externalId,
-                            field?.type
-                    )
-                    setValueFromType(customFieldValue, entity)
-                    customFieldValue
+                    val fieldId = entity.fieldId
+                    toValue(entity, externalId, allFields.find { it.id == fieldId }, fieldId)
                 }
+    }
+
+    private fun toValue(
+            entity: CustomFieldValueEntity,
+            externalId: Long?,
+            customField: CustomField?,
+            fieldID: Long?
+    ): CustomFieldValue {
+        val customFieldValue = CustomFieldValue(
+                entity.id ?: 0,
+                fieldID,
+                customField,
+                externalId,
+                customField?.type
+        )
+        setValueFromType(customFieldValue, entity)
+        return customFieldValue
     }
 
     private fun setValueFromType(field: CustomFieldValue, entity: CustomFieldValueEntity) {
         val value = entity.value.toString()
         when (field.type) {
+            CustomFieldType.TYPE_TEXT -> {
+                field.value = value
+            }
+            CustomFieldType.TYPE_NUMBER -> {
+                field.value = value.toIntOrNull()
+            }
+            CustomFieldType.TYPE_TIME -> {
+                field.value = value.toIntOrNull()
+            }
             CustomFieldType.TYPE_BOOLEAN -> {
                 field.value = value.toBoolean() || value == "1"
             }
-            CustomFieldType.TYPE_DATE -> {
-                field.value = value
-            }
-            CustomFieldType.TYPE_NUMBER_DOUBLE -> {
-                field.value = value.toDoubleOrNull()
-            }
-            CustomFieldType.TYPE_NUMBER_INT -> {
-                field.value = value.toIntOrNull()
-            }
-            CustomFieldType.TYPE_NUMBER_LONG -> {
-                field.value = value.toLongOrNull()
-            }
-            else -> field.value = value
+            else -> field.value = null
         }
     }
 }

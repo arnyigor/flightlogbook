@@ -2,7 +2,7 @@ package com.arny.flightlogbook.constants
 
 object CONSTS {
     object STRINGS {
-        const val LOG_TIME_FORMAT = "[00]:[00]"
+        const val LOG_TIME_FORMAT = "[000]:[00]"
         const val PARAM_COLOR = "color"
     }
 
@@ -12,7 +12,6 @@ object CONSTS {
         const val COLUMN_ID = "_id"
         const val COLUMN_DATETIME = "datetime"
         const val COLUMN_LOG_TIME = "log_time"
-        const val TABLE_CUSTOM_FIELDS = "custom_fields"
     }
 
     object FILES {

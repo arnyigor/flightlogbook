@@ -4,13 +4,12 @@ package com.arny.flightlogbook.presentation.customfields.edit.view
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.AdapterView
 import androidx.annotation.StringRes
 import androidx.core.widget.doAfterTextChanged
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.adapters.AbstractArrayAdapter
 import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.customfields.models.CustomFieldType
 import com.arny.flightlogbook.presentation.customfields.edit.presenter.CustomFieldsEditPresenter
@@ -18,7 +17,6 @@ import com.arny.flightlogbook.presentation.main.BackButtonListener
 import com.arny.flightlogbook.presentation.main.MainActivity
 import com.arny.flightlogbook.presentation.main.Router
 import com.arny.helpers.utils.ToastMaker
-import com.arny.helpers.utils.Utility
 import kotlinx.android.synthetic.main.fragment_edit_custom_field_layout.*
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
@@ -56,7 +54,20 @@ class CustomFieldEditFragment : MvpAppCompatFragment(), CustomFieldsEditView, Ba
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         arguments?.getLong(CONSTS.EXTRAS.EXTRA_CUSTOM_FIELD_ID)?.let { presenter.setId(it) }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.custom_fields_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_save -> presenter.onSaveClicked()
+        }
+        return true
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -76,17 +87,27 @@ class CustomFieldEditFragment : MvpAppCompatFragment(), CustomFieldsEditView, Ba
                 presenter.setFieldName(it.toString())
             }
         }
-
+        val map = CustomFieldType.values().map { getString(it.getTypeName()) }.toTypedArray()
+        val abstractArrayAdapter = object : AbstractArrayAdapter<String>(
+                context,
+                android.R.layout.simple_list_item_1,
+                map
+        ) {
+            override fun getItemTitle(item: String?) = item
+        }
+        spinFieldType.adapter = abstractArrayAdapter
         spinFieldType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                presenter.setType(spinFieldType.selectedItemPosition)
+            }
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                presenter.setType(position)
+                presenter.setType(spinFieldType.selectedItemPosition)
             }
         }
 
-        btnSave.setOnClickListener {
-            presenter.onSaveClicked()
+        chbDefault.setOnCheckedChangeListener { _, isChecked ->
+            presenter.setDefaultChecked(isChecked)
         }
     }
 
@@ -110,10 +131,6 @@ class CustomFieldEditFragment : MvpAppCompatFragment(), CustomFieldsEditView, Ba
         ToastMaker.toastSuccess(context, getString(strRes))
     }
 
-    override fun hideKeyboard() {
-        Utility.hideSoftKeyboard(requireContext())
-    }
-
     override fun showProgress(show: Boolean) {
         if (show) {
             clpbLoading.show()
@@ -132,7 +149,9 @@ class CustomFieldEditFragment : MvpAppCompatFragment(), CustomFieldsEditView, Ba
 
     override fun setType(type: CustomFieldType?) {
         if (type != null) {
-            spinFieldType.setSelection(types.indexOf(getString(type.getTypeName())))
+            val element = getString(type.getTypeName())
+            val indexOf = types.indexOf(element)
+            spinFieldType.setSelection(indexOf)
         }
     }
 
@@ -140,4 +159,7 @@ class CustomFieldEditFragment : MvpAppCompatFragment(), CustomFieldsEditView, Ba
         tiedtCustomFieldName.error = stringRes?.let { getString(it) }
     }
 
+    override fun setDefaultChecked(showByDefault: Boolean) {
+        chbDefault.isChecked = showByDefault
+    }
 }

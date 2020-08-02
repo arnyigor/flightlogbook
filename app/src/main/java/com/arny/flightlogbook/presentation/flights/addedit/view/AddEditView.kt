@@ -1,5 +1,6 @@
 package com.arny.flightlogbook.presentation.flights.addedit.view
 
+import com.arny.flightlogbook.customfields.models.CustomFieldValue
 import moxy.MvpView
 import moxy.viewstate.strategy.AddToEndSingleStrategy
 import moxy.viewstate.strategy.OneExecutionStateStrategy
@@ -30,4 +31,5 @@ interface AddEditView : MvpView {
     fun setIfrSelected(selected: Boolean)
     fun requestStorageAndSave()
     fun saveFlight()
+    fun setFieldsList(list: List<CustomFieldValue>)
 }

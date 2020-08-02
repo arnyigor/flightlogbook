@@ -1,6 +1,7 @@
 package com.arny.flightlogbook.customfields.view
 
 import android.content.Context
+import android.text.InputType
 import android.util.AttributeSet
 import android.widget.EditText
 import android.widget.LinearLayout
@@ -8,7 +9,6 @@ import android.widget.Switch
 import com.arny.flightlogbook.customfields.R
 import com.arny.flightlogbook.customfields.models.CustomFieldType
 import com.arny.flightlogbook.customfields.models.toCustomFieldType
-import com.google.android.material.textfield.TextInputEditText
 
 class CustomFieldView : LinearLayout {
     private var name: String? = null
@@ -34,29 +34,26 @@ class CustomFieldView : LinearLayout {
             CustomFieldType.TYPE_TEXT -> {
                 editText?.setText(value.toString())
             }
-            CustomFieldType.TYPE_NUMBER_INT -> TODO()
-            CustomFieldType.TYPE_TIME_INT -> TODO()
-            CustomFieldType.TYPE_NUMBER_LONG -> TODO()
-            CustomFieldType.TYPE_NUMBER_DOUBLE -> TODO()
+            CustomFieldType.TYPE_NUMBER -> {
+                editText?.setText(value.toString())
+            }
+            CustomFieldType.TYPE_TIME -> {
+                editText?.setText(value.toString())
+            }
             CustomFieldType.TYPE_BOOLEAN -> {
                 switch?.isChecked = value.toString().toBoolean() || value.toString() == "1"
             }
-            CustomFieldType.TYPE_DATE -> TODO()
-            CustomFieldType.TYPE_NONE -> TODO()
+            CustomFieldType.TYPE_NONE -> { }
         }
     }
 
     private fun returnValue(): Any? {
         return when (type.toCustomFieldType()) {
             CustomFieldType.TYPE_TEXT -> editText?.text.toString()
-            CustomFieldType.TYPE_NUMBER_INT -> TODO()
-            CustomFieldType.TYPE_TIME_INT -> TODO()
-            CustomFieldType.TYPE_NUMBER_LONG -> TODO()
-            CustomFieldType.TYPE_NUMBER_DOUBLE -> TODO()
+            CustomFieldType.TYPE_NUMBER -> editText?.text.toString()
+            CustomFieldType.TYPE_TIME -> editText?.text.toString()
             CustomFieldType.TYPE_BOOLEAN -> switch?.isChecked
-            CustomFieldType.TYPE_DATE -> TODO()
-            CustomFieldType.TYPE_NONE -> {
-            }
+            CustomFieldType.TYPE_NONE -> null
         }
     }
 
@@ -67,24 +64,29 @@ class CustomFieldView : LinearLayout {
     private fun invalidateTextPaintAndMeasurements() {
         when (type.toCustomFieldType()) {
             CustomFieldType.TYPE_TEXT -> {
-                editText = TextInputEditText(context)
-                editText?.hint = name
+                editText = EditText(context)
                 editText?.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
-//                editText?.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom)
+                editText?.inputType = InputType.TYPE_CLASS_TEXT
                 addView(editText, 0)
             }
             CustomFieldType.TYPE_BOOLEAN -> {
                 switch = Switch(context)
                 switch?.text = name
                 switch?.layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
-//                switch?.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom)
                 addView(switch, 0)
             }
-            CustomFieldType.TYPE_NUMBER_INT -> TODO()
-            CustomFieldType.TYPE_TIME_INT -> TODO()
-            CustomFieldType.TYPE_NUMBER_LONG -> TODO()
-            CustomFieldType.TYPE_NUMBER_DOUBLE -> TODO()
-            CustomFieldType.TYPE_DATE -> TODO()
+            CustomFieldType.TYPE_NUMBER -> {
+                editText = EditText(context)
+                editText?.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+                editText?.inputType = InputType.TYPE_CLASS_NUMBER
+                addView(editText, 0)
+            }
+            CustomFieldType.TYPE_TIME -> {
+                editText = EditText(context)
+                editText?.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+                editText?.inputType = InputType.TYPE_DATETIME_VARIATION_TIME
+                addView(editText, 0)
+            }
             CustomFieldType.TYPE_NONE -> {
             }
         }

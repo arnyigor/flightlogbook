@@ -11,6 +11,7 @@ import moxy.viewstate.strategy.StateStrategyType
 interface CustomFieldsEditView : MvpView {
     fun setTitle(name: String?)
     fun setType(type: CustomFieldType?)
+    fun setDefaultChecked(showByDefault: Boolean)
     fun showNameError(stringRes: Int?)
 
     @StateStrategyType(OneExecutionStateStrategy::class)
@@ -25,7 +26,4 @@ interface CustomFieldsEditView : MvpView {
     @StateStrategyType(OneExecutionStateStrategy::class)
     fun showResult(@StringRes strRes: Int)
     fun showProgress(show: Boolean)
-
-    @StateStrategyType(OneExecutionStateStrategy::class)
-    fun hideKeyboard()
 }

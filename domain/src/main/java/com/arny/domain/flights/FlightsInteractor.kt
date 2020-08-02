@@ -267,9 +267,9 @@ class FlightsInteractor @Inject constructor(
                         3 -> {
                             try {
                                 val airplaneTypeName = myCell.toString()
-                                val planeType = planeTypes.find { it.typeName == airplaneTypeName }
-                                if (planeType != null) {
-                                    airplaneTypeId = planeType.typeId
+                                val typeId = planeTypes.find { it.typeName == airplaneTypeName }?.typeId
+                                if (typeId != null) {
+                                    airplaneTypeId = typeId
                                 } else {
                                     if (!airplaneTypeName.isBlank()) {
                                         airplaneTypeId =
