@@ -3,6 +3,7 @@ package com.arny.flightlogbook.customfields.models
 import androidx.annotation.StringRes
 import com.arny.flightlogbook.customfields.R
 
+
 sealed class CustomFieldType(
         @StringRes val nameRes: Int,
         @StringRes val descRes: Int

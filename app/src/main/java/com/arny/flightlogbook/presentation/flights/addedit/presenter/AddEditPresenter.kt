@@ -23,7 +23,7 @@ import javax.inject.Inject
 @InjectViewState
 class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
 
-    private var customFieldsValues: List<CustomFieldValue>? = null
+    private var customFieldsValues = mutableListOf<CustomFieldValue>()
 
     @Inject
     lateinit var flightsInteractor: FlightsInteractor
@@ -75,8 +75,8 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     private fun loadCustomFields() {
         customFieldInteractor.getCustomFieldsWithValues(id)
                 .subscribeFromPresenter({
-                    this.customFieldsValues = it
-                    viewState.setFieldsList(it)
+                    customFieldsValues = it.toMutableList()
+                    viewState.setFieldsList(customFieldsValues)
                 }, {
                     it.printStackTrace()
                 })
@@ -155,12 +155,12 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
             fromCallable { DateTimeUtils.strLogTime(intFlightTime) }
                     .subscribeFromPresenter({ viewState.setEdtFlightTimeText(it) })
         }
-        val customTimes = customFieldsValues?.filter {
+        val customTimes = customFieldsValues.filter {
             val type = it.type
             type is CustomFieldType.Time && type.addTime && it.value != null
-        }?.map {
+        }.map {
             DateTimeUtils.convertStringToTime(it.value.toString())
-        }?.sum() ?: 0
+        }.sum()
         intTotalTime = intFlightTime + intGroundTime + customTimes
         fromCallable { DateTimeUtils.strLogTime(intTotalTime) }
                 .subscribeFromPresenter({ viewState.setTotalTime(it) })
@@ -460,6 +460,25 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                         item.value = DateTimeUtils.strLogTime(it.intTime)
                         viewState.notifyCustomFieldUpdate(item)
                         timeSummChanged()
+                    })
+        }
+    }
+
+    fun addCustomField(customFieldId: Long?) {
+        customFieldId?.let { id ->
+            customFieldInteractor.getCustomField(id)
+                    .subscribeFromPresenter({
+                        val field = it.value
+                        if (field != null) {
+                            customFieldsValues.add(CustomFieldValue(
+                                    field = field,
+                                    externalId = this.id,
+                                    type = field.type
+                            ))
+                            viewState.setFieldsList(customFieldsValues)
+                        }
+                    }, {
+                        viewState.toastError(it.message)
                     })
         }
     }

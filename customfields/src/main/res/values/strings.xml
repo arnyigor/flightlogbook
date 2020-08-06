@@ -1,5 +1,6 @@
 <resources>
     <string name="custom_fields">Дополнительные поля</string>
+    <string name="custom_field_select">Выбрать дополнительное поле</string>
     <string name="approach_count">Количество заходов</string>
     <string name="field_name">Название поля</string>
     <string name="field_type_text">Текст</string>

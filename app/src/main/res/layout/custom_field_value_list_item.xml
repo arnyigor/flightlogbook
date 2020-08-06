@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:paddingTop="8dp"
-    android:paddingBottom="8dp"
-    android:layout_height="wrap_content">
+    android:paddingBottom="8dp">
 
     <TextView
         android:id="@+id/tvTitleCustomField"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:paddingStart="8dp"
         android:paddingLeft="8dp"
@@ -17,9 +17,17 @@
         android:paddingRight="0dp"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline_field"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Название" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_field"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.4" />
 
     <com.arny.flightlogbook.customfields.view.CustomFieldView
         android:id="@+id/cfvView"
@@ -34,6 +42,5 @@
         app:layout_constraintStart_toEndOf="@+id/tvTitleCustomField"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="12564" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

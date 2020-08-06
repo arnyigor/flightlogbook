@@ -16,6 +16,7 @@ import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_CUSTOM_FIELD_ID
 import com.arny.flightlogbook.constants.CONSTS.REQUESTS.REQUEST_EDIT_CUSTOM_FIELD
 import com.arny.flightlogbook.customfields.models.CustomField
+import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
 import com.arny.flightlogbook.presentation.customfields.list.presenter.CustomFieldsListPresenter
 import com.arny.flightlogbook.presentation.main.NavigateItems
 import com.arny.flightlogbook.presentation.main.Router
@@ -28,16 +29,17 @@ import moxy.presenter.ProvidePresenter
 class CustomFieldsListFragment : MvpAppCompatFragment(), CustomFieldsListView {
 
     companion object {
-        const val PARAM_RELOAD = "PARAM_RELOAD"
+        private const val PARAM_RELOAD = "PARAM_RELOAD"
+        private const val PARAM_REQUEST = "PARAM_REQUEST"
 
         @JvmStatic
-        fun getInstance(reload: Boolean = false): CustomFieldsListFragment {
-            val fragment = CustomFieldsListFragment()
-            val bundle = Bundle()
-            bundle.putBoolean(PARAM_RELOAD, reload)
-            fragment.arguments = bundle
-            return fragment
-        }
+        fun getInstance(reload: Boolean = false, request: Boolean = false) =
+                CustomFieldsListFragment().apply {
+                    arguments = bundleOf(
+                            PARAM_RELOAD to reload,
+                            PARAM_REQUEST to request
+                    )
+                }
     }
 
     private var reload: Boolean = false
@@ -64,7 +66,9 @@ class CustomFieldsListFragment : MvpAppCompatFragment(), CustomFieldsListView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        requireActivity().title = getString(R.string.custom_fields)
+        val isRequestField = arguments?.getBoolean(PARAM_REQUEST) == true
+        requireActivity().title = getString(if (isRequestField) R.string.custom_field_select else R.string.custom_fields)
+        fabAddCustomField.isVisible = !isRequestField
         customFieldsAdapter = CustomFieldsAdapter()
         rvFieldsList.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -72,7 +76,17 @@ class CustomFieldsListFragment : MvpAppCompatFragment(), CustomFieldsListView {
         }
         customFieldsAdapter.setViewHolderListener(object : SimpleAbstractAdapter.OnViewHolderListener<CustomField> {
             override fun onItemClick(position: Int, item: CustomField) {
-                presenter.onItemClick(item)
+                if (isRequestField) {
+                    val requireActivity = requireActivity()
+                    if (requireActivity is FragmentContainerActivity) {
+                        requireActivity.onSuccess(Intent().apply {
+                            putExtra(EXTRA_CUSTOM_FIELD_ID, item.id)
+                        })
+                        requireActivity.onBackPressed()
+                    }
+                } else {
+                    presenter.onItemClick(item)
+                }
             }
         })
         fabAddCustomField.setOnClickListener {

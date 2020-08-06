@@ -69,8 +69,15 @@ class CustomFieldValuesAdapter(private val onFieldChangeListener: OnFieldChangeL
                         }
                     }
                 }
-
             }
+        }
+    }
+
+    override fun getDiffCallback(): DiffCallback<CustomFieldValue>? {
+        return object : DiffCallback<CustomFieldValue>() {
+            override fun areItemsTheSame(oldItem: CustomFieldValue, newItem: CustomFieldValue): Boolean = oldItem == newItem
+
+            override fun areContentsTheSame(oldItem: CustomFieldValue, newItem: CustomFieldValue): Boolean = oldItem == newItem
         }
     }
 }

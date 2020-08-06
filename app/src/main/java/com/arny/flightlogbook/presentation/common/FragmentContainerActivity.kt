@@ -1,32 +1,37 @@
 package com.arny.flightlogbook.presentation.common
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.presentation.planetypes.view.PlaneTypesFragment
-import com.arny.helpers.utils.getExtra
+import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_GET_CUSTOM_FIELD
+import com.arny.flightlogbook.presentation.customfields.list.view.CustomFieldsListFragment
 import com.arny.helpers.utils.replaceFragmentInActivity
+import kotlinx.android.synthetic.main.about_layout.*
 
 class FragmentContainerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_fragment_container)
+        setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        val tag = intent.getExtra<String>("fragment_tag")
-        if (tag != null) {
-            val activityForResult = callingActivity?.className?.substringAfterLast(".") ?: ""
-            var fragment: Fragment? = null
-            when (tag) {
-                "type_list" -> {
-                    supportActionBar?.title = getString(R.string.str_airplane_types)
-                    fragment = PlaneTypesFragment.getInstance()
-                }
+        val action = intent.action
+//        val activityForResult = callingActivity?.className?.substringAfterLast(".") ?: ""
+        var fragment: Fragment? = null
+        when (action) {
+            EXTRA_ACTION_GET_CUSTOM_FIELD -> {
+                fragment = CustomFieldsListFragment.getInstance(request = true)
             }
-            fragment?.let { replaceFragmentInActivity(it, R.id.fragment_container) }
         }
+        fragment?.let { replaceFragmentInActivity(it, R.id.fragment_container) }
+    }
+
+    fun onSuccess(intent: Intent) {
+        setResult(Activity.RESULT_OK, intent)
     }
 
     override fun onBackPressed() {

@@ -31,11 +31,14 @@ object CONSTS {
         const val REQUEST_SELECT_PLANE_TYPE = 105
         const val REQUEST_SELECT_FLIGHT_TYPE = 106
         const val REQUEST_EDIT_CUSTOM_FIELD = 107
+        const val REQUEST_SELECT_CUSTOM_FIELD = 108
     }
 
     object EXTRAS {
         const val EXTRA_PLANE_TYPE = "extra_plane_type_id"
         const val EXTRA_FLIGHT_TYPE = "extra_flight_type_id"
         const val EXTRA_CUSTOM_FIELD_ID = "extra_custom_field_id"
+        const val EXTRA_ACTION_GET_CUSTOM_FIELD = "extra_action_get_custom_field"
+        const val EXTRA_CUSTOM_FIELD = "extra_custom_field"
     }
 }

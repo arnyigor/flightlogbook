@@ -87,7 +87,6 @@ abstract class SimpleAbstractAdapter<T>(private var items: ArrayList<T> = arrayL
     }
 
     fun addAll(list: List<T>, useDiffUtils: Boolean = true) {
-        //Log.i(SimpleAbstractAdapter::class.java.simpleName, "addAll: useDiffUtils:$useDiffUtils,list:$list,items:$items");
         if (useDiffUtils) {
             if (items.isNotEmpty()) {
                 val diffCallback = getDiffCallback()

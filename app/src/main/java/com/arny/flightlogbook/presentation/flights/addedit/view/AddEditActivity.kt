@@ -8,7 +8,6 @@ import android.content.Intent
 import android.graphics.Color.BLUE
 import android.os.Bundle
 import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
@@ -19,12 +18,21 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
+import androidx.core.widget.doAfterTextChanged
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.color.colorChooser
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.CustomRVLayoutManager
 import com.arny.flightlogbook.constants.CONSTS
+import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_GET_CUSTOM_FIELD
+import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_CUSTOM_FIELD_ID
+import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_FLIGHT_TYPE
+import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_PLANE_TYPE
+import com.arny.flightlogbook.constants.CONSTS.REQUESTS.REQUEST_SELECT_CUSTOM_FIELD
+import com.arny.flightlogbook.constants.CONSTS.REQUESTS.REQUEST_SELECT_FLIGHT_TYPE
+import com.arny.flightlogbook.constants.CONSTS.REQUESTS.REQUEST_SELECT_PLANE_TYPE
 import com.arny.flightlogbook.customfields.models.CustomFieldValue
+import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
 import com.arny.flightlogbook.presentation.flights.addedit.presenter.AddEditPresenter
 import com.arny.flightlogbook.presentation.flighttypes.view.FlightTypesActivity
 import com.arny.flightlogbook.presentation.planetypes.view.PlaneTypesActivity
@@ -111,6 +119,7 @@ class AddEditActivity :
                 }
             }
         }
+        btnAddField.setOnClickListener(this)
         imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         onDateTimeChanges()
         onFlightTimeChanges()
@@ -252,16 +261,6 @@ class AddEditActivity :
         }))
     }
 
-    private fun setMaskedChanges(editText: EditText, onMasked: (value: String) -> Unit = {}) {
-        MaskedTextChangedListener.installOn(editText, CONSTS.STRINGS.LOG_TIME_FORMAT, object : MaskedTextChangedListener.ValueListener {
-            override fun onTextChanged(maskFilled: Boolean, extractedValue: String, formattedValue: String) {
-                if (editText.isFocused) {
-                    onMasked.invoke(extractedValue)
-                }
-            }
-        })
-    }
-
     private fun onFlightTimeChanges() {
         val timeZero = getTimeZero()
         edtFlightTime.addTextChangedListener {
@@ -320,7 +319,7 @@ class AddEditActivity :
             }
             R.id.btnSelectFlightType -> {
                 addEditPresenter.correctFlightTime(sFlightTime)
-                launchActivity<FlightTypesActivity>(CONSTS.REQUESTS.REQUEST_SELECT_FLIGHT_TYPE) {
+                launchActivity<FlightTypesActivity>(REQUEST_SELECT_FLIGHT_TYPE) {
                     putExtra("is_request", true)
                 }
                 overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
@@ -335,6 +334,12 @@ class AddEditActivity :
             R.id.ivRemoveColor -> {
                 addEditPresenter.removeColor()
             }
+            R.id.btnAddField -> {
+                launchActivity<FragmentContainerActivity>(REQUEST_SELECT_CUSTOM_FIELD) {
+                    action = EXTRA_ACTION_GET_CUSTOM_FIELD
+                }
+                overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
+            }
         }
     }
 
@@ -342,11 +347,15 @@ class AddEditActivity :
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
-                CONSTS.REQUESTS.REQUEST_SELECT_PLANE_TYPE -> {
-                    addEditPresenter.setFlightPlaneType(data.getExtra<Long>(CONSTS.EXTRAS.EXTRA_PLANE_TYPE))
+                REQUEST_SELECT_PLANE_TYPE -> {
+                    addEditPresenter.setFlightPlaneType(data.getExtra<Long>(EXTRA_PLANE_TYPE))
                 }
-                CONSTS.REQUESTS.REQUEST_SELECT_FLIGHT_TYPE -> {
-                    addEditPresenter.setFlightType(data.getExtra<Long>(CONSTS.EXTRAS.EXTRA_FLIGHT_TYPE))
+                REQUEST_SELECT_FLIGHT_TYPE -> {
+                    addEditPresenter.setFlightType(data.getExtra<Long>(EXTRA_FLIGHT_TYPE))
+                }
+                REQUEST_SELECT_CUSTOM_FIELD -> {
+                    val customFieldId = data.getExtra<Long>(EXTRA_CUSTOM_FIELD_ID)
+                    addEditPresenter.addCustomField(customFieldId)
                 }
             }
         }
@@ -447,35 +456,24 @@ class AddEditActivity :
         val edtMotoStart = xmlView.findViewById(R.id.edtStartMoto) as EditText
         val edtMotoFinish = xmlView.findViewById(R.id.edtFinishMoto) as EditText
         tvMotoResult = xmlView.findViewById(R.id.tvMotoresult) as TextView
-        edtMotoStart.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(p0: Editable?) {
-
+        edtMotoStart.doAfterTextChanged { edt ->
+            if (edt is EditText) {
+                if (edt.isFocused) {
+                    val startString = edtMotoStart.text.toString()
+                    val finishString = edtMotoFinish.text.toString()
+                    addEditPresenter.onMotoTimeChange(startString, finishString)
+                }
             }
-
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
+        }
+        edtMotoFinish.doAfterTextChanged { edt ->
+            if (edt is EditText) {
+                if (edt.isFocused) {
+                    val startString = edtMotoStart.text.toString()
+                    val finishString = edtMotoFinish.text.toString()
+                    addEditPresenter.onMotoTimeChange(startString, finishString)
+                }
             }
-
-            override fun onTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                val startString = edtMotoStart.text.toString()
-                val finishString = edtMotoFinish.text.toString()
-                addEditPresenter.onMotoTimeChange(startString, finishString)
-            }
-        })
-        edtMotoFinish.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(p0: Editable?) {
-
-            }
-
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                val startString = edtMotoStart.text.toString()
-                val finishString = edtMotoFinish.text.toString()
-                addEditPresenter.onMotoTimeChange(startString, finishString)
-            }
-        })
+        }
         alertDialog.setTitle(getString(R.string.str_moto))
         alertDialog.setCancelable(false).setPositiveButton(getString(R.string.str_ok)) { _, _ ->
             addEditPresenter.setMotoResult()

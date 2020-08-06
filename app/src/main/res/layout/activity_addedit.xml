@@ -106,13 +106,21 @@
 
                 <TextView
                     android:id="@+id/tvFlightTimeLabel"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:padding="4dp"
                     android:text="@string/flight_time_info"
                     app:layout_constraintBottom_toBottomOf="@+id/edtFlightTime"
+                    app:layout_constraintEnd_toStartOf="@+id/guideline_times"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/edtFlightTime" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_times"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.4" />
 
                 <EditText
                     android:id="@+id/edtFlightTime"
@@ -139,12 +147,10 @@
                     android:id="@+id/tvNightTimeLabel"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginRight="8dp"
                     android:padding="4dp"
                     android:text="@string/night_time_info"
                     app:layout_constraintBottom_toBottomOf="@+id/edtNightTime"
-                    app:layout_constraintEnd_toStartOf="@+id/edtNightTime"
+                    app:layout_constraintEnd_toStartOf="@+id/guideline_times"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/edtNightTime" />
 
@@ -172,12 +178,10 @@
                     android:id="@+id/tvGroundTimeLabel"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginRight="8dp"
                     android:padding="4dp"
                     android:text="@string/ground_time_info"
                     app:layout_constraintBottom_toBottomOf="@+id/edtGroundTime"
-                    app:layout_constraintEnd_toStartOf="@+id/edtGroundTime"
+                    app:layout_constraintEnd_toStartOf="@+id/guideline_times"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/edtGroundTime" />
 
@@ -208,6 +212,7 @@
                     android:padding="4dp"
                     android:text="@string/str_total_time"
                     app:layout_constraintBottom_toBottomOf="@+id/tvTotalTime"
+                    app:layout_constraintEnd_toStartOf="@+id/guideline_times"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/tvTotalTime" />
 
@@ -232,13 +237,32 @@
                 android:id="@+id/rvCustomFields"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                tools:itemCount="3"
                 tools:listitem="@layout/custom_field_value_list_item" />
+
+            <Button
+                android:id="@+id/btnAddField"
+                android:layout_marginTop="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:background="@drawable/bg_ripple"
+                android:minHeight="36dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:text="@string/add_custom_field"
+                android:textAllCaps="false"
+                android:textColor="@color/colorTextWhite"
+                app:layout_constraintBottom_toBottomOf="@+id/tilDate"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/tilDate" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tvTotalTime">
