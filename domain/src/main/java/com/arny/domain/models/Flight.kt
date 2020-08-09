@@ -20,6 +20,7 @@ class Flight(var id: Long? = null) {
     var params: Params? = null
     var colorInt: Int? = null
     var colorText: Int? = null
+    var selected: Boolean = false
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -41,6 +42,7 @@ class Flight(var id: Long? = null) {
         if (colorInt != other.colorInt) return false
         if (colorText != other.colorText) return false
         if (params != params) return false
+        if (selected != selected) return false
         return true
     }
 
@@ -60,6 +62,7 @@ class Flight(var id: Long? = null) {
         result = 31 * result + (description?.hashCode() ?: 0)
         result = 31 * result + (colorInt?.hashCode() ?: 0)
         result = 31 * result + (colorText?.hashCode() ?: 0)
+        result = 31 * result + selected.hashCode()
         return result
     }
 
@@ -78,6 +81,7 @@ class Flight(var id: Long? = null) {
                 "flightTypeId=$flightTypeId, " +
                 "colorInt=$colorInt, " +
                 "colorText=$colorText, " +
+                "selected=$selected, " +
                 "description=$description)"
     }
 }

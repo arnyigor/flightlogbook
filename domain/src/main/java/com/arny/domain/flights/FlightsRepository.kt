@@ -42,6 +42,7 @@ interface FlightsRepository {
     fun getFlightsCount(): Int
     fun removeAllFlights(): Boolean
     fun removeFlight(id: Long?): Boolean
+    fun removeFlights(ids: List<Long>): Boolean
     fun resetTableFlights(): Boolean
     fun getNotEmptyColors(): Single<List<String>>
 }

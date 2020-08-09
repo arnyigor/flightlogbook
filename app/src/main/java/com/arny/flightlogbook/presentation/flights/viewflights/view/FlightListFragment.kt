@@ -26,9 +26,10 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
     private var positionIndex: Int = 0
     private var mLayoutManager: LinearLayoutManager? = null
     private var topView: Int = 0
+    private var hasSelectedItems: Boolean = false
 
     @InjectPresenter
-    lateinit var viewFlightsPresenter: ViewFlightsPresenter
+    lateinit var presenter: ViewFlightsPresenter
 
     @ProvidePresenter
     fun provideMainPresenter(): ViewFlightsPresenter {
@@ -40,7 +41,6 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
     }
 
     companion object {
-        private const val PARAM_RELOAD = "RAPRAM_RELOAD"
 
         @JvmStatic
         fun getInstance(): FlightListFragment {
@@ -66,13 +66,32 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
         mLayoutManager = LinearLayoutManager(context)
         rvflights.layoutManager = mLayoutManager
         rvflights.itemAnimator = DefaultItemAnimator()
-        adapter = FlightsAdapter().apply {
+        adapter = FlightsAdapter(object : FlightsAdapter.OnFlightsListListener {
+            override fun onFlightSelect(position: Int, item: Flight) {
+                presenter.onFlightSelect(position, item)
+            }
+
+            override fun onFlightRemove(position: Int, item: Flight) {
+                alertDialog(
+                        requireContext(),
+                        getString(R.string.remove_item_question),
+                        btnCancelText = getString(R.string.str_cancel),
+                        onConfirm = {
+                            presenter.removeItem(item)
+                        })
+            }
+        }).apply {
             setViewHolderListener(object : SimpleAbstractAdapter.OnViewHolderListener<Flight> {
                 override fun onItemClick(position: Int, item: Flight) {
-                    launchActivity<AddEditActivity>(CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT) {
-                        putExtra(CONSTS.DB.COLUMN_ID, item.id)
+                    when {
+                        hasSelectedItems -> presenter.onFlightSelect(position, item)
+                        else -> {
+                            launchActivity<AddEditActivity>(CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT) {
+                                putExtra(CONSTS.DB.COLUMN_ID, item.id)
+                                requireActivity().overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
+                            }
+                        }
                     }
-                    requireActivity().overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
                 }
             })
         }
@@ -86,7 +105,7 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
 
         })
         rvflights.adapter = adapter
-        viewFlightsPresenter.loadFlights()
+        presenter.loadFlights()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -94,8 +113,7 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
                 CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT -> {
-                    viewFlightsPresenter.loadFlights(true)
-                    viewFlightsPresenter.getTimeInfo()
+                    presenter.loadFlights(true)
                 }
             }
         }
@@ -123,6 +141,12 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.flights_menu, menu)
+        menu.findItem(R.id.action_remove_items)?.isVisible = hasSelectedItems
+    }
+
+    override fun invalidateMenuSelected(hasSelectedItems: Boolean) {
+        this.hasSelectedItems = hasSelectedItems
+        activity?.invalidateOptionsMenu()
     }
 
     override fun updateAdapter(flights: List<Flight>) {
@@ -130,12 +154,12 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
         restoreListPosition()
     }
 
-    override fun showEmptyView(vis: Boolean) {
-        tv_empty_view.setVisible(vis)
+    override fun invalidateAdapter(position: Int) {
+        adapter?.notifyItemChanged(position)
     }
 
-    private fun initFlights() {
-        viewFlightsPresenter.loadFlights()
+    override fun showEmptyView(vis: Boolean) {
+        tv_empty_view.setVisible(vis)
     }
 
     private fun restoreListPosition() {
@@ -170,10 +194,19 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
                         title = getString(R.string.str_sort_by) + " " + filter,
                         items = resources.getStringArray(R.array.flights_filers).map { it },
                         onSelect = { index, _ ->
-                            viewFlightsPresenter.changeOrder(index)
+                            presenter.changeOrder(index)
                         }
                 )
                 return true
+            }
+            R.id.action_remove_items -> {
+                alertDialog(
+                        requireContext(),
+                        getString(R.string.remove_selected_items_question),
+                        btnCancelText = getString(R.string.str_cancel),
+                        onConfirm = {
+                            presenter.removeSelectedItems()
+                        })
             }
         }
         return true

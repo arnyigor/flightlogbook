@@ -64,6 +64,9 @@ interface FlightDAO : BaseDao<FlightEntity> {
     @Query("DELETE FROM main_table WHERE _id=:id")
     fun delete(id: Long?): Int
 
+    @Query("DELETE FROM main_table WHERE _id IN(:ids)")
+    fun delete(ids: List<Long>): Int
+
     @Query("DELETE FROM main_table")
     fun delete(): Int
 }

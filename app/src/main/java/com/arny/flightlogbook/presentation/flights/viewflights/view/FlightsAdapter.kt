@@ -8,9 +8,14 @@ import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.helpers.utils.DateTimeUtils
 import kotlinx.android.synthetic.main.flight_list_item.view.*
 
-class FlightsAdapter : SimpleAbstractAdapter<Flight>() {
+class FlightsAdapter(private val onFlightsListListener: OnFlightsListListener? = null) : SimpleAbstractAdapter<Flight>() {
     override fun getLayout(viewType: Int): Int {
         return R.layout.flight_list_item
+    }
+
+    interface OnFlightsListListener {
+        fun onFlightSelect(position: Int, item: Flight)
+        fun onFlightRemove(position: Int, item: Flight)
     }
 
     override fun bindView(item: Flight, viewHolder: VH) {
@@ -27,8 +32,19 @@ class FlightsAdapter : SimpleAbstractAdapter<Flight>() {
             tvPlaneType.text = item.planeType?.typeName
             tvDescr.isVisible = !item.description.isNullOrBlank()
             tvDescr.text = item.description
-            val colorText = item.colorText
+            var colorText = item.colorText
                     ?: ContextCompat.getColor(context, R.color.colorTextPrimary)
+            if (item.selected) {
+                colorText = ContextCompat.getColor(context, R.color.colorTextPrimary)
+                clFlightsItemContainer.setBackgroundColor(ContextCompat.getColor(context, R.color.colorTextGrayBg))
+            } else {
+                val colorInt = item.colorInt
+                if (colorInt == 0 || colorInt == -1 || colorInt == null) {
+                    clFlightsItemContainer.setBackgroundColor(ContextCompat.getColor(context, R.color.colorTransparent))
+                } else {
+                    clFlightsItemContainer.setBackgroundColor(colorInt)
+                }
+            }
             colorText.let {
                 tvLogTimeFlightTotal.setTextColor(it)
                 tvLogTimeFlight.setTextColor(it)
@@ -38,14 +54,15 @@ class FlightsAdapter : SimpleAbstractAdapter<Flight>() {
                 tvDescr.setTextColor(it)
                 tvFlightType.setTextColor(it)
             }
-            val colorInt = item.colorInt
-            if (colorInt == 0 || colorInt == -1 || colorInt == null) {
-                clFlightsItemContainer.setBackgroundColor(ContextCompat.getColor(context, R.color.colorTransparent))
-            } else {
-                clFlightsItemContainer.setBackgroundColor(colorInt)
-            }
             setOnClickListener {
                 listener?.onItemClick(position, item)
+            }
+            ivRemove.setOnClickListener {
+                onFlightsListListener?.onFlightRemove(position, item)
+            }
+            setOnLongClickListener {
+                onFlightsListListener?.onFlightSelect(position, item)
+                true
             }
         }
     }

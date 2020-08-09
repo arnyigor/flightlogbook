@@ -20,7 +20,7 @@ import javax.inject.Singleton
 class FlightsRepositoryImpl @Inject constructor(private val flightDAO: FlightDAO, private val mainDB: MainDB) : FlightsRepository {
     override fun getDbFlights(order: String): Result<List<Flight>> {
         return flightDAO.queryFlightsWithOrder(order)
-                .map {it.toFlight() }
+                .map { it.toFlight() }
                 .toResult()
     }
 
@@ -149,4 +149,5 @@ class FlightsRepositoryImpl @Inject constructor(private val flightDAO: FlightDAO
 
     override fun removeFlight(id: Long?): Boolean = flightDAO.delete(id) > 0
 
+    override fun removeFlights(ids: List<Long>): Boolean = flightDAO.delete(ids) > 0
 }

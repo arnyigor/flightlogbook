@@ -2,8 +2,10 @@ package com.arny.flightlogbook.presentation.flights.viewflights.presenter
 
 import com.arny.domain.common.ResourcesInteractor
 import com.arny.domain.flights.FlightsInteractor
+import com.arny.domain.models.Flight
 import com.arny.domain.models.Result
 import com.arny.flightlogbook.FlightApp
+import com.arny.flightlogbook.R
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import com.arny.flightlogbook.presentation.flights.viewflights.view.ViewFlightsView
 import moxy.InjectViewState
@@ -12,6 +14,8 @@ import javax.inject.Inject
 
 @InjectViewState
 class ViewFlightsPresenter : BaseMvpPresenter<ViewFlightsView>() {
+    private var flights: List<Flight> = emptyList()
+
     @Inject
     lateinit var flightsInteractor: FlightsInteractor
 
@@ -41,16 +45,19 @@ class ViewFlightsPresenter : BaseMvpPresenter<ViewFlightsView>() {
     fun loadFlights(checkAutoExport: Boolean = false) {
         viewState.viewLoadProgress(true)
         flightsInteractor.getFilterFlightsObs(checkAutoExport)
-                .subscribeFromPresenter({
+                .subscribeFromPresenter({ result ->
                     viewState.viewLoadProgress(false)
-                    when (it) {
+                    when (result) {
                         is Result.Success -> {
-                            val data = it.data
-                            viewState.updateAdapter(data)
-                            viewState.showEmptyView(data.isEmpty())
+                            flights = result.data
+                            flights.forEach { it.selected = false }
+                            viewState.updateAdapter(flights)
+                            viewState.invalidateMenuSelected(flights.any { it.selected })
+                            viewState.showEmptyView(flights.isEmpty())
+                            getTimeInfo()
                         }
                         is Result.Error -> {
-                            viewState.showError(it.exception?.message)
+                            viewState.showError(result.exception?.message)
                         }
                     }
                 }, {
@@ -63,5 +70,37 @@ class ViewFlightsPresenter : BaseMvpPresenter<ViewFlightsView>() {
     fun changeOrder(orderType: Int) {
         flightsInteractor.setFlightsOrder(orderType)
         loadFlights(false)
+    }
+
+    fun removeItem(item: Flight) {
+        flightsInteractor.removeFlight(item.id)
+                .subscribeFromPresenter({
+                    if (it) {
+                        loadFlights(false)
+                    } else {
+                        viewState.toastError(resourcesInteractor.getString(R.string.flight_not_removed))
+                    }
+                }, {
+                    viewState.toastError(it.message)
+                })
+    }
+
+    fun onFlightSelect(position: Int, item: Flight) {
+        item.selected = !item.selected
+        viewState.invalidateAdapter(position)
+        viewState.invalidateMenuSelected(flights.any { it.selected })
+    }
+
+    fun removeSelectedItems() {
+        flightsInteractor.removeFlights(flights.filter { it.selected }.mapNotNull { it.id })
+                .subscribeFromPresenter({
+                    if (it) {
+                        loadFlights(false)
+                    } else {
+                        viewState.toastError(resourcesInteractor.getString(R.string.flights_not_removed))
+                    }
+                }, {
+                    viewState.toastError(it.message)
+                })
     }
 }

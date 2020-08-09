@@ -13,6 +13,8 @@ import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.constants.CONSTS.STRINGS.PARAM_COLOR
 import com.arny.helpers.utils.*
 import io.reactivex.Observable
+import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 import org.apache.poi.hssf.usermodel.HSSFCell
 import org.apache.poi.hssf.usermodel.HSSFRow
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
@@ -559,5 +561,10 @@ class FlightsInteractor @Inject constructor(
     fun getDefaultFileUri(): Uri? {
         val context = resourcesProvider.provideContext()
         return FileUtils.getFileUri(context, File(getDefaultFilePath(context)))
+    }
+
+    fun removeFlights(selectedIds: List<Long>): Single<Boolean> {
+        return fromSingle { flightsRepository.removeFlights(selectedIds) }
+                .subscribeOn(Schedulers.io())
     }
 }

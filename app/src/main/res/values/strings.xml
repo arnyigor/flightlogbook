@@ -68,4 +68,6 @@
     <string name="show_as_default">Всегда добавлять для полета</string>
     <string name="additional_time">Добавить время к основному</string>
     <string name="add_custom_field">Добавить поле</string>
+    <string name="remove_item_question">Удалить запись?</string>
+    <string name="remove_selected_items_question">Удалить выделенные записи?</string>
 </resources>

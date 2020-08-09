@@ -13,7 +13,14 @@ interface ViewFlightsView : MvpView {
     fun clearAdaper()
     fun showEmptyView(vis: Boolean)
     fun showTotalsInfo(content: String?)
+
     @StateStrategyType(value = AddToEndSingleStrategy::class)
     fun viewLoadProgress(vis: Boolean)
     fun showError(message: String?)
+
+    @StateStrategyType(value = AddToEndSingleStrategy::class)
+    fun invalidateMenuSelected(hasSelectedItems: Boolean)
+
+    @StateStrategyType(value = OneExecutionStateStrategy::class)
+    fun invalidateAdapter(position: Int)
 }
