@@ -16,6 +16,7 @@ import com.arny.flightlogbook.presentation.customfields.edit.presenter.CustomFie
 import com.arny.flightlogbook.presentation.main.BackButtonListener
 import com.arny.flightlogbook.presentation.main.MainActivity
 import com.arny.flightlogbook.presentation.main.Router
+import com.arny.helpers.utils.KeyboardHelper.hideKeyboard
 import com.arny.helpers.utils.ToastMaker
 import kotlinx.android.synthetic.main.fragment_edit_custom_field_layout.*
 import moxy.MvpAppCompatFragment
@@ -26,9 +27,6 @@ class CustomFieldEditFragment : MvpAppCompatFragment(), CustomFieldsEditView, Ba
     private var router: Router? = null
 
     companion object {
-        const val PARAM_FIELD_ID = "PARAM_FIELD_ID"
-
-        @JvmStatic
         fun getInstance(bundle: Bundle? = null) = CustomFieldEditFragment().apply {
             bundle?.let {
                 arguments = it
@@ -64,7 +62,10 @@ class CustomFieldEditFragment : MvpAppCompatFragment(), CustomFieldsEditView, Ba
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_save -> presenter.onSaveClicked(chbAddTime.isChecked)
+            R.id.action_save -> {
+                hideKeyboard(requireActivity())
+                presenter.onSaveClicked(chbAddTime.isChecked)
+            }
         }
         return true
     }

@@ -18,7 +18,7 @@ class CustomFieldValuesAdapter(private val onFieldChangeListener: OnFieldChangeL
     }
 
     override fun bindView(item: CustomFieldValue, viewHolder: VH) {
-        var sTime = ""
+        var currentValue = ""
         viewHolder.itemView.apply {
             val name = item.field?.name ?: ""
             val type = item.type ?: CustomFieldType.None
@@ -31,29 +31,33 @@ class CustomFieldValuesAdapter(private val onFieldChangeListener: OnFieldChangeL
             if (value != null && value != "null") {
                 cfvView.value = value
             }
-            if (type is CustomFieldType.Time) {
-                val timeZero = context.getString(R.string.str_time_zero)
+            if (type == CustomFieldType.Bool) {
+                cfvView.switch?.setOnCheckedChangeListener { _, isChecked ->
+                    onFieldChangeListener?.onValueChange(item, isChecked.toString())
+                }
+            } else {
+                val emptyHint = if (type is CustomFieldType.Time) context.getString(R.string.str_time_zero) else ""
                 cfvView.editText?.let { editText ->
                     editText.addTextChangedListener {
                         if (it.toString().isBlank()) {
-                            editText.hint = timeZero
+                            editText.hint = emptyHint
                         }
-                        sTime = it.toString()
+                        currentValue = it.toString()
                     }
                     editText.setOnFocusChangeListener { _, hasFocus ->
                         if (!hasFocus) {
                             editText.setSelectAllOnFocus(false)
-                            onFieldChangeListener?.onValueChange(item, sTime)
+                            onFieldChangeListener?.onValueChange(item, currentValue)
                         }
                         val flTime = editText.text.toString()
                         if (flTime.isBlank()) {
                             if (hasFocus) {
-                                editText.hint = timeZero
+                                editText.hint = emptyHint
                             } else {
                                 editText.hint = null
                             }
                         } else {
-                            if (hasFocus && flTime == timeZero) {
+                            if (hasFocus && flTime == emptyHint) {
                                 editText.setSelectAllOnFocus(true)
                                 editText.selectAll()
                             }
@@ -62,7 +66,7 @@ class CustomFieldValuesAdapter(private val onFieldChangeListener: OnFieldChangeL
                     editText.setOnEditorActionListener { _, actionId, _ ->
                         when (actionId) {
                             EditorInfo.IME_ACTION_NEXT -> {
-                                onFieldChangeListener?.onValueChange(item, sTime)
+                                onFieldChangeListener?.onValueChange(item, currentValue)
                                 true
                             }
                             else -> false

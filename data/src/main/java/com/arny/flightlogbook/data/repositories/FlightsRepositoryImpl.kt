@@ -1,27 +1,50 @@
 package com.arny.flightlogbook.data.repositories
 
 import android.database.Cursor
+import com.arny.domain.common.PreferencesProvider
 import com.arny.domain.flights.FlightsRepository
 import com.arny.domain.models.Flight
 import com.arny.domain.models.Params
 import com.arny.domain.models.Result
 import com.arny.domain.models.toResult
+import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.constants.CONSTS.STRINGS.PARAM_COLOR
 import com.arny.flightlogbook.data.db.MainDB
 import com.arny.flightlogbook.data.db.daos.FlightDAO
 import com.arny.flightlogbook.data.models.toFlightEntity
 import com.arny.flightlogbook.data.utils.DBUtils
 import com.arny.helpers.utils.*
+import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FlightsRepositoryImpl @Inject constructor(private val flightDAO: FlightDAO, private val mainDB: MainDB) : FlightsRepository {
+class FlightsRepositoryImpl @Inject constructor(
+        private val flightDAO: FlightDAO,
+        private val mainDB: MainDB,
+        private val preferencesProvider: PreferencesProvider
+) : FlightsRepository {
     override fun getDbFlights(order: String): Result<List<Flight>> {
         return flightDAO.queryFlightsWithOrder(order)
                 .map { it.toFlight() }
                 .toResult()
+    }
+
+    override fun getPrefOrderflights(filtertype: Int): String = when (filtertype) {
+        0 -> CONSTS.DB.COLUMN_DATETIME
+        1 -> CONSTS.DB.COLUMN_DATETIME + " DESC"
+        2 -> CONSTS.DB.COLUMN_LOG_TIME
+        3 -> CONSTS.DB.COLUMN_LOG_TIME + " DESC"
+        else -> CONSTS.DB.COLUMN_DATETIME + " ASC"
+    }
+
+    override fun getDbFlightsOrdered(): Observable<Result<List<Flight>>> {
+        return fromCallable {
+            getDbFlights(getPrefOrderflights(
+                    preferencesProvider.getPrefInt(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS)
+            ))
+        }
     }
 
     override fun resetTableFlights(): Boolean {

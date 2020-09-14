@@ -6,6 +6,7 @@ import com.arny.flightlogbook.customfields.models.CustomFieldValue
 import com.arny.flightlogbook.customfields.repository.ICustomFieldsRepository
 import com.arny.helpers.utils.OptionalNull
 import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -44,6 +45,13 @@ class CustomFieldInteractor @Inject constructor(
 
     override fun getCustomFieldsWithValues(externalId: Long?): Single<List<CustomFieldValue>> {
         return repository.getCustomFieldWithValues(externalId)
+    }
+
+    override fun saveValues(values: List<CustomFieldValue>): Single<Boolean> {
+        return Single.fromCallable { values.filter { it.value != null } }
+                .flatMap { repository.saveCustomFieldValues(it) }
+                .map { ids -> ids.all { it != 0L } }
+                .subscribeOn(Schedulers.io())
     }
 
     override fun addCustomFieldValue(

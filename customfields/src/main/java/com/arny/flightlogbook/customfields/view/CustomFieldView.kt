@@ -13,7 +13,7 @@ import com.arny.flightlogbook.customfields.models.toCustomFieldType
 
 class CustomFieldView : LinearLayout {
     private var name: String? = null
-    private var switch: Switch? = null
+    var switch: Switch? = null
     var editText: EditText? = null
     private var styleType: Int? = null
     private var type: String? = null

@@ -241,104 +241,102 @@ public class FileUtils {
                 final String[] selectionArgs = new String[]{split[1]};
                 return getDataColumn(context, contentUri, selection, selectionArgs);
             }
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT &&
-                !DocumentsContract.isDocumentUri(context, uri) &&
-                Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            boolean document = false;
-            String folders = "", type = "", external;
-            for (String segm : uri.getPathSegments()) {
-                if (segm.contains(DOCUMENT_SEPARATOR)) {
-                    String path = uri.getPath();
-                    type = path.split(DOCUMENT_SEPARATOR)[0];
-                    folders = path.split(DOCUMENT_SEPARATOR)[1];
-                    document = true;
-                    break;
+        } else {
+            String lastPathSegment = uri.getLastPathSegment();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT &&
+                    !DocumentsContract.isDocumentUri(context, uri) &&
+                    Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                boolean document = false;
+                String folders = "", type = "", external;
+                for (String segm : uri.getPathSegments()) {
+                    if (segm.contains(DOCUMENT_SEPARATOR)) {
+                        String path = uri.getPath();
+                        type = path.split(DOCUMENT_SEPARATOR)[0];
+                        folders = path.split(DOCUMENT_SEPARATOR)[1];
+                        document = true;
+                        break;
+                    }
                 }
-            }
-            if (type.equals("primary")) {
-                external = Environment.getExternalStorageDirectory().getPath();
-            } else {
-                if (document) {
-                    String id = DocumentsContract.getDocumentId(uri);
-                    if (!TextUtils.isEmpty(id)) {
-                        if (id.startsWith("raw:")) {
-                            external = id.replaceFirst("raw:", "");
+                if (type.equals("primary")) {
+                    external = Environment.getExternalStorageDirectory().getPath();
+                } else {
+                    if (document) {
+                        String id = DocumentsContract.getDocumentId(uri);
+                        if (!TextUtils.isEmpty(id)) {
+                            if (id.startsWith("raw:")) {
+                                external = id.replaceFirst("raw:", "");
+                            } else {
+                                try {
+                                    Uri contentUri =
+                                            ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.parseLong(id));
+                                    type = getDataColumn(context, contentUri, null, null);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                external = "/storage/" + type;
+                            }
                         } else {
+                            external = "/storage/" + type;
+                        }
+                    }else{
+                        external = "/storage/" + type;
+                    }
+                }
+                if (document) {
+                    if (folders.contains(Objects.requireNonNull(lastPathSegment))) {
+                        return external + FOLDER_SEPARATOR + folders;
+                    } else {
+                        return external + FOLDER_SEPARATOR + folders + FOLDER_SEPARATOR + lastPathSegment;
+                    }
+                } else {
+                    return uri.getPath();
+                }
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && DocumentsContract.isDocumentUri(context, uri)) {
+                boolean document = false;
+                String folders = "", type = "", external;
+                for (String segm : uri.getPathSegments()) {
+                    if (segm.contains(DOCUMENT_SEPARATOR)) {
+                        String path = uri.getPath();
+                        type = path.split(DOCUMENT_SEPARATOR)[0];
+                        folders = path.split(DOCUMENT_SEPARATOR)[1];
+                        document = true;
+                        break;
+                    }
+                }
+                if (type.contains("primary")) {
+                    return Environment.getExternalStorageDirectory().getPath() + FOLDER_SEPARATOR + folders;
+                } else {
+                    String documentId = DocumentsContract.getDocumentId(uri);
+                    if (!TextUtils.isEmpty(documentId) && documentId.contains(":")) {
+                        String[] split = documentId.split(":");
+                        if (split.length > 1) {
+                            final String id = split[1];
                             try {
-                                Uri contentUri =
-                                        ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.parseLong(id));
-                                type = getDataColumn(context, contentUri, null, null);
+                                final Uri contentUri = ContentUris.withAppendedId(MediaStore.Files.getContentUri("external"), Long.parseLong(id));
+                                return getDataColumn(context, contentUri, null, null);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                            external = "/storage/" + type;
-                        }
-                    } else {
-                        external = "/storage/" + type;
-                    }
-                }else{
-                    external = "/storage/" + type;
-                }
-            }
-            if (document) {
-                if (folders.contains(Objects.requireNonNull(uri.getLastPathSegment()))) {
-                    return external + FOLDER_SEPARATOR + folders;
-                } else {
-                    return external + FOLDER_SEPARATOR + folders + FOLDER_SEPARATOR + uri.getLastPathSegment();
-                }
-            } else {
-                return uri.getPath();
-            }
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && DocumentsContract.isDocumentUri(context, uri)) {
-            boolean document = false;
-            String folders = "", type = "", external;
-            for (String segm : uri.getPathSegments()) {
-                if (segm.contains(DOCUMENT_SEPARATOR)) {
-                    String path = uri.getPath();
-                    type = path.split(DOCUMENT_SEPARATOR)[0];
-                    folders = path.split(DOCUMENT_SEPARATOR)[1];
-                    document = true;
-                    break;
-                }
-            }
-            if (type.contains("primary")) {
-                return Environment.getExternalStorageDirectory().getPath() + FOLDER_SEPARATOR + folders;
-            } else {
-                String documentId = DocumentsContract.getDocumentId(uri);
-                if (!TextUtils.isEmpty(documentId) && documentId.contains(":")) {
-                    String[] split = documentId.split(":");
-                    if (split.length > 1) {
-                        final String id = split[1];
-                        try {
-                            final Uri contentUri = ContentUris.withAppendedId(MediaStore.Files.getContentUri("external"), Long.parseLong(id));
-                            return getDataColumn(context, contentUri, null, null);
-                        } catch (Exception e) {
-                            e.printStackTrace();
                         }
                     }
                 }
-                external = "/storage/" + type;
-            }
-            if (document) {
-                if (folders.contains(Objects.requireNonNull(uri.getLastPathSegment()))) {
-                    return external + FOLDER_SEPARATOR + folders;
+                if (document) {
+                    return folders;
                 } else {
-                    return external + FOLDER_SEPARATOR + folders + FOLDER_SEPARATOR + uri.getLastPathSegment();
+                    return uri.getPath();
                 }
-            } else {
+            }
+            // MediaStore (and general)
+            else if ("content".equalsIgnoreCase(uri.getScheme())) {
+                // Return the remote address
+                if (isGooglePhotosUri(uri))
+                    return lastPathSegment;
+                return getDataColumn(context, uri, null, null);
+            }
+            // File
+            else if ("file".equalsIgnoreCase(uri.getScheme())) {
                 return uri.getPath();
             }
-        }
-        // MediaStore (and general)
-        else if ("content".equalsIgnoreCase(uri.getScheme())) {
-            // Return the remote address
-            if (isGooglePhotosUri(uri))
-                return uri.getLastPathSegment();
-            return getDataColumn(context, uri, null, null);
-        }
-        // File
-        else if ("file".equalsIgnoreCase(uri.getScheme())) {
-            return uri.getPath();
         }
         return null;
     }

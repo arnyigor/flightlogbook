@@ -1,8 +1,14 @@
 package com.arny.flightlogbook.constants
 
 object CONSTS {
+
+    object FLIGHT {
+        const val TYPE_CIRCLE = 0L
+        const val TYPE_ZONE = 1L
+        const val TYPE_RUOTE = 2L
+    }
+
     object STRINGS {
-        const val LOG_TIME_FORMAT = "[000]:[00]"
         const val PARAM_COLOR = "color"
     }
 

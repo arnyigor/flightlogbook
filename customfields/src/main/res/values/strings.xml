@@ -15,5 +15,6 @@
     <string name="field_bool_descr">Булевое значение. Например подвеска для вертолета</string>
     <string name="field_time_descr">Например любое дополнительное время</string>
     <string name="field_text_no_descr">Нет описания</string>
+    <string name="fields_save_error">Ошибка сохранения дополнительных полей</string>
 
 </resources>

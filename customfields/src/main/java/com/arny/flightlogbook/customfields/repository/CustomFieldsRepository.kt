@@ -49,6 +49,10 @@ class CustomFieldsRepository @Inject constructor(
                 .subscribeOn(Schedulers.io())
     }
 
+    override fun saveCustomFieldValues(values: List<CustomFieldValue>): Single<Array<Long>> {
+        return fromSingle { customFieldValuesDAO.insertReplace(values.map { it.toDbValue() }) }
+    }
+
     override fun getCustomFieldWithValues(externalId: Long?): Single<List<CustomFieldValue>> {
         return fromSingle {
             toValuesList(

@@ -15,6 +15,7 @@ import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import com.arny.flightlogbook.presentation.flights.addedit.models.getCorrectTime
 import com.arny.flightlogbook.presentation.flights.addedit.view.AddEditView
 import com.arny.helpers.utils.*
+import io.reactivex.Single
 import io.reactivex.rxkotlin.Observables
 import moxy.InjectViewState
 import org.joda.time.DateTime
@@ -36,7 +37,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
 
     @Inject
     lateinit var preferencesInteractor: PreferencesInteractor
-    private var id: Long? = null
+    private var flightId: Long? = null
 
     @Volatile
     private var intFlightTime: Int = 0
@@ -73,10 +74,11 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     }
 
     private fun loadCustomFields() {
-        customFieldInteractor.getCustomFieldsWithValues(id)
+        customFieldInteractor.getCustomFieldsWithValues(flightId)
                 .subscribeFromPresenter({
                     customFieldsValues = it.toMutableList()
                     viewState.setFieldsList(customFieldsValues)
+                    timeSummChanged()
                 }, {
                     it.printStackTrace()
                 })
@@ -219,7 +221,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     }
 
     fun initState(id: Long?) {
-        this.id = id
+        this.flightId = id
         if (id != null && id != 0L) {
             loadFlight(id)
         } else {
@@ -360,7 +362,9 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                         flt.totalTime = intTotalTime
                         flt.regNo = regNo
                         flt.description = descr
-                        if (flt.id != null) {
+                        val id = flt.id
+                        if (id != null) {
+                            customFieldsValues.forEach { it.externalId = id }
                             updateFlight(flt)
                         } else {
                             addNewFlight(flt)
@@ -375,8 +379,16 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
 
     private fun addNewFlight(flt: Flight) {
         flightsInteractor.insertFlightAndGet(flt)
-                .subscribeFromPresenter({
-                    if (it) {
+                .flatMap { saveId ->
+                    if (saveId != 0L) {
+                        customFieldsValues.forEach { it.externalId = saveId }
+                        saveValues()
+                    } else {
+                        Single.just(false)
+                    }
+                }
+                .subscribeFromPresenter({ success ->
+                    if (success) {
                         viewState.toastSuccess(resourcesInteractor.getString(R.string.flight_save_success))
                         viewState.setResultOK()
                         viewState.onPressBack()
@@ -384,13 +396,19 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                         viewState.toastError(resourcesInteractor.getString(R.string.flight_not_save))
                     }
                 }, {
-                    it.printStackTrace()
                     viewState.toastError("${resourcesInteractor.getString(R.string.flight_save_error)}:${it.message}")
                 })
     }
 
     private fun updateFlight(flt: Flight) {
         flightsInteractor.updateFlight(flt)
+                .flatMap { success ->
+                    if (success) {
+                        saveValues()
+                    } else {
+                        Single.just(false)
+                    }
+                }
                 .subscribeFromPresenter({
                     if (it) {
                         viewState.toastSuccess(resourcesInteractor.getString(R.string.flight_save_success))
@@ -405,9 +423,10 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                 })
     }
 
+    private fun saveValues() = customFieldInteractor.saveValues(customFieldsValues)
+
     fun removeFlight() {
         flightsInteractor.removeFlight(flight?.id)
-                .observeOnMain()
                 .subscribeFromPresenter({
                     if (it) {
                         viewState.setResultOK()
@@ -461,6 +480,8 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                         viewState.notifyCustomFieldUpdate(item)
                         timeSummChanged()
                     })
+        } else {
+            item.value = value
         }
     }
 
@@ -472,8 +493,9 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                         if (field != null) {
                             customFieldsValues.add(CustomFieldValue(
                                     field = field,
-                                    externalId = this.id,
-                                    type = field.type
+                                    externalId = this.flightId,
+                                    type = field.type,
+                                    fieldId = id
                             ))
                             viewState.setFieldsList(customFieldsValues)
                         }

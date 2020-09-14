@@ -8,15 +8,19 @@ import com.arny.flightlogbook.data.repositories.FlightsRepositoryImpl
 import com.arny.flightlogbook.data.repositories.PlaneTypesRepositoryImpl
 import dagger.Binds
 import dagger.Module
+import javax.inject.Singleton
 
 @Module
 interface FlightsModule {
     @Binds
+    @Singleton
     fun bindFlightsRepository(repositoryFlights: FlightsRepositoryImpl): FlightsRepository
 
     @Binds
+    @Singleton
     fun bindFlightTypesRepository(repositoryTypes: FlightTypesRepositoryImpl): FlightTypesRepository
 
     @Binds
+    @Singleton
     fun bindPlaneTypeRepository(repositoryPlaneTypes: PlaneTypesRepositoryImpl): PlaneTypesRepository
 }

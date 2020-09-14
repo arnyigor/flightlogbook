@@ -18,21 +18,22 @@ repositories {
 
 android {
     signingConfigs {
-        release {
-            keyAlias 'androidapps'
-            keyPassword FLB_KEY_PASSWORD
-            storeFile file('../../keystore/mykeystore.jks')
-            storePassword FLB_KEYSTORE_PASSWORD
-        }
+        release
     }
     compileSdkVersion versions.compileSdk
     buildToolsVersion versions.buildTools
+
+    def vMajor = 6
+    def vMinor = 2
+    def vBuild = 2
     defaultConfig {
         minSdkVersion versions.minSdk
         targetSdkVersion versions.targetSdk
-        applicationId "com.arny.flightlogbook"
-        versionCode 622
-        versionName "6.2.2"
+        applicationId 'com.arny.flightlogbook'
+        versionCode vMajor * 100 + vMinor * 10 + vBuild
+        versionName "${vMajor}" + "${vMinor}" +"${vBuild}"
+        setProperty("archivesBaseName", applicationId + "-v" + "(" + versionName + ")")
+        archivesBaseName = "$applicationId-v$versionCode($versionName)"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
@@ -43,8 +44,10 @@ android {
             }
         }
     }
+
     buildTypes {
         debug {
+            resValue "string", "app_name", "Pilot Logbook[DEBUG]"
             debuggable true
             minifyEnabled false
             useProguard false
@@ -55,6 +58,8 @@ android {
             debuggable false
             minifyEnabled true
             useProguard true
+            resValue "string", "app_name", "Pilot Logbook"
+            shrinkResources true
             signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguardTest-rules.pro'
@@ -63,6 +68,7 @@ android {
             debuggable true
             minifyEnabled true
             useProguard true
+            resValue "string", "app_name", "Pilot Logbook"
             signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguardTest-rules.pro'
@@ -155,3 +161,33 @@ dependencies {
     implementation libs.stetho
     implementation libs.inputmask
 }
+
+// end of file
+android.applicationVariants.all { variant ->
+    variant.outputs.all {
+        if (outputFileName.endsWith('.apk')) {
+            outputFileName = "FLB-${variant.versionName}-${buildType.name}.apk"
+        }
+    }
+}
+
+Properties props = new Properties()
+def propFile = new File('signing.properties')
+if (propFile.canRead()){
+    props.load(new FileInputStream(propFile))
+
+    if (props!=null && props.containsKey('STORE_FILE') && props.containsKey('STORE_PASSWORD') &&
+            props.containsKey('KEY_ALIAS') && props.containsKey('KEY_PASSWORD')) {
+        android.signingConfigs.release.storeFile = file(props['STORE_FILE'])
+        android.signingConfigs.release.storePassword = props['STORE_PASSWORD']
+        android.signingConfigs.release.keyAlias = props['KEY_ALIAS']
+        android.signingConfigs.release.keyPassword = props['KEY_PASSWORD']
+    } else {
+        println 'signing.properties found but some entries are missing'
+        android.buildTypes.release.signingConfig = null
+    }
+}else {
+    println 'signing.properties not found'
+    android.buildTypes.release.signingConfig = null
+}
+

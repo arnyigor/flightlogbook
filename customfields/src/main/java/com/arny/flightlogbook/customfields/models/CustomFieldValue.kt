@@ -14,7 +14,6 @@ data class CustomFieldValue(
 
     private fun valueToString(value: Any?): String {
         return when (type) {
-            is CustomFieldType.Text -> value.toString()
             is CustomFieldType.Time -> DateTimeUtils.convertStringToTime(value.toString()).toString()
             else -> value.toString()
         }

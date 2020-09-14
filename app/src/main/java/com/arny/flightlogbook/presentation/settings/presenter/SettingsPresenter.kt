@@ -3,6 +3,7 @@ package com.arny.flightlogbook.presentation.settings.presenter
 import android.net.Uri
 import android.os.Handler
 import com.arny.domain.common.PreferencesInteractor
+import com.arny.domain.files.FilesInteractor
 import com.arny.domain.flights.FlightsInteractor
 import com.arny.domain.models.Result
 import com.arny.flightlogbook.FlightApp
@@ -16,6 +17,9 @@ import javax.inject.Inject
 @InjectViewState
 class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
     private val handler = Handler()
+
+    @Inject
+    lateinit var filesInteractor: FilesInteractor
 
     @Inject
     lateinit var interactor: FlightsInteractor
@@ -39,7 +43,7 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
 
     private fun showFileData() {
         viewState.setShareFileVisible(false)
-        fromNullable { interactor.getFileData() }
+        fromNullable { filesInteractor.getFileData() }
                 .subscribeFromPresenter({
                     val value = it.value
                     viewState.setShareFileVisible(value != null)
@@ -61,7 +65,7 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
         viewState.hideResults()
         viewState.showProgress(R.string.import_data)
         fromNullable {
-            interactor.readExcelFile(uri, false)
+            filesInteractor.readExcelFile(uri, false)
         }.subscribeFromPresenter({
             viewState.hideProgress()
             val path = it.value
@@ -84,7 +88,7 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
         viewState.hideResults()
         viewState.showProgress(R.string.exporting_file)
         viewState.setShareFileVisible(false)
-        interactor.exportFile()
+        filesInteractor.exportFile()
                 .subscribeFromPresenter({
                     viewState.hideProgress()
                     when (it) {
@@ -118,7 +122,7 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
         viewState.hideResults()
         viewState.showProgress(R.string.import_data)
         fromNullable {
-            interactor.readExcelFile(null, true)
+            filesInteractor.readExcelFile(null, true)
         }.subscribeFromPresenter({
             viewState.hideProgress()
             val path = it.value
@@ -138,7 +142,7 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
     }
 
     fun onShareFileClick() {
-        fromNullable { interactor.getDefaultFileUri() }
+        fromNullable { filesInteractor.getDefaultFileUri() }
                 .subscribeFromPresenter({
                     val value = it.value
                     if (value != null) {

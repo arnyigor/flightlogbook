@@ -14,4 +14,5 @@ interface ICustomFieldsRepository {
     fun addCustomFieldValue(customFieldValue: CustomFieldValue): Single<Boolean>
     fun getAllCustomField(id: Long): Single<OptionalNull<CustomField?>>
     fun getCustomFieldWithValues(externalId: Long?): Single<List<CustomFieldValue>>
+    fun saveCustomFieldValues(values: List<CustomFieldValue>): Single<Array<Long>>
 }

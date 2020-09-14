@@ -2,13 +2,14 @@ package com.arny.flightlogbook.data.di
 
 import android.content.Context
 import androidx.room.Room
+import com.arny.domain.di.DomainModule
 import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.data.db.MainDB
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
 
-@Module(includes = [FlightsModule::class])
+@Module(includes = [FlightsModule::class, DomainModule::class])
 class DataModule {
 
     @Provides

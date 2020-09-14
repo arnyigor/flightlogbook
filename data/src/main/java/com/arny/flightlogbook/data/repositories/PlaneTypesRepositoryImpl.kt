@@ -19,10 +19,6 @@ class PlaneTypesRepositoryImpl @Inject constructor(private val aircraftTypeDAO: 
         return aircraftTypeDAO.queryAircraftType(id)?.toPlaneType()
     }
 
-    override fun loadPlaneType(title: String?): PlaneType? {
-        return aircraftTypeDAO.queryAircraftType(title)?.toPlaneType()
-    }
-
     override fun addType(name: String): Boolean {
         val type = PlaneType()
         type.typeName = name
