@@ -2,6 +2,10 @@ package com.arny.flightlogbook.constants
 
 object CONSTS {
 
+    object COMMON {
+        const val ENABLE_CUSTOM_FIELDS = false
+    }
+
     object FLIGHT {
         const val TYPE_CIRCLE = 0L
         const val TYPE_ZONE = 1L

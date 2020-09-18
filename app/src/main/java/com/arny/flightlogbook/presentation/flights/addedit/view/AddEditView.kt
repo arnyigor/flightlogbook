@@ -34,4 +34,5 @@ interface AddEditView : MvpView {
     fun setFieldsList(list: List<CustomFieldValue>)
     @StateStrategyType(value = OneExecutionStateStrategy::class)
     fun notifyCustomFieldUpdate(item: CustomFieldValue)
+    fun setCustomFieldsVisible(visible: Boolean)
 }

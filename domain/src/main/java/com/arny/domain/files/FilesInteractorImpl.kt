@@ -34,13 +34,10 @@ class FilesInteractorImpl @Inject constructor(
 ) : FilesInteractor {
 
     override fun readExcelFile(uri: Uri?, fromSystem: Boolean): String? {
-        val filename: String = if (fromSystem)
-            getDefaultFilePath(context)
-        else
-            FileUtils.getSDFilePath(context, uri)
         if (!FileUtils.isExternalStorageAvailable() || FileUtils.isExternalStorageReadOnly()) {
             return null
         }
+        val filename: String = getFileName(fromSystem, uri)
         val xlsfile = File(filename)
         if (!xlsfile.isFile || !xlsfile.exists()) {
             throw BusinessException(String.format(
@@ -54,6 +51,13 @@ class FilesInteractorImpl @Inject constructor(
         flightsRepository.removeAllFlights()
         flightsRepository.resetTableFlights()
         return if (flightsRepository.insertFlights(getFlightsFromExcel(rowIter))) filename else null
+    }
+
+    private fun getFileName(fromSystem: Boolean, uri: Uri?): String {
+        return if (fromSystem)
+            getDefaultFilePath(context)
+        else
+            FilePathUtils.getPath(uri, context).toString()
     }
 
     private fun getFlightsFromExcel(rowIter: Iterator<*>): ArrayList<Flight> {

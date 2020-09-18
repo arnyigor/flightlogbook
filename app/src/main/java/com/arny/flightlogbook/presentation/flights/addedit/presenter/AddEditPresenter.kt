@@ -7,6 +7,7 @@ import com.arny.domain.models.Flight
 import com.arny.domain.models.Params
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.constants.CONSTS.STRINGS.PARAM_COLOR
 import com.arny.flightlogbook.customfields.domain.CustomFieldInteractor
 import com.arny.flightlogbook.customfields.models.CustomFieldType
@@ -74,14 +75,18 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     }
 
     private fun loadCustomFields() {
-        customFieldInteractor.getCustomFieldsWithValues(flightId)
-                .subscribeFromPresenter({
-                    customFieldsValues = it.toMutableList()
-                    viewState.setFieldsList(customFieldsValues)
-                    timeSummChanged()
-                }, {
-                    it.printStackTrace()
-                })
+        val customFieldEnabled = CONSTS.COMMON.ENABLE_CUSTOM_FIELDS
+        viewState.setCustomFieldsVisible(customFieldEnabled)
+        if (customFieldEnabled) {
+            customFieldInteractor.getCustomFieldsWithValues(flightId)
+                    .subscribeFromPresenter({
+                        customFieldsValues = it.toMutableList()
+                        viewState.setFieldsList(customFieldsValues)
+                        timeSummChanged()
+                    }, {
+                        it.printStackTrace()
+                    })
+        }
     }
 
     private fun loadIfrVfr(flight: Flight) {
@@ -157,12 +162,17 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
             fromCallable { DateTimeUtils.strLogTime(intFlightTime) }
                     .subscribeFromPresenter({ viewState.setEdtFlightTimeText(it) })
         }
-        val customTimes = customFieldsValues.filter {
-            val type = it.type
-            type is CustomFieldType.Time && type.addTime && it.value != null
-        }.map {
-            DateTimeUtils.convertStringToTime(it.value.toString())
-        }.sum()
+        val customTimes = if (customFieldsValues.isNotEmpty()) {
+            customFieldsValues.filter {
+                val type = it.type
+                type is CustomFieldType.Time && type.addTime && it.value != null
+            }.map {
+                DateTimeUtils.convertStringToTime(it.value.toString())
+            }.sum()
+        } else {
+            0
+        }
+
         intTotalTime = intFlightTime + intGroundTime + customTimes
         fromCallable { DateTimeUtils.strLogTime(intTotalTime) }
                 .subscribeFromPresenter({ viewState.setTotalTime(it) })
@@ -380,12 +390,11 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     private fun addNewFlight(flt: Flight) {
         flightsInteractor.insertFlightAndGet(flt)
                 .flatMap { saveId ->
-                    if (saveId != 0L) {
+                    val success = saveId != 0L
+                    if (success) {
                         customFieldsValues.forEach { it.externalId = saveId }
-                        saveValues()
-                    } else {
-                        Single.just(false)
                     }
+                    saveCustomFieldsValues(success)
                 }
                 .subscribeFromPresenter({ success ->
                     if (success) {
@@ -402,13 +411,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
 
     private fun updateFlight(flt: Flight) {
         flightsInteractor.updateFlight(flt)
-                .flatMap { success ->
-                    if (success) {
-                        saveValues()
-                    } else {
-                        Single.just(false)
-                    }
-                }
+                .flatMap(::saveCustomFieldsValues)
                 .subscribeFromPresenter({
                     if (it) {
                         viewState.toastSuccess(resourcesInteractor.getString(R.string.flight_save_success))
@@ -421,6 +424,14 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                     it.printStackTrace()
                     viewState.toastError("${resourcesInteractor.getString(R.string.flight_save_error)}:${it.message}")
                 })
+    }
+
+    private fun saveCustomFieldsValues(success: Boolean): Single<Boolean> {
+        return when {
+            customFieldsValues.isEmpty() -> Single.just(true)
+            success -> saveValues()
+            else -> Single.just(false)
+        }
     }
 
     private fun saveValues() = customFieldInteractor.saveValues(customFieldsValues)

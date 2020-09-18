@@ -530,4 +530,9 @@ class AddEditActivity :
             positiveButton(R.string.select)
         }
     }
+
+    override fun setCustomFieldsVisible(visible: Boolean) {
+        rvCustomFields.isVisible = visible
+        btnAddField.isVisible = visible
+    }
 }
