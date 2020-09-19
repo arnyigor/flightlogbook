@@ -32,14 +32,14 @@
             android:screenOrientation="fullSensor"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".presentation.flighttypes.view.FlightTypesActivity"
+            android:name=".presentation.flighttypes.list.FlightTypesActivity"
             android:screenOrientation="fullSensor" />
         <activity
             android:name=".presentation.about.AboutActivity"
             android:label="@string/str_about"
             android:screenOrientation="fullSensor" />
         <activity
-            android:name=".presentation.planetypes.view.PlaneTypesActivity"
+            android:name=".presentation.planetypes.list.PlaneTypesActivity"
             android:label="@string/str_airplane_types"
             android:screenOrientation="fullSensor" />
         <activity

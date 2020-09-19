@@ -24,7 +24,7 @@ ext.versions = [
         'okhttpDownloader' : '1.1.0',
         'picasso'          : '2.5.2',
         'rxJava'           : '2.2.15',
-        'moxy'             : '2.1.1',
+        'moxy'             : '2.2.0',
         'rxAndroid'        : '2.1.1',
         'rxKotlin'         : '2.4.0',
         'stetho'           : '1.5.1',
@@ -64,7 +64,7 @@ ext.libs = [
         'recyclerView'        : 'androidx.recyclerview:recyclerview:1.1.0',
         'cardView'            : 'androidx.cardview:cardview:1.0.0',
         'preference'          : 'androidx.preference:preference:1.1.0',
-        'drawerlayout'          : 'androidx.drawerlayout:drawerlayout:1.1.0',
+        'drawerlayout'        : 'androidx.drawerlayout:drawerlayout:1.1.0',
         'support'             : 'androidx.legacy:legacy-support-v4:1.0.0',
         'design'              : 'com.google.android.material:material:1.1.0',
         'vector'              : 'androidx.vectordrawable:vectordrawable:1.0.0',
@@ -72,7 +72,7 @@ ext.libs = [
 
         //kotlin
         'kotlinStdlib'        : "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin}",
-        'kotlinReflect'        : "org.jetbrains.kotlin:kotlin-reflect:${versions.kotlin}",
+        'kotlinReflect'       : "org.jetbrains.kotlin:kotlin-reflect:${versions.kotlin}",
         'coroutinesCore'      : "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.coroutines}",
         'coroutinesAndroid'   : "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.coroutines}",
 
@@ -85,6 +85,7 @@ ext.libs = [
         'moxy'                : "com.github.moxy-community:moxy:${versions.moxy}",
         'moxyCompiler'        : "com.github.moxy-community:moxy-compiler:${versions.moxy}",
         'moxyAndroidX'        : "com.github.moxy-community:moxy-androidx:${versions.moxy}",
+        'moxyKtx'             : "com.github.moxy-community:moxy-ktx:${versions.moxy}",
 
         //di
         'dagger'              : "com.google.dagger:dagger:${versions.dagger}",

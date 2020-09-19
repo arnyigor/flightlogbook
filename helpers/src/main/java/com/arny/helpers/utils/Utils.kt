@@ -87,7 +87,6 @@ fun Fragment.replaceFragment(
 }
 
 
-
 /**
  * Runs a FragmentTransaction, then calls commit().
  */
@@ -100,10 +99,15 @@ private inline fun FragmentManager.transact(action: FragmentTransaction.() -> Un
 inline fun <reified T : Any> Activity.launchActivity(
         requestCode: Int = -1,
         options: Bundle? = null,
+        enterAnim: Int? = null,
+        exitAnim: Int? = null,
         noinline init: Intent.() -> Unit = {}) {
     val intent = newIntent<T>(this)
     intent.init()
     startActivityForResult(intent, requestCode, options)
+    if (enterAnim != null && exitAnim != null) {
+        overridePendingTransition(enterAnim, exitAnim)
+    }
 }
 
 fun Activity.launchIntent(
@@ -126,23 +130,33 @@ fun Activity.launchIntent(
 inline fun <reified T : Any> Fragment.launchActivity(
         requestCode: Int = -1,
         options: Bundle? = null,
+        enterAnim: Int? = null,
+        exitAnim: Int? = null,
         noinline init: Intent.() -> Unit = {}) {
     val context = this.context
     if (context != null) {
         val intent = newIntent<T>(context)
         intent.init()
         startActivityForResult(intent, requestCode, options)
+        if (enterAnim != null && exitAnim != null) {
+            this.activity?.overridePendingTransition(enterAnim, exitAnim)
+        }
     }
 }
 
 inline fun <reified T : Any> Fragment.launchActivity(
         options: Bundle? = null,
+        enterAnim: Int? = null,
+        exitAnim: Int? = null,
         noinline init: Intent.() -> Unit = {}) {
     val context = this.context
     if (context != null) {
         val intent = newIntent<T>(context)
         intent.init()
         startActivity(intent, options)
+        if (enterAnim != null && exitAnim != null) {
+            this.activity?.overridePendingTransition(enterAnim, exitAnim)
+        }
     }
 }
 
@@ -512,14 +526,7 @@ fun getGMDIcon(context: Context, gmd_icon: GoogleMaterial.Icon, size: Int, color
     return icon
 }
 
-fun checkContextTheme(context: Context?): Boolean {
-    if (context == null) return false
-    val b = context is ContextThemeWrapper
-    if (!b) {
-        return false
-    }
-    return true
-}
+fun checkContextTheme(context: Context?): Boolean = context is ContextThemeWrapper
 
 fun fromHtml(html: String): Spanned {
     return HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_MODE_LEGACY)

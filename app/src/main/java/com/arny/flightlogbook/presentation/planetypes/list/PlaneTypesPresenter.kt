@@ -1,11 +1,10 @@
-package com.arny.flightlogbook.presentation.planetypes.presenter
+package com.arny.flightlogbook.presentation.planetypes.list
 
 import com.arny.domain.common.ResourcesInteractor
 import com.arny.domain.models.PlaneType
 import com.arny.domain.planetypes.PlaneTypesInteractor
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.presentation.planetypes.view.PlaneTypesView
 import com.arny.helpers.utils.addTo
 import com.arny.helpers.utils.observeOnMain
 import io.reactivex.disposables.CompositeDisposable

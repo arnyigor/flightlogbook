@@ -40,4 +40,20 @@
     <string name="info">Info</string>
     <string name="title_code_info">When entering the airport code, you can separate it with a space or dash</string>
     <string name="route_info">Route $s - $s</string>
+    <string name="departure">Departure</string>
+    <string name="arrival">Arrival</string>
+    <string name="dep_time">Departure time</string>
+    <string name="arrival_time">Arrival time</string>
+    <string name="edit">Edit</string>
+    <string name="error_empty_text_field">Empty field</string>
+    <string name="error_custom_field_not_saved">Field not saved</string>
+    <string name="save_custom_field_success">Field saved</string>
+    <string name="show_as_default">Always add for flight</string>
+    <string name="additional_time">Add this time</string>
+    <string name="add_custom_field">Add field</string>
+    <string name="remove_item_question">Remove record?</string>
+    <string name="remove_selected_items_question">Remove selected records?</string>
+    <string name="enter_type_name">Enter type name</string>
+    <string name="type_name">Type name</string>
+    <string name="edit_plane_type">Edit aircraft type</string>
 </resources>

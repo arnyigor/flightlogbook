@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.presentation.customfields.edit.view
+package com.arny.flightlogbook.presentation.customfields.edit
 
 import android.app.Activity
 import android.content.Context
@@ -12,7 +12,6 @@ import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.AbstractArrayAdapter
 import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.customfields.models.CustomFieldType
-import com.arny.flightlogbook.presentation.customfields.edit.presenter.CustomFieldsEditPresenter
 import com.arny.flightlogbook.presentation.main.BackButtonListener
 import com.arny.flightlogbook.presentation.main.MainActivity
 import com.arny.flightlogbook.presentation.main.Router

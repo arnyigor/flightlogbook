@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.presentation.customfields.edit.view
+package com.arny.flightlogbook.presentation.customfields.edit
 
 import androidx.annotation.StringRes
 import com.arny.flightlogbook.customfields.models.CustomFieldType

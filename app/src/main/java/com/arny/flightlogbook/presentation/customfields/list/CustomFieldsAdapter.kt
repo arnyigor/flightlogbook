@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.presentation.customfields.list.view
+package com.arny.flightlogbook.presentation.customfields.list
 
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.SimpleAbstractAdapter

@@ -1,6 +1,5 @@
-package com.arny.flightlogbook.presentation.planetypes.view
+package com.arny.flightlogbook.presentation.planetypes.list
 
-import android.app.Activity
 import android.os.Bundle
 import android.text.InputType
 import android.view.MenuItem
@@ -11,7 +10,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.arny.domain.models.PlaneType
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.constants.CONSTS
-import com.arny.flightlogbook.presentation.planetypes.presenter.PlaneTypesPresenter
 import com.arny.helpers.utils.*
 import kotlinx.android.synthetic.main.plane_types_layout.*
 import moxy.MvpAppCompatActivity
@@ -57,7 +55,7 @@ class PlaneTypesActivity : MvpAppCompatActivity(), PlaneTypesView, View.OnClickL
             }
 
             override fun onItemClick(position: Int, item: PlaneType) {
-                putExtras(Activity.RESULT_OK) {
+                putExtras(RESULT_OK) {
                     putExtra(CONSTS.EXTRAS.EXTRA_PLANE_TYPE, item.typeId)
                 }
                 onBackPressed()

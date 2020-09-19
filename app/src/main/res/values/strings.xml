@@ -55,18 +55,14 @@
         <item>@string/field_type_boolean</item>
         <item>@string/field_type_none</item>
     </string-array>
-    <string name="title_activity_main2">MainActivity</string>
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
-    <string name="nav_header_desc">Navigation header</string>
-    <string name="action_settings">Settings</string>
     <string translatable="false" name="openNavDrawer">open</string>
-    <string translatable="false" name="closeNavDrawer">open</string>
+    <string translatable="false" name="closeNavDrawer">close</string>
     <string name="show_as_default">Всегда добавлять для полета</string>
     <string name="additional_time">Добавить время к основному</string>
     <string name="add_custom_field">Добавить поле</string>
     <string name="remove_item_question">Удалить запись?</string>
     <string name="remove_selected_items_question">Удалить выделенные записи?</string>
+    <string name="enter_type_name">Введите название типа</string>
+    <string name="type_name">Название типа</string>
+    <string name="edit_plane_type">Редактирование типа ВС</string>
 </resources>

@@ -141,6 +141,7 @@ dependencies {
     //mvp
     implementation libs.moxy
     implementation libs.moxyAndroidX
+    implementation libs.moxyKtx
     kapt libs.moxyCompiler
     //di
     implementation libs.dagger

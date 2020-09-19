@@ -8,4 +8,5 @@ enum class NavigateItems(val index: Long) {
     MENU_CUSTOM_FIELDS(5),
     MENU_SETTINGS(6),
     ITEM_EDIT_FIELD(7),
+    PLANE_TYPE_EDIT(8),
 }

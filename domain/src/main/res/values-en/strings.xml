@@ -73,6 +73,12 @@
     <string name="fragment_logbook">LogBook</string>
     <string name="str_sort_by">Sort by</string>
     <string name="str_fitre_stat">Statistics Filter</string>
+    <string name="plane_main_type_airplane">Airplane</string>
+    <string name="plane_main_type_helicoper">Helicopter</string>
+    <string name="plane_main_type_glider">Glider</string>
+    <string name="plane_main_type_autogyro">Autogyro</string>
+    <string name="plane_main_type_aerostat">Aerostat</string>
+    <string name="plane_main_type_airship">Airship</string>
 
     <string-array name="daynight">
         <item>day</item>

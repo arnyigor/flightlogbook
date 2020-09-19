@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.presentation.customfields.list.view
+package com.arny.flightlogbook.presentation.customfields.list
 
 
 import android.app.Activity
@@ -17,7 +17,6 @@ import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_CUSTOM_FIELD_ID
 import com.arny.flightlogbook.constants.CONSTS.REQUESTS.REQUEST_EDIT_CUSTOM_FIELD
 import com.arny.flightlogbook.customfields.models.CustomField
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
-import com.arny.flightlogbook.presentation.customfields.list.presenter.CustomFieldsListPresenter
 import com.arny.flightlogbook.presentation.main.NavigateItems
 import com.arny.flightlogbook.presentation.main.Router
 import com.arny.helpers.utils.ToastMaker

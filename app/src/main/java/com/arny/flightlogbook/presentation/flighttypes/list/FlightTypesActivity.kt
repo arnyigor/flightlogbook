@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.presentation.flighttypes.view
+package com.arny.flightlogbook.presentation.flighttypes.list
 
 import android.app.Activity
 import android.os.Bundle
@@ -10,7 +10,6 @@ import com.arny.domain.models.FlightType
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.flightlogbook.constants.CONSTS
-import com.arny.flightlogbook.presentation.flighttypes.presenter.FlightTypesPresenter
 import com.arny.helpers.utils.*
 import kotlinx.android.synthetic.main.flight_types_list_layout.*
 import moxy.MvpAppCompatActivity

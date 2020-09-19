@@ -85,11 +85,10 @@ fun alertDialog(
 ): MaterialDialog? {
     if (!checkContextTheme(context)) return null
     val materialDialog = MaterialDialog(context!!)
-    val dialog = materialDialog
-    dialog.title(text = title)
-    dialog.cancelable(cancelable)
+    materialDialog.title(text = title)
+    materialDialog.cancelable(cancelable)
     if (btnOkText != null) {
-        dialog.positiveButton(text = btnOkText) {
+        materialDialog.positiveButton(text = btnOkText) {
             if (autoDissmiss) {
                 it.dismiss()
             }
@@ -97,7 +96,7 @@ fun alertDialog(
         }
     }
     if (btnCancelText != null) {
-        dialog.negativeButton(text = btnCancelText) {
+        materialDialog.negativeButton(text = btnCancelText) {
             if (autoDissmiss) {
                 it.dismiss()
             }
@@ -105,10 +104,10 @@ fun alertDialog(
         }
     }
     if (!content.isNullOrBlank()) {
-        dialog.message(text = fromHtml(content))
+        materialDialog.message(text = fromHtml(content))
     }
-    dialog.show()
-    return dialog
+    materialDialog.show()
+    return materialDialog
 }
 
 @JvmOverloads

@@ -1,5 +1,6 @@
-package com.arny.flightlogbook.presentation.flighttypes.view
+package com.arny.flightlogbook.presentation.flighttypes.list
 
+import android.content.Context
 import android.os.Bundle
 import android.text.InputType
 import android.view.LayoutInflater
@@ -8,7 +9,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.arny.domain.models.FlightType
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.presentation.flighttypes.presenter.FlightTypesPresenter
+import com.arny.flightlogbook.presentation.main.Router
 import com.arny.helpers.utils.ToastMaker
 import com.arny.helpers.utils.alertDialog
 import com.arny.helpers.utils.inputDialog
@@ -19,7 +20,13 @@ import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 
 class FlightTypesFragment : MvpAppCompatFragment(), FlightTypesView {
+    companion object {
+        fun getInstance(): FlightTypesFragment = FlightTypesFragment()
+    }
+
     private var typesAdapter: FlightTypesAdapter? = null
+
+    private var router: Router? = null
 
     @InjectPresenter
     lateinit var flightTypesPresenter: FlightTypesPresenter
@@ -29,15 +36,15 @@ class FlightTypesFragment : MvpAppCompatFragment(), FlightTypesView {
         return FlightTypesPresenter()
     }
 
-    override fun toastError(msg: String?) {
-        ToastMaker.toastError(context, msg)
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is Router) {
+            router = context
+        }
     }
 
-    companion object {
-        @JvmStatic
-        fun getInstance(): FlightTypesFragment {
-            return FlightTypesFragment()
-        }
+    override fun toastError(msg: String?) {
+        ToastMaker.toastError(context, msg)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -50,7 +57,7 @@ class FlightTypesFragment : MvpAppCompatFragment(), FlightTypesView {
         fab_add_flight_type.setOnClickListener {
             inputDialog(
                     requireActivity(),
-                    "Введите название типа",
+                    getString(R.string.enter_type_name),
                     null,
                     null,
                     null,

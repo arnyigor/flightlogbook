@@ -6,17 +6,22 @@ import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_UNLOCKED
 import androidx.fragment.app.Fragment
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.presentation.customfields.edit.view.CustomFieldEditFragment
-import com.arny.flightlogbook.presentation.customfields.list.view.CustomFieldsListFragment
+import com.arny.flightlogbook.constants.CONSTS
+import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
+import com.arny.flightlogbook.presentation.customfields.edit.CustomFieldEditFragment
+import com.arny.flightlogbook.presentation.customfields.list.CustomFieldsListFragment
 import com.arny.flightlogbook.presentation.flights.viewflights.view.FlightListFragment
-import com.arny.flightlogbook.presentation.flighttypes.view.FlightTypesFragment
-import com.arny.flightlogbook.presentation.planetypes.view.PlaneTypesFragment
+import com.arny.flightlogbook.presentation.flighttypes.list.FlightTypesFragment
+import com.arny.flightlogbook.presentation.planetypes.list.PlaneTypesFragment
 import com.arny.flightlogbook.presentation.settings.view.SettingsFragment
 import com.arny.flightlogbook.presentation.statistic.view.StatisticFragment
 import com.arny.helpers.utils.getFragmentByTag
+import com.arny.helpers.utils.launchActivity
 import com.arny.helpers.utils.replaceFragment
 import com.arny.helpers.utils.showSnackBar
 import kotlinx.android.synthetic.main.activity_home.*
@@ -41,15 +46,13 @@ class MainActivity : AppCompatActivity(), Router {
         toolbar = findViewById(R.id.home_toolbar)
         setSupportActionBar(toolbar)
         toolbar.title = getString(R.string.fragment_logbook)
-        actionBarDrawerToggle = ActionBarDrawerToggle(
-                this,
+        actionBarDrawerToggle = ActionBarDrawerToggle(this,
                 dlMain,
                 toolbar,
                 R.string.openNavDrawer,
-                R.string.closeNavDrawer
-        )
+                R.string.closeNavDrawer)
         dlMain.addDrawerListener(actionBarDrawerToggle)
-        actionBarDrawerToggle.isDrawerIndicatorEnabled = true;
+        actionBarDrawerToggle.isDrawerIndicatorEnabled = true
         actionBarDrawerToggle.syncState()
         navViewMain.setNavigationItemSelectedListener { item ->
             val navItem = toNavigateItem(item)
@@ -61,31 +64,6 @@ class MainActivity : AppCompatActivity(), Router {
                 false
             }
         }
-        /*slider.itemAdapter
-                .add(
-                        PrimaryDrawerItem().withIdentifier(NavigateItems.MENU_FLIGHTS.index)
-                                .withName(R.string.fragment_logbook)
-                                .withIcon(GoogleMaterial.Icon.gmd_flight_takeoff),
-                        PrimaryDrawerItem().withIdentifier(NavigateItems.MENU_PLANE_TYPES.index)
-                                .withName(R.string.fragment_plane_types)
-                                .withIcon(GoogleMaterial.Icon.gmd_flight),
-                        PrimaryDrawerItem().withIdentifier(NavigateItems.MENU_FLIGHT_TYPES.index)
-                                .withName(R.string.fragment_flight_types)
-                                .withIcon(GoogleMaterial.Icon.gmd_flight),
-                        PrimaryDrawerItem().withIdentifier(NavigateItems.MENU_STATS.index)
-                                .withName(R.string.fragment_stats)
-                                .withIcon(GoogleMaterial.Icon.gmd_equalizer),
-                        PrimaryDrawerItem().withIdentifier(NavigateItems.MENU_CUSTOM_FIELDS.index)
-                                .withName(R.string.custom_fields)
-                                .withIcon(GoogleMaterial.Icon.gmd_equalizer),
-                        PrimaryDrawerItem().withIdentifier(NavigateItems.MENU_SETTINGS.index)
-                                .withName(R.string.str_settings)
-                                .withIcon(GoogleMaterial.Icon.gmd_settings_applications)
-                )
-        slider.onDrawerItemClickListener = { _, item, _ ->
-            selectItem(item.identifier)
-            false
-        }*/
         if (savedInstanceState == null) {
             selectItem(NavigateItems.MENU_FLIGHTS.index)
         } else {
@@ -103,7 +81,7 @@ class MainActivity : AppCompatActivity(), Router {
         R.id.menu_flights -> NavigateItems.MENU_FLIGHTS.index
         R.id.menu_flight_types -> NavigateItems.MENU_FLIGHT_TYPES.index
         R.id.menu_plane_types -> NavigateItems.MENU_PLANE_TYPES.index
-        R.id.menu_fields -> NavigateItems.MENU_CUSTOM_FIELDS.index
+//        R.id.menu_fields -> NavigateItems.MENU_CUSTOM_FIELDS.index
         R.id.menu_settings -> NavigateItems.MENU_SETTINGS.index
         R.id.menu_stats -> NavigateItems.MENU_STATS.index
         else -> -1
@@ -116,7 +94,7 @@ class MainActivity : AppCompatActivity(), Router {
     }
 
     fun unLockNavigationDrawer() {
-        dlMain.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+        dlMain.setDrawerLockMode(LOCK_MODE_UNLOCKED)
         actionBarDrawerToggle.isDrawerIndicatorEnabled = true
         actionBarDrawerToggle.syncState()
     }
@@ -125,10 +103,22 @@ class MainActivity : AppCompatActivity(), Router {
         NavigateItems.MENU_FLIGHTS.index -> R.id.menu_flights
         NavigateItems.MENU_FLIGHT_TYPES.index -> R.id.menu_flight_types
         NavigateItems.MENU_PLANE_TYPES.index -> R.id.menu_plane_types
-        NavigateItems.MENU_CUSTOM_FIELDS.index -> R.id.menu_fields
+//        NavigateItems.MENU_CUSTOM_FIELDS.index -> R.id.menu_fields
         NavigateItems.MENU_SETTINGS.index -> R.id.menu_settings
         NavigateItems.MENU_STATS.index -> R.id.menu_stats
         else -> null
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                if (dlMain.getDrawerLockMode(GravityCompat.START) != LOCK_MODE_UNLOCKED) {
+                    onBackPressed()
+                }
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -153,6 +143,16 @@ class MainActivity : AppCompatActivity(), Router {
             NavigateItems.MENU_STATS.index -> StatisticFragment.getInstance()
             NavigateItems.MENU_SETTINGS.index -> SettingsFragment.getInstance()
             NavigateItems.ITEM_EDIT_FIELD.index -> CustomFieldEditFragment.getInstance(bundle)
+            NavigateItems.PLANE_TYPE_EDIT.index -> {
+                launchActivity<FragmentContainerActivity>(
+                        enterAnim = R.anim.anim_slide_in_left,
+                        exitAnim = R.anim.anim_slide_out_left
+                ) {
+                    action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_PLANE_TYPE
+                    bundle?.let { putExtras(it) }
+                }
+                null
+            }
             else -> null
         }
     }
@@ -174,9 +174,14 @@ class MainActivity : AppCompatActivity(), Router {
             if (targetFragment != null) {
                 fragment.setTargetFragment(targetFragment, requestCode ?: 0)
             }
-            replaceFragment(fragment, R.id.container, addToBackStack)
-            dlMain.closeDrawer(navViewMain)
+            replaceFragment(
+                    fragment,
+                    R.id.container,
+                    addToBackStack,
+                    animResourses = R.anim.anim_slide_in_left to R.anim.anim_slide_out_left
+            )
         }
+        dlMain.closeDrawer(navViewMain)
     }
 
     override fun onBackPressed() {
@@ -195,7 +200,7 @@ class MainActivity : AppCompatActivity(), Router {
                         break
                     }
                 }
-                if (curFrag != null && curFrag.isVisible && curFrag is FlightListFragment) {
+                if (curFrag != null && curFrag.isVisible && curFrag is MainFragment) {
                     isMain = true
                 }
             }

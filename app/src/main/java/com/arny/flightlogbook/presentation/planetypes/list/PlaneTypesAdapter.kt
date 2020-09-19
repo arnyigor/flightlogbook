@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.presentation.planetypes.view
+package com.arny.flightlogbook.presentation.planetypes.list
 
 import com.arny.domain.models.PlaneType
 import com.arny.flightlogbook.R

@@ -15,13 +15,14 @@ import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.presentation.flights.addedit.view.AddEditActivity
 import com.arny.flightlogbook.presentation.flights.viewflights.presenter.ViewFlightsPresenter
+import com.arny.flightlogbook.presentation.main.MainFragment
 import com.arny.helpers.utils.*
 import kotlinx.android.synthetic.main.fragment_flight_list.*
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 
-class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
+class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView, MainFragment {
     private var adapter: FlightsAdapter? = null
     private var positionIndex: Int = 0
     private var mLayoutManager: LinearLayoutManager? = null
@@ -59,8 +60,11 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         fab_add_flight.setOnClickListener {
-            launchActivity<AddEditActivity>(CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT)
-            activity?.overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
+            launchActivity<AddEditActivity>(
+                    CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT,
+                    enterAnim = R.anim.anim_slide_in_left,
+                    exitAnim = R.anim.anim_slide_out_left
+            )
         }
         requireActivity().title = getString(R.string.fragment_logbook)
         mLayoutManager = LinearLayoutManager(context)
@@ -86,9 +90,12 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView {
                     when {
                         hasSelectedItems -> presenter.onFlightSelect(position, item)
                         else -> {
-                            launchActivity<AddEditActivity>(CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT) {
+                            launchActivity<AddEditActivity>(
+                                    CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT,
+                                    enterAnim = R.anim.anim_slide_in_left,
+                                    exitAnim = R.anim.anim_slide_out_left
+                            ) {
                                 putExtra(CONSTS.DB.COLUMN_ID, item.id)
-                                requireActivity().overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
                             }
                         }
                     }

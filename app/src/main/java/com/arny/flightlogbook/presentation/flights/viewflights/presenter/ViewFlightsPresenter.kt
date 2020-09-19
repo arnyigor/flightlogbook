@@ -31,7 +31,7 @@ class ViewFlightsPresenter : BaseMvpPresenter<ViewFlightsView>() {
         getTimeInfo()
     }
 
-    fun getTimeInfo() {
+    private fun getTimeInfo() {
         flightsInteractor.getTotalflightsTimeInfo()
                 .subscribeFromPresenter({
                     if (it is Result.Success) {
