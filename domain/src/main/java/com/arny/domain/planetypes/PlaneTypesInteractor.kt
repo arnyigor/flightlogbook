@@ -18,7 +18,7 @@ class PlaneTypesInteractor @Inject constructor(private val planeTypesRepository:
         return fromNullable{ planeTypesRepository.loadPlaneType(id) }
     }
 
-    fun addType(name: String): Observable<Boolean> {
+    fun addType(name: String, regNo: String, aircraftType: AircraftType): Observable<Boolean> {
         return fromCallable { planeTypesRepository.addType(name) }
     }
 

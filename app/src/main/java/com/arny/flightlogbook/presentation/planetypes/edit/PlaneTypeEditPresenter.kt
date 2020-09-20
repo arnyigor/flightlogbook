@@ -3,6 +3,7 @@ package com.arny.flightlogbook.presentation.planetypes.edit
 import com.arny.domain.planetypes.AircraftType
 import com.arny.domain.planetypes.PlaneTypesInteractor
 import com.arny.flightlogbook.FlightApp
+import com.arny.flightlogbook.R
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import moxy.InjectViewState
 import javax.inject.Inject
@@ -33,7 +34,18 @@ class PlaneTypeEditPresenter : BaseMvpPresenter<PlaneTypeEditView>() {
             AircraftType.AIRSHIP -> 5
             else -> 0
         }
+    }
 
+    private fun getAircraftType(index: Int?): AircraftType {
+        return when (index) {
+            0 -> AircraftType.AIRPLANE
+            1 -> AircraftType.HELICOPTER
+            2 -> AircraftType.GLIDER
+            3 -> AircraftType.AUTOGYRO
+            4 -> AircraftType.AEROSTAT
+            5 -> AircraftType.AIRSHIP
+            else -> AircraftType.AIRPLANE
+        }
     }
 
     private fun loadPlaneType() {
@@ -46,7 +58,20 @@ class PlaneTypeEditPresenter : BaseMvpPresenter<PlaneTypeEditView>() {
                         viewState.setRegNo(planeType.regNo)
                     }
                 }, {
-                    viewState.showError(it.message)
+                    viewState.toastError(it.message)
+                })
+    }
+
+    fun onBtnSaveClicked(planeTitle: String, regNo: String, typeIndex: Int) {
+        planeTypesInteractor.addType(planeTitle, regNo, getAircraftType(typeIndex))
+                .subscribeFromPresenter({
+                    if (it) {
+                        viewState.onResultSuccess()
+                    } else {
+                        viewState.toastError(R.string.str_type_add_fail)
+                    }
+                }, {
+                    viewState.toastError(it.message)
                 })
     }
 }

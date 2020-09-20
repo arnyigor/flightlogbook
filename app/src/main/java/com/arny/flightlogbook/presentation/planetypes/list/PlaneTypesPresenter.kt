@@ -44,7 +44,7 @@ class PlaneTypesPresenter : MvpPresenter<PlaneTypesView>() {
     }
 
     fun addType(name: String) {
-        planeTypesInteractor.addType(name)
+        planeTypesInteractor.addType(name, regNo, getAircraftType(typeIndex))
                 .observeOnMain()
                 .subscribe({
                     if (it) {

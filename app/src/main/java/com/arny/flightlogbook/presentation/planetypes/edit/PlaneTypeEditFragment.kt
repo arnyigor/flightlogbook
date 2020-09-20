@@ -1,18 +1,21 @@
 package com.arny.flightlogbook.presentation.planetypes.edit
 
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.annotation.StringRes
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
-import com.arny.flightlogbook.presentation.main.BackButtonListener
+import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
 import com.arny.helpers.utils.ToastMaker.toastError
 import com.arny.helpers.utils.getExtra
+import com.arny.helpers.utils.putExtras
 import kotlinx.android.synthetic.main.f_plane_type_edit.*
 import moxy.ktx.moxyPresenter
 
-class PlaneTypeEditFragment : BaseMvpFragment(), PlaneTypeEditView, BackButtonListener {
+class PlaneTypeEditFragment : BaseMvpFragment(), PlaneTypeEditView {
     companion object {
         fun getInstance(bundle: Bundle? = null) = PlaneTypeEditFragment().apply {
             bundle?.let { arguments = it }
@@ -32,9 +35,16 @@ class PlaneTypeEditFragment : BaseMvpFragment(), PlaneTypeEditView, BackButtonLi
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        btnSave.setOnClickListener {
+            presenter.onBtnSaveClicked(
+                    tiedtPlaneTitle.text.toString(),
+                    tiedtRegNo.text.toString(),
+                    spinMainType.selectedItemPosition
+            )
+        }
     }
 
-    override fun showError(message: String?) {
+    override fun toastError(message: String?) {
         toastError(context, message)
     }
 
@@ -50,5 +60,15 @@ class PlaneTypeEditFragment : BaseMvpFragment(), PlaneTypeEditView, BackButtonLi
         tiedtRegNo.setText(regNo)
     }
 
-    override fun onBackPressed(): Boolean = true
+    override fun toastError(@StringRes strRes: Int) {
+        toastError(getString(strRes))
+    }
+
+    override fun onResultSuccess() {
+        val requireActivity = requireActivity()
+        if (requireActivity is FragmentContainerActivity) {
+            requireActivity.onSuccess(Intent().apply { putExtras(arguments) })
+            requireActivity.onBackPressed()
+        }
+    }
 }
