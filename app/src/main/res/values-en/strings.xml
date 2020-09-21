@@ -56,4 +56,5 @@
     <string name="enter_type_name">Enter type name</string>
     <string name="type_name">Type name</string>
     <string name="edit_plane_type">Edit aircraft type</string>
+    <string name="error_plane_type_not_saved">Airplane not saved</string>
 </resources>

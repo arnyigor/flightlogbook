@@ -39,11 +39,8 @@
             android:label="@string/str_about"
             android:screenOrientation="fullSensor" />
         <activity
-            android:name=".presentation.planetypes.list.PlaneTypesActivity"
-            android:label="@string/str_airplane_types"
-            android:screenOrientation="fullSensor" />
-        <activity
             android:name=".presentation.common.FragmentContainerActivity"
+            android:windowSoftInputMode="adjustResize"
             android:screenOrientation="fullSensor" />
 
         <provider

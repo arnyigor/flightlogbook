@@ -19,7 +19,7 @@ class FlightTypesAdapter(private val typesListener: FlightTypesListener? = null,
     override fun bindView(item: FlightType, viewHolder: VH) {
         viewHolder.itemView.apply {
             val position = viewHolder.adapterPosition
-            tv_type_title.text = item.typeTitle
+            tvTypeTitle.text = item.typeTitle
             iv_type_edit.setVisible(!hideEdit)
             iv_type_delete.setVisible(!hideEdit)
             iv_type_edit.setOnClickListener {

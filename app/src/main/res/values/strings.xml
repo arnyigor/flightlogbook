@@ -65,4 +65,5 @@
     <string name="enter_type_name">Введите название типа</string>
     <string name="type_name">Название типа</string>
     <string name="edit_plane_type">Редактирование типа ВС</string>
+    <string name="error_plane_type_not_saved">ВС не сохранено</string>
 </resources>

@@ -33,7 +33,7 @@ class FlightTypesActivity : MvpAppCompatActivity(), FlightTypesView, View.OnClic
             title = getString(R.string.str_flight_types)
             this?.setDisplayHomeAsUpEnabled(true)
         }
-        val request = getExtra<Boolean>("is_request") == true
+        val request = getExtra<Boolean>(CONSTS.REQUESTS.REQUEST) == true
         if (request) {
             supportActionBar?.title = getString(R.string.str_select_flight_type)
         }

@@ -36,6 +36,7 @@ object CONSTS {
     }
 
     object REQUESTS {
+        const val REQUEST = "request"
         const val REQUEST_OPEN_FILE = 101
         const val REQUEST_ADD_EDIT_FLIGHT = 103
         const val REQUEST_SELECT_PLANE_TYPE = 105

@@ -35,7 +35,6 @@ import com.arny.flightlogbook.customfields.models.CustomFieldValue
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
 import com.arny.flightlogbook.presentation.flights.addedit.presenter.AddEditPresenter
 import com.arny.flightlogbook.presentation.flighttypes.list.FlightTypesActivity
-import com.arny.flightlogbook.presentation.planetypes.list.PlaneTypesActivity
 import com.arny.helpers.interfaces._TextWatcher
 import com.arny.helpers.utils.*
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment
@@ -312,15 +311,16 @@ class AddEditActivity :
             }
             R.id.select_plane_type -> {
                 addEditPresenter.correctFlightTime(sFlightTime)
-                launchActivity<PlaneTypesActivity>(REQUEST_SELECT_PLANE_TYPE) {
-                    putExtra("is_request", true)
+                launchActivity<FragmentContainerActivity>(REQUEST_SELECT_PLANE_TYPE) {
+                    action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_PLANE_TYPE
+                    putExtra(CONSTS.REQUESTS.REQUEST, true)
                 }
                 overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
             }
             R.id.btnSelectFlightType -> {
                 addEditPresenter.correctFlightTime(sFlightTime)
                 launchActivity<FlightTypesActivity>(REQUEST_SELECT_FLIGHT_TYPE) {
-                    putExtra("is_request", true)
+                    putExtra(CONSTS.REQUESTS.REQUEST, true)
                 }
                 overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
             }

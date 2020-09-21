@@ -4,7 +4,9 @@ import com.arny.domain.models.PlaneType
 import com.arny.helpers.utils.OptionalNull
 import com.arny.helpers.utils.fromCallable
 import com.arny.helpers.utils.fromNullable
+import com.arny.helpers.utils.fromSingle
 import io.reactivex.Observable
+import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -15,11 +17,11 @@ class PlaneTypesInteractor @Inject constructor(private val planeTypesRepository:
     }
 
     fun loadPlaneType(id: Long?): Observable<OptionalNull<PlaneType?>> {
-        return fromNullable{ planeTypesRepository.loadPlaneType(id) }
+        return fromNullable { planeTypesRepository.loadPlaneType(id) }
     }
 
-    fun addType(name: String, regNo: String, aircraftType: AircraftType): Observable<Boolean> {
-        return fromCallable { planeTypesRepository.addType(name) }
+    fun addType(planeTypeId: Long? = null, name: String, regNo: String, type: AircraftType): Single<Long> {
+        return fromSingle { planeTypesRepository.addType(planeTypeId, name, regNo, type) }
     }
 
     fun removeType(item: PlaneType): Observable<Boolean> {

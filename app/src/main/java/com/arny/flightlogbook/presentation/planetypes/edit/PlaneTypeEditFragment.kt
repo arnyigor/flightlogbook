@@ -5,13 +5,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.StringRes
+import androidx.core.widget.doAfterTextChanged
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
+import com.arny.helpers.utils.KeyboardHelper
 import com.arny.helpers.utils.ToastMaker.toastError
 import com.arny.helpers.utils.getExtra
-import com.arny.helpers.utils.putExtras
 import kotlinx.android.synthetic.main.f_plane_type_edit.*
 import moxy.ktx.moxyPresenter
 
@@ -35,17 +36,28 @@ class PlaneTypeEditFragment : BaseMvpFragment(), PlaneTypeEditView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        btnSave.setOnClickListener {
-            presenter.onBtnSaveClicked(
+        mbtnSave.setOnClickListener {
+            presenter.onSavePlaneType(
                     tiedtPlaneTitle.text.toString(),
                     tiedtRegNo.text.toString(),
                     spinMainType.selectedItemPosition
             )
         }
+        tiedtRegNo.doAfterTextChanged { tiLRegNo.error = null }
+        tiedtPlaneTitle.doAfterTextChanged { tilPlaneTitle.error = null }
     }
 
-    override fun toastError(message: String?) {
+    override fun onPause() {
+        super.onPause()
+        KeyboardHelper.hideKeyboard(requireActivity())
+    }
+
+    override fun showError(message: String?) {
         toastError(context, message)
+    }
+
+    override fun showError(@StringRes strRes: Int) {
+        showError(getString(strRes))
     }
 
     override fun setPlaneTypeName(typeName: String?) {
@@ -60,14 +72,20 @@ class PlaneTypeEditFragment : BaseMvpFragment(), PlaneTypeEditView {
         tiedtRegNo.setText(regNo)
     }
 
-    override fun toastError(@StringRes strRes: Int) {
-        toastError(getString(strRes))
+    override fun showTitleError(@StringRes strRes: Int) {
+        tilPlaneTitle.error = getString(strRes)
     }
 
-    override fun onResultSuccess() {
+    override fun showRegNoError(@StringRes strRes: Int) {
+        tiLRegNo.error = getString(strRes)
+    }
+
+    override fun setResultOk(id: Long) {
         val requireActivity = requireActivity()
         if (requireActivity is FragmentContainerActivity) {
-            requireActivity.onSuccess(Intent().apply { putExtras(arguments) })
+            requireActivity.onSuccess(Intent().apply {
+                putExtra(CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID, id)
+            })
             requireActivity.onBackPressed()
         }
     }

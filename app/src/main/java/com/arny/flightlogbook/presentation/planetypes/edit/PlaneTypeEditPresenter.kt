@@ -24,28 +24,24 @@ class PlaneTypeEditPresenter : BaseMvpPresenter<PlaneTypeEditView>() {
         loadPlaneType()
     }
 
-    private fun getMainTypeIndex(type: AircraftType?): Int {
-        return when (type) {
-            AircraftType.AIRPLANE -> 0
-            AircraftType.HELICOPTER -> 1
-            AircraftType.GLIDER -> 2
-            AircraftType.AUTOGYRO -> 3
-            AircraftType.AEROSTAT -> 4
-            AircraftType.AIRSHIP -> 5
-            else -> 0
-        }
+    private fun getMainTypeIndex(type: AircraftType?) = when (type) {
+        AircraftType.AIRPLANE -> 0
+        AircraftType.HELICOPTER -> 1
+        AircraftType.GLIDER -> 2
+        AircraftType.AUTOGYRO -> 3
+        AircraftType.AEROSTAT -> 4
+        AircraftType.AIRSHIP -> 5
+        else -> 0
     }
 
-    private fun getAircraftType(index: Int?): AircraftType {
-        return when (index) {
-            0 -> AircraftType.AIRPLANE
-            1 -> AircraftType.HELICOPTER
-            2 -> AircraftType.GLIDER
-            3 -> AircraftType.AUTOGYRO
-            4 -> AircraftType.AEROSTAT
-            5 -> AircraftType.AIRSHIP
-            else -> AircraftType.AIRPLANE
-        }
+    private fun getType(index: Int) = when (index) {
+        0 -> AircraftType.AIRPLANE
+        1 -> AircraftType.HELICOPTER
+        2 -> AircraftType.GLIDER
+        3 -> AircraftType.AUTOGYRO
+        4 -> AircraftType.AEROSTAT
+        5 -> AircraftType.AIRSHIP
+        else -> AircraftType.AIRPLANE
     }
 
     private fun loadPlaneType() {
@@ -58,20 +54,28 @@ class PlaneTypeEditPresenter : BaseMvpPresenter<PlaneTypeEditView>() {
                         viewState.setRegNo(planeType.regNo)
                     }
                 }, {
-                    viewState.toastError(it.message)
+                    viewState.showError(it.message)
                 })
     }
 
-    fun onBtnSaveClicked(planeTitle: String, regNo: String, typeIndex: Int) {
-        planeTypesInteractor.addType(planeTitle, regNo, getAircraftType(typeIndex))
+    fun onSavePlaneType(title: String, regNo: String, position: Int) {
+        if (title.isBlank()) {
+            viewState.showTitleError(R.string.error_empty_text_field)
+            return
+        }
+        if (regNo.isBlank()) {
+            viewState.showRegNoError(R.string.error_empty_text_field)
+            return
+        }
+        planeTypesInteractor.addType(planeTypeId, title, regNo, getType(position))
                 .subscribeFromPresenter({
-                    if (it) {
-                        viewState.onResultSuccess()
+                    if (it != 0L) {
+                        viewState.setResultOk(it)
                     } else {
-                        viewState.toastError(R.string.str_type_add_fail)
+                        viewState.showError(R.string.error_plane_type_not_saved)
                     }
                 }, {
-                    viewState.toastError(it.message)
+                    viewState.showError(it.message)
                 })
     }
 }

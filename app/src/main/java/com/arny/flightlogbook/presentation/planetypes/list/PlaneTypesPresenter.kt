@@ -43,21 +43,6 @@ class PlaneTypesPresenter : MvpPresenter<PlaneTypesView>() {
                 .addTo(compositeDisposable)
     }
 
-    fun addType(name: String) {
-        planeTypesInteractor.addType(name, regNo, getAircraftType(typeIndex))
-                .observeOnMain()
-                .subscribe({
-                    if (it) {
-                        loadTypes()
-                    } else {
-                        viewState?.toastError(resourcesInteractor.getString(R.string.str_type_add_fail))
-                    }
-                }, {
-                    viewState?.toastError(it.message)
-                })
-                .addTo(compositeDisposable)
-    }
-
     fun removeType(item: PlaneType) {
         planeTypesInteractor.removeType(item)
                 .observeOnMain()

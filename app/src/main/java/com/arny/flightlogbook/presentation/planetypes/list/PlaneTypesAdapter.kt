@@ -4,7 +4,7 @@ import com.arny.domain.models.PlaneType
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.helpers.utils.setVisible
-import kotlinx.android.synthetic.main.type_list_item_layout.view.*
+import kotlinx.android.synthetic.main.plane_type_list_item_layout.view.*
 
 class PlaneTypesAdapter(private val typesListener: PlaneTypesListener? = null, private val hideEdit: Boolean = false) : SimpleAbstractAdapter<PlaneType>() {
 
@@ -13,14 +13,13 @@ class PlaneTypesAdapter(private val typesListener: PlaneTypesListener? = null, p
         fun onDeleteType(position: Int, item: PlaneType)
     }
 
-    override fun getLayout(viewType: Int): Int {
-        return R.layout.type_list_item_layout
-    }
+    override fun getLayout(viewType: Int): Int = R.layout.plane_type_list_item_layout
 
     override fun bindView(item: PlaneType, viewHolder: VH) {
         viewHolder.itemView.apply {
             val position = viewHolder.adapterPosition
-            tv_type_title.text = item.typeName
+            tvTypeTitle.text = item.typeName
+            tvRegNo.text = item.regNo
             iv_type_edit.setVisible(!hideEdit)
             iv_type_delete.setVisible(!hideEdit)
             iv_type_edit.setOnClickListener {

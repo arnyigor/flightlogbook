@@ -5,10 +5,7 @@ import android.net.Uri
 import com.arny.domain.R
 import com.arny.domain.flights.FlightsRepository
 import com.arny.domain.flighttypes.FlightTypesRepository
-import com.arny.domain.models.BusinessException
-import com.arny.domain.models.Flight
-import com.arny.domain.models.Result
-import com.arny.domain.models.toResult
+import com.arny.domain.models.*
 import com.arny.domain.planetypes.PlaneTypesRepository
 import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.constants.CONSTS.FLIGHT.TYPE_CIRCLE
@@ -67,6 +64,7 @@ class FilesInteractorImpl @Inject constructor(
         var strDesc: String
         var airplaneTypeId: Long = 0
         var mDateTime: Long = 0
+        var planeType = PlaneType()
         var planeTypes = planeTypesRepository.loadPlaneTypes()
         var dbFlightTypes = flightTypesRepository.loadDBFlightTypes()
         var id = 1L
@@ -125,9 +123,7 @@ class FilesInteractorImpl @Inject constructor(
                                     airplaneTypeId = typeId
                                 } else {
                                     if (!airplaneTypeName.isBlank()) {
-                                        airplaneTypeId =
-                                                planeTypesRepository.addTypeAndGet(airplaneTypeName)
-                                        planeTypes = planeTypesRepository.loadPlaneTypes()
+                                        planeType.typeName = airplaneTypeName
                                     }
                                 }
                             } catch (e: Exception) {
@@ -144,6 +140,10 @@ class FilesInteractorImpl @Inject constructor(
                                 regNo = ""
                                 e.printStackTrace()
                             }
+                            planeType.regNo = regNo
+                            airplaneTypeId =  planeTypesRepository.addType(planeType)
+                            planeTypes = planeTypesRepository.loadPlaneTypes()
+                            flight.planeId = airplaneTypeId
                             flight.regNo = regNo
                         }
                         7 -> {

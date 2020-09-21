@@ -16,19 +16,38 @@
 
         <TextView
             android:id="@+id/tvTypeTitle"
+            style="@style/medium_bold"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
+            android:textColor="@color/colorTextSecondary"
+            android:textSize="@dimen/font_size_large"
+            app:layout_constraintEnd_toStartOf="@+id/iv_type_edit"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Название типа" />
+
+        <TextView
+            android:id="@+id/tvRegNo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="8dp"
             android:textColor="@color/colorTextSecondary"
             android:textSize="@dimen/font_size_large"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/iv_type_edit"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Название типа" />
+            app:layout_constraintTop_toBottomOf="@+id/tvTypeTitle"
+            tools:text="Регистрационный номер" />
 
         <ImageView
             android:id="@+id/iv_type_edit"

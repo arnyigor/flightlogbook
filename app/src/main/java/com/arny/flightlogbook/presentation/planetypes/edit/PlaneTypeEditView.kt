@@ -8,14 +8,16 @@ import moxy.viewstate.strategy.alias.OneExecution
 @AddToEndSingle
 interface PlaneTypeEditView : MvpView {
     @OneExecution
-    fun toastError(message: String?)
+    fun showError(message: String?)
+
+    @OneExecution
+    fun showError(strRes: Int)
     fun setPlaneTypeName(typeName: String?)
     fun setMainPlaneType(index: Int)
     fun setRegNo(regNo: String?)
+    fun showTitleError(@StringRes strRes: Int)
+    fun showRegNoError(@StringRes strRes: Int)
 
     @OneExecution
-    fun toastError(@StringRes strRes: Int)
-
-    @OneExecution
-    fun onResultSuccess()
+    fun setResultOk(id: Long)
 }
