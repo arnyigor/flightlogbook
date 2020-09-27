@@ -36,7 +36,7 @@ class PlaneTypeEditFragment : BaseMvpFragment(), PlaneTypeEditView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mbtnSave.setOnClickListener {
+        btnSave.setOnClickListener {
             presenter.onSavePlaneType(
                     tiedtPlaneTitle.text.toString(),
                     tiedtRegNo.text.toString(),
