@@ -1,6 +1,6 @@
 package com.arny.flightlogbook.customfields.models
 
-import com.arny.flightlogbook.data.models.CustomFieldEntity
+import com.arny.flightlogbook.data.models.customfields.CustomFieldEntity
 import java.io.Serializable
 
 data class CustomField(

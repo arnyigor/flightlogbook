@@ -9,7 +9,7 @@ import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
 
-@Module(includes = [FlightsModule::class, DomainModule::class])
+@Module(includes = [FlightsModule::class, DomainModule::class, AirportsModule::class])
 class DataModule {
 
     @Provides
@@ -40,4 +40,8 @@ class DataModule {
     @Provides
     @Singleton
     fun provideCustomFieldValuesDao(db: MainDB) = db.customFieldValuesDAO
+
+    @Provides
+    @Singleton
+    fun provideAirportsDao(db: MainDB) = db.airportsDAO
 }

@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.data.models
+package com.arny.flightlogbook.data.models.customfields
 
 import androidx.room.Embedded
 import androidx.room.Relation

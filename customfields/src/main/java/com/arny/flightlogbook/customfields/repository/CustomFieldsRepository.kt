@@ -6,9 +6,9 @@ import com.arny.flightlogbook.customfields.models.CustomFieldValue
 import com.arny.flightlogbook.customfields.models.toCustomFieldType
 import com.arny.flightlogbook.data.db.daos.CustomFieldDAO
 import com.arny.flightlogbook.data.db.daos.CustomFieldValuesDAO
-import com.arny.flightlogbook.data.models.CustomFieldEntity
-import com.arny.flightlogbook.data.models.CustomFieldValueEntity
-import com.arny.flightlogbook.data.models.FieldWithValues
+import com.arny.flightlogbook.data.models.customfields.CustomFieldEntity
+import com.arny.flightlogbook.data.models.customfields.CustomFieldValueEntity
+import com.arny.flightlogbook.data.models.customfields.FieldWithValues
 import com.arny.helpers.utils.OptionalNull
 import com.arny.helpers.utils.fromSingle
 import com.arny.helpers.utils.toOptionalNull

@@ -1,5 +1,7 @@
 package com.arny.domain.di
 
+import com.arny.domain.airports.AirportsInteractor
+import com.arny.domain.airports.IAirportsInteractor
 import com.arny.domain.files.FilesInteractor
 import com.arny.domain.files.FilesInteractorImpl
 import com.arny.domain.files.FilesRepository
@@ -17,4 +19,8 @@ interface DomainModule {
     @Binds
     @Singleton
     fun bindFilesRepository(filesRepository: FilesRepositoryImpl): FilesRepository
+
+    @Binds
+    @Singleton
+    fun bindsAirportsRepository(interactor: AirportsInteractor): IAirportsInteractor
 }

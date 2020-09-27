@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.data.models
+package com.arny.flightlogbook.data.models.planes
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

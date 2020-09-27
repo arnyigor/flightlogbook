@@ -1,9 +1,10 @@
-package com.arny.flightlogbook.data.models
+package com.arny.flightlogbook.data.models.customfields
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import com.arny.flightlogbook.data.models.flights.FlightEntity
 
 @Entity(
         tableName = "custom_field_values",

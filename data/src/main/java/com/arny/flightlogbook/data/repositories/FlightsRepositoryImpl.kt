@@ -11,7 +11,7 @@ import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.constants.CONSTS.STRINGS.PARAM_COLOR
 import com.arny.flightlogbook.data.db.MainDB
 import com.arny.flightlogbook.data.db.daos.FlightDAO
-import com.arny.flightlogbook.data.models.toFlightEntity
+import com.arny.flightlogbook.data.models.flights.toFlightEntity
 import com.arny.flightlogbook.data.utils.DBUtils
 import com.arny.helpers.utils.*
 import io.reactivex.Observable

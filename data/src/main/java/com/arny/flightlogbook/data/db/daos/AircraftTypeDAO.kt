@@ -3,7 +3,7 @@ package com.arny.flightlogbook.data.db.daos
 import android.database.Cursor
 import androidx.room.Dao
 import androidx.room.Query
-import com.arny.flightlogbook.data.models.PlaneTypeEntity
+import com.arny.flightlogbook.data.models.planes.PlaneTypeEntity
 
 
 @Dao

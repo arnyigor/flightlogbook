@@ -2,7 +2,7 @@ package com.arny.flightlogbook.data.db.daos
 
 import androidx.room.Dao
 import androidx.room.Query
-import com.arny.flightlogbook.data.models.FlightTypeEntity
+import com.arny.flightlogbook.data.models.flights.FlightTypeEntity
 
 @Dao
 interface FlightTypeDAO : BaseDao<FlightTypeEntity> {

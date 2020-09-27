@@ -1,6 +1,6 @@
 package com.arny.flightlogbook.customfields.models
 
-import com.arny.flightlogbook.data.models.CustomFieldValueEntity
+import com.arny.flightlogbook.data.models.customfields.CustomFieldValueEntity
 import com.arny.helpers.utils.DateTimeUtils
 
 data class CustomFieldValue(

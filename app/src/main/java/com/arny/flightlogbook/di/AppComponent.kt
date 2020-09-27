@@ -1,5 +1,6 @@
 package com.arny.flightlogbook.di
 
+import com.arny.flightlogbook.presentation.airports.AirportsPresenter
 import com.arny.flightlogbook.presentation.customfields.edit.CustomFieldsEditPresenter
 import com.arny.flightlogbook.presentation.customfields.list.CustomFieldsListPresenter
 import com.arny.flightlogbook.presentation.flights.addedit.presenter.AddEditPresenter
@@ -26,4 +27,5 @@ interface AppComponent {
     fun inject(statisticsPresenter: StatisticsPresenter)
     fun inject(settingsPresenter: SettingsPresenter)
     fun inject(planeTypeEditPresenter: PlaneTypeEditPresenter)
+    fun inject(presenter: AirportsPresenter)
 }

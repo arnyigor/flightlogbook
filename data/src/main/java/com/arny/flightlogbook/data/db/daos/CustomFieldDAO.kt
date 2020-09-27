@@ -2,8 +2,8 @@ package com.arny.flightlogbook.data.db.daos
 
 import androidx.room.Dao
 import androidx.room.Query
-import com.arny.flightlogbook.data.models.CustomFieldEntity
-import com.arny.flightlogbook.data.models.FieldWithValues
+import com.arny.flightlogbook.data.models.customfields.CustomFieldEntity
+import com.arny.flightlogbook.data.models.customfields.FieldWithValues
 
 @Dao
 interface CustomFieldDAO : BaseDao<CustomFieldEntity> {

@@ -4,7 +4,7 @@ import com.arny.domain.models.PlaneType
 import com.arny.domain.planetypes.AircraftType
 import com.arny.domain.planetypes.PlaneTypesRepository
 import com.arny.flightlogbook.data.db.daos.AircraftTypeDAO
-import com.arny.flightlogbook.data.models.PlaneTypeEntity
+import com.arny.flightlogbook.data.models.planes.PlaneTypeEntity
 import com.arny.helpers.utils.toItem
 import javax.inject.Inject
 import javax.inject.Singleton
