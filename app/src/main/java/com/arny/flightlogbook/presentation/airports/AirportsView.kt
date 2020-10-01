@@ -5,16 +5,11 @@ import moxy.MvpView
 import moxy.viewstate.strategy.alias.AddToEndSingle
 import moxy.viewstate.strategy.alias.OneExecution
 
-@AddToEndSingle
+@OneExecution
 interface AirportsView : MvpView {
+    @AddToEndSingle
     fun setAirports(list: List<Airport>)
-
-    @OneExecution
     fun showProgress()
-
-    @OneExecution
     fun hideProgress()
-
-    @OneExecution
     fun showError(message: String?)
 }

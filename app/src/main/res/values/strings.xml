@@ -67,4 +67,5 @@
     <string name="edit_plane_type">Редактирование типа ВС</string>
     <string name="error_plane_type_not_saved">ВС не сохранено</string>
     <string name="enter_airport_code">Введите код аэропрта ICAO, IATA, название или город</string>
+    <string name="airports">Аэропорты</string>
 </resources>

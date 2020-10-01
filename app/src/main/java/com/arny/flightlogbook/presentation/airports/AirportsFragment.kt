@@ -5,8 +5,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.arny.domain.models.Airport
 import com.arny.flightlogbook.R
+import com.arny.helpers.utils.toastError
+import com.jakewharton.rxbinding4.widget.afterTextChangeEvents
+import io.reactivex.disposables.CompositeDisposable
+import kotlinx.android.synthetic.main.f_airports.*
 import moxy.MvpAppCompatFragment
 import moxy.ktx.moxyPresenter
 
@@ -14,6 +20,8 @@ class AirportsFragment : MvpAppCompatFragment(), AirportsView {
     companion object {
         fun getInstance() = AirportsFragment()
     }
+
+    private val compositeDisposable = CompositeDisposable()
 
     private lateinit var airportsAdapter: AirportsAdapter
     private val presenter by moxyPresenter { AirportsPresenter() }
@@ -25,21 +33,46 @@ class AirportsFragment : MvpAppCompatFragment(), AirportsView {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         airportsAdapter = AirportsAdapter()
+        with(rvAirports) {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = airportsAdapter
+        }
+        if (edtAirport.isFocused) {
+            presenter.onQueryChange(edtAirport.afterTextChangeEvents())
+        }
+
+
+/*        Observable.create(ObservableOnSubscribe<String> { subscriber ->
+            edtAirport.doAfterTextChanged {
+                if (edtAirport.isFocused) {
+                    subscriber.onNext(it.toString())
+                }
+            }
+        })
+                .debounce(250, TimeUnit.MILLISECONDS)
+                .distinctUntilChanged()
+                .subscribe { presenter.onQueryChange(it) }
+                .addTo(compositeDisposable)*/
     }
 
     override fun setAirports(list: List<Airport>) {
-        TODO("Not yet implemented")
+        airportsAdapter.addAll(list)
     }
 
     override fun showProgress() {
-        TODO("Not yet implemented")
+        pbLoader.isVisible = true
     }
 
     override fun hideProgress() {
-        TODO("Not yet implemented")
+        pbLoader.isVisible = false
     }
 
     override fun showError(message: String?) {
-        TODO("Not yet implemented")
+        toastError(message)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        compositeDisposable.dispose()
     }
 }

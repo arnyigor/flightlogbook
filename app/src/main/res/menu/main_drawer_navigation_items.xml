@@ -13,6 +13,12 @@
         android:id="@+id/menu_stats"
         android:title="@string/fragment_stats" />
     <item
+        android:id="@+id/menu_fields"
+        android:title="@string/custom_fields" />
+    <item
+        android:id="@+id/menu_airports"
+        android:title="@string/airports" />
+    <item
         android:id="@+id/menu_settings"
         android:title="@string/str_settings" />
 </menu>

@@ -12,6 +12,7 @@ import androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_UNLOCKED
 import androidx.fragment.app.Fragment
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.constants.CONSTS
+import com.arny.flightlogbook.presentation.airports.AirportsFragment
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
 import com.arny.flightlogbook.presentation.customfields.edit.CustomFieldEditFragment
 import com.arny.flightlogbook.presentation.customfields.list.CustomFieldsListFragment
@@ -81,7 +82,8 @@ class MainActivity : AppCompatActivity(), Router {
         R.id.menu_flights -> NavigateItems.MENU_FLIGHTS.index
         R.id.menu_flight_types -> NavigateItems.MENU_FLIGHT_TYPES.index
         R.id.menu_plane_types -> NavigateItems.MENU_PLANE_TYPES.index
-//        R.id.menu_fields -> NavigateItems.MENU_CUSTOM_FIELDS.index
+        R.id.menu_fields -> NavigateItems.MENU_CUSTOM_FIELDS.index
+        R.id.menu_airports -> NavigateItems.MENU_AIRPORTS.index
         R.id.menu_settings -> NavigateItems.MENU_SETTINGS.index
         R.id.menu_stats -> NavigateItems.MENU_STATS.index
         else -> -1
@@ -103,7 +105,8 @@ class MainActivity : AppCompatActivity(), Router {
         NavigateItems.MENU_FLIGHTS.index -> R.id.menu_flights
         NavigateItems.MENU_FLIGHT_TYPES.index -> R.id.menu_flight_types
         NavigateItems.MENU_PLANE_TYPES.index -> R.id.menu_plane_types
-//        NavigateItems.MENU_CUSTOM_FIELDS.index -> R.id.menu_fields
+        NavigateItems.MENU_CUSTOM_FIELDS.index -> R.id.menu_fields
+        NavigateItems.MENU_AIRPORTS.index -> R.id.menu_airports
         NavigateItems.MENU_SETTINGS.index -> R.id.menu_settings
         NavigateItems.MENU_STATS.index -> R.id.menu_stats
         else -> null
@@ -142,6 +145,7 @@ class MainActivity : AppCompatActivity(), Router {
             NavigateItems.MENU_CUSTOM_FIELDS.index -> CustomFieldsListFragment.getInstance()
             NavigateItems.MENU_STATS.index -> StatisticFragment.getInstance()
             NavigateItems.MENU_SETTINGS.index -> SettingsFragment.getInstance()
+            NavigateItems.MENU_AIRPORTS.index -> AirportsFragment.getInstance()
             NavigateItems.ITEM_EDIT_FIELD.index -> CustomFieldEditFragment.getInstance(bundle)
             NavigateItems.PLANE_TYPE_EDIT.index -> {
                 launchActivity<FragmentContainerActivity>(

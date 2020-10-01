@@ -24,5 +24,4 @@ public class ToastMaker {
 	public static void toastSuccess(final Context context, final String message) {
         new Handler(Looper.getMainLooper()).post(() -> Toasty.success(context, message, Toast.LENGTH_LONG).show());
 	}
-
 }

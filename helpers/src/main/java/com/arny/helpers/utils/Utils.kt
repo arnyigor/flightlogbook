@@ -204,6 +204,14 @@ fun Fragment.putExtras(args: Bundle?) {
     this.arguments = args
 }
 
+fun Fragment.toastError(message: String?) {
+    ToastMaker.toastError(this.requireContext(), message)
+}
+
+fun Activity.toastError(message: String?) {
+    ToastMaker.toastError(this, message)
+}
+
 fun Activity.putExtras(resultCode: Int? = null, clear: Boolean = true, init: Intent.() -> Unit = {}) {
     val i = if (clear) {
         Intent()

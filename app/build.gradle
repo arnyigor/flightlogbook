@@ -134,6 +134,9 @@ dependencies {
     implementation libs.rxJava
     implementation libs.rxAndroid
     implementation libs.rxKotlin
+    implementation libs.rxbinding
+    implementation libs.rxbindingCore
+    implementation libs.rxbindingAppcompat
     //room
     implementation libs.roomRuntime
     kapt libs.roomCompiler
