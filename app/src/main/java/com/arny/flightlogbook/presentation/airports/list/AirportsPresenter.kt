@@ -1,15 +1,11 @@
 package com.arny.flightlogbook.presentation.airports.list
 
 import com.arny.domain.airports.IAirportsInteractor
-import com.arny.domain.models.Airport
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
-import com.arny.helpers.utils.fromCallable
-import com.jakewharton.rxbinding4.InitialValueObservable
-import com.jakewharton.rxbinding4.widget.TextViewAfterTextChangeEvent
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.ObservableSource
-import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import moxy.InjectViewState
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -25,21 +21,18 @@ class AirportsPresenter : BaseMvpPresenter<AirportsView>() {
     lateinit var airportsInteractor: IAirportsInteractor
 
     override fun onFirstViewAttach() {
-        fromCallable { airportsInteractor.getAirports() }
-                .doOnSubscribe { viewState.showProgress() }
-                .doFinally { viewState.hideProgress() }
-                .subscribeFromPresenter({
-                    viewState.setAirports(it)
-                }, {
-                    viewState.showError(it.message)
-                })
     }
 
-    fun onQueryChange(valueObservable: InitialValueObservable<TextViewAfterTextChangeEvent>) {
-        valueObservable.map { it.editable.toString() }
-                .debounce(250, TimeUnit.MILLISECONDS)
+    fun onQueryChange(observable: Observable<String>) {
+        observable.debounce(250, TimeUnit.MILLISECONDS)
                 .distinctUntilChanged()
-                .switchMap { q -> ObservableSource<List<Airport>> { airportsInteractor.queryAirports(q) } }
+                .map {
+                    airportsInteractor.queryAirports(it)
+                }
+                .map {
+                    println("it.size:${it.size}")
+                    it
+                }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
@@ -47,5 +40,6 @@ class AirportsPresenter : BaseMvpPresenter<AirportsView>() {
                 }, {
                     viewState.showError(it.message)
                 })
+                .add()
     }
 }

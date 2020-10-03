@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.arny.domain.di.DomainModule
 import com.arny.flightlogbook.constants.CONSTS
+import com.arny.flightlogbook.data.db.DatabaseMigrations
 import com.arny.flightlogbook.data.db.MainDB
 import dagger.Module
 import dagger.Provides
@@ -16,8 +17,9 @@ class DataModule {
     @Singleton
     fun provideDB(context: Context): MainDB {
         return Room.databaseBuilder(context, MainDB::class.java, CONSTS.DB.DB_NAME)
-                .fallbackToDestructiveMigrationFrom()
-//                .addMigrations(DatabaseMigrations(context).getMigration12To13())
+//                .fallbackToDestructiveMigrationFrom()
+                .addMigrations(DatabaseMigrations(context).getMigration12To13())
+                .addMigrations(DatabaseMigrations(context).getMigration13To14())
                 .build()
     }
 

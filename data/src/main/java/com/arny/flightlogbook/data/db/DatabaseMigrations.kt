@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.arny.flightlogbook.data.R
+import com.arny.flightlogbook.data.utils.DBUtils
+import com.arny.helpers.utils.Utility
 
 class DatabaseMigrations(val context: Context) {
     fun getMigration12To13(): Migration = object : Migration(12, 13) {
@@ -24,6 +26,11 @@ class DatabaseMigrations(val context: Context) {
             database.execSQL("ALTER TABLE main_table ADD COLUMN params TEXT")
             database.setTransactionSuccessful()
             database.endTransaction()
+        }
+    }
+    fun getMigration13To14(): Migration = object : Migration(13, 14) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            DBUtils.runMigration(database, Utility.readAssetFile(context, "migrations", "airports.sql"))
         }
     }
 }

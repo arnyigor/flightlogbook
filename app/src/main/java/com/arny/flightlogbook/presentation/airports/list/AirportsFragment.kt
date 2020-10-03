@@ -5,11 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
+import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.arny.domain.models.Airport
 import com.arny.flightlogbook.R
 import com.arny.helpers.utils.toastError
-import com.jakewharton.rxbinding4.widget.afterTextChangeEvents
+import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.f_airports.*
 import moxy.MvpAppCompatFragment
@@ -40,9 +41,14 @@ class AirportsFragment : MvpAppCompatFragment(), AirportsView {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = airportsAdapter
         }
-        if (edtAirport.isFocused) {
-            presenter.onQueryChange(edtAirport.afterTextChangeEvents())
-        }
+
+        presenter.onQueryChange(Observable.create { e ->
+            edtAirport.doAfterTextChanged {
+                if (edtAirport.isFocused) {
+                    e.onNext(it.toString())
+                }
+            }
+        })
     }
 
     override fun setAirports(list: List<Airport>) {

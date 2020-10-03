@@ -129,13 +129,13 @@ class DBUtils {
                 val migrationVersion = getRoomMigrationVersion(migrationsFile, 0)
                 val version = database.version
                 Log.d(DBUtils::class.java.simpleName, "runRoomMigrations: migrationsFile:$migrationsFile version:$version end:$migrationVersion")
-                runMigration(database, migrationsFile, sql)
+                runMigration(database, sql)
             }
             Log.d(DBUtils::class.java.simpleName, "runRoomMigrations: database ALL execSQL...OK time:" + stopwatch.getElapsedTimeSecs(3))
             stopwatch.stop()
         }
 
-        private fun runMigration(database: SupportSQLiteDatabase, migrationsFile: String, sql: String?) {
+          fun runMigration(database: SupportSQLiteDatabase, sql: String?) {
             if (sql != null) {
                 val sqls = sql.split(";".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
                 database.beginTransaction()
@@ -145,12 +145,10 @@ class DBUtils {
                             database.execSQL(s)
                         }
                     }
-                    database.execSQL("INSERT INTO migrations (filename) VALUES ('$migrationsFile');")
                     database.setTransactionSuccessful()
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
-
                 database.endTransaction()
             }
         }
@@ -166,7 +164,7 @@ class DBUtils {
                     val migrationVersion = getRoomMigrationVersion(migrationsFile, 0)
                     val version = database.version
                     Log.d(DBUtils::class.java.simpleName, "runRoomMigrations: migrationsFile:$migrationsFile version:$version end:$migrationVersion")
-                    runMigration(database, migrationsFile, sql)
+                    runMigration(database, sql)
                 }
             }
             Log.i(DBUtils::class.java.simpleName, "runRoomMigrations: database ALL execSQL...OK time:" + stopwatch.getElapsedTimeSecs(3))

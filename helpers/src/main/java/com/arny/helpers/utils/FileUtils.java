@@ -49,6 +49,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Objects;
 
 import okhttp3.ResponseBody;
 
@@ -1139,13 +1140,29 @@ public class FileUtils {
         InputStream inputStream = null;
         OutputStream outputStream = null;
         try {
-            file = new File(Environment.DIRECTORY_PICTURES + "/" + path);
+            file = new File(path);
             inputStream = context.getAssets().open(path);
             outputStream = new FileOutputStream(file);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        writeStream(inputStream, outputStream);
+        writeStream(Objects.requireNonNull(inputStream), outputStream);
         return file;
+    }
+
+    public static String loadDataFromAssets(Context context, String path) {
+        String tContents = "";
+        InputStream stream;
+        try {
+            stream = context.getAssets().open(path);
+            int size = stream.available();
+            byte[] buffer = new byte[size];
+            stream.read(buffer);
+            stream.close();
+            tContents = new String(buffer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return tContents;
     }
 }
