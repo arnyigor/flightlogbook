@@ -1,6 +1,6 @@
 package com.arny.flightlogbook.di
 
-import com.arny.flightlogbook.presentation.airports.AirportsPresenter
+import com.arny.flightlogbook.presentation.airports.list.AirportsPresenter
 import com.arny.flightlogbook.presentation.customfields.edit.CustomFieldsEditPresenter
 import com.arny.flightlogbook.presentation.customfields.list.CustomFieldsListPresenter
 import com.arny.flightlogbook.presentation.flights.addedit.presenter.AddEditPresenter

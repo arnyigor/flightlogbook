@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.presentation.airports
+package com.arny.flightlogbook.presentation.airports.list
 
 import com.arny.domain.models.Airport
 import moxy.MvpView

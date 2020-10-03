@@ -59,4 +59,5 @@
     <string name="error_plane_type_not_saved">Airplane not saved</string>
     <string name="enter_airport_code">Enter airport ICAO,IATA code,airport,city</string>
     <string name="airports">Airports</string>
+    <string name="icao_code">Icao code</string>
 </resources>

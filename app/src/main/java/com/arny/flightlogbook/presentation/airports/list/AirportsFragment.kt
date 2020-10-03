@@ -1,5 +1,4 @@
-package com.arny.flightlogbook.presentation.airports
-
+package com.arny.flightlogbook.presentation.airports.list
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -26,7 +25,11 @@ class AirportsFragment : MvpAppCompatFragment(), AirportsView {
     private lateinit var airportsAdapter: AirportsAdapter
     private val presenter by moxyPresenter { AirportsPresenter() }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.f_airports, container, false)
     }
 
@@ -40,19 +43,6 @@ class AirportsFragment : MvpAppCompatFragment(), AirportsView {
         if (edtAirport.isFocused) {
             presenter.onQueryChange(edtAirport.afterTextChangeEvents())
         }
-
-
-/*        Observable.create(ObservableOnSubscribe<String> { subscriber ->
-            edtAirport.doAfterTextChanged {
-                if (edtAirport.isFocused) {
-                    subscriber.onNext(it.toString())
-                }
-            }
-        })
-                .debounce(250, TimeUnit.MILLISECONDS)
-                .distinctUntilChanged()
-                .subscribe { presenter.onQueryChange(it) }
-                .addTo(compositeDisposable)*/
     }
 
     override fun setAirports(list: List<Airport>) {

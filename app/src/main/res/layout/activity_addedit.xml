@@ -98,6 +98,28 @@
                     app:layout_constraintTop_toTopOf="@+id/tilDate" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <TextView
+                android:id="@+id/tvDeparture"
+                style="@style/medium_bold"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:padding="8dp"
+                android:textSize="20sp"
+                app:drawableRightCompat="@drawable/ic_icon_edit"
+                tools:text="@string/departure" />
+
+            <TextView
+                android:id="@+id/tvArrival"
+                style="@style/medium_bold"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:padding="8dp"
+                android:textSize="20sp"
+                app:drawableRightCompat="@drawable/ic_icon_edit"
+                tools:text="@string/arrival" />
+
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/clTimes"
                 android:layout_width="match_parent"
@@ -242,10 +264,10 @@
 
             <Button
                 android:id="@+id/btnAddField"
-                android:layout_marginTop="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
+                android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
                 android:background="@drawable/bg_ripple"

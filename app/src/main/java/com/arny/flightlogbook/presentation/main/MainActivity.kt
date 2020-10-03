@@ -12,7 +12,7 @@ import androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_UNLOCKED
 import androidx.fragment.app.Fragment
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.constants.CONSTS
-import com.arny.flightlogbook.presentation.airports.AirportsFragment
+import com.arny.flightlogbook.presentation.airports.list.AirportsFragment
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
 import com.arny.flightlogbook.presentation.customfields.edit.CustomFieldEditFragment
 import com.arny.flightlogbook.presentation.customfields.list.CustomFieldsListFragment

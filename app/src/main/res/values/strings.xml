@@ -68,4 +68,6 @@
     <string name="error_plane_type_not_saved">ВС не сохранено</string>
     <string name="enter_airport_code">Введите код аэропрта ICAO, IATA, название или город</string>
     <string name="airports">Аэропорты</string>
+    <string name="icao_code">Код ICAO</string>
+    <string name="iata_code">Код IATA</string>
 </resources>

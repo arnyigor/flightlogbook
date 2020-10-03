@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.presentation.airports
+package com.arny.flightlogbook.presentation.airports.list
 
 import com.arny.domain.airports.IAirportsInteractor
 import com.arny.domain.models.Airport
@@ -39,12 +39,12 @@ class AirportsPresenter : BaseMvpPresenter<AirportsView>() {
         valueObservable.map { it.editable.toString() }
                 .debounce(250, TimeUnit.MILLISECONDS)
                 .distinctUntilChanged()
-                .switchMap { q ->
-                    ObservableSource<List<Airport>> { airportsInteractor.queryAirports(q) }
-                }
+                .switchMap { q -> ObservableSource<List<Airport>> { airportsInteractor.queryAirports(q) } }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ viewState.setAirports(it) }, {
+                .subscribe({
+                    viewState.setAirports(it)
+                }, {
                     viewState.showError(it.message)
                 })
     }
