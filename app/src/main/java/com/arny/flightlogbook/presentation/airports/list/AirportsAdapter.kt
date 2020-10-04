@@ -17,6 +17,16 @@ class AirportsAdapter : SimpleAbstractAdapter<Airport>() {
         viewHolder.itemView.apply {
             tvIcao.text = item.icao
             tvIata.text = item.iata
+            tvAirportName.text = context.getString(
+                    R.string.name_eng_rus,
+                    item.nameEng,
+                    if (item.nameRus.isNullOrBlank()) "" else "(${item.nameRus})"
+            )
+            tvCity.text = context.getString(
+                    R.string.name_eng_rus,
+                    item.cityEng,
+                    if (item.cityRus.isNullOrBlank()) "" else "(${item.cityRus})"
+            )
         }
     }
 }

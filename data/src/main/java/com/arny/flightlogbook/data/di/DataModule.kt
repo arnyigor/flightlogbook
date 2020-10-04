@@ -20,6 +20,7 @@ class DataModule {
 //                .fallbackToDestructiveMigrationFrom()
                 .addMigrations(DatabaseMigrations(context).getMigration12To13())
                 .addMigrations(DatabaseMigrations(context).getMigration13To14())
+                .addCallback(DatabaseMigrations(context).onCreateCallback())
                 .build()
     }
 

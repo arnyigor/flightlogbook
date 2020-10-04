@@ -11,7 +11,8 @@ import androidx.room.PrimaryKey
 )
 data class PlaneTypeEntity(
         @PrimaryKey(autoGenerate = true)
-        @ColumnInfo(name = "type_id") var typeId: Long? = null,
+        @ColumnInfo(name = "type_id")
+        var typeId: Long? = null,
         @ColumnInfo(name = "airplane_type")
         var typeName: String? = null,
         @ColumnInfo(name = "reg_no")

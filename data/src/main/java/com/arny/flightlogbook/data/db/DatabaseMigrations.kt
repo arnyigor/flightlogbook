@@ -1,6 +1,7 @@
 package com.arny.flightlogbook.data.db
 
 import android.content.Context
+import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.arny.flightlogbook.data.R
@@ -28,9 +29,29 @@ class DatabaseMigrations(val context: Context) {
             database.endTransaction()
         }
     }
+
     fun getMigration13To14(): Migration = object : Migration(13, 14) {
         override fun migrate(database: SupportSQLiteDatabase) {
+            database.beginTransaction()
+            database.execSQL("CREATE TABLE IF NOT EXISTS `airports` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT, `icao` TEXT, `iata` TEXT, `name_rus` TEXT, `name_eng` TEXT, `city_rus` TEXT, `city_eng` TEXT, `country_rus` TEXT, `country_eng` TEXT, `latitude` REAL, `longitude` REAL, `elevation` REAL)")
+            database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_airports_icao_iata ON airports (icao, iata)")
+            database.execSQL("CREATE TABLE IF NOT EXISTS `custom_fields` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT, `type` TEXT, `add_time` INTEGER NOT NULL, `show_by_default` INTEGER NOT NULL)")
+            database.execSQL("CREATE TABLE IF NOT EXISTS `custom_field_values` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT, `externalId` INTEGER, `type` TEXT, `value` TEXT, `fieldId` INTEGER)")
+            database.execSQL("ALTER TABLE type_table ADD COLUMN `main_type` TEXT")
+            database.execSQL("ALTER TABLE type_table ADD COLUMN `reg_no` TEXT")
+            database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_type_table_airplane_type_reg_no ON type_table (airplane_type,reg_no)")
+            database.setTransactionSuccessful()
+            database.endTransaction()
             DBUtils.runMigration(database, Utility.readAssetFile(context, "migrations", "airports.sql"))
+        }
+    }
+
+    fun onCreateCallback(): RoomDatabase.Callback {
+        return object : RoomDatabase.Callback() {
+            override fun onCreate(db: SupportSQLiteDatabase) {
+                super.onCreate(db)
+                DBUtils.runMigration(db, Utility.readAssetFile(context, "migrations", "airports.sql"))
+            }
         }
     }
 }

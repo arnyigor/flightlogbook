@@ -56,19 +56,20 @@ android {
         }
         release {
             debuggable false
-            minifyEnabled true
-            useProguard true
+            minifyEnabled false
+            useProguard false
             resValue "string", "app_name", "Pilot Logbook"
-            shrinkResources true
+            shrinkResources false
             signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguardTest-rules.pro'
         }
         prerelease {
             debuggable true
-            minifyEnabled true
-            useProguard true
+            minifyEnabled false
+            useProguard false
             resValue "string", "app_name", "Pilot Logbook"
+            shrinkResources false
             signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguardTest-rules.pro'
@@ -82,7 +83,6 @@ android {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/MANIFEST.MF'
     }
-
     compileOptions {
         targetCompatibility JavaVersion.VERSION_1_8
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -93,7 +93,6 @@ android {
             returnDefaultValues = true
         }
     }
-
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
@@ -113,6 +112,7 @@ dependencies {
     implementation libs.ktxCore
     implementation libs.lifecycleExt
     /*tests*/
+    debugImplementation libs.dbDebug
     implementation libs.junit
     androidTestImplementation libs.assertjCore
     androidTestImplementation libs.assertjAndroid

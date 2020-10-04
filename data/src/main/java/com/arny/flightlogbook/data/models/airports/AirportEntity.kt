@@ -2,11 +2,15 @@ package com.arny.flightlogbook.data.models.airports
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.arny.domain.models.Airport
 
 
-@Entity(tableName = "airports")
+@Entity(
+        tableName = "airports",
+        indices = [Index("icao", "iata", unique = true)]
+)
 data class AirportEntity(
         @PrimaryKey(autoGenerate = true)
         @ColumnInfo(name = "_id")

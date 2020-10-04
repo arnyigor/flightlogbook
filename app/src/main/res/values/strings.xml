@@ -70,4 +70,5 @@
     <string name="airports">Аэропорты</string>
     <string name="icao_code">Код ICAO</string>
     <string name="iata_code">Код IATA</string>
+    <string name="name_eng_rus">%s%s</string>
 </resources>
