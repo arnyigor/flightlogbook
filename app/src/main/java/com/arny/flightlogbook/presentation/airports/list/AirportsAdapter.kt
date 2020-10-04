@@ -15,8 +15,11 @@ class AirportsAdapter : SimpleAbstractAdapter<Airport>() {
 
     override fun bindView(item: Airport, viewHolder: VH) {
         viewHolder.itemView.apply {
-            tvIcao.text = item.icao
-            tvIata.text = item.iata
+            tvAirportCodes.text = context.getString(
+                    R.string.name_eng_rus,
+                    item.iata,
+                    "(${item.icao})"
+            )
             tvAirportName.text = context.getString(
                     R.string.name_eng_rus,
                     item.nameEng,
@@ -24,8 +27,8 @@ class AirportsAdapter : SimpleAbstractAdapter<Airport>() {
             )
             tvCity.text = context.getString(
                     R.string.name_eng_rus,
-                    item.cityEng,
-                    if (item.cityRus.isNullOrBlank()) "" else "(${item.cityRus})"
+                    item.cityRus,
+                    item.cityRus + "(${item.countryRus})"
             )
         }
     }

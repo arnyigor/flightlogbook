@@ -26,13 +26,7 @@ class AirportsPresenter : BaseMvpPresenter<AirportsView>() {
     fun onQueryChange(observable: Observable<String>) {
         observable.debounce(250, TimeUnit.MILLISECONDS)
                 .distinctUntilChanged()
-                .map {
-                    airportsInteractor.queryAirports(it)
-                }
-                .map {
-                    println("it.size:${it.size}")
-                    it
-                }
+                .map { airportsInteractor.queryAirports(it) }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
