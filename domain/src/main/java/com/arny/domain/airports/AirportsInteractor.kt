@@ -7,5 +7,11 @@ class AirportsInteractor @Inject constructor(
         private val airportsRepository: IAirportsRepository
 ) : IAirportsInteractor {
     override fun getAirports(): List<Airport> = airportsRepository.getAirports()
-    override fun queryAirports(query: String): List<Airport> = airportsRepository.getAirportsLike(query)
+    override fun queryAirports(query: String): List<Airport> {
+        return if (query.isBlank()) {
+            return emptyList()
+        } else {
+            airportsRepository.getAirportsLike(query)
+        }
+    }
 }

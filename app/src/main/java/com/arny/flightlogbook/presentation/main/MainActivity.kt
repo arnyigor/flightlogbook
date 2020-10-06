@@ -148,10 +148,7 @@ class MainActivity : AppCompatActivity(), Router {
             NavigateItems.MENU_AIRPORTS.index -> AirportsFragment.getInstance()
             NavigateItems.ITEM_EDIT_FIELD.index -> CustomFieldEditFragment.getInstance(bundle)
             NavigateItems.PLANE_TYPE_EDIT.index -> {
-                launchActivity<FragmentContainerActivity>(
-                        enterAnim = R.anim.anim_slide_in_left,
-                        exitAnim = R.anim.anim_slide_out_left
-                ) {
+                launchActivity<FragmentContainerActivity> {
                     action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_PLANE_TYPE
                     bundle?.let { putExtras(it) }
                 }

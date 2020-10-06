@@ -15,6 +15,7 @@
     <string name="str_itemlogtime_hint">чч:мм</string>
     <string name="str_type_null">Тип ВС</string>
     <string name="str_regnum">Рег.№</string>
+    <string name="str_regnum_formatted">Рег.№:\u00A0%s</string>
     <string name="str_day_night">День/Ночь</string>
     <string name="str_vfr_ifr">визуально/по приборам</string>
     <string name="str_ifr">по приборам</string>

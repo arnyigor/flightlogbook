@@ -74,9 +74,6 @@ public class FileUtils {
             case FILE_TYPE_AUDIO:
                 uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
                 break;
-            case FILE_TYPE_DOCUMENT:
-                uri = MediaStore.Files.getContentUri("external");
-                break;
             default:
                 uri = MediaStore.Files.getContentUri("external");
                 break;

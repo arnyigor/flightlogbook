@@ -31,6 +31,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import com.amulyakhare.textdrawable.TextDrawable
+import com.arny.helpers.R
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -62,6 +63,11 @@ fun AppCompatActivity.replaceFragment(
         }
     }
     onLoadFunc()
+}
+
+fun Context.getSystemLocale(): Locale? {
+    val configuration = this.resources.configuration
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) configuration.locales.get(0) else configuration.locale
 }
 
 fun Fragment.replaceFragment(
@@ -101,12 +107,16 @@ inline fun <reified T : Any> Activity.launchActivity(
         options: Bundle? = null,
         enterAnim: Int? = null,
         exitAnim: Int? = null,
-        noinline init: Intent.() -> Unit = {}) {
+        useStandartTransition: Boolean = true,
+        noinline init: Intent.() -> Unit = {}
+) {
     val intent = newIntent<T>(this)
     intent.init()
     startActivityForResult(intent, requestCode, options)
     if (enterAnim != null && exitAnim != null) {
         overridePendingTransition(enterAnim, exitAnim)
+    } else if (useStandartTransition) {
+        overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
     }
 }
 
@@ -212,7 +222,11 @@ fun Activity.toastError(message: String?) {
     ToastMaker.toastError(this, message)
 }
 
-fun Activity.putExtras(resultCode: Int? = null, clear: Boolean = true, init: Intent.() -> Unit = {}) {
+fun Activity.putExtras(
+        resultCode: Int? = null,
+        clear: Boolean = true,
+        init: Intent.() -> Unit = {}
+) {
     val i = if (clear) {
         Intent()
     } else {
@@ -751,9 +765,8 @@ fun String?.setDouble(): Double {
     return source.toDouble()
 }
 
-fun String?.ifEmpty(default: String): String {
-    val blank = this?.isBlank() ?: true
-    return if (blank) default else this!!
+fun String?.ifNull(default: String): String {
+    return if (this?.isBlank() != false) default else this
 }
 
 /**

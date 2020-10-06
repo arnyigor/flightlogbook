@@ -3,7 +3,7 @@ package com.arny.flightlogbook.constants
 object CONSTS {
 
     object COMMON {
-        const val ENABLE_CUSTOM_FIELDS = false
+        const val ENABLE_CUSTOM_FIELDS = true
     }
 
     object FLIGHT {
@@ -44,6 +44,8 @@ object CONSTS {
         const val REQUEST_EDIT_CUSTOM_FIELD = 107
         const val REQUEST_SELECT_CUSTOM_FIELD = 108
         const val REQUEST_EDIT_PLANE_TYPE = 109
+        const val REQUEST_SELECT_AIRPORT_DEPARTURE = 110
+        const val REQUEST_SELECT_AIRPORT_ARRIVAL = 111
     }
 
     object EXTRAS {
@@ -53,6 +55,9 @@ object CONSTS {
         const val EXTRA_PLANE_TYPE_ID = "extra_plane_type_id"
         const val EXTRA_ACTION_GET_CUSTOM_FIELD = "extra_action_get_custom_field"
         const val EXTRA_ACTION_EDIT_PLANE_TYPE = "extra_action_edit_plane_type"
+        const val EXTRA_ACTION_SELECT_PLANE_TYPE = "extra_action_select_plane_type"
+        const val EXTRA_ACTION_SELECT_AIRPORT = "extra_action_select_airport"
+        const val EXTRA_AIRPORT = "extra_airport"
         const val EXTRA_CUSTOM_FIELD = "extra_custom_field"
     }
 }

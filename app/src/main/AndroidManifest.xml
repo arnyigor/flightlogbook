@@ -35,14 +35,9 @@
             android:name=".presentation.flighttypes.list.FlightTypesActivity"
             android:screenOrientation="fullSensor" />
         <activity
-            android:name=".presentation.about.AboutActivity"
-            android:label="@string/str_about"
-            android:screenOrientation="fullSensor" />
-        <activity
             android:name=".presentation.common.FragmentContainerActivity"
             android:windowSoftInputMode="adjustResize"
             android:screenOrientation="fullSensor" />
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -54,7 +49,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
-
         <receiver
             android:name=".presentation.widget.AppWidget"
             android:icon="@drawable/ic_launcher"

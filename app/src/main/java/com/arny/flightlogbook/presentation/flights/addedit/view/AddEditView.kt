@@ -1,12 +1,12 @@
 package com.arny.flightlogbook.presentation.flights.addedit.view
 
+import com.arny.domain.models.Airport
 import com.arny.flightlogbook.customfields.models.CustomFieldValue
 import moxy.MvpView
-import moxy.viewstate.strategy.AddToEndSingleStrategy
-import moxy.viewstate.strategy.OneExecutionStateStrategy
-import moxy.viewstate.strategy.StateStrategyType
+import moxy.viewstate.strategy.alias.AddToEndSingle
+import moxy.viewstate.strategy.alias.OneExecution
 
-@StateStrategyType(value = AddToEndSingleStrategy::class)
+@AddToEndSingle
 interface AddEditView : MvpView {
     fun setDescription(desc: String)
     fun setDate(date: String)
@@ -20,7 +20,7 @@ interface AddEditView : MvpView {
     fun setTotalFlightTime(flightTime: String)
     fun setFligtTypeTitle(title: String)
     fun toastSuccess(msg: String?)
-    @StateStrategyType(value = OneExecutionStateStrategy::class)
+    @OneExecution
     fun onPressBack()
     fun setResultOK()
     fun setEdtNightTimeText(nightTimeText: String)
@@ -32,7 +32,11 @@ interface AddEditView : MvpView {
     fun requestStorageAndSave()
     fun saveFlight()
     fun setFieldsList(list: List<CustomFieldValue>)
-    @StateStrategyType(value = OneExecutionStateStrategy::class)
+    @OneExecution
     fun notifyCustomFieldUpdate(item: CustomFieldValue)
     fun setCustomFieldsVisible(visible: Boolean)
+    fun setDeparture(departure: Airport?)
+    fun setArrival(arrival: Airport?)
+    fun setEdtDepTimeText(depTime: String)
+    fun setEdtArrTimeText(arrTime: String)
 }

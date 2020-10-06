@@ -11,9 +11,7 @@ import moxy.viewstate.strategy.StateStrategyType
 @StateStrategyType(value = OneExecutionStateStrategy::class)
 interface PlaneTypesView : MvpView {
     fun updateAdapter(list: List<PlaneType>)
-    fun showEditDialog(type: PlaneType, position: Int)
     fun toastSuccess(string: String)
-    fun showRemoveDialog(item: PlaneType, position: Int)
     fun toastError(msg: String?)
     fun notifyItemChanged(position: Int)
     fun setEmptyViewVisible(vis: Boolean)

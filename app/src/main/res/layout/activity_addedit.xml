@@ -98,33 +98,79 @@
                     app:layout_constraintTop_toTopOf="@+id/tilDate" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <TextView
-                android:id="@+id/tvDeparture"
-                style="@style/medium_bold"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:padding="8dp"
-                android:textSize="20sp"
-                app:drawableRightCompat="@drawable/ic_icon_edit"
-                tools:text="@string/departure" />
-
-            <TextView
-                android:id="@+id/tvArrival"
-                style="@style/medium_bold"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:padding="8dp"
-                android:textSize="20sp"
-                app:drawableRightCompat="@drawable/ic_icon_edit"
-                tools:text="@string/arrival" />
-
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/clTimes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp">
+
+                <TextView
+                    android:id="@+id/tvDeparture"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="16dp"
+                    android:gravity="center_vertical"
+                    android:padding="8dp"
+                    android:text="@string/departure_airport"
+                    android:textSize="16sp"
+                    app:drawableStartCompat="@drawable/ic_icon_edit"
+                    app:layout_constraintBottom_toBottomOf="@+id/tilEdtDepartureTime"
+                    app:layout_constraintEnd_toStartOf="@+id/guideline_times"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/tilEdtDepartureTime" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilEdtDepartureTime"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/utc_time"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@+id/guideline_times"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/tiedtDepartureTime"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:inputType="time" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:id="@+id/tvArrival"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="16dp"
+                    android:gravity="center_vertical"
+                    android:padding="8dp"
+                    android:text="@string/arrival_airport"
+                    android:textSize="16sp"
+                    app:drawableStartCompat="@drawable/ic_icon_edit"
+                    app:layout_constraintBottom_toBottomOf="@+id/tilEdtArrivalTime"
+                    app:layout_constraintEnd_toStartOf="@+id/guideline_times"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/tilEdtArrivalTime" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilEdtArrivalTime"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="@string/utc_time"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@+id/guideline_times"
+                    app:layout_constraintTop_toBottomOf="@+id/tilEdtDepartureTime">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/tiedtArrivalTime"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:inputType="time" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
 
                 <TextView
                     android:id="@+id/tvFlightTimeLabel"
@@ -142,7 +188,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.4" />
+                    app:layout_constraintGuide_percent="0.6" />
 
                 <EditText
                     android:id="@+id/edtFlightTime"
@@ -150,6 +196,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginLeft="8dp"
+                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
                     android:focusable="true"
@@ -162,7 +209,7 @@
                     android:textSize="18sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/tvFlightTimeLabel"
-                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tilEdtArrivalTime"
                     tools:text="00:00" />
 
                 <TextView

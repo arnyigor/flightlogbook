@@ -21,13 +21,17 @@ import androidx.core.widget.addTextChangedListener
 import androidx.core.widget.doAfterTextChanged
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.color.colorChooser
+import com.arny.domain.models.Airport
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.CustomRVLayoutManager
 import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_GET_CUSTOM_FIELD
+import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_SELECT_AIRPORT
+import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_AIRPORT
 import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_CUSTOM_FIELD_ID
 import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_FLIGHT_TYPE
-import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_PLANE_TYPE
+import com.arny.flightlogbook.constants.CONSTS.REQUESTS.REQUEST_SELECT_AIRPORT_ARRIVAL
+import com.arny.flightlogbook.constants.CONSTS.REQUESTS.REQUEST_SELECT_AIRPORT_DEPARTURE
 import com.arny.flightlogbook.constants.CONSTS.REQUESTS.REQUEST_SELECT_CUSTOM_FIELD
 import com.arny.flightlogbook.constants.CONSTS.REQUESTS.REQUEST_SELECT_FLIGHT_TYPE
 import com.arny.flightlogbook.constants.CONSTS.REQUESTS.REQUEST_SELECT_PLANE_TYPE
@@ -57,6 +61,8 @@ class AddEditActivity :
     private var imm: InputMethodManager? = null
     private var sFlightTime = ""
     private var sNightTime = ""
+    private var sDepTime = ""
+    private var sArrivalTime = ""
     private var sGroundTime = ""
     private var rxPermissions: RxPermissions? = null
     private val compositeDisposable = CompositeDisposable()
@@ -106,6 +112,8 @@ class AddEditActivity :
         btnMoto.setOnClickListener(this)
         ivDate.setOnClickListener(this)
         tvColor.setOnClickListener(this)
+        tvDeparture.setOnClickListener(this)
+        tvArrival.setOnClickListener(this)
         vColor.setOnClickListener(this)
         ivRemoveColor.setOnClickListener(this)
         radioGroupIfrVfr.setOnCheckedChangeListener { _, checkedId ->
@@ -124,7 +132,85 @@ class AddEditActivity :
         onFlightTimeChanges()
         onNightTimeChanges()
         onGroundTimeChanges()
+        onDepartureTimeChanges()
+        onArrivalTimeChanges()
         onCustomViewsInit()
+    }
+
+    private fun onDepartureTimeChanges() {
+        val timeZero = getTimeZero()
+        tiedtDepartureTime.addTextChangedListener {
+            if (it.toString().isBlank()) {
+                tiedtDepartureTime.hint = timeZero
+            }
+            sDepTime = it.toString()
+        }
+        tiedtDepartureTime.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                tiedtDepartureTime.setSelectAllOnFocus(false)
+                addEditPresenter.correctDepartureTime(sDepTime)
+            }
+            val depTime = tiedtDepartureTime.text.toString()
+            if (depTime.isBlank()) {
+                if (hasFocus) {
+                    tiedtDepartureTime?.hint = timeZero
+                } else {
+                    tiedtDepartureTime?.hint = null
+                }
+            } else {
+                if (hasFocus && depTime == timeZero) {
+                    tiedtDepartureTime.setSelectAllOnFocus(true)
+                    tiedtDepartureTime.selectAll()
+                }
+            }
+        }
+        tiedtDepartureTime.setOnEditorActionListener { _, actionId, _ ->
+            when (actionId) {
+                EditorInfo.IME_ACTION_NEXT -> {
+                    addEditPresenter.correctDepartureTime(sDepTime)
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+    private fun onArrivalTimeChanges() {
+        val timeZero = getTimeZero()
+        tiedtArrivalTime.addTextChangedListener {
+            if (it.toString().isBlank()) {
+                tiedtArrivalTime.hint = timeZero
+            }
+            sArrivalTime = it.toString()
+        }
+        tiedtArrivalTime.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                tiedtArrivalTime.setSelectAllOnFocus(false)
+                addEditPresenter.correctArrivalTime(sArrivalTime)
+            }
+            val depTime = tiedtArrivalTime.text.toString()
+            if (depTime.isBlank()) {
+                if (hasFocus) {
+                    tiedtArrivalTime?.hint = timeZero
+                } else {
+                    tiedtArrivalTime?.hint = null
+                }
+            } else {
+                if (hasFocus && depTime == timeZero) {
+                    tiedtArrivalTime.setSelectAllOnFocus(true)
+                    tiedtArrivalTime.selectAll()
+                }
+            }
+        }
+        tiedtDepartureTime.setOnEditorActionListener { _, actionId, _ ->
+            when (actionId) {
+                EditorInfo.IME_ACTION_NEXT -> {
+                    addEditPresenter.correctDepartureTime(sDepTime)
+                    true
+                }
+                else -> false
+            }
+        }
     }
 
     private fun onCustomViewsInit() {
@@ -312,33 +398,36 @@ class AddEditActivity :
             R.id.select_plane_type -> {
                 addEditPresenter.correctFlightTime(sFlightTime)
                 launchActivity<FragmentContainerActivity>(REQUEST_SELECT_PLANE_TYPE) {
-                    action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_PLANE_TYPE
+                    action = CONSTS.EXTRAS.EXTRA_ACTION_SELECT_PLANE_TYPE
                     putExtra(CONSTS.REQUESTS.REQUEST, true)
                 }
-                overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
             }
             R.id.btnSelectFlightType -> {
                 addEditPresenter.correctFlightTime(sFlightTime)
                 launchActivity<FlightTypesActivity>(REQUEST_SELECT_FLIGHT_TYPE) {
                     putExtra(CONSTS.REQUESTS.REQUEST, true)
                 }
-                overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
             }
-            R.id.btnMoto -> {
-                showMotoDialog()
-            }
+            R.id.btnMoto -> showMotoDialog()
             R.id.vColor,
-            R.id.tvColor -> {
-                addEditPresenter.colorClick()
-            }
-            R.id.ivRemoveColor -> {
-                addEditPresenter.removeColor()
-            }
+            R.id.tvColor -> addEditPresenter.colorClick()
+            R.id.ivRemoveColor -> addEditPresenter.removeColor()
             R.id.btnAddField -> {
                 launchActivity<FragmentContainerActivity>(REQUEST_SELECT_CUSTOM_FIELD) {
                     action = EXTRA_ACTION_GET_CUSTOM_FIELD
                 }
-                overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
+            }
+            R.id.tvDeparture -> {
+                launchActivity<FragmentContainerActivity>(REQUEST_SELECT_AIRPORT_DEPARTURE) {
+                    action = EXTRA_ACTION_SELECT_AIRPORT
+                    putExtra(CONSTS.REQUESTS.REQUEST, true)
+                }
+            }
+            R.id.tvArrival -> {
+                launchActivity<FragmentContainerActivity>(REQUEST_SELECT_AIRPORT_ARRIVAL) {
+                    action = EXTRA_ACTION_SELECT_AIRPORT
+                    putExtra(CONSTS.REQUESTS.REQUEST, true)
+                }
             }
         }
     }
@@ -347,16 +436,11 @@ class AddEditActivity :
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
-                REQUEST_SELECT_PLANE_TYPE -> {
-                    addEditPresenter.setFlightPlaneType(data.getExtra<Long>(EXTRA_PLANE_TYPE))
-                }
-                REQUEST_SELECT_FLIGHT_TYPE -> {
-                    addEditPresenter.setFlightType(data.getExtra<Long>(EXTRA_FLIGHT_TYPE))
-                }
-                REQUEST_SELECT_CUSTOM_FIELD -> {
-                    val customFieldId = data.getExtra<Long>(EXTRA_CUSTOM_FIELD_ID)
-                    addEditPresenter.addCustomField(customFieldId)
-                }
+                REQUEST_SELECT_PLANE_TYPE -> addEditPresenter.setFlightPlaneType(data.getExtra<Long>(CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID))
+                REQUEST_SELECT_FLIGHT_TYPE -> addEditPresenter.setFlightType(data.getExtra<Long>(EXTRA_FLIGHT_TYPE))
+                REQUEST_SELECT_CUSTOM_FIELD -> addEditPresenter.addCustomField(data.getExtra<Long>(EXTRA_CUSTOM_FIELD_ID))
+                REQUEST_SELECT_AIRPORT_DEPARTURE -> addEditPresenter.setDeparture(data?.getParcelableExtra(EXTRA_AIRPORT))
+                REQUEST_SELECT_AIRPORT_ARRIVAL -> addEditPresenter.setArrival(data?.getParcelableExtra(EXTRA_AIRPORT))
             }
         }
     }
@@ -534,5 +618,21 @@ class AddEditActivity :
     override fun setCustomFieldsVisible(visible: Boolean) {
         rvCustomFields.isVisible = visible
         btnAddField.isVisible = visible
+    }
+
+    override fun setDeparture(departure: Airport?) {
+        tvDeparture.text = "${departure?.iata}(${departure?.icao})"
+    }
+
+    override fun setArrival(arrival: Airport?) {
+        tvArrival.text = "${arrival?.iata}(${arrival?.icao})"
+    }
+
+    override fun setEdtDepTimeText(depTime: String) {
+        tiedtDepartureTime.setText(depTime)
+    }
+
+    override fun setEdtArrTimeText(arrTime: String) {
+        tiedtArrivalTime.setText(arrTime)
     }
 }

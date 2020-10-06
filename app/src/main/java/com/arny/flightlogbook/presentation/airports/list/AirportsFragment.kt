@@ -1,5 +1,6 @@
 package com.arny.flightlogbook.presentation.airports.list
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,10 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.arny.domain.models.Airport
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
+import com.arny.flightlogbook.constants.CONSTS
+import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
+import com.arny.helpers.utils.getSystemLocale
 import com.arny.helpers.utils.toastError
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
@@ -18,7 +23,9 @@ import moxy.ktx.moxyPresenter
 
 class AirportsFragment : MvpAppCompatFragment(), AirportsView {
     companion object {
-        fun getInstance() = AirportsFragment()
+        fun getInstance(bundle: Bundle? = null) = AirportsFragment().apply {
+            bundle?.let { arguments = it }
+        }
     }
 
     private val compositeDisposable = CompositeDisposable()
@@ -36,7 +43,22 @@ class AirportsFragment : MvpAppCompatFragment(), AirportsView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        airportsAdapter = AirportsAdapter()
+        val isRequest = arguments?.getBoolean(CONSTS.REQUESTS.REQUEST) == true
+        requireActivity().title = getString(R.string.airports)
+        airportsAdapter = AirportsAdapter(requireContext().getSystemLocale()?.language == "ru")
+        airportsAdapter.setViewHolderListener(object : SimpleAbstractAdapter.OnViewHolderListener<Airport> {
+            override fun onItemClick(position: Int, item: Airport) {
+                if (isRequest) {
+                    val requireActivity = requireActivity()
+                    if (requireActivity is FragmentContainerActivity) {
+                        requireActivity.onSuccess(Intent().apply {
+                            putExtra(CONSTS.EXTRAS.EXTRA_AIRPORT, item)
+                        })
+                        requireActivity.onBackPressed()
+                    }
+                }
+            }
+        })
         with(rvAirports) {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = airportsAdapter

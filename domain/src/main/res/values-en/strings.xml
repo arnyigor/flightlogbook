@@ -29,6 +29,7 @@
     <string name="str_itemlogtime">Time</string>
     <string name="str_type_null">Aircraft Type</string>
     <string name="str_regnum">Reg №</string>
+    <string name="str_regnum_formatted">Reg №:\u00A0%s</string>
     <string name="str_vfr_ifr">visual / instrument</string>
     <string name="str_day_night">Day/Night</string>
     <string name="str_flight_type">circles/area/route</string>

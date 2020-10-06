@@ -6,7 +6,10 @@ import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.helpers.utils.setVisible
 import kotlinx.android.synthetic.main.plane_type_list_item_layout.view.*
 
-class PlaneTypesAdapter(private val typesListener: PlaneTypesListener? = null, private val hideEdit: Boolean = false) : SimpleAbstractAdapter<PlaneType>() {
+class PlaneTypesAdapter(
+    private val hideEdit: Boolean = false,
+    private val typesListener: PlaneTypesListener? = null
+) : SimpleAbstractAdapter<PlaneType>() {
 
     interface PlaneTypesListener : OnViewHolderListener<PlaneType> {
         fun onEditType(position: Int, item: PlaneType)
@@ -18,15 +21,19 @@ class PlaneTypesAdapter(private val typesListener: PlaneTypesListener? = null, p
     override fun bindView(item: PlaneType, viewHolder: VH) {
         viewHolder.itemView.apply {
             val position = viewHolder.adapterPosition
+            item.mainType?.let { tvTypeName.text = context.getString(it.nameRes) }
             tvTypeTitle.text = item.typeName
-            tvRegNo.text = item.regNo
+            tvRegNo.text = context.getString(
+                R.string.str_regnum_formatted,
+                item.regNo
+            )
             iv_type_edit.setVisible(!hideEdit)
             iv_type_delete.setVisible(!hideEdit)
             iv_type_edit.setOnClickListener {
                 typesListener?.onEditType(position, item)
             }
             iv_type_delete.setOnClickListener {
-                typesListener?.onDeleteType(position,item)
+                typesListener?.onDeleteType(position, item)
             }
             setOnClickListener {
                 typesListener?.onItemClick(position, item)
@@ -36,14 +43,11 @@ class PlaneTypesAdapter(private val typesListener: PlaneTypesListener? = null, p
 
     override fun getDiffCallback(): DiffCallback<PlaneType>? {
         return object : DiffCallback<PlaneType>() {
-            override fun areItemsTheSame(oldItem: PlaneType, newItem: PlaneType): Boolean {
-                return oldItem.typeId == newItem.typeId
-            }
+            override fun areItemsTheSame(oldItem: PlaneType, newItem: PlaneType) =
+                oldItem.typeId == newItem.typeId
 
-            override fun areContentsTheSame(oldItem: PlaneType, newItem: PlaneType): Boolean {
-                return oldItem.typeId == newItem.typeId && oldItem.typeName == newItem.typeName
-            }
+            override fun areContentsTheSame(oldItem: PlaneType, newItem: PlaneType) =
+                oldItem == newItem
         }
     }
-
 }
