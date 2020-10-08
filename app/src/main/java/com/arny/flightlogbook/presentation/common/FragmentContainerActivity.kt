@@ -13,8 +13,8 @@ import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_SELECT_AIRPOR
 import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_SELECT_PLANE_TYPE
 import com.arny.flightlogbook.presentation.airports.list.AirportsFragment
 import com.arny.flightlogbook.presentation.customfields.list.CustomFieldsListFragment
+import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.flightlogbook.presentation.main.NavigateItems
-import com.arny.flightlogbook.presentation.main.Router
 import com.arny.flightlogbook.presentation.planetypes.edit.PlaneTypeEditFragment
 import com.arny.flightlogbook.presentation.planetypes.list.PlaneTypesFragment
 import com.arny.helpers.utils.replaceFragment
@@ -22,7 +22,7 @@ import com.arny.helpers.utils.replaceFragmentInActivity
 import kotlinx.android.synthetic.main.about_layout.*
 import moxy.MvpAppCompatFragment
 
-class FragmentContainerActivity : AppCompatActivity(), Router {
+class FragmentContainerActivity : AppCompatActivity(), AppRouter {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

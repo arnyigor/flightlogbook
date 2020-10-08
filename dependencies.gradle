@@ -3,7 +3,7 @@ ext.versions = [
         'minSdk'           : 16,
         'targetSdk'        : 29,
         'compileSdk'       : 29,
-        'buildTools'       : '29.0.3',
+        'buildTools'       : '30.0.0',
         'supportLibrary'   : '28.0.0',
         'constraint'       : '2.0.0-beta3',
         'kotlin'           : '1.4.10',

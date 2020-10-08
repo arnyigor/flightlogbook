@@ -17,8 +17,8 @@ import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_CUSTOM_FIELD_ID
 import com.arny.flightlogbook.constants.CONSTS.REQUESTS.REQUEST_EDIT_CUSTOM_FIELD
 import com.arny.flightlogbook.customfields.models.CustomField
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
+import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.flightlogbook.presentation.main.NavigateItems
-import com.arny.flightlogbook.presentation.main.Router
 import com.arny.helpers.utils.ToastMaker
 import kotlinx.android.synthetic.main.fragment_custom_fields_list.*
 import moxy.MvpAppCompatFragment
@@ -44,7 +44,7 @@ class CustomFieldsListFragment : MvpAppCompatFragment(), CustomFieldsListView {
     private var reload: Boolean = false
     private lateinit var customFieldsAdapter: CustomFieldsAdapter
 
-    private var router: Router? = null
+    private var appRouter: AppRouter? = null
 
     @InjectPresenter
     lateinit var presenter: CustomFieldsListPresenter
@@ -54,8 +54,8 @@ class CustomFieldsListFragment : MvpAppCompatFragment(), CustomFieldsListView {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        if (context is Router) {
-            router = context
+        if (context is AppRouter) {
+            appRouter = context
         }
     }
 
@@ -113,7 +113,7 @@ class CustomFieldsListFragment : MvpAppCompatFragment(), CustomFieldsListView {
     }
 
     override fun navigateToFieldEdit(id: Long?) {
-        router?.navigateTo(
+        appRouter?.navigateTo(
                 NavigateItems.ITEM_EDIT_FIELD,
                 true,
                 bundleOf(EXTRA_CUSTOM_FIELD_ID to id),

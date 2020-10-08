@@ -135,36 +135,39 @@ class AddEditActivity :
         onDepartureTimeChanges()
         onArrivalTimeChanges()
         onCustomViewsInit()
+        edtDepartureTime.setDrawableRightClick {
+            edtDepartureTime.setText(getTimeZero())
+        }
     }
 
     private fun onDepartureTimeChanges() {
         val timeZero = getTimeZero()
-        tiedtDepartureTime.addTextChangedListener {
+        edtDepartureTime.addTextChangedListener {
             if (it.toString().isBlank()) {
-                tiedtDepartureTime.hint = timeZero
+                edtDepartureTime.hint = timeZero
             }
             sDepTime = it.toString()
         }
-        tiedtDepartureTime.setOnFocusChangeListener { _, hasFocus ->
+        edtDepartureTime.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
-                tiedtDepartureTime.setSelectAllOnFocus(false)
+                edtDepartureTime.setSelectAllOnFocus(false)
                 addEditPresenter.correctDepartureTime(sDepTime)
             }
-            val depTime = tiedtDepartureTime.text.toString()
+            val depTime = edtDepartureTime.text.toString()
             if (depTime.isBlank()) {
                 if (hasFocus) {
-                    tiedtDepartureTime?.hint = timeZero
+                    edtDepartureTime?.hint = timeZero
                 } else {
-                    tiedtDepartureTime?.hint = null
+                    edtDepartureTime?.hint = null
                 }
             } else {
                 if (hasFocus && depTime == timeZero) {
-                    tiedtDepartureTime.setSelectAllOnFocus(true)
-                    tiedtDepartureTime.selectAll()
+                    edtDepartureTime.setSelectAllOnFocus(true)
+                    edtDepartureTime.selectAll()
                 }
             }
         }
-        tiedtDepartureTime.setOnEditorActionListener { _, actionId, _ ->
+        edtDepartureTime.setOnEditorActionListener { _, actionId, _ ->
             when (actionId) {
                 EditorInfo.IME_ACTION_NEXT -> {
                     addEditPresenter.correctDepartureTime(sDepTime)
@@ -177,32 +180,32 @@ class AddEditActivity :
 
     private fun onArrivalTimeChanges() {
         val timeZero = getTimeZero()
-        tiedtArrivalTime.addTextChangedListener {
+        edtArrivalTime.addTextChangedListener {
             if (it.toString().isBlank()) {
-                tiedtArrivalTime.hint = timeZero
+                edtArrivalTime.hint = timeZero
             }
             sArrivalTime = it.toString()
         }
-        tiedtArrivalTime.setOnFocusChangeListener { _, hasFocus ->
+        edtArrivalTime.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
-                tiedtArrivalTime.setSelectAllOnFocus(false)
+                edtArrivalTime.setSelectAllOnFocus(false)
                 addEditPresenter.correctArrivalTime(sArrivalTime)
             }
-            val depTime = tiedtArrivalTime.text.toString()
+            val depTime = edtArrivalTime.text.toString()
             if (depTime.isBlank()) {
                 if (hasFocus) {
-                    tiedtArrivalTime?.hint = timeZero
+                    edtArrivalTime?.hint = timeZero
                 } else {
-                    tiedtArrivalTime?.hint = null
+                    edtArrivalTime?.hint = null
                 }
             } else {
                 if (hasFocus && depTime == timeZero) {
-                    tiedtArrivalTime.setSelectAllOnFocus(true)
-                    tiedtArrivalTime.selectAll()
+                    edtArrivalTime.setSelectAllOnFocus(true)
+                    edtArrivalTime.selectAll()
                 }
             }
         }
-        tiedtDepartureTime.setOnEditorActionListener { _, actionId, _ ->
+        edtDepartureTime.setOnEditorActionListener { _, actionId, _ ->
             when (actionId) {
                 EditorInfo.IME_ACTION_NEXT -> {
                     addEditPresenter.correctDepartureTime(sDepTime)
@@ -521,7 +524,8 @@ class AddEditActivity :
     private fun saveDataFlight() {
         val description = edtDesc.text.toString()
         val regNo = edtRegNo.text.toString()
-        addEditPresenter.saveFlight(regNo, description, sFlightTime, sGroundTime, sNightTime)
+        val title = tiedtTitle.text.toString()
+        addEditPresenter.saveFlight(regNo, description, sFlightTime, sGroundTime, sNightTime, title)
     }
 
     override fun saveFlight() {
@@ -621,18 +625,23 @@ class AddEditActivity :
     }
 
     override fun setDeparture(departure: Airport?) {
-        tvDeparture.text = "${departure?.iata}(${departure?.icao})"
+        tvDeparture.text = getString(R.string.string_format_two_strings, departure?.iata, "(${departure?.icao})")
+
     }
 
     override fun setArrival(arrival: Airport?) {
-        tvArrival.text = "${arrival?.iata}(${arrival?.icao})"
+        tvArrival.text = getString(R.string.string_format_two_strings, arrival?.iata, "(${arrival?.icao})")
     }
 
     override fun setEdtDepTimeText(depTime: String) {
-        tiedtDepartureTime.setText(depTime)
+        edtDepartureTime.setText(depTime)
     }
 
     override fun setEdtArrTimeText(arrTime: String) {
-        tiedtArrivalTime.setText(arrTime)
+        edtArrivalTime.setText(arrTime)
+    }
+
+    override fun setFlightTitle(title: String?) {
+        tiedtTitle.setText(title)
     }
 }

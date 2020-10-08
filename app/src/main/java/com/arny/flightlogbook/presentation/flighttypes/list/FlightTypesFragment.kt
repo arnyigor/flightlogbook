@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.arny.domain.models.FlightType
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.presentation.main.Router
+import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.helpers.utils.ToastMaker
 import com.arny.helpers.utils.alertDialog
 import com.arny.helpers.utils.inputDialog
@@ -26,7 +26,7 @@ class FlightTypesFragment : MvpAppCompatFragment(), FlightTypesView {
 
     private var typesAdapter: FlightTypesAdapter? = null
 
-    private var router: Router? = null
+    private var appRouter: AppRouter? = null
 
     @InjectPresenter
     lateinit var flightTypesPresenter: FlightTypesPresenter
@@ -38,8 +38,8 @@ class FlightTypesFragment : MvpAppCompatFragment(), FlightTypesView {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        if (context is Router) {
-            router = context
+        if (context is AppRouter) {
+            appRouter = context
         }
     }
 

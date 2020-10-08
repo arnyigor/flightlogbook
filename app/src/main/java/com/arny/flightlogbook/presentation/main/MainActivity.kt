@@ -28,7 +28,7 @@ import com.arny.helpers.utils.showSnackBar
 import kotlinx.android.synthetic.main.activity_home.*
 
 
-class MainActivity : AppCompatActivity(), Router {
+class MainActivity : AppCompatActivity(), AppRouter {
     companion object {
         private const val DRAWER_SELECTION = "drawer_selection"
         private const val TIME_DELAY = 2000
@@ -201,7 +201,7 @@ class MainActivity : AppCompatActivity(), Router {
                         break
                     }
                 }
-                if (curFrag != null && curFrag.isVisible && curFrag is MainFragment) {
+                if (curFrag != null && curFrag.isVisible && curFrag is MainFirstFragment) {
                     isMain = true
                 }
             }

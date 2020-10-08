@@ -61,7 +61,7 @@
     <string name="airports">Airports</string>
     <string name="icao_code">Icao code</string>
     <string name="iata_code">IATA code</string>
-    <string name="departure_airport">Departure airport</string>
-    <string name="arrival_airport">Arrival airport</string>
+    <string name="departure_airport">Departure</string>
+    <string name="arrival_airport">Arrival</string>
     <string name="utc_time">UTC time</string>
 </resources>

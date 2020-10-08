@@ -1,6 +1,8 @@
 package com.arny.domain.airports
 
 import com.arny.domain.models.Airport
+import com.arny.helpers.utils.OptionalNull
+import com.arny.helpers.utils.toOptionalNull
 import javax.inject.Inject
 
 class AirportsInteractor @Inject constructor(
@@ -13,5 +15,9 @@ class AirportsInteractor @Inject constructor(
         } else {
             airportsRepository.getAirportsLike(query)
         }
+    }
+
+    override fun getAirport(airportId: Long?): OptionalNull<Airport?> {
+        return airportsRepository.getAirport(airportId).toOptionalNull()
     }
 }

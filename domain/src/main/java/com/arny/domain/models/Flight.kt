@@ -22,8 +22,9 @@ data class Flight constructor(
         var colorInt: Int? = null,
         var colorText: Int? = null,
         var selected: Boolean = false,
-        var departure: Long? = null,
-        var arrival: Long? = null,
-) {
-
-}
+        var departureId: Long? = null,
+        var arrivalId: Long? = null,
+        var departureUtcTime: Int? = null,
+        var arrivalUtcTime: Int? = null,
+        var title: String? = null,
+)

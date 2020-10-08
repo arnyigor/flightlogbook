@@ -11,8 +11,8 @@ import com.arny.domain.models.PlaneType
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
+import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.flightlogbook.presentation.main.NavigateItems
-import com.arny.flightlogbook.presentation.main.Router
 import com.arny.helpers.utils.ToastMaker
 import com.arny.helpers.utils.alertDialog
 import com.arny.helpers.utils.setVisible
@@ -30,12 +30,12 @@ class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickL
     @ProvidePresenter
     fun provideTypeListPresenter() = PlaneTypesPresenter()
 
-    private var router: Router? = null
+    private var appRouter: AppRouter? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        if (context is Router) {
-            router = context
+        if (context is AppRouter) {
+            appRouter = context
         }
     }
 
@@ -64,7 +64,7 @@ class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickL
             false,
             typesListener = object : PlaneTypesAdapter.PlaneTypesListener {
                 override fun onEditType(position: Int, item: PlaneType) {
-                    router?.navigateTo(
+                    appRouter?.navigateTo(
                         NavigateItems.PLANE_TYPE_EDIT,
                         true,
                         bundleOf(CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID to item.typeId),
@@ -114,7 +114,7 @@ class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickL
     override fun onClick(v: View) {
         when (v.id) {
             R.id.fab_add_plane_type -> {
-                router?.navigateTo(
+                appRouter?.navigateTo(
                         NavigateItems.PLANE_TYPE_EDIT,
                         true,
                         requestCode = CONSTS.REQUESTS.REQUEST_EDIT_PLANE_TYPE,

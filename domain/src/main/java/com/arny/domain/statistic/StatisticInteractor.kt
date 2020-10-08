@@ -30,11 +30,6 @@ class StatisticInteractor @Inject constructor(
         return returnStatistic(extendedStatistic, fromCallable { flightsRepository.getStatisticDbFlights(startDate, endDate, includeEnd) })
     }
 
-    fun loadDBFlightsByTimes(startdatetime: Long, enddatetime: Long, extendedStatistic: Boolean, filterSelection: List<Long?>, includeEnd: Boolean): Observable<ArrayList<Statistic>> {
-        val filghtList = toFilghtList(fromCallable { flightsRepository.getStatisticDbFlights(startdatetime, enddatetime, includeEnd) })
-        return toStatisticList(extendedStatistic, filghtList)
-    }
-
     fun loadFilteredFlightsByPlaneTypes(types: List<Long?>, startdatetime: Long, enddatetime: Long, extendedStatistic: Boolean, includeEnd: Boolean): Observable<ArrayList<Statistic>> {
         return returnStatistic(extendedStatistic, fromCallable { flightsRepository.getStatisticDbFlightsByPlanes(startdatetime, enddatetime, types, includeEnd) })
     }

@@ -36,11 +36,14 @@ class DatabaseMigrations(val context: Context) {
             database.execSQL("CREATE TABLE IF NOT EXISTS `airports` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT, `icao` TEXT, `iata` TEXT, `name_rus` TEXT, `name_eng` TEXT, `city_rus` TEXT, `city_eng` TEXT, `country_rus` TEXT, `country_eng` TEXT, `latitude` REAL, `longitude` REAL, `elevation` REAL)")
             database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_airports_icao_iata ON airports (icao, iata)")
             database.execSQL("CREATE TABLE IF NOT EXISTS `custom_fields` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT, `type` TEXT, `add_time` INTEGER NOT NULL, `show_by_default` INTEGER NOT NULL)")
-            database.execSQL("CREATE TABLE IF NOT EXISTS `custom_field_values` (`_id` INTEGER PRIMARY KEY " +
-                    "AUTOINCREMENT, `externalId` INTEGER, `type` TEXT, `value` TEXT, `fieldId` INTEGER, CONSTRAINT " +
-                    "fk_custom_fields FOREIGN KEY (fieldId) REFERENCES custom_fields(_id) ON DELETE CASCADE, CONSTRAINT fk_main_table FOREIGN KEY (externalId) REFERENCES main_table(_id) ON DELETE CASCADE)")
+            database.execSQL("CREATE TABLE IF NOT EXISTS `custom_field_values` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT, `externalId` INTEGER, `type` TEXT, `value` TEXT, `fieldId` INTEGER, CONSTRAINT fk_custom_fields FOREIGN KEY (fieldId) REFERENCES custom_fields(_id) ON DELETE CASCADE, CONSTRAINT fk_main_table FOREIGN KEY (externalId) REFERENCES main_table(_id) ON DELETE CASCADE)")
             database.execSQL("ALTER TABLE type_table ADD COLUMN `main_type` TEXT")
             database.execSQL("ALTER TABLE type_table ADD COLUMN `reg_no` TEXT")
+            database.execSQL("ALTER TABLE type_table ADD COLUMN `reg_no` TEXT")
+            database.execSQL("ALTER TABLE main_table ADD COLUMN `departure_id` INTEGER")
+            database.execSQL("ALTER TABLE main_table ADD COLUMN `arrival_id` INTEGER")
+            database.execSQL("ALTER TABLE main_table ADD COLUMN `departure_utc_time` TEXT")
+            database.execSQL("ALTER TABLE main_table ADD COLUMN `arrival_utc_time` TEXT")
             database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_type_table_airplane_type_reg_no ON type_table (airplane_type,reg_no)")
             database.setTransactionSuccessful()
             database.endTransaction()

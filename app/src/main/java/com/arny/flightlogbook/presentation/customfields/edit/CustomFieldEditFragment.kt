@@ -12,9 +12,9 @@ import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.AbstractArrayAdapter
 import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.customfields.models.CustomFieldType
+import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.flightlogbook.presentation.main.BackButtonListener
 import com.arny.flightlogbook.presentation.main.MainActivity
-import com.arny.flightlogbook.presentation.main.Router
 import com.arny.helpers.utils.KeyboardHelper.hideKeyboard
 import com.arny.helpers.utils.ToastMaker
 import kotlinx.android.synthetic.main.fragment_edit_custom_field_layout.*
@@ -23,7 +23,7 @@ import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 
 class CustomFieldEditFragment : MvpAppCompatFragment(), CustomFieldsEditView, BackButtonListener {
-    private var router: Router? = null
+    private var appRouter: AppRouter? = null
 
     companion object {
         fun getInstance(bundle: Bundle? = null) = CustomFieldEditFragment().apply {
@@ -43,8 +43,8 @@ class CustomFieldEditFragment : MvpAppCompatFragment(), CustomFieldsEditView, Ba
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        if (context is Router) {
-            router = context
+        if (context is AppRouter) {
+            appRouter = context
         }
     }
 
@@ -127,7 +127,7 @@ class CustomFieldEditFragment : MvpAppCompatFragment(), CustomFieldsEditView, Ba
         if (activity is MainActivity) {
             activity.unLockNavigationDrawer()
         }
-        router?.onBackPress()
+        appRouter?.onBackPress()
     }
 
     override fun showResult(@StringRes strRes: Int) {

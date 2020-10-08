@@ -1,5 +1,6 @@
 package com.arny.flightlogbook.presentation.flights.addedit.presenter
 
+import com.arny.domain.airports.IAirportsInteractor
 import com.arny.domain.common.PreferencesInteractor
 import com.arny.domain.common.ResourcesInteractor
 import com.arny.domain.flights.FlightsInteractor
@@ -31,6 +32,9 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
 
     @Inject
     lateinit var flightsInteractor: FlightsInteractor
+
+    @Inject
+    lateinit var airportsInteractor: IAirportsInteractor
 
     @Inject
     lateinit var customFieldInteractor: CustomFieldInteractor
@@ -74,6 +78,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         viewState.setDescription(flight.description ?: "")
         viewState.setRegNo(flight.regNo)
         viewState.setToolbarTitle(resourcesInteractor.getString(R.string.str_edt_flight))
+        viewState.setFlightTitle(flight.title)
         loadColor(flight)
         loadDateTime(flight)
         loadTimes(flight)
@@ -81,6 +86,32 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         loadFlightType()
         loadPlaneTypes()
         loadCustomFields()
+        loadDepArrival(flight)
+        loadDepArrivalTime(flight)
+    }
+
+    private fun loadDepArrivalTime(flight: Flight) {
+        flight.departureUtcTime?.let {
+            viewState.setEdtDepTimeText(DateTimeUtils.strLogTime(it))
+        }
+        flight.arrivalUtcTime?.let {
+            viewState.setEdtArrTimeText(DateTimeUtils.strLogTime(it))
+        }
+    }
+
+    private fun loadDepArrival(flight: Flight) {
+        fromSingle { airportsInteractor.getAirport(flight.departureId) }
+                .subscribeFromPresenter({ optionalNull ->
+                    optionalNull.value?.let {
+                        viewState.setDeparture(it)
+                    }
+                })
+        fromSingle { airportsInteractor.getAirport(flight.arrivalId) }
+                .subscribeFromPresenter({ optionalNull ->
+                    optionalNull.value?.let {
+                        viewState.setArrival(it)
+                    }
+                })
     }
 
     private fun loadCustomFields() {
@@ -207,6 +238,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         correctDayTimeObs(stringTime, intDepTime)
                 .doOnNext {
                     intDepTime = it.intTime
+                    flight?.departureUtcTime = intDepTime
                     if (intArrivalTime >= intDepTime) {
                         intFlightTime = intArrivalTime - intDepTime
                     }
@@ -222,6 +254,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         correctDayTimeObs(stringTime, intDepTime)
                 .doOnNext {
                     intArrivalTime = it.intTime
+                    flight?.arrivalUtcTime = intArrivalTime
                     if (intArrivalTime >= intDepTime) {
                         intFlightTime = intArrivalTime - intDepTime
                     }
@@ -381,7 +414,8 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
             descr: String,
             sFlightTime: String,
             sGroundTime: String,
-            sNightTime: String
+            sNightTime: String,
+            title: String
     ) {
         val flightTimeObs = correctTimeObs(sFlightTime, intFlightTime)
         val groundTimeObs = correctTimeObs(sGroundTime, intGroundTime)
@@ -411,6 +445,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                         flt.totalTime = intTotalTime
                         flt.regNo = regNo
                         flt.description = descr
+                        flt.title = title
                         val id = flt.id
                         if (id != null) {
                             customFieldsValues.forEach { it.externalId = id }
@@ -556,12 +591,12 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     }
 
     fun setDeparture(departure: Airport?) {
-        flight?.departure = departure?.id
+        flight?.departureId = departure?.id
         viewState.setDeparture(departure)
     }
 
     fun setArrival(arrival: Airport?) {
-        flight?.arrival = arrival?.id
+        flight?.arrivalId = arrival?.id
         viewState.setArrival(arrival)
     }
 }

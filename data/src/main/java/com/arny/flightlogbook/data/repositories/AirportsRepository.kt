@@ -15,4 +15,8 @@ class AirportsRepository @Inject constructor(
     override fun getAirportsLike(query: String): List<Airport> {
         return airportsDAO.getDbAirportsLike("$query%", "$query%", "$query%", "$query%", "$query%").map { it.toAirport() }
     }
+
+    override fun getAirport(airportId: Long?): Airport? {
+        return airportsDAO.getDbAirport(airportId)?.toAirport()
+    }
 }

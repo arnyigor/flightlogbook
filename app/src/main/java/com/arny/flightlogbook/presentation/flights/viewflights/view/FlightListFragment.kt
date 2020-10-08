@@ -15,14 +15,14 @@ import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.presentation.flights.addedit.view.AddEditActivity
 import com.arny.flightlogbook.presentation.flights.viewflights.presenter.ViewFlightsPresenter
-import com.arny.flightlogbook.presentation.main.MainFragment
+import com.arny.flightlogbook.presentation.main.MainFirstFragment
 import com.arny.helpers.utils.*
 import kotlinx.android.synthetic.main.fragment_flight_list.*
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 
-class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView, MainFragment {
+class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView, MainFirstFragment {
     private var adapter: FlightsAdapter? = null
     private var positionIndex: Int = 0
     private var mLayoutManager: LinearLayoutManager? = null

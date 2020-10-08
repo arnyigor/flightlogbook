@@ -32,6 +32,15 @@ data class FlightEntity constructor(
         var flighttype: Int? = null,
         var description: String? = null,
         var params: String? = null,
+        @ColumnInfo(name = "departure_id")
+        var departureId: Long? = null,
+        @ColumnInfo(name = "arrival_id")
+        var arrivalId: Long? = null,
+        @ColumnInfo(name = "departure_utc_time")
+        var departureUtcTime: String? = null,
+        @ColumnInfo(name = "arrival_utc_time")
+        var arrivalUtcTime: String? = null,
+        var title: String? = null,
 ) {
 
     fun toFlight(): Flight {
@@ -51,6 +60,11 @@ data class FlightEntity constructor(
         flight.flightTypeId = flighttype
         flight.description = description
         flight.params = Params(params)
+        flight.departureId = departureId
+        flight.arrivalId = arrivalId
+        flight.departureUtcTime = DateTimeUtils.convertStringToTime(departureUtcTime)
+        flight.arrivalUtcTime = DateTimeUtils.convertStringToTime(arrivalUtcTime)
+        flight.title = title
         return flight
     }
 }
@@ -70,5 +84,10 @@ fun Flight.toFlightEntity(): FlightEntity {
             flightTypeId,
             description,
             params?.stringParams,
+            departureId,
+            arrivalId,
+            DateTimeUtils.strLogTime(departureUtcTime ?: 0),
+            DateTimeUtils.strLogTime(arrivalUtcTime ?: 0),
+            title
     )
 }
