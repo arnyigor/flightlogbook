@@ -135,9 +135,6 @@ class AddEditActivity :
         onDepartureTimeChanges()
         onArrivalTimeChanges()
         onCustomViewsInit()
-        edtDepartureTime.setDrawableRightClick {
-            edtDepartureTime.setText(getTimeZero())
-        }
     }
 
     private fun onDepartureTimeChanges() {
@@ -156,11 +153,15 @@ class AddEditActivity :
             val depTime = edtDepartureTime.text.toString()
             if (depTime.isBlank()) {
                 if (hasFocus) {
+                    tilDepTime?.hint = getString(R.string.utc_time)
                     edtDepartureTime?.hint = timeZero
                 } else {
-                    edtDepartureTime?.hint = null
+                    tilDepTime?.hint = null
+                    edtDepartureTime?.hint = timeZero
                 }
             } else {
+                tilDepTime?.hint = getString(R.string.utc_time)
+                edtDepartureTime?.hint = timeZero
                 if (hasFocus && depTime == timeZero) {
                     edtDepartureTime.setSelectAllOnFocus(true)
                     edtDepartureTime.selectAll()
@@ -205,7 +206,7 @@ class AddEditActivity :
                 }
             }
         }
-        edtDepartureTime.setOnEditorActionListener { _, actionId, _ ->
+        edtArrivalTime.setOnEditorActionListener { _, actionId, _ ->
             when (actionId) {
                 EditorInfo.IME_ACTION_NEXT -> {
                     addEditPresenter.correctDepartureTime(sDepTime)

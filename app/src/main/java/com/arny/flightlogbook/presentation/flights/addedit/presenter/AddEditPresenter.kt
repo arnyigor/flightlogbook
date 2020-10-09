@@ -47,19 +47,19 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     private var flightId: Long? = null
 
     @Volatile
-    private var intFlightTime: Int = 0
+    var intFlightTime: Int = 0
 
     @Volatile
-    private var intNightTime: Int = 0
+    var intNightTime: Int = 0
 
     @Volatile
-    private var intDepTime: Int = 0
+    var intDepTime: Int = 0
 
     @Volatile
-    private var intArrivalTime: Int = 0
+    var intArrivalTime: Int = 0
 
     @Volatile
-    private var intGroundTime: Int = 0
+    var intGroundTime: Int = 0
 
     @Volatile
     private var intTotalTime: Int = 0
@@ -92,9 +92,11 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
 
     private fun loadDepArrivalTime(flight: Flight) {
         flight.departureUtcTime?.let {
+            intDepTime = it
             viewState.setEdtDepTimeText(DateTimeUtils.strLogTime(it))
         }
         flight.arrivalUtcTime?.let {
+            intArrivalTime = it
             viewState.setEdtArrTimeText(DateTimeUtils.strLogTime(it))
         }
     }
@@ -239,9 +241,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                 .doOnNext {
                     intDepTime = it.intTime
                     flight?.departureUtcTime = intDepTime
-                    if (intArrivalTime >= intDepTime) {
-                        intFlightTime = intArrivalTime - intDepTime
-                    }
+                    correctFlightTimeByDepArr()
                 }
                 .subscribeFromPresenter({
                     viewState.setEdtDepTimeText(it.strTime)
@@ -255,14 +255,20 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                 .doOnNext {
                     intArrivalTime = it.intTime
                     flight?.arrivalUtcTime = intArrivalTime
-                    if (intArrivalTime >= intDepTime) {
-                        intFlightTime = intArrivalTime - intDepTime
-                    }
+                    correctFlightTimeByDepArr()
                 }
                 .subscribeFromPresenter({
                     viewState.setEdtArrTimeText(it.strTime)
                     timeSummChanged()
                 })
+    }
+
+    private fun correctFlightTimeByDepArr() {
+        intFlightTime = if (intArrivalTime >= intDepTime) {
+            intArrivalTime - intDepTime
+        } else {
+            (24 * 60 - intDepTime) + intArrivalTime
+        }
     }
 
     fun correctGroundTime(stringTime: String) {

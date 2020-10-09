@@ -114,24 +114,29 @@
                     android:text="@string/departure_airport"
                     android:textSize="16sp"
                     app:drawableStartCompat="@drawable/ic_icon_edit"
-                    app:layout_constraintBottom_toBottomOf="@+id/edtDepartureTime"
+                    app:layout_constraintBottom_toBottomOf="@+id/tilDepTime"
                     app:layout_constraintEnd_toStartOf="@+id/guideline_times"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/edtDepartureTime" />
+                    app:layout_constraintTop_toTopOf="@+id/tilDepTime" />
 
-                <EditText
-                    android:id="@+id/edtDepartureTime"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilDepTime"
                     android:layout_width="0dp"
-                    android:drawableRight="@drawable/ic_backspace_normal_light"
-                    android:drawableEnd="@drawable/ic_backspace_normal_light"
                     android:layout_height="wrap_content"
-                    android:autofillHints="@string/utc_time"
-                    android:gravity="center_horizontal"
+                    android:layout_margin="8dp"
                     android:hint="@string/utc_time"
-                    android:inputType="time"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="@+id/guideline_times"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtDepartureTime"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:autofillHints="@string/utc_time"
+                        android:gravity="center_horizontal"
+                        android:inputType="time" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
                     android:id="@+id/tvArrival"
@@ -143,20 +148,28 @@
                     android:text="@string/arrival_airport"
                     android:textSize="16sp"
                     app:drawableStartCompat="@drawable/ic_icon_edit"
-                    app:layout_constraintBottom_toBottomOf="@+id/edtArrivalTime"
+                    app:layout_constraintBottom_toBottomOf="@+id/tilArrTime"
                     app:layout_constraintEnd_toStartOf="@+id/guideline_times"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/edtArrivalTime" />
+                    app:layout_constraintTop_toTopOf="@+id/tilArrTime" />
 
-                <EditText
-                    android:id="@+id/edtArrivalTime"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilArrTime"
                     android:layout_width="0dp"
+                    android:layout_margin="8dp"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:inputType="time"
+                    android:hint="@string/utc_time"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="@+id/guideline_times"
-                    app:layout_constraintTop_toBottomOf="@+id/edtDepartureTime" />
+                    app:layout_constraintTop_toBottomOf="@+id/tilDepTime">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtArrivalTime"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:inputType="time" />
+                </com.google.android.material.textfield.TextInputLayout>
 
 
                 <TextView
@@ -196,7 +209,7 @@
                     android:textSize="18sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/tvFlightTimeLabel"
-                    app:layout_constraintTop_toBottomOf="@+id/edtArrivalTime"
+                    app:layout_constraintTop_toBottomOf="@+id/tilArrTime"
                     tools:text="00:00" />
 
                 <TextView
