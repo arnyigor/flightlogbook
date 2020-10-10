@@ -320,7 +320,7 @@ class FilesInteractorImpl @Inject constructor(
                         append(FileUtils.formatFileSize(file.length()))
                         append(",\n")
                         append(context.getString(R.string.file_last_modify))
-                        append(DateTimeUtils.getDateTime(Date(file.lastModified()), "dd MM yyyy HH:mm:ss"))
+                        append(DateTimeUtils.getDateTime(Date(file.lastModified()), "dd.MM.yyyy HH:mm:ss"))
                     }.toString()
         } else {
             null

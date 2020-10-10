@@ -172,6 +172,7 @@ class AddEditActivity :
             when (actionId) {
                 EditorInfo.IME_ACTION_NEXT -> {
                     addEditPresenter.correctDepartureTime(sDepTime)
+                    edtArrivalTime.requestFocus()
                     true
                 }
                 else -> false
@@ -209,7 +210,8 @@ class AddEditActivity :
         edtArrivalTime.setOnEditorActionListener { _, actionId, _ ->
             when (actionId) {
                 EditorInfo.IME_ACTION_NEXT -> {
-                    addEditPresenter.correctDepartureTime(sDepTime)
+                    addEditPresenter.correctArrivalTime(sArrivalTime)
+                    edtFlightTime.requestFocus()
                     true
                 }
                 else -> false
@@ -546,21 +548,13 @@ class AddEditActivity :
         val edtMotoFinish = xmlView.findViewById(R.id.edtFinishMoto) as EditText
         tvMotoResult = xmlView.findViewById(R.id.tvMotoresult) as TextView
         edtMotoStart.doAfterTextChanged { edt ->
-            if (edt is EditText) {
-                if (edt.isFocused) {
-                    val startString = edtMotoStart.text.toString()
-                    val finishString = edtMotoFinish.text.toString()
-                    addEditPresenter.onMotoTimeChange(startString, finishString)
-                }
+            if (edtMotoStart.isFocused) {
+                addEditPresenter.onMotoTimeChange(edt.toString(), edtMotoFinish.text.toString())
             }
         }
         edtMotoFinish.doAfterTextChanged { edt ->
-            if (edt is EditText) {
-                if (edt.isFocused) {
-                    val startString = edtMotoStart.text.toString()
-                    val finishString = edtMotoFinish.text.toString()
-                    addEditPresenter.onMotoTimeChange(startString, finishString)
-                }
+            if (edtMotoFinish.isFocused) {
+                addEditPresenter.onMotoTimeChange(edtMotoStart.text.toString(), edt.toString())
             }
         }
         alertDialog.setTitle(getString(R.string.str_moto))

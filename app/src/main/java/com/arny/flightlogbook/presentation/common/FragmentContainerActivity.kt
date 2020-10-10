@@ -7,10 +7,12 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_EDIT_AIRPORT
 import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_EDIT_PLANE_TYPE
 import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_GET_CUSTOM_FIELD
 import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_SELECT_AIRPORT
 import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_SELECT_PLANE_TYPE
+import com.arny.flightlogbook.presentation.airports.edit.AirportEditFragment
 import com.arny.flightlogbook.presentation.airports.list.AirportsFragment
 import com.arny.flightlogbook.presentation.customfields.list.CustomFieldsListFragment
 import com.arny.flightlogbook.presentation.main.AppRouter
@@ -46,6 +48,7 @@ class FragmentContainerActivity : AppCompatActivity(), AppRouter {
             EXTRA_ACTION_SELECT_PLANE_TYPE -> PlaneTypesFragment.getInstance(bundle)
             EXTRA_ACTION_EDIT_PLANE_TYPE -> PlaneTypeEditFragment.getInstance(bundle)
             EXTRA_ACTION_SELECT_AIRPORT -> AirportsFragment.getInstance(bundle)
+            EXTRA_ACTION_EDIT_AIRPORT -> AirportEditFragment.getInstance(bundle)
             else -> null
         }
     }

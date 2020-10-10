@@ -18,5 +18,6 @@ interface SettingsView : MvpView {
     fun hideResults()
     fun setAutoExportChecked(checked: Boolean)
     fun setShareFileVisible(visible: Boolean)
+    @StateStrategyType(value = OneExecutionStateStrategy::class)
     fun shareFile(uri: Uri, fileType: String)
 }

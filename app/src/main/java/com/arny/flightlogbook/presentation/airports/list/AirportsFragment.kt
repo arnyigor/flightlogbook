@@ -12,8 +12,10 @@ import com.arny.domain.models.Airport
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.flightlogbook.constants.CONSTS
+import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_AIRPORT_ID
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
 import com.arny.helpers.utils.getSystemLocale
+import com.arny.helpers.utils.launchActivity
 import com.arny.helpers.utils.toastError
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
@@ -45,6 +47,23 @@ class AirportsFragment : MvpAppCompatFragment(), AirportsView {
         super.onViewCreated(view, savedInstanceState)
         val isRequest = arguments?.getBoolean(CONSTS.REQUESTS.REQUEST) == true
         requireActivity().title = getString(R.string.airports)
+        initAdapter(isRequest)
+        presenter.onQueryChange(Observable.create { e ->
+            edtAirport.doAfterTextChanged {
+                if (edtAirport.isFocused) {
+                    e.onNext(it.toString())
+                }
+            }
+        })
+
+        fabAddAirport.setOnClickListener {
+            launchActivity<FragmentContainerActivity> {
+                action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_AIRPORT
+            }
+        }
+    }
+
+    private fun initAdapter(isRequest: Boolean) {
         airportsAdapter = AirportsAdapter(requireContext().getSystemLocale()?.language == "ru")
         airportsAdapter.setViewHolderListener(object : SimpleAbstractAdapter.OnViewHolderListener<Airport> {
             override fun onItemClick(position: Int, item: Airport) {
@@ -56,6 +75,11 @@ class AirportsFragment : MvpAppCompatFragment(), AirportsView {
                         })
                         requireActivity.onBackPressed()
                     }
+                } else {
+                    launchActivity<FragmentContainerActivity> {
+                        action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_AIRPORT
+                        putExtra(EXTRA_AIRPORT_ID, item.id)
+                    }
                 }
             }
         })
@@ -63,14 +87,6 @@ class AirportsFragment : MvpAppCompatFragment(), AirportsView {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = airportsAdapter
         }
-
-        presenter.onQueryChange(Observable.create { e ->
-            edtAirport.doAfterTextChanged {
-                if (edtAirport.isFocused) {
-                    e.onNext(it.toString())
-                }
-            }
-        })
     }
 
     override fun setAirports(list: List<Airport>) {

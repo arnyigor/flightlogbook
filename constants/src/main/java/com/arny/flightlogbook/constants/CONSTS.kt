@@ -49,15 +49,16 @@ object CONSTS {
     }
 
     object EXTRAS {
-        const val EXTRA_PLANE_TYPE = "extra_plane_type_id"
-        const val EXTRA_FLIGHT_TYPE = "extra_flight_type_id"
-        const val EXTRA_CUSTOM_FIELD_ID = "extra_custom_field_id"
-        const val EXTRA_PLANE_TYPE_ID = "extra_plane_type_id"
-        const val EXTRA_ACTION_GET_CUSTOM_FIELD = "extra_action_get_custom_field"
-        const val EXTRA_ACTION_EDIT_PLANE_TYPE = "extra_action_edit_plane_type"
-        const val EXTRA_ACTION_SELECT_PLANE_TYPE = "extra_action_select_plane_type"
-        const val EXTRA_ACTION_SELECT_AIRPORT = "extra_action_select_airport"
-        const val EXTRA_AIRPORT = "extra_airport"
-        const val EXTRA_CUSTOM_FIELD = "extra_custom_field"
+        const val EXTRA_FLIGHT_TYPE = "EXTRA_FLIGHT_TYPE_ID"
+        const val EXTRA_CUSTOM_FIELD_ID = "EXTRA_CUSTOM_FIELD_ID"
+        const val EXTRA_PLANE_TYPE_ID = "EXTRA_PLANE_TYPE_ID"
+        const val EXTRA_ACTION_GET_CUSTOM_FIELD = "EXTRA_ACTION_GET_CUSTOM_FIELD"
+        const val EXTRA_ACTION_EDIT_PLANE_TYPE = "EXTRA_ACTION_EDIT_PLANE_TYPE"
+        const val EXTRA_ACTION_SELECT_PLANE_TYPE = "EXTRA_ACTION_SELECT_PLANE_TYPE"
+        const val EXTRA_ACTION_SELECT_AIRPORT = "EXTRA_ACTION_SELECT_AIRPORT"
+        const val EXTRA_ACTION_EDIT_AIRPORT = "EXTRA_ACTION_EDIT_AIRPORT"
+        const val EXTRA_AIRPORT_ID = "EXTRA_AIRPORT_ID"
+        const val EXTRA_AIRPORT = "EXTRA_AIRPORT"
+        const val EXTRA_CUSTOM_FIELD = "EXTRA_CUSTOM_FIELD"
     }
 }
