@@ -47,8 +47,8 @@ fun AppCompatActivity.replaceFragment(
         fragment: Fragment, @IdRes frameId: Int,
         addToback: Boolean = false,
         tag: String? = null,
-        onLoadFunc: () -> Unit? = {},
-        animResourses: Pair<Int, Int>? = null
+        animResourses: Pair<Int, Int>? = null,
+        onLoadFunc: () -> Unit? = {}
 ) {
     val tg = tag ?: fragment.javaClass.simpleName
     supportFragmentManager.transact {
@@ -105,16 +105,15 @@ private inline fun FragmentManager.transact(action: FragmentTransaction.() -> Un
 inline fun <reified T : Any> Activity.launchActivity(
         requestCode: Int = -1,
         options: Bundle? = null,
-        enterAnim: Int? = null,
-        exitAnim: Int? = null,
+        animResourses: Pair<Int, Int>? = null,
         useStandartTransition: Boolean = true,
         noinline init: Intent.() -> Unit = {}
 ) {
     val intent = newIntent<T>(this)
     intent.init()
     startActivityForResult(intent, requestCode, options)
-    if (enterAnim != null && exitAnim != null) {
-        overridePendingTransition(enterAnim, exitAnim)
+    if (animResourses != null) {
+        overridePendingTransition(animResourses.first, animResourses.second)
     } else if (useStandartTransition) {
         overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
     }
@@ -156,16 +155,18 @@ inline fun <reified T : Any> Fragment.launchActivity(
 
 inline fun <reified T : Any> Fragment.launchActivity(
         options: Bundle? = null,
-        enterAnim: Int? = null,
-        exitAnim: Int? = null,
+        animResourses: Pair<Int, Int>? = null,
+        useStandartTransition: Boolean = true,
         noinline init: Intent.() -> Unit = {}) {
     val context = this.context
     if (context != null) {
         val intent = newIntent<T>(context)
         intent.init()
         startActivity(intent, options)
-        if (enterAnim != null && exitAnim != null) {
-            this.activity?.overridePendingTransition(enterAnim, exitAnim)
+        if (animResourses != null) {
+            this.activity?.overridePendingTransition(animResourses.first, animResourses.second)
+        } else if (useStandartTransition) {
+            this.activity?.overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
         }
     }
 }

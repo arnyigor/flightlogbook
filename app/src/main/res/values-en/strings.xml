@@ -73,4 +73,5 @@
     <string name="latitude">Latitude</string>
     <string name="longitude">Longitude</string>
     <string name="elevation">Elevation</string>
+    <string name="edit_airport">Airport edit</string>
 </resources>

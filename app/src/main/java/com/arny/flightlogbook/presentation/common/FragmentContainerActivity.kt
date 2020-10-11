@@ -71,10 +71,10 @@ class FragmentContainerActivity : AppCompatActivity(), AppRouter {
                 fragment.setTargetFragment(targetFragment, requestCode ?: 0)
             }
             replaceFragment(
-                fragment,
-                R.id.fragment_container,
-                addToBackStack,
-                animResourses = R.anim.anim_slide_in_left to R.anim.anim_slide_out_left
+                    fragment,
+                    R.id.fragment_container,
+                    addToBackStack,
+                    animResourses = R.anim.anim_slide_in_left to R.anim.anim_slide_out_left
             )
         }
     }

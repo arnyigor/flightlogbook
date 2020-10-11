@@ -4,18 +4,18 @@ import android.os.Parcel
 import android.os.Parcelable
 
 data class Airport(
-        val id: Long? = null,
-        val icao: String? = null,
-        val iata: String? = null,
-        val nameRus: String? = null,
-        val nameEng: String? = null,
-        val cityRus: String? = null,
-        val cityEng: String? = null,
-        val countryRus: String? = null,
-        val countryEng: String? = null,
-        val latitude: Double? = null,
-        val longitude: Double? = null,
-        val elevation: Double? = null,
+        var id: Long? = null,
+        var icao: String? = null,
+        var iata: String? = null,
+        var nameRus: String? = null,
+        var nameEng: String? = null,
+        var cityRus: String? = null,
+        var cityEng: String? = null,
+        var countryRus: String? = null,
+        var countryEng: String? = null,
+        var latitude: Double? = null,
+        var longitude: Double? = null,
+        var elevation: Double? = null,
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
             parcel.readValue(Long::class.java.classLoader) as? Long,

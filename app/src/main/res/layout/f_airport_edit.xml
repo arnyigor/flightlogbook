@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:padding="8dp">
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,6 +23,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/tiedtIcaoCode"
                 android:inputType="text"
+                tools:text="UUDD"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -40,6 +42,7 @@
                 android:id="@+id/tiEdtIataCode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                tools:text="DME"
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -56,6 +59,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/tiedtNameRus"
                 android:inputType="text"
+                tools:text="Домодедово"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -74,6 +78,7 @@
                 android:id="@+id/tiedtNameEng"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                tools:text="Domodedovo"
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -91,6 +96,7 @@
                 android:id="@+id/tiedtCityRus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                tools:text="Москва"
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -106,6 +112,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/tiedtCityEng"
+                tools:text="Moscow"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="text" />
@@ -125,6 +132,7 @@
                 android:id="@+id/tiedtCountryRus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                tools:text="Россия"
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -141,6 +149,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/tiedtCountryEng"
                 android:layout_width="match_parent"
+                tools:text="Russia"
                 android:layout_height="wrap_content"
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -158,8 +167,9 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/tiedtLatitude"
                 android:layout_width="match_parent"
+                android:inputType="numberDecimal"
                 android:layout_height="wrap_content"
-                android:inputType="text" />
+                tools:text="54.356489484" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -173,10 +183,11 @@
             app:layout_constraintTop_toBottomOf="@+id/tilIcaoCode">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/tiedLongitude"
+                android:id="@+id/tiedtLongitude"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text" />
+                android:inputType="numberDecimal"
+                tools:text="37.548488" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -190,13 +201,14 @@
             app:layout_constraintTop_toBottomOf="@+id/tilIcaoCode">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/tiedElevation"
+                android:id="@+id/tiedtElevation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text" />
+                android:inputType="numberDecimal"
+                tools:text="370" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/btnSave"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
