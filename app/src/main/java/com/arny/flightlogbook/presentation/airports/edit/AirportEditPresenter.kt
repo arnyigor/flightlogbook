@@ -3,6 +3,7 @@ package com.arny.flightlogbook.presentation.airports.edit
 import com.arny.domain.airports.IAirportsInteractor
 import com.arny.domain.models.Airport
 import com.arny.flightlogbook.FlightApp
+import com.arny.flightlogbook.R
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import com.arny.helpers.utils.fromCallable
 import moxy.InjectViewState
@@ -47,18 +48,27 @@ class AirportEditPresenter : BaseMvpPresenter<AirportEditView>() {
     ) {
         val airport = Airport(
                 airportId,
-                icao,
-                iata,
-                nameRus,
-                nameEng,
-                cityRus,
-                cityEng,
-                countryRus,
-                countryEng,
+                icao.trimIndent(),
+                iata.trimIndent(),
+                nameRus.trimIndent(),
+                nameEng.trimIndent(),
+                cityRus.trimIndent(),
+                cityEng.trimIndent(),
+                countryRus.trimIndent(),
+                countryEng.trimIndent(),
                 latitudeStr.toDoubleOrNull(),
                 longitudeStr.toDoubleOrNull(),
                 elevationStr.toDoubleOrNull(),
         )
-        airportsInteractor.saveAirport(airport)
+        fromCallable { airportsInteractor.saveAirport(airport) }
+                .subscribeFromPresenter({ save ->
+                    if (save) {
+                        viewState.setSuccessOk()
+                    } else {
+                        viewState.toastError(R.string.save_error, "")
+                    }
+                }, {
+                    viewState.toastError(R.string.save_error, it.message)
+                })
     }
 }

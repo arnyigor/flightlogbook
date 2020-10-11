@@ -25,19 +25,23 @@
             android:padding="8dp">
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilTitle"
+                android:id="@+id/tilDescription"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:hint="@string/str_desc"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvTotalTime">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/tiedtTitle"
+                    android:id="@+id/edtDesc"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:ellipsize="end"
                     android:focusable="true"
                     android:focusableInTouchMode="true"
-                    android:gravity="center_horizontal"
-                    android:hint="@string/flight_title"
-                    tools:text="" />
+                    android:inputType="textMultiLine"
+                    android:maxLines="5" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -156,8 +160,8 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilArrTime"
                     android:layout_width="0dp"
-                    android:layout_margin="8dp"
                     android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
                     android:hint="@string/utc_time"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="@+id/guideline_times"
@@ -327,27 +331,6 @@
                 app:layout_constraintBottom_toBottomOf="@+id/tilDate"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/tilDate" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilDescription"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvTotalTime">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/edtDesc"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:focusable="true"
-                    android:focusableInTouchMode="true"
-                    android:hint="@string/str_desc"
-                    android:inputType="textMultiLine"
-                    android:maxLines="5"
-                    tools:text="@tools:sample/lorem" />
-            </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/edtRegNoLayout"

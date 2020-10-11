@@ -40,7 +40,6 @@ data class FlightEntity constructor(
         var departureUtcTime: String? = null,
         @ColumnInfo(name = "arrival_utc_time")
         var arrivalUtcTime: String? = null,
-        var title: String? = null,
 ) {
 
     fun toFlight(): Flight {
@@ -64,7 +63,6 @@ data class FlightEntity constructor(
         flight.arrivalId = arrivalId
         flight.departureUtcTime = DateTimeUtils.convertStringToTime(departureUtcTime)
         flight.arrivalUtcTime = DateTimeUtils.convertStringToTime(arrivalUtcTime)
-        flight.title = title
         return flight
     }
 }
@@ -88,6 +86,5 @@ fun Flight.toFlightEntity(): FlightEntity {
             arrivalId,
             DateTimeUtils.strLogTime(departureUtcTime ?: 0),
             DateTimeUtils.strLogTime(arrivalUtcTime ?: 0),
-            title
     )
 }

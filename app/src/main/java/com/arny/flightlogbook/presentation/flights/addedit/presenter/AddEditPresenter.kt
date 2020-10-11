@@ -78,7 +78,6 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         viewState.setDescription(flight.description ?: "")
         viewState.setRegNo(flight.regNo)
         viewState.setToolbarTitle(resourcesInteractor.getString(R.string.str_edt_flight))
-        viewState.setFlightTitle(flight.title)
         loadColor(flight)
         loadDateTime(flight)
         loadTimes(flight)
@@ -420,8 +419,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
             descr: String,
             sFlightTime: String,
             sGroundTime: String,
-            sNightTime: String,
-            title: String
+            sNightTime: String
     ) {
         val flightTimeObs = correctTimeObs(sFlightTime, intFlightTime)
         val groundTimeObs = correctTimeObs(sGroundTime, intGroundTime)
@@ -451,7 +449,6 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                         flt.totalTime = intTotalTime
                         flt.regNo = regNo
                         flt.description = descr
-                        flt.title = title
                         val id = flt.id
                         if (id != null) {
                             customFieldsValues.forEach { it.externalId = id }

@@ -66,12 +66,12 @@
     <string name="type_name">Название типа</string>
     <string name="edit_plane_type">Редактирование типа ВС</string>
     <string name="error_plane_type_not_saved">ВС не сохранено</string>
-    <string name="enter_airport_code">Введите код аэропрта ICAO, IATA, название или город</string>
+    <string name="enter_airport_code">Введите код аэродрома ICAO, IATA, название или город</string>
     <string name="airports">Аэропорты</string>
     <string name="icao_code">Код ICAO</string>
     <string name="iata_code">Код IATA</string>
-    <string name="airport_name_rus">Название аэропорта(рус.)</string>
-    <string name="airport_name_eng">Название аэропорта(англ.)</string>
+    <string name="airport_name_rus">Название аэродрома(рус.)</string>
+    <string name="airport_name_eng">Название аэродрома(англ.)</string>
     <string name="string_format_two_strings" translatable="false">%s%s</string>
     <string name="departure_airport">Вылет</string>
     <string name="arrival_airport">Прилет</string>
@@ -83,5 +83,6 @@
     <string name="latitude">Широта</string>
     <string name="longitude">Долгота</string>
     <string name="elevation">Высота</string>
-    <string name="edit_airport">Редактирование аэропорта</string>
+    <string name="edit_airport">Редактирование аэродрома</string>
+    <string name="save_error">Ошибка сохранения %s</string>
 </resources>

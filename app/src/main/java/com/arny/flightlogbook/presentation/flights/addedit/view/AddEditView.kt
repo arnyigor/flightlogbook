@@ -39,5 +39,4 @@ interface AddEditView : MvpView {
     fun setArrival(arrival: Airport?)
     fun setEdtDepTimeText(depTime: String)
     fun setEdtArrTimeText(arrTime: String)
-    fun setFlightTitle(title: String?)
 }

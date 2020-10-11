@@ -1,6 +1,6 @@
 package com.arny.domain.models
 
-data class Flight constructor(
+data class Flight(
         var id: Long? = null,
         var datetime: Long? = null,
         var flightTime: Int = 0,
@@ -26,5 +26,4 @@ data class Flight constructor(
         var arrivalId: Long? = null,
         var departureUtcTime: Int? = null,
         var arrivalUtcTime: Int? = null,
-        var title: String? = null,
 )

@@ -1,13 +1,16 @@
 package com.arny.flightlogbook.presentation.airports.edit
 
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import com.arny.domain.models.Airport
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
+import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
 import com.arny.helpers.utils.getExtra
+import com.arny.helpers.utils.toastError
 import kotlinx.android.synthetic.main.f_airport_edit.*
 import moxy.ktx.moxyPresenter
 
@@ -50,16 +53,28 @@ class AirportEditFragment : BaseMvpFragment(), AirportEditView {
     }
 
     override fun setAirport(airport: Airport) {
-        tiedtIcaoCode.setText(airport.icao)
-        tiEdtIataCode.setText(airport.iata)
-        tiedtNameRus.setText(airport.nameRus)
-        tiedtNameEng.setText(airport.nameEng)
-        tiedtCityRus.setText(airport.cityRus)
-        tiedtCityEng.setText(airport.cityEng)
-        tiedtCountryRus.setText(airport.cityRus)
-        tiedtCountryEng.setText(airport.cityEng)
-        tiedtLatitude.setText(airport.latitude.toString())
-        tiedtLongitude.setText(airport.longitude.toString())
-        tiedtElevation.setText(airport.elevation.toString())
+        airport.icao?.let { tiedtIcaoCode.setText(it) }
+        airport.iata?.let { tiEdtIataCode.setText(it) }
+        airport.nameRus?.let { tiedtNameRus.setText(it) }
+        airport.nameEng?.let { tiedtNameEng.setText(it) }
+        airport.cityRus?.let { tiedtCityRus.setText(it) }
+        airport.cityEng?.let { tiedtCityEng.setText(it) }
+        airport.countryRus?.let { tiedtCountryRus.setText(it) }
+        airport.countryEng?.let { tiedtCountryEng.setText(it) }
+        airport.latitude?.let { tiedtLatitude.setText(it.toString()) }
+        airport.longitude?.let { tiedtLongitude.setText(it.toString()) }
+        airport.elevation?.let { tiedtElevation.setText(it.toString()) }
+    }
+
+    override fun toastError(errorRes: Int, message: String?) {
+        toastError(getString(errorRes, message))
+    }
+
+    override fun setSuccessOk() {
+        val requireActivity = requireActivity()
+        if (requireActivity is FragmentContainerActivity) {
+            requireActivity.onSuccess(Intent())
+            requireActivity.onBackPressed()
+        }
     }
 }

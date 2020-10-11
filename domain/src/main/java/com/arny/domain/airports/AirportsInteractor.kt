@@ -20,4 +20,12 @@ class AirportsInteractor @Inject constructor(
     override fun getAirport(airportId: Long?): OptionalNull<Airport?> {
         return airportsRepository.getAirport(airportId).toOptionalNull()
     }
+
+    override fun saveAirport(airport: Airport): Boolean {
+        return if (airport.id == null) {
+            airportsRepository.addAirport(airport) > 0
+        } else {
+            airportsRepository.updateAirport(airport) > 0
+        }
+    }
 }

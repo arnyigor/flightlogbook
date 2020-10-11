@@ -3,6 +3,7 @@ package com.arny.flightlogbook.data.repositories
 import com.arny.domain.airports.IAirportsRepository
 import com.arny.domain.models.Airport
 import com.arny.flightlogbook.data.db.daos.AirportsDAO
+import com.arny.flightlogbook.data.models.airports.toAirportEntity
 import javax.inject.Inject
 
 class AirportsRepository @Inject constructor(
@@ -18,5 +19,13 @@ class AirportsRepository @Inject constructor(
 
     override fun getAirport(airportId: Long?): Airport? {
         return airportsDAO.getDbAirport(airportId)?.toAirport()
+    }
+
+    override fun addAirport(airport: Airport): Long {
+        return airportsDAO.insertReplace(airport.toAirportEntity())
+    }
+
+    override fun updateAirport(airport: Airport): Int {
+        return airportsDAO.updateReplace(airport.toAirportEntity())
     }
 }

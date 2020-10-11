@@ -525,10 +525,13 @@ class AddEditActivity :
     }
 
     private fun saveDataFlight() {
-        val description = edtDesc.text.toString()
-        val regNo = edtRegNo.text.toString()
-        val title = tiedtTitle.text.toString()
-        addEditPresenter.saveFlight(regNo, description, sFlightTime, sGroundTime, sNightTime, title)
+        addEditPresenter.saveFlight(
+                edtRegNo.text.toString(),
+                edtDesc.text.toString(),
+                sFlightTime,
+                sGroundTime,
+                sNightTime
+        )
     }
 
     override fun saveFlight() {
@@ -634,9 +637,5 @@ class AddEditActivity :
 
     override fun setEdtArrTimeText(arrTime: String) {
         edtArrivalTime.setText(arrTime)
-    }
-
-    override fun setFlightTitle(title: String?) {
-        tiedtTitle.setText(title)
     }
 }

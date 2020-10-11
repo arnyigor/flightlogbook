@@ -43,7 +43,6 @@ class DatabaseMigrations(val context: Context) {
             database.execSQL("ALTER TABLE main_table ADD COLUMN `arrival_id` INTEGER")
             database.execSQL("ALTER TABLE main_table ADD COLUMN `departure_utc_time` TEXT")
             database.execSQL("ALTER TABLE main_table ADD COLUMN `arrival_utc_time` TEXT")
-            database.execSQL("ALTER TABLE main_table ADD COLUMN `title` TEXT")
             database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_type_table_airplane_type_reg_no ON type_table (airplane_type,reg_no)")
             database.setTransactionSuccessful()
             database.endTransaction()

@@ -6,7 +6,6 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.arny.domain.models.Airport
 
-
 @Entity(
         tableName = "airports",
         indices = [Index("icao", "iata", unique = true)]
@@ -52,4 +51,8 @@ data class AirportEntity(
                 elevation
         )
     }
+}
+
+fun Airport.toAirportEntity(): AirportEntity {
+    return AirportEntity(id, icao, iata, nameRus, nameEng, cityRus, cityEng, countryRus, countryEng, latitude, longitude, elevation)
 }
