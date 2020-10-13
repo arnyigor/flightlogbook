@@ -7,6 +7,7 @@ import com.arny.domain.flights.FlightsInteractor
 import com.arny.domain.models.Airport
 import com.arny.domain.models.Flight
 import com.arny.domain.models.Params
+import com.arny.domain.models.PlaneType
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.constants.CONSTS
@@ -19,6 +20,7 @@ import com.arny.flightlogbook.presentation.flights.addedit.models.getCorrectDayT
 import com.arny.flightlogbook.presentation.flights.addedit.models.getCorrectTime
 import com.arny.flightlogbook.presentation.flights.addedit.view.AddEditView
 import com.arny.helpers.utils.*
+import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.rxkotlin.Observables
 import moxy.InjectViewState
@@ -76,14 +78,13 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
 
     private fun initUI(flight: Flight) {
         viewState.setDescription(flight.description ?: "")
-        viewState.setRegNo(flight.regNo)
-        viewState.setToolbarTitle(resourcesInteractor.getString(R.string.str_edt_flight))
+        viewState.setToolbarTitle(getString(R.string.str_edt_flight))
         loadColor(flight)
         loadDateTime(flight)
         loadTimes(flight)
         loadIfrVfr(flight)
         loadFlightType()
-        loadPlaneTypes()
+        loadPlaneTypes(flight)
         loadCustomFields()
         loadDepArrival(flight)
         loadDepArrivalTime(flight)
@@ -157,10 +158,12 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         }
     }
 
-    private fun loadPlaneTypes() {
-        val planeId = flight?.planeId
-        if (planeId != null) {
-            setFlightPlaneType(planeId)
+    private fun loadPlaneTypes(flight: Flight) {
+        when {
+            flight.planeId != null -> setFlightPlaneType(flight.planeId)
+            !flight.regNo.isNullOrBlank() -> loadPlaneType(
+                    fromNullable { flightsInteractor.loadPlaneTypeByRegNo(flight.regNo) }
+            )
         }
     }
 
@@ -169,7 +172,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
             fromNullable { flightsInteractor.loadFlightType(it.toLong()) }
                     .subscribeFromPresenter({
                         val title =
-                                "${resourcesInteractor.getString(R.string.str_flight_type_title)}:${it.value?.typeTitle ?: "-"}"
+                                "${getString(R.string.str_flight_type_title)}:${it.value?.typeTitle ?: "-"}"
                         viewState.setFligtTypeTitle(title)
                     })
         }
@@ -292,7 +295,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                     if (flight != null) {
                         initUI(flight!!)
                     } else {
-                        viewState.toastError(resourcesInteractor.getString(R.string.record_not_found))
+                        viewState.toastError(getString(R.string.record_not_found))
                         initEmptyUI()
                     }
                 })
@@ -301,7 +304,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     private fun initEmptyUI() {
         viewState.setDescription("")
         viewState.setDate("")
-        viewState.setToolbarTitle(resourcesInteractor.getString(R.string.str_add_flight))
+        viewState.setToolbarTitle(getString(R.string.str_add_flight))
         flight = Flight()
         flight?.params = Params()
         loadCustomFields()
@@ -359,7 +362,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         }.subscribeFromPresenter({
             viewState.setDate(it)
         }, {
-            viewState.toastError(resourcesInteractor.getString(R.string.error_enter_date))
+            viewState.toastError(getString(R.string.error_enter_date))
         })
     }
 
@@ -383,21 +386,28 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
             viewState.setDate(it)
         }, {
             setDayToday()
-            viewState.toastError(resourcesInteractor.getString(R.string.date_time_input_error))
+            viewState.toastError(getString(R.string.date_time_input_error))
         })
 
     }
 
     fun setFlightPlaneType(planetypeId: Long?) {
-        fromNullable {
-            flightsInteractor.loadPlaneType(planetypeId)
-        }.subscribeFromPresenter({
-            val planeType = it.value
-            this.flight?.planeId = planeType?.typeId
-            val title = "${resourcesInteractor.getString(R.string.str_type)}:${planeType?.typeName}"
-            viewState.setPlaneTypeTitle(title)
+        loadPlaneType(fromNullable { flightsInteractor.loadPlaneType(planetypeId) })
+    }
+
+    private fun loadPlaneType(planeTypeNullable: Observable<OptionalNull<PlaneType?>>) {
+        planeTypeNullable.subscribeFromPresenter({
+            it.value?.let { planeType ->
+                flight?.planeId = planeType.typeId
+                flight?.planeType = planeType
+                val title = "${getString(R.string.str_type)}\n${getString(planeType.mainType?.nameRes)} " +
+                        "${planeType.typeName} ${getString(R.string.str_regnum)}:${planeType.regNo}"
+                viewState.setPlaneTypeTitle(title)
+            } ?: run {
+                viewState.setPlaneTypeTitle("${getString(R.string.str_type)}:${getString(R.string.no_type)}")
+            }
         }, {
-            viewState.toastError(resourcesInteractor.getString(R.string.err_plane_type_not_found))
+            viewState.toastError(getString(R.string.err_plane_type_not_found))
         })
     }
 
@@ -406,16 +416,13 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                 .subscribeFromPresenter({
                     val flightType = it.value
                     this.flight?.flightTypeId = flightType?.id?.toInt()
-                    val title =
-                            "${resourcesInteractor.getString(R.string.str_flight_type_title)}:${flightType?.typeTitle}"
-                    viewState.setFligtTypeTitle(title)
+                    viewState.setFligtTypeTitle("${getString(R.string.str_flight_type_title)}:${flightType?.typeTitle}")
                 }, {
-                    viewState.toastError(resourcesInteractor.getString(R.string.err_flight_type_not_found))
+                    viewState.toastError(getString(R.string.err_flight_type_not_found))
                 })
     }
 
     fun saveFlight(
-            regNo: String,
             descr: String,
             sFlightTime: String,
             sGroundTime: String,
@@ -447,7 +454,6 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                         flt.nightTime = intNightTime
                         flt.groundTime = intGroundTime
                         flt.totalTime = intTotalTime
-                        flt.regNo = regNo
                         flt.description = descr
                         val id = flt.id
                         if (id != null) {
@@ -457,7 +463,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                             addNewFlight(flt)
                         }
                     } else {
-                        viewState.toastError(resourcesInteractor.getString(R.string.empty_flight))
+                        viewState.toastError(getString(R.string.empty_flight))
                     }
                 }, {
                     viewState.toastError(it.message)
@@ -475,14 +481,14 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                 }
                 .subscribeFromPresenter({ success ->
                     if (success) {
-                        viewState.toastSuccess(resourcesInteractor.getString(R.string.flight_save_success))
+                        viewState.toastSuccess(getString(R.string.flight_save_success))
                         viewState.setResultOK()
                         viewState.onPressBack()
                     } else {
-                        viewState.toastError(resourcesInteractor.getString(R.string.flight_not_save))
+                        viewState.toastError(getString(R.string.flight_not_save))
                     }
                 }, {
-                    viewState.toastError("${resourcesInteractor.getString(R.string.flight_save_error)}:${it.message}")
+                    viewState.toastError("${getString(R.string.flight_save_error)}:${it.message}")
                 })
     }
 
@@ -491,15 +497,15 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                 .flatMap(::saveCustomFieldsValues)
                 .subscribeFromPresenter({
                     if (it) {
-                        viewState.toastSuccess(resourcesInteractor.getString(R.string.flight_save_success))
+                        viewState.toastSuccess(getString(R.string.flight_save_success))
                         viewState.setResultOK()
                         viewState.onPressBack()
                     } else {
-                        viewState.toastError(resourcesInteractor.getString(R.string.flight_not_save))
+                        viewState.toastError(getString(R.string.flight_not_save))
                     }
                 }, {
                     it.printStackTrace()
-                    viewState.toastError("${resourcesInteractor.getString(R.string.flight_save_error)}:${it.message}")
+                    viewState.toastError("${getString(R.string.flight_save_error)}:${it.message}")
                 })
     }
 
@@ -518,15 +524,17 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                 .subscribeFromPresenter({
                     if (it) {
                         viewState.setResultOK()
-                        viewState.toastSuccess(resourcesInteractor.getString(R.string.flight_removed))
+                        viewState.toastSuccess(getString(R.string.flight_removed))
                         viewState.onPressBack()
                     } else {
-                        viewState.toastError(resourcesInteractor.getString(R.string.flight_not_removed))
+                        viewState.toastError(getString(R.string.flight_not_removed))
                     }
                 }, {
                     viewState.toastError(it.message)
                 })
     }
+
+    private fun getString(res: Int?) = resourcesInteractor.getString(res)
 
     fun colorClick() {
         fromCallable { getColorsIntArray() }

@@ -10,7 +10,6 @@ import moxy.viewstate.strategy.alias.OneExecution
 interface AddEditView : MvpView {
     fun setDescription(desc: String)
     fun setDate(date: String)
-    fun setRegNo(regNo: String?)
     fun setEdtFlightTimeText(strLogTime: String?)
     fun setMotoTimeResult(motoTime: String?)
     fun setToolbarTitle(string: String)

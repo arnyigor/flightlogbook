@@ -479,10 +479,6 @@ class AddEditActivity :
         edtGroundTime.setText(groundTimeText)
     }
 
-    override fun setRegNo(regNo: String?) {
-        edtRegNo.setText(regNo)
-    }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.add_edit_menu, menu)
         return true
@@ -526,7 +522,6 @@ class AddEditActivity :
 
     private fun saveDataFlight() {
         addEditPresenter.saveFlight(
-                edtRegNo.text.toString(),
                 edtDesc.text.toString(),
                 sFlightTime,
                 sGroundTime,

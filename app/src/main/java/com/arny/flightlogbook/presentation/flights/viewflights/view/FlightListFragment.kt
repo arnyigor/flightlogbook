@@ -127,7 +127,7 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView, MainFirstFra
     }
 
     override fun viewLoadProgress(vis: Boolean) {
-        progress_flights.setVisible(vis)
+        progress_flights.isVisible = vis
     }
 
     override fun onPause() {
@@ -166,7 +166,7 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView, MainFirstFra
     }
 
     override fun showEmptyView(vis: Boolean) {
-        tv_empty_view.setVisible(vis)
+        tv_empty_view.isVisible = vis
     }
 
     private fun restoreListPosition() {

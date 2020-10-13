@@ -1,9 +1,9 @@
 package com.arny.flightlogbook.presentation.planetypes.list
 
+import androidx.core.view.isVisible
 import com.arny.domain.models.PlaneType
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
-import com.arny.helpers.utils.setVisible
 import kotlinx.android.synthetic.main.plane_type_list_item_layout.view.*
 
 class PlaneTypesAdapter(
@@ -27,8 +27,8 @@ class PlaneTypesAdapter(
                 R.string.str_regnum_formatted,
                 item.regNo
             )
-            iv_type_edit.setVisible(!hideEdit)
-            iv_type_delete.setVisible(!hideEdit)
+            iv_type_edit.isVisible =!hideEdit
+            iv_type_delete.isVisible = !hideEdit
             iv_type_edit.setOnClickListener {
                 typesListener?.onEditType(position, item)
             }

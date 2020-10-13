@@ -92,6 +92,7 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
                     android:background="@drawable/btn_bg_primary"
+                    android:minHeight="30sp"
                     android:paddingStart="4dp"
                     android:paddingEnd="4dp"
                     android:text="@string/str_moto_btn"
@@ -116,7 +117,6 @@
                     android:gravity="center_vertical"
                     android:padding="8dp"
                     android:text="@string/departure_airport"
-                    android:textSize="16sp"
                     app:drawableStartCompat="@drawable/ic_icon_edit"
                     app:layout_constraintBottom_toBottomOf="@+id/tilDepTime"
                     app:layout_constraintEnd_toStartOf="@+id/guideline_times"
@@ -150,7 +150,6 @@
                     android:gravity="center_vertical"
                     android:padding="8dp"
                     android:text="@string/arrival_airport"
-                    android:textSize="16sp"
                     app:drawableStartCompat="@drawable/ic_icon_edit"
                     app:layout_constraintBottom_toBottomOf="@+id/tilArrTime"
                     app:layout_constraintEnd_toStartOf="@+id/guideline_times"
@@ -180,7 +179,7 @@
                     android:id="@+id/tvFlightTimeLabel"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:padding="4dp"
+                    android:padding="8dp"
                     android:text="@string/flight_time_info"
                     app:layout_constraintBottom_toBottomOf="@+id/edtFlightTime"
                     app:layout_constraintEnd_toStartOf="@+id/guideline_times"
@@ -220,7 +219,7 @@
                     android:id="@+id/tvNightTimeLabel"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:padding="4dp"
+                    android:padding="8dp"
                     android:text="@string/night_time_info"
                     app:layout_constraintBottom_toBottomOf="@+id/edtNightTime"
                     app:layout_constraintEnd_toStartOf="@+id/guideline_times"
@@ -251,7 +250,7 @@
                     android:id="@+id/tvGroundTimeLabel"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:padding="4dp"
+                    android:padding="8dp"
                     android:text="@string/ground_time_info"
                     app:layout_constraintBottom_toBottomOf="@+id/edtGroundTime"
                     app:layout_constraintEnd_toStartOf="@+id/guideline_times"
@@ -282,7 +281,7 @@
                     android:id="@+id/tvTotalTimeLabel"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:padding="4dp"
+                    android:padding="8dp"
                     android:text="@string/str_total_time"
                     app:layout_constraintBottom_toBottomOf="@+id/tvTotalTime"
                     app:layout_constraintEnd_toStartOf="@+id/guideline_times"
@@ -322,7 +321,7 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
                 android:background="@drawable/bg_ripple"
-                android:minHeight="36dp"
+                android:minHeight="30sp"
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp"
                 android:text="@string/add_custom_field"
@@ -332,30 +331,12 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/tilDate" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/edtRegNoLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tilDescription">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/edtRegNo"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:focusable="true"
-                    android:focusableInTouchMode="true"
-                    android:hint="@string/str_regnum"
-                    tools:text="@tools:sample/lorem" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp">
 
                 <TextView
                     android:id="@+id/tvAirplaneType"
@@ -364,9 +345,9 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
                     android:layout_weight="1"
-                    android:padding="4dp"
+                    android:padding="8dp"
                     android:text="@string/str_type"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/font_size_default"
                     app:layout_constraintBottom_toBottomOf="@+id/select_plane_type"
                     app:layout_constraintEnd_toStartOf="@+id/select_plane_type"
                     app:layout_constraintStart_toStartOf="parent"
@@ -379,7 +360,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
                     android:background="@drawable/btn_bg_primary"
-                    android:minHeight="25dp"
+                    android:minHeight="30sp"
                     android:text="@string/str_select"
                     android:textAllCaps="false"
                     android:textColor="@color/colorTextWhite"
@@ -391,7 +372,9 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp">
 
                 <TextView
                     android:id="@+id/tvFlightType"
@@ -402,7 +385,7 @@
                     android:layout_weight="1"
                     android:padding="4dp"
                     android:text="@string/str_flight_type_title"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/font_size_default"
                     app:layout_constraintBottom_toBottomOf="@+id/btnSelectFlightType"
                     app:layout_constraintEnd_toStartOf="@+id/btnSelectFlightType"
                     app:layout_constraintStart_toStartOf="parent"
@@ -415,7 +398,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
                     android:background="@drawable/btn_bg_primary"
-                    android:minHeight="25dp"
+                    android:minHeight="30sp"
                     android:text="@string/str_select"
                     android:textAllCaps="false"
                     android:textColor="@color/colorTextWhite"
@@ -429,6 +412,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
                 android:orientation="horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -457,6 +442,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -464,7 +450,8 @@
                     android:id="@+id/tvColor"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/color" />
+                    android:text="@string/color"
+                    android:textSize="@dimen/font_size_medium" />
 
                 <View
                     android:id="@+id/vColor"
@@ -483,7 +470,6 @@
                     android:visibility="gone"
                     app:srcCompat="@android:drawable/ic_delete" />
             </LinearLayout>
-
         </LinearLayout>
     </ScrollView>
 

@@ -12,17 +12,11 @@ class ResourcesInteractor @Inject constructor(
         private val context: Context
 ) {
 
-    fun getString(res: Int): String {
-        return resourcesProvider.getString(res)
-    }
+    fun getString(res: Int?): String = resourcesProvider.getString(res)
 
-    fun getColor(id: Int): Int {
-        return resourcesProvider.getColor(id)
-    }
+    fun getColor(id: Int): Int = resourcesProvider.getColor(id)
 
-    fun getDrawable(id: Int): Drawable? {
-        return resourcesProvider.getDrawable(id)
-    }
+    fun getDrawable(id: Int): Drawable? = resourcesProvider.getDrawable(id)
 
     fun getAssetFileString(fileName: String): String {
         val content = StringBuilder()

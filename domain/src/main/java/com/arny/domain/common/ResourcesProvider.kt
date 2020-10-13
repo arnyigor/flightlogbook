@@ -8,7 +8,7 @@ import androidx.annotation.StringRes
 
 interface ResourcesProvider {
     fun provideContext(): Context
-    fun getString(@StringRes res: Int): String
+    fun getString(@StringRes res: Int?): String
     fun getColor(@ColorRes id: Int): Int
     fun getDrawable(@DrawableRes id: Int): Drawable?
 }

@@ -6,6 +6,7 @@ import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.arny.domain.models.FlightType
 import com.arny.flightlogbook.R
@@ -13,7 +14,6 @@ import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.helpers.utils.ToastMaker
 import com.arny.helpers.utils.alertDialog
 import com.arny.helpers.utils.inputDialog
-import com.arny.helpers.utils.setVisible
 import kotlinx.android.synthetic.main.flight_types_list_layout.*
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
@@ -115,7 +115,7 @@ class FlightTypesFragment : MvpAppCompatFragment(), FlightTypesView {
     }
 
     override fun showEmptyView(vis: Boolean) {
-        tv_flight_types_empty_view.setVisible(vis)
+        tv_flight_types_empty_view.isVisible = vis
     }
 
     override fun updateAdapter(list: List<FlightType>) {

@@ -48,6 +48,10 @@ class FlightsInteractor @Inject constructor(
         return planeTypesRepository.loadPlaneType(id)
     }
 
+    fun loadPlaneTypeByRegNo(regNo: String?): PlaneType? {
+        return planeTypesRepository.loadPlaneTypeByRegNo(regNo)
+    }
+
     fun loadFlightType(id: Long?): FlightType? {
         return flightTypesRepository.loadDBFlightType(id)
     }
@@ -128,7 +132,12 @@ class FlightsInteractor @Inject constructor(
                                     val masked = flight.colorInt?.let { colorWillBeMasked(it) }
                                             ?: false
                                     flight.colorText = if (masked) Color.WHITE else null
-                                    flight.planeType = planeTypes.find { it.typeId == flight.planeId }
+                                    flight.planeType = flight.planeId?.let { plId ->
+                                        planeTypes.find { it.typeId == plId }
+                                                ?: flight.regNo?.let { regNo ->
+                                                    planeTypes.find { it.regNo?.trimIndent() == regNo.trimIndent() }
+                                                }
+                                    }
                                     flight.flightType = flightTypes.find { it.id == flight.flightTypeId?.toLong() }
                                     flight.totalTime = flight.flightTime + flight.groundTime
                                     flight

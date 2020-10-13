@@ -8,7 +8,7 @@ ext.versions = [
         'constraint'       : '2.0.2',
         'kotlin'           : '1.4.10',
         'coroutines'       : '1.3.2',
-        'ktx'              : '1.2.0',
+        'ktx'              : '1.3.2',
         'gms'              : '4.3.3',
         'appcompatx'       : '1.1.0',
         'material'         : '1.0.0',
@@ -61,7 +61,7 @@ ext.libs = [
         'roomRx'              : "androidx.room:room-rxjava2:${versions.roomx}",
 
         //support
-        'appCompat'           : 'androidx.appcompat:appcompat:1.1.0',
+        'appCompat'           : 'androidx.appcompat:appcompat:1.2.0',
         'recyclerView'        : 'androidx.recyclerview:recyclerview:1.1.0',
         'cardView'            : 'androidx.cardview:cardview:1.0.0',
         'preference'          : 'androidx.preference:preference:1.1.0',

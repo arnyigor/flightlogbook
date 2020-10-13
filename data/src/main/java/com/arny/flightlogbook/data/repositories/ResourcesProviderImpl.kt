@@ -8,7 +8,8 @@ import com.arny.domain.common.ResourcesProvider
 import javax.inject.Inject
 
 class ResourcesProviderImpl @Inject constructor(private val context: Context) : ResourcesProvider {
-    override fun getString(res: Int): String {
+    override fun getString(res: Int?): String {
+        if (res == null) return ""
         return try {
             context.resources.getString(res)
         } catch (e: Resources.NotFoundException) {

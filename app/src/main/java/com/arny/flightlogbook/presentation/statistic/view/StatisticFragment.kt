@@ -14,7 +14,6 @@ import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.MultiSelectionSpinner
 import com.arny.flightlogbook.presentation.statistic.presenter.StatisticsPresenter
 import com.arny.helpers.utils.ToastMaker
-import com.arny.helpers.utils.setVisible
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment
 import kotlinx.android.synthetic.main.statistic_fragment.*
 import moxy.MvpAppCompatFragment
@@ -115,7 +114,7 @@ class StatisticFragment : MvpAppCompatFragment(), StatisticsView, View.OnClickLi
     }
 
     override fun showEmptyView(showEmpty: Boolean) {
-        tv_empty_stat_view.setVisible(showEmpty)
+        tv_empty_stat_view.isVisible = showEmpty
     }
 
     override fun onClick(v: View?) {
@@ -138,14 +137,14 @@ class StatisticFragment : MvpAppCompatFragment(), StatisticsView, View.OnClickLi
     }
 
     override fun setPeriodTypeVisible(vis: Boolean) {
-        tv_pediod_type.setVisible(vis)
-        iv_period_left.setVisible(vis)
-        iv_period_right.setVisible(vis)
+        tv_pediod_type.isVisible = vis
+        iv_period_left.isVisible = vis
+        iv_period_right.isVisible = vis
     }
 
     override fun setCustomPeriodVisible(vis: Boolean) {
-        tv_start_date.setVisible(vis)
-        tv_end_date.setVisible(vis)
+        tv_start_date.isVisible = vis
+        tv_end_date.isVisible = vis
     }
 
     override fun setPeriodItemText(periodItem: String?) {

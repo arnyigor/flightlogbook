@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.text.InputType
 import android.view.MenuItem
 import android.view.View
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.arny.domain.models.FlightType
 import com.arny.flightlogbook.R
@@ -137,6 +138,6 @@ class FlightTypesActivity : MvpAppCompatActivity(), FlightTypesView, View.OnClic
     }
 
     override fun showEmptyView(vis: Boolean) {
-        tv_flight_types_empty_view.setVisible(vis)
+        tv_flight_types_empty_view.isVisible = vis
     }
 }

@@ -1,9 +1,9 @@
 package com.arny.flightlogbook.presentation.flighttypes.list
 
+import androidx.core.view.isVisible
 import com.arny.domain.models.FlightType
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
-import com.arny.helpers.utils.setVisible
 import kotlinx.android.synthetic.main.type_list_item_layout.view.*
 
 class FlightTypesAdapter(private val typesListener: FlightTypesListener? = null, private val hideEdit: Boolean = false) : SimpleAbstractAdapter<FlightType>() {
@@ -20,8 +20,8 @@ class FlightTypesAdapter(private val typesListener: FlightTypesListener? = null,
         viewHolder.itemView.apply {
             val position = viewHolder.adapterPosition
             tvTypeTitle.text = item.typeTitle
-            iv_type_edit.setVisible(!hideEdit)
-            iv_type_delete.setVisible(!hideEdit)
+            iv_type_edit.isVisible = !hideEdit
+            iv_type_delete.isVisible  = !hideEdit
             iv_type_edit.setOnClickListener {
                 typesListener?.onEditType(position, item)
             }

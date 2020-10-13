@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.arny.domain.models.PlaneType
@@ -15,7 +16,6 @@ import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.flightlogbook.presentation.main.NavigateItems
 import com.arny.helpers.utils.ToastMaker
 import com.arny.helpers.utils.alertDialog
-import com.arny.helpers.utils.setVisible
 import kotlinx.android.synthetic.main.plane_types_layout.*
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
@@ -61,34 +61,34 @@ class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickL
         rv_plane_types.layoutManager = LinearLayoutManager(context)
         rv_plane_types.itemAnimator = DefaultItemAnimator()
         adapter = PlaneTypesAdapter(
-            false,
-            typesListener = object : PlaneTypesAdapter.PlaneTypesListener {
-                override fun onEditType(position: Int, item: PlaneType) {
-                    appRouter?.navigateTo(
-                        NavigateItems.PLANE_TYPE_EDIT,
-                        true,
-                        bundleOf(CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID to item.typeId),
-                        requestCode = CONSTS.REQUESTS.REQUEST_EDIT_PLANE_TYPE,
-                        targetFragment = this@PlaneTypesFragment
-                    )
-                }
+                false,
+                typesListener = object : PlaneTypesAdapter.PlaneTypesListener {
+                    override fun onEditType(position: Int, item: PlaneType) {
+                        appRouter?.navigateTo(
+                                NavigateItems.PLANE_TYPE_EDIT,
+                                true,
+                                bundleOf(CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID to item.typeId),
+                                requestCode = CONSTS.REQUESTS.REQUEST_EDIT_PLANE_TYPE,
+                                targetFragment = this@PlaneTypesFragment
+                        )
+                    }
 
-                override fun onDeleteType(position: Int, item: PlaneType) {
-                    showRemoveDialog(item)
-                }
+                    override fun onDeleteType(position: Int, item: PlaneType) {
+                        showRemoveDialog(item)
+                    }
 
-                override fun onItemClick(position: Int, item: PlaneType) {
-                    if (isRequestField) {
-                        val requireActivity = requireActivity()
-                        if (requireActivity is FragmentContainerActivity) {
-                            requireActivity.onSuccess(Intent().apply {
-                                putExtra(CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID, item.typeId)
-                            })
-                            requireActivity.onBackPressed()
+                    override fun onItemClick(position: Int, item: PlaneType) {
+                        if (isRequestField) {
+                            val requireActivity = requireActivity()
+                            if (requireActivity is FragmentContainerActivity) {
+                                requireActivity.onSuccess(Intent().apply {
+                                    putExtra(CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID, item.typeId)
+                                })
+                                requireActivity.onBackPressed()
+                            }
                         }
                     }
-                }
-            })
+                })
         rv_plane_types.adapter = adapter
         fab_add_plane_type.setOnClickListener(this)
     }
@@ -108,7 +108,7 @@ class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickL
     }
 
     override fun setEmptyViewVisible(vis: Boolean) {
-        tv_no_plane_types.setVisible(vis)
+        tv_no_plane_types.isVisible = vis
     }
 
     override fun onClick(v: View) {
@@ -124,7 +124,7 @@ class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickL
         }
     }
 
-     private fun showRemoveDialog(item: PlaneType) {
+    private fun showRemoveDialog(item: PlaneType) {
         alertDialog(
                 requireActivity(),
                 "${getString(R.string.str_delete)} ${item.typeName}?",

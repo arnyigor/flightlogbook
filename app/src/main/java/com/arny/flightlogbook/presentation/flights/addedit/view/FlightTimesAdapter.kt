@@ -1,10 +1,10 @@
 package com.arny.flightlogbook.presentation.flights.addedit.view
 
+import androidx.core.view.isVisible
 import com.arny.domain.models.TimeToFlight
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.helpers.utils.DateTimeUtils
-import com.arny.helpers.utils.setVisible
 import kotlinx.android.synthetic.main.flight_times_item_layout.view.*
 
 
@@ -37,7 +37,7 @@ class FlightTimesAdapter(private val flightTimeListener: FlightTimesClickListene
     override fun bindView(item: TimeToFlight, viewHolder: VH) {
         val position = viewHolder.adapterPosition
         viewHolder.itemView.apply {
-            iv_time_inflight.setVisible(item.addToFlightTime)
+            iv_time_inflight.isVisible = item.addToFlightTime
             tv_time.text = DateTimeUtils.strLogTime(item.time)
             iv_time_delete.setOnClickListener {
                 flightTimeListener?.onDeleteFlightTime(position, item)

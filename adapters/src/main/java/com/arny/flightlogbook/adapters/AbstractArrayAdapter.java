@@ -81,7 +81,7 @@ public abstract class AbstractArrayAdapter<T> extends BaseAdapter implements Fil
      * @param textViewResourceId The id of the TextView within the layout resource to be populated
      */
     public AbstractArrayAdapter(Context context, int resource, int textViewResourceId) {
-        init(context, resource, textViewResourceId, new ArrayList<T>());
+        init(context, resource, textViewResourceId, new ArrayList<>());
     }
 
     /**
@@ -429,8 +429,8 @@ public abstract class AbstractArrayAdapter<T> extends BaseAdapter implements Fil
             final int wordCount = words.length;
 
             // Start at index 0, in case valueText starts with space(s)
-            for (int k = 0; k < wordCount; k++) {
-                if (words[k].startsWith(constraint)) {
+            for (String word : words) {
+                if (word.startsWith(constraint)) {
                     return true;
                 }
             }
@@ -453,14 +453,14 @@ public abstract class AbstractArrayAdapter<T> extends BaseAdapter implements Fil
 
             if (mOriginalValues == null) {
                 synchronized (mLock) {
-                    mOriginalValues = new ArrayList<T>(mObjects);
+                    mOriginalValues = new ArrayList<>(mObjects);
                 }
             }
 
             if (prefix == null || prefix.length() == 0) {
                 ArrayList<T> list;
                 synchronized (mLock) {
-                    list = new ArrayList<T>(mOriginalValues);
+                    list = new ArrayList<>(mOriginalValues);
                 }
                 results.values = list;
                 results.count = list.size();
@@ -469,11 +469,11 @@ public abstract class AbstractArrayAdapter<T> extends BaseAdapter implements Fil
 
                 ArrayList<T> values;
                 synchronized (mLock) {
-                    values = new ArrayList<T>(mOriginalValues);
+                    values = new ArrayList<>(mOriginalValues);
                 }
 
                 final int count = values.size();
-                final ArrayList<T> newValues = new ArrayList<T>();
+                final ArrayList<T> newValues = new ArrayList<>();
 
                 for (int i = 0; i < count; i++) {
                     final T value = values.get(i);

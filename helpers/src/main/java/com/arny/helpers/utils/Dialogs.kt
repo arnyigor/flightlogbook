@@ -1,6 +1,5 @@
 package com.arny.helpers.utils
 
-import android.R
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
@@ -13,7 +12,6 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.input.input
 import com.afollestad.materialdialogs.list.listItems
 
-@JvmOverloads
 fun ContextThemeWrapper.showAlertDialog(title: String? = null, content: String? = null,
                                         positivePair: Pair<String, (() -> Unit)?>? = null,
                                         negativePair: Pair<String, (() -> Unit)?>? = null,
@@ -41,7 +39,6 @@ fun Activity.createCustomLayoutDialog(@LayoutRes layout: Int, initView: View.() 
     return dialog
 }
 
-@JvmOverloads
 fun listDialog(context: Context, title: String, items: List<String>, cancelable: Boolean? = false, onSelect: (index: Int, text: String) -> Unit): MaterialDialog? {
     val dlg = MaterialDialog(context)
             .title(text = title)
@@ -53,7 +50,6 @@ fun listDialog(context: Context, title: String, items: List<String>, cancelable:
     return dlg
 }
 
-@JvmOverloads
 fun checkDialog(
         context: Context,
         title: String? = null,
@@ -66,22 +62,21 @@ fun checkDialog(
             .listItems(items = items.asList()) { _, index, text ->
                 dialogListener(index, text.toString())
             }
-            .positiveButton(res = R.string.ok)
+            .positiveButton(res = android.R.string.ok)
     dlg.show()
     return dlg
 }
 
-@JvmOverloads
 fun alertDialog(
         context: Context?,
         title: String,
         content: String? = null,
-        btnOkText: String? = context?.getString(R.string.ok),
+        btnOkText: String? = context?.getString(android.R.string.ok),
         btnCancelText: String? = null,
         cancelable: Boolean = false,
         onConfirm: () -> Unit? = {},
         onCancel: () -> Unit? = {},
-        autoDissmiss: Boolean = true
+        autoDismiss: Boolean = true
 ): MaterialDialog? {
     if (!checkContextTheme(context)) return null
     val materialDialog = MaterialDialog(context!!)
@@ -89,7 +84,7 @@ fun alertDialog(
     materialDialog.cancelable(cancelable)
     if (btnOkText != null) {
         materialDialog.positiveButton(text = btnOkText) {
-            if (autoDissmiss) {
+            if (autoDismiss) {
                 it.dismiss()
             }
             onConfirm.invoke()
@@ -97,7 +92,7 @@ fun alertDialog(
     }
     if (btnCancelText != null) {
         materialDialog.negativeButton(text = btnCancelText) {
-            if (autoDissmiss) {
+            if (autoDismiss) {
                 it.dismiss()
             }
             onCancel.invoke()
@@ -110,7 +105,6 @@ fun alertDialog(
     return materialDialog
 }
 
-@JvmOverloads
 fun inputDialog(
         context: Context,
         title: String,
@@ -124,7 +118,7 @@ fun inputDialog(
         dialogListener: (result: String) -> Unit? = {}
 ): MaterialDialog? {
     if (!checkContextTheme(context)) return null
-    val dlg = MaterialDialog(context).show {
+    return MaterialDialog(context).show {
         title(text = title)
         if (!content.isNullOrBlank()) {
             message(text = content)
@@ -141,5 +135,4 @@ fun inputDialog(
         positiveButton(text = btnOkText)
         negativeButton(text = btnCancelText)
     }
-    return dlg
 }

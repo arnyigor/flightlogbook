@@ -65,7 +65,7 @@
     <string name="str_open_file">Open XLS</string>
     <string name="str_remove_all">Remove all</string>
     <string name="str_settings">Settings</string>
-    <string name="str_type">Aircraft type</string>
+    <string name="str_type">Aircraft</string>
     <string name="str_type_empty">Aircraft type: none</string>
     <string name="str_xls">Settings XLS</string>
     <string name="str_storage_permission_denied">Memory access denied</string>

@@ -12,8 +12,10 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.os.*
+import android.os.Build
 import android.os.Build.VERSION_CODES.Q
+import android.os.Bundle
+import android.os.StrictMode
 import android.text.Spanned
 import android.view.*
 import android.view.inputmethod.InputMethodManager
@@ -27,6 +29,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.text.HtmlCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
@@ -309,7 +312,7 @@ fun animateVisible(v: View, visible: Boolean, duration: Int, onComplete: () -> U
             animate.setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
-                    v.setVisible(visible)
+                    v.isVisible = visible
                     onComplete.invoke()
                 }
             })
@@ -318,7 +321,7 @@ fun animateVisible(v: View, visible: Boolean, duration: Int, onComplete: () -> U
             v.pivotY = 0f
             if (visible) {
                 v.scaleY = 0.0f
-                v.setVisible(true)
+                v.isVisible = true
                 animate.scaleY(1.0f)
                 animate.setListener(object : AnimatorListenerAdapter() {
                     override fun onAnimationEnd(animation: Animator) {
@@ -332,7 +335,7 @@ fun animateVisible(v: View, visible: Boolean, duration: Int, onComplete: () -> U
                 animate.setListener(object : AnimatorListenerAdapter() {
                     override fun onAnimationEnd(animation: Animator) {
                         super.onAnimationEnd(animation)
-                        v.setVisible(visible)
+                        v.isVisible = visible
                         onComplete.invoke()
                     }
                 })
@@ -341,7 +344,7 @@ fun animateVisible(v: View, visible: Boolean, duration: Int, onComplete: () -> U
         AnimType.LEFT_RIGHT -> {
             v.pivotX = 0f
             v.scaleX = if (visible) 0.0f else 1.0f
-            v.setVisible(visible)
+            v.isVisible = visible
             animate.scaleX(if (visible) 1.0f else 0.0f)
             animate.setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
@@ -380,27 +383,6 @@ inline fun <reified T> Bundle?.getExtra(extraName: String): T? {
     return this?.get(extraName) as? T
 }
 
-fun runOnUI(func: () -> Unit? = {}) = Handler(Looper.getMainLooper()).post { func.invoke() }
-
-@JvmOverloads
-fun runOnLooper(func: () -> Unit? = {}, looper: Looper = Looper.getMainLooper()) = Handler(looper).post { func.invoke() }
-
-fun View?.setVisible(visible: Boolean) {
-    this?.visibility = if (visible) View.VISIBLE else View.GONE
-}
-
-fun View?.setVisible(visible: Boolean, duration: Int, onComplete: () -> Unit?, interpolator: TimeInterpolator? = null, type: AnimType = AnimType.DEFAULT) {
-    this?.let { animateVisible(it, visible, duration, onComplete, interpolator, type) }
-}
-
-fun TextView?.setString(text: String?): TextView? {
-    this?.clearFocus()
-    this?.tag = ""
-    this?.text = text
-    this?.tag = null
-    return this
-}
-
 fun animateVisible(v: View, visible: Boolean, duration: Int) {
     val alpha = if (visible) 1.0f else 0.0f
     v.clearAnimation()
@@ -410,17 +392,9 @@ fun animateVisible(v: View, visible: Boolean, duration: Int) {
             .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
-                    v.setVisible(visible)
+                    v.isVisible = visible
                 }
             })
-}
-
-fun AppCompatActivity.backStackCnt(): Int {
-    return supportFragmentManager.backStackEntryCount
-}
-
-fun AppCompatActivity.backStackClear() {
-    return supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
 }
 
 fun AppCompatActivity.resetFragmentsInManager() {
@@ -462,13 +436,6 @@ fun AppCompatActivity.getFragment(position: Int): Fragment? {
 
 fun AppCompatActivity.fragmentBackStackCnt(): Int {
     return supportFragmentManager.backStackEntryCount
-}
-
-fun AppCompatActivity.fragmentsBackStack(): Fragment {
-    val fragments = supportFragmentManager.fragments
-    val size = fragments.size
-    val fragment = fragments.get(size - 1)
-    return fragment
 }
 
 fun AppCompatActivity.fragmentBackStackClear() {
@@ -851,7 +818,9 @@ fun getTermination(count: Int, zero_other: String, one: String, two_four: String
     }
 }
 
-fun String?.isEmpty(): Boolean = this.isNullOrBlank()
+fun String?.orBlank() = this ?: ""
+
+fun String?.orBlank(predicate: () -> Boolean) =if(predicate()) this else ""
 
 /**
  * Extended function to check empty
