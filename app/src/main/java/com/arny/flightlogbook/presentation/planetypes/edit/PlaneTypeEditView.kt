@@ -19,5 +19,5 @@ interface PlaneTypeEditView : MvpView {
     fun showRegNoError(@StringRes strRes: Int)
 
     @OneExecution
-    fun setResultOk(id: Long)
+    fun setResultOk()
 }

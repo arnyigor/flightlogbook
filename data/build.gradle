@@ -49,6 +49,7 @@ dependencies {
     implementation project(path: ':helpers')
     implementation project(path: ':constants')
     implementation project(path: ':domain')
+    implementation project(path: ':customfields')
     implementation libs.kotlinStdlib
     /*tests*/
     implementation libs.junit

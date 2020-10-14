@@ -4,6 +4,7 @@ import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.customfields.domain.ICustomFieldInteractor
 import com.arny.flightlogbook.customfields.models.CustomField
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
+import com.arny.helpers.utils.fromSingle
 import moxy.InjectViewState
 import javax.inject.Inject
 
@@ -33,7 +34,7 @@ class CustomFieldsListPresenter : BaseMvpPresenter<CustomFieldsListView>() {
 
     fun loadCustomFields() {
         viewState.showProgress(true)
-        customFieldInteractor.getCustomFields()
+        fromSingle { customFieldInteractor.getCustomFields() }
                 .subscribeFromPresenter({
                     viewState.showProgress(false)
                     viewState.showEmptyView(it.isEmpty())

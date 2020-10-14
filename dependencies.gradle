@@ -16,7 +16,7 @@ ext.versions = [
         'room'             : '1.1.1',
         'lifecycle'        : '1.1.1',
         'realm'            : '5.8.0',
-        'dagger'           : '2.25.3',
+        'dagger'           : '2.29.1',
         'gson'             : '2.8.6',
         'retrofit'         : '2.6.2',
         'retrofitRxAdapter': '1.0.0',

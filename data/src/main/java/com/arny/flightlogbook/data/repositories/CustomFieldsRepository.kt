@@ -1,14 +1,16 @@
-package com.arny.flightlogbook.customfields.repository
+package com.arny.flightlogbook.data.repositories
 
 import com.arny.flightlogbook.customfields.models.CustomField
 import com.arny.flightlogbook.customfields.models.CustomFieldType
 import com.arny.flightlogbook.customfields.models.CustomFieldValue
 import com.arny.flightlogbook.customfields.models.toCustomFieldType
+import com.arny.flightlogbook.customfields.repository.ICustomFieldsRepository
 import com.arny.flightlogbook.data.db.daos.CustomFieldDAO
 import com.arny.flightlogbook.data.db.daos.CustomFieldValuesDAO
 import com.arny.flightlogbook.data.models.customfields.CustomFieldEntity
 import com.arny.flightlogbook.data.models.customfields.CustomFieldValueEntity
 import com.arny.flightlogbook.data.models.customfields.FieldWithValues
+import com.arny.helpers.utils.DateTimeUtils
 import com.arny.helpers.utils.OptionalNull
 import com.arny.helpers.utils.fromSingle
 import com.arny.helpers.utils.toOptionalNull
@@ -21,15 +23,14 @@ class CustomFieldsRepository @Inject constructor(
         private val customFieldValuesDAO: CustomFieldValuesDAO
 ) : ICustomFieldsRepository {
 
-    override fun addCustomField(customField: CustomField): Single<Boolean> {
-        return fromSingle { customFieldDAO.insertReplace(customField.toDBValue()) != 0L }
-                .subscribeOn(Schedulers.io())
-    }
+    override fun addCustomField(customField: CustomField): Boolean =
+            customFieldDAO.insertReplace(customField.toDBValue()) != 0L
+
+    private fun CustomField.toDBValue() = CustomFieldEntity(id, name, type.toString(), showByDefault, addTime)
 
     override fun addCustomFields(vararg customField: CustomField): Single<Boolean> {
         return fromSingle {
-            customFieldDAO.insertReplace(
-                    customField.map { it.toDBValue() }).any { it != 0L }
+            customFieldDAO.insertReplace(customField.map { it.toDBValue() }).any { it != 0L }
         }
                 .subscribeOn(Schedulers.io())
     }
@@ -53,17 +54,23 @@ class CustomFieldsRepository @Inject constructor(
         return fromSingle { customFieldValuesDAO.insertReplace(values.map { it.toDbValue() }) }
     }
 
-    override fun getCustomFieldWithValues(externalId: Long?): Single<List<CustomFieldValue>> {
-        return fromSingle {
-            toValuesList(
-                    filterDefaultOrExternalId(
-                            externalId,
-                            customFieldDAO.getFieldsWithValues()
-                    ),
-                    externalId
-            )
+    private fun valueToString(type: CustomFieldType?, value: Any?): String {
+        return when (type) {
+            is CustomFieldType.Time -> DateTimeUtils.convertStringToTime(value.toString()).toString()
+            else -> value.toString()
         }
-                .subscribeOn(Schedulers.io())
+    }
+
+    private fun CustomFieldValue.toDbValue() = CustomFieldValueEntity(
+            id,
+            fieldId,
+            externalId,
+            type.toString(),
+            valueToString(type, value)
+    )
+
+    override fun getCustomFieldWithValues(externalId: Long?): List<CustomFieldValue> {
+        return toValuesList(filterDefaultOrExternalId(externalId, customFieldDAO.getFieldsWithValues()), externalId)
     }
 
     private fun toValuesList(flightValues: List<FieldWithValues>, externalId: Long?): List<CustomFieldValue> {
@@ -71,9 +78,7 @@ class CustomFieldsRepository @Inject constructor(
             val field = toField(flightValue.field!!)
             val values = flightValue.values
             val map = if (!values.isNullOrEmpty()) {
-                values.map {
-                    toValue(it, externalId, field, it.fieldId)
-                }
+                values.map { toValue(it, externalId, field, it.fieldId) }
             } else {
                 listOf(CustomFieldValue(
                         null,
@@ -96,20 +101,25 @@ class CustomFieldsRepository @Inject constructor(
         }
     }
 
-    override fun getAllCustomFields(): Single<List<CustomField>> {
-        return fromSingle { getAllFields() }
-                .subscribeOn(Schedulers.io())
+    override fun getAllCustomFields(): List<CustomField> = getAllFields()
+
+    override fun getAllAdditionalTime(): List<CustomFieldValue> {
+        val dbCustomFields = getAllFields()
+        return customFieldValuesDAO.getDbCustomFieldValuesAddTime()
+                .map { valueEntity ->
+                    toValue(
+                            valueEntity,
+                            valueEntity.externalId,
+                            dbCustomFields.firstOrNull { it.id == valueEntity.fieldId },
+                            valueEntity.id
+                    )
+                }
     }
 
-    override fun getCustomFieldValues(externalId: Long): Single<List<CustomFieldValue>> {
-        return fromSingle { getValues(externalId) }
-                .subscribeOn(Schedulers.io())
-    }
 
-    private fun getAllFields(): List<CustomField> {
-        return customFieldDAO.getDbCustomFields()
-                .map(::toField)
-    }
+    override fun getCustomFieldValues(externalId: Long): List<CustomFieldValue> = getValues(externalId)
+
+    private fun getAllFields(): List<CustomField> = customFieldDAO.getDbCustomFields().map(::toField)
 
     private fun toField(it: CustomFieldEntity): CustomField {
         val type = it.type.toCustomFieldType()

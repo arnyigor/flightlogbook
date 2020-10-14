@@ -5,6 +5,8 @@ import com.arny.domain.planetypes.PlaneTypesInteractor
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
+import com.arny.helpers.utils.fromNullable
+import com.arny.helpers.utils.fromSingle
 import moxy.InjectViewState
 import javax.inject.Inject
 
@@ -24,33 +26,13 @@ class PlaneTypeEditPresenter : BaseMvpPresenter<PlaneTypeEditView>() {
         loadPlaneType()
     }
 
-    private fun getMainTypeIndex(type: AircraftType?) = when (type) {
-        AircraftType.AIRPLANE -> 0
-        AircraftType.HELICOPTER -> 1
-        AircraftType.GLIDER -> 2
-        AircraftType.AUTOGYRO -> 3
-        AircraftType.AEROSTAT -> 4
-        AircraftType.AIRSHIP -> 5
-        else -> 0
-    }
-
-    private fun getType(index: Int) = when (index) {
-        0 -> AircraftType.AIRPLANE
-        1 -> AircraftType.HELICOPTER
-        2 -> AircraftType.GLIDER
-        3 -> AircraftType.AUTOGYRO
-        4 -> AircraftType.AEROSTAT
-        5 -> AircraftType.AIRSHIP
-        else -> AircraftType.AIRPLANE
-    }
-
     private fun loadPlaneType() {
-        planeTypesInteractor.loadPlaneType(planeTypeId)
+        fromNullable { planeTypesInteractor.loadPlaneType(planeTypeId) }
                 .subscribeFromPresenter({
                     val planeType = it.value
                     if (planeType != null) {
                         viewState.setPlaneTypeName(planeType.typeName)
-                        viewState.setMainPlaneType(getMainTypeIndex(planeType.mainType))
+                        viewState.setMainPlaneType(planeType.mainType?.mainType ?: 0)
                         viewState.setRegNo(planeType.regNo)
                     }
                 }, {
@@ -67,10 +49,10 @@ class PlaneTypeEditPresenter : BaseMvpPresenter<PlaneTypeEditView>() {
             viewState.showRegNoError(R.string.error_empty_text_field)
             return
         }
-        planeTypesInteractor.addType(planeTypeId, title, regNo, getType(position))
-                .subscribeFromPresenter({
-                    if (it != 0L) {
-                        viewState.setResultOk(it)
+        fromSingle { planeTypesInteractor.addType(planeTypeId, title, regNo, AircraftType.getType(position)) }
+                .subscribeFromPresenter({ save ->
+                    if (save) {
+                        viewState.setResultOk()
                     } else {
                         viewState.showError(R.string.error_plane_type_not_saved)
                     }

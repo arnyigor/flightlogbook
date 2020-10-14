@@ -14,15 +14,12 @@ import javax.inject.Singleton
 class CustomFieldInteractor @Inject constructor(
         private val repository: ICustomFieldsRepository
 ) : ICustomFieldInteractor {
-    override fun getCustomFields(): Single<List<CustomField>> {
-        return repository.getAllCustomFields()
-    }
+    override fun getCustomFields(): List<CustomField> = repository.getAllCustomFields()
 
-    override fun getCustomFieldValues(externalId: Long): Single<List<CustomFieldValue>> {
-        return repository.getCustomFieldValues(externalId)
-    }
+    override fun getCustomFieldValues(externalId: Long): List<CustomFieldValue> =
+            repository.getCustomFieldValues(externalId)
 
-    override fun addCustomField(name: String, type: CustomFieldType): Single<Boolean> {
+    override fun addCustomField(name: String, type: CustomFieldType): Boolean {
         return repository.addCustomField(CustomField(
                 name = name,
                 type = type
@@ -39,11 +36,11 @@ class CustomFieldInteractor @Inject constructor(
         return repository.getAllCustomField(id)
     }
 
-    override fun save(id: Long?, name: String, type: CustomFieldType, showByDefault: Boolean, addTime: Boolean): Single<Boolean> {
+    override fun save(id: Long?, name: String, type: CustomFieldType, showByDefault: Boolean, addTime: Boolean): Boolean {
         return repository.addCustomField(CustomField(id, name, type, showByDefault, addTime))
     }
 
-    override fun getCustomFieldsWithValues(externalId: Long?): Single<List<CustomFieldValue>> {
+    override fun getCustomFieldsWithValues(externalId: Long?): List<CustomFieldValue> {
         return repository.getCustomFieldWithValues(externalId)
     }
 

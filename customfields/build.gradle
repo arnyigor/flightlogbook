@@ -42,7 +42,6 @@ dependencies {
     implementation project(path: ':adapters')
     implementation project(path: ':constants')
     implementation project(path: ':helpers')
-    implementation project(path: ':data')
     implementation libs.kotlinStdlib
     implementation libs.ktxCore
     /*support*/

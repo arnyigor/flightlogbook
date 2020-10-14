@@ -8,6 +8,7 @@ import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import com.arny.flightlogbook.presentation.flights.viewflights.view.ViewFlightsView
+import com.arny.helpers.utils.fromSingle
 import moxy.InjectViewState
 import javax.inject.Inject
 
@@ -32,7 +33,7 @@ class ViewFlightsPresenter : BaseMvpPresenter<ViewFlightsView>() {
     }
 
     private fun getTimeInfo() {
-        flightsInteractor.getTotalflightsTimeInfo()
+        fromSingle { flightsInteractor.getTotalflightsTimeInfo() }
                 .subscribeFromPresenter({
                     if (it is Result.Success) {
                         viewState.showTotalsInfo(it.data)

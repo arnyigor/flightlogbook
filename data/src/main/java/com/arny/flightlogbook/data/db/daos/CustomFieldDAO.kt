@@ -10,6 +10,9 @@ interface CustomFieldDAO : BaseDao<CustomFieldEntity> {
     @Query("SELECT * FROM custom_fields")
     fun getDbCustomFields(): List<CustomFieldEntity>
 
+    @Query("SELECT * FROM custom_fields WHERE add_time=='1'")
+    fun getDbCustomFieldsAddTime(): List<CustomFieldEntity>
+
     @Query("SELECT * FROM custom_fields WHERE _id =:id")
     fun getDbCustomField(id: Long): CustomFieldEntity?
 

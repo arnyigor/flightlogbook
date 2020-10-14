@@ -7,9 +7,9 @@ import com.arny.helpers.utils.OptionalNull
 import io.reactivex.Single
 
 interface ICustomFieldInteractor {
-    fun getCustomFields(): Single<List<CustomField>>
-    fun getCustomFieldValues(externalId: Long): Single<List<CustomFieldValue>>
-    fun addCustomField(name: String, type: CustomFieldType): Single<Boolean>
+    fun getCustomFields(): List<CustomField>
+    fun getCustomFieldValues(externalId: Long): List<CustomFieldValue>
+    fun addCustomField(name: String, type: CustomFieldType): Boolean
     fun removeCustomField(id: Long? = null): Single<Boolean>
     fun addCustomFieldValue(
             id: Long?,
@@ -20,7 +20,7 @@ interface ICustomFieldInteractor {
     ): Single<Boolean>
 
     fun getCustomField(id: Long): Single<OptionalNull<CustomField?>>
-    fun save(id: Long?, name: String, type: CustomFieldType, showByDefault: Boolean, addTime: Boolean): Single<Boolean>
-    fun getCustomFieldsWithValues(externalId: Long?): Single<List<CustomFieldValue>>
+    fun save(id: Long?, name: String, type: CustomFieldType, showByDefault: Boolean, addTime: Boolean): Boolean
+    fun getCustomFieldsWithValues(externalId: Long?): List<CustomFieldValue>
     fun saveValues(values: List<CustomFieldValue>): Single<Boolean>
 }

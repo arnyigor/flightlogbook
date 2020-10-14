@@ -10,6 +10,9 @@ import com.arny.domain.models.*
 import com.arny.domain.planetypes.PlaneTypesRepository
 import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.constants.CONSTS.STRINGS.PARAM_COLOR
+import com.arny.flightlogbook.customfields.models.CustomFieldType
+import com.arny.flightlogbook.customfields.models.CustomFieldValue
+import com.arny.flightlogbook.customfields.repository.ICustomFieldsRepository
 import com.arny.helpers.utils.*
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -23,6 +26,7 @@ class FlightsInteractor @Inject constructor(
         private val flightsRepository: FlightsRepository,
         private val resourcesProvider: ResourcesProvider,
         private val planeTypesRepository: PlaneTypesRepository,
+        private val customFieldsRepository: ICustomFieldsRepository,
         private val preferencesProvider: PreferencesProvider,
         private val filesRepository: FilesRepository
 ) {
@@ -56,6 +60,19 @@ class FlightsInteractor @Inject constructor(
         return flightTypesRepository.loadDBFlightType(id)
     }
 
+    fun getAddTimeSum(values: List<CustomFieldValue>): Int {
+        return if (values.isNotEmpty()) {
+            values.filter {
+                val type = it.type
+                type is CustomFieldType.Time && type.addTime && it.value != null
+            }.map {
+                DateTimeUtils.convertStringToTime(it.value.toString())
+            }.sum()
+        } else {
+            0
+        }
+    }
+
     private fun getFormattedFlightTimes(): Result<String> {
         val flightsCount = flightsRepository.getFlightsCount()
         if (flightsCount == 0) {
@@ -64,7 +81,8 @@ class FlightsInteractor @Inject constructor(
         val flightsTime = flightsRepository.getFlightsTime()
         val groundTime = flightsRepository.getGroundTime()
         val nightTime = flightsRepository.getNightTime()
-        val sumlogTime = flightsTime + groundTime
+        val addTimeSum = getAddTimeSum(customFieldsRepository.getAllAdditionalTime())
+        val sumlogTime = flightsTime + groundTime + addTimeSum
         return formattedInfo(flightsTime, nightTime, groundTime, sumlogTime, flightsCount)
     }
 
@@ -88,9 +106,7 @@ class FlightsInteractor @Inject constructor(
                 flightsCount).toResult()
     }
 
-    fun getTotalflightsTimeInfo(): Observable<Result<String>> {
-        return fromCallable { getFormattedFlightTimes() }
-    }
+    fun getTotalflightsTimeInfo(): Result<String> = getFormattedFlightTimes()
 
     fun setFlightsOrder(orderType: Int) {
         preferencesProvider.setPrefInt(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS, orderType)
@@ -125,38 +141,48 @@ class FlightsInteractor @Inject constructor(
                     fromCallable {
                         val flightTypes = flightTypesRepository.loadDBFlightTypes()
                         val planeTypes = planeTypesRepository.loadPlaneTypes()
+                        val allAdditionalTime = customFieldsRepository.getAllAdditionalTime()
                         when (flightsResult) {
-                            is Result.Success -> {
-                                flightsResult.data.map { flight ->
-                                    flight.colorInt = flight.params?.getParam(PARAM_COLOR, "")?.toIntColor()
-                                    val masked = flight.colorInt?.let { colorWillBeMasked(it) }
-                                            ?: false
-                                    flight.colorText = if (masked) Color.WHITE else null
-                                    flight.planeType = flight.planeId?.let { plId ->
-                                        planeTypes.find { it.typeId == plId }
-                                                ?: flight.regNo?.let { regNo ->
-                                                    planeTypes.find { it.regNo?.trimIndent() == regNo.trimIndent() }
-                                                }
-                                    }
-                                    flight.flightType = flightTypes.find { it.id == flight.flightTypeId?.toLong() }
-                                    flight.totalTime = flight.flightTime + flight.groundTime
-                                    flight
-                                }
-                            }
+                            is Result.Success -> getFlight(flightsResult.data, planeTypes, flightTypes, allAdditionalTime)
                             is Result.Error -> throw BusinessException(flightsResult.exception)
                         }
                     }
                 }
                 .map { flights ->
-                    val res = when (orderType) {
+                    when (orderType) {
                         0 -> flights.sortedBy { it.datetime }
                         1 -> flights.sortedByDescending { it.datetime }
                         2 -> flights.sortedBy { it.flightTime }
                         3 -> flights.sortedByDescending { it.flightTime }
                         else -> flights
-                    }
-                    res.toResult()
+                    }.toResult()
                 }
+    }
+
+    private fun getFlight(
+            list: List<Flight>,
+            planeTypes: List<PlaneType>,
+            flightTypes: List<FlightType>,
+            allAdditionalTime: List<CustomFieldValue>
+    ): List<Flight> {
+        return list.map { flight ->
+            flight.colorInt = flight.params?.getParam(PARAM_COLOR, "")?.toIntColor()
+            val masked = flight.colorInt?.let { colorWillBeMasked(it) } ?: false
+            flight.colorText = if (masked) Color.WHITE else null
+            flight.planeType = flight.planeId?.let { plId ->
+                planeTypes.find { it.typeId == plId }
+                        ?: flight.regNo?.let { regNo ->
+                            planeTypes.find { it.regNo?.trimIndent() == regNo.trimIndent() }
+                        }
+            }
+            flight.flightType = flightTypes.find { it.id == flight.flightTypeId?.toLong() }
+            val flightAddTime = allAdditionalTime.firstOrNull { it.externalId == flight.id }
+                    ?.value?.toString()
+                    ?.toInt() ?: 0
+            flight.flightTime += flightAddTime
+            flight.totalTime = flight.flightTime + flight.groundTime
+            flight
+        }
     }
 
     fun removeFlight(id: Long?): Single<Boolean> {

@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 
 @Entity(
         tableName = "type_table",
-        indices = [Index("airplane_type", "reg_no", unique = true)]
+        indices = [Index("reg_no", unique = true)]
 )
 data class PlaneTypeEntity(
         @PrimaryKey(autoGenerate = true)

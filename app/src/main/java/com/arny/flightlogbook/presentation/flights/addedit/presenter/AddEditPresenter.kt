@@ -119,7 +119,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     private fun loadCustomFields() {
         viewState.setCustomFieldsVisible(customFieldEnabled)
         if (customFieldEnabled) {
-            customFieldInteractor.getCustomFieldsWithValues(flightId)
+            fromSingle { customFieldInteractor.getCustomFieldsWithValues(flightId) }
                     .subscribeFromPresenter({
                         customFieldsValues = it.toMutableList()
                         viewState.setFieldsList(customFieldsValues)
@@ -205,16 +205,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         }
         fromCallable { DateTimeUtils.strLogTime(intFlightTime) }
                 .subscribeFromPresenter({ viewState.setEdtFlightTimeText(it) })
-        val customTimes = if (customFieldEnabled && customFieldsValues.isNotEmpty()) {
-            customFieldsValues.filter {
-                val type = it.type
-                type is CustomFieldType.Time && type.addTime && it.value != null
-            }.map {
-                DateTimeUtils.convertStringToTime(it.value.toString())
-            }.sum()
-        } else {
-            0
-        }
+        val customTimes = if(customFieldEnabled) flightsInteractor.getAddTimeSum(customFieldsValues) else 0
         intTotalTime = intFlightTime + intGroundTime + customTimes
         fromCallable { DateTimeUtils.strLogTime(intTotalTime) }
                 .subscribeFromPresenter({ viewState.setTotalTime(it) })

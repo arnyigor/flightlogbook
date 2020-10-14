@@ -80,12 +80,10 @@ class PlaneTypeEditFragment : BaseMvpFragment(), PlaneTypeEditView {
         tiLRegNo.error = getString(strRes)
     }
 
-    override fun setResultOk(id: Long) {
+    override fun setResultOk() {
         val requireActivity = requireActivity()
         if (requireActivity is FragmentContainerActivity) {
-            requireActivity.onSuccess(Intent().apply {
-                putExtra(CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID, id)
-            })
+            requireActivity.onSuccess(Intent())
             requireActivity.onBackPressed()
         }
     }

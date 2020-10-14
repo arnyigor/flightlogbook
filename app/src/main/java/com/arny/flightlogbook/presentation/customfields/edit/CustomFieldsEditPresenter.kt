@@ -5,6 +5,7 @@ import com.arny.flightlogbook.R
 import com.arny.flightlogbook.customfields.domain.ICustomFieldInteractor
 import com.arny.flightlogbook.customfields.models.CustomFieldType
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
+import com.arny.helpers.utils.fromSingle
 import moxy.InjectViewState
 import javax.inject.Inject
 
@@ -62,7 +63,7 @@ class CustomFieldsEditPresenter : BaseMvpPresenter<CustomFieldsEditView>() {
             return
         }
         viewState.showProgress(false)
-        customFieldInteractor.save(id, name!!, type, showByDefault, addTime)
+        fromSingle { customFieldInteractor.save(id, name!!, type, showByDefault, addTime) }
                 .subscribeFromPresenter({
                     viewState.showProgress(false)
                     viewState.showResult(R.string.save_custom_field_success)
