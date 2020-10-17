@@ -77,6 +77,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         addEditPresenter.flightId = getExtra<Long>(CONSTS.DB.COLUMN_ID)
     }
 
@@ -430,7 +431,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
             R.id.ivRemoveColor -> addEditPresenter.removeColor()
             R.id.btnAddField -> {
                 appRouter?.navigateTo(
-                        NavigateItems.ITEM_EDIT_FIELD,
+                        NavigateItems.ITEM_SELECT_FIELD,
                         true,
                         bundleOf(CONSTS.REQUESTS.REQUEST to true),
                         requestCode = CONSTS.REQUESTS.REQUEST_SELECT_CUSTOM_FIELD,

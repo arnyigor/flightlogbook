@@ -1,9 +1,11 @@
 package com.arny.flightlogbook.presentation.customfields.edit
 
-import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import android.view.*
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import android.widget.AdapterView
 import androidx.annotation.StringRes
 import androidx.core.view.isVisible
@@ -12,17 +14,17 @@ import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.AbstractArrayAdapter
 import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.customfields.models.CustomFieldType
+import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.flightlogbook.presentation.main.BackButtonListener
 import com.arny.flightlogbook.presentation.main.MainActivity
 import com.arny.helpers.utils.KeyboardHelper.hideKeyboard
 import com.arny.helpers.utils.ToastMaker
 import kotlinx.android.synthetic.main.fragment_edit_custom_field_layout.*
-import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 
-class CustomFieldEditFragment : MvpAppCompatFragment(), CustomFieldsEditView, BackButtonListener {
+class CustomFieldEditFragment : BaseMvpFragment(), CustomFieldsEditView, BackButtonListener {
     private var appRouter: AppRouter? = null
 
     companion object {
@@ -65,22 +67,21 @@ class CustomFieldEditFragment : MvpAppCompatFragment(), CustomFieldsEditView, Ba
                 hideKeyboard(requireActivity())
                 presenter.onSaveClicked(chbAddTime.isChecked)
             }
+            R.id.action_delete -> {
+                hideKeyboard(requireActivity())
+                presenter.onDelete()
+            }
         }
         return true
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_edit_custom_field_layout, container, false)
-    }
+    override fun getLayoutId(): Int = R.layout.fragment_edit_custom_field_layout
+
+    override fun getTitle(): String? = getString(R.string.edit)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         types = resources.getStringArray(R.array.custom_fields_types)
-        val activity = activity
-        activity?.title = getString(R.string.edit)
-        if (activity is MainActivity) {
-            activity.lockNavigationDrawer()
-        }
         tiedtCustomFieldName.doAfterTextChanged {
             if (tiedtCustomFieldName.isFocused) {
                 presenter.setFieldName(it.toString())
@@ -115,7 +116,7 @@ class CustomFieldEditFragment : MvpAppCompatFragment(), CustomFieldsEditView, Ba
     }
 
     override fun onResultOk() {
-        targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_OK, null)
+        appRouter?.setResultToTargetFragment(this@CustomFieldEditFragment)
     }
 
     override fun showError(@StringRes strRes: Int) {

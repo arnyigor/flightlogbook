@@ -16,7 +16,7 @@ interface AppRouter {
 
     fun setResultToTargetFragment(
             currentFragment: Fragment,
-            intent: Intent,
+            intent: Intent? = null,
             resultCode: Int = Activity.RESULT_OK
     )
 

@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity(), AppRouter {
 
     override fun setResultToTargetFragment(
             currentFragment: Fragment,
-            intent: Intent,
+            intent: Intent?,
             resultCode: Int
     ) {
         currentFragment.targetFragment?.onActivityResult(
@@ -158,6 +158,13 @@ class MainActivity : AppCompatActivity(), AppRouter {
             NavigateItems.MENU_STATS.index -> StatisticFragment.getInstance()
             NavigateItems.MENU_SETTINGS.index -> SettingsFragment.getInstance()
             NavigateItems.MENU_AIRPORTS.index -> AirportsFragment.getInstance()
+            NavigateItems.EDIT_AIRPORT.index -> {
+                launchActivity<FragmentContainerActivity> {
+                    action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_AIRPORT
+                    bundle?.let { putExtras(it) }
+                }
+                null
+            }
             NavigateItems.ITEM_EDIT_FIELD.index -> {
                 launchActivity<FragmentContainerActivity> {
                     action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_CUSTOM_FIELD
@@ -196,8 +203,7 @@ class MainActivity : AppCompatActivity(), AppRouter {
             replaceFragment(
                     fragment,
                     R.id.container,
-                    addToBackStack,
-                    animResourses = R.anim.anim_slide_in_left to R.anim.anim_slide_out_left
+                    addToBackStack
             )
         }
         dlMain.closeDrawer(navViewMain)

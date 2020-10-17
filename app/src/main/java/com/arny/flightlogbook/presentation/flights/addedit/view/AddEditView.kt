@@ -14,6 +14,8 @@ interface AddEditView : MvpView {
     fun setEdtFlightTimeText(strLogTime: String?)
     fun setMotoTimeResult(motoTime: String?)
     fun setToolbarTitle(@StringRes title: Int)
+
+    @OneExecution
     fun toastError(msg: String?)
     fun setPlaneTypeTitle(title: String?)
     fun setTotalTime(total: String)

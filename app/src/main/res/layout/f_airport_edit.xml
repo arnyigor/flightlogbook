@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:padding="8dp">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="8dp">
+        android:paddingStart="8dp"
+        android:paddingLeft="8dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="8dp"
+        android:paddingRight="8dp"
+        android:paddingBottom="16dp">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilIcaoCode"
@@ -22,16 +28,16 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/tiedtIcaoCode"
-                android:inputType="text"
-                tools:text="UUDD"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                tools:text="UUDD" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilIataCode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/tilIataCode"
             android:layout_marginTop="8dp"
             android:hint="@string/iata_code"
             app:layout_constraintEnd_toEndOf="parent"
@@ -42,8 +48,8 @@
                 android:id="@+id/tiEdtIataCode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:text="DME"
-                android:inputType="text" />
+                android:inputType="text"
+                tools:text="DME" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -58,10 +64,10 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/tiedtNameRus"
-                android:inputType="text"
-                tools:text="Домодедово"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                tools:text="Домодедово" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -78,8 +84,8 @@
                 android:id="@+id/tiedtNameEng"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:text="Domodedovo"
-                android:inputType="text" />
+                android:inputType="text"
+                tools:text="Domodedovo" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -96,8 +102,8 @@
                 android:id="@+id/tiedtCityRus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:text="Москва"
-                android:inputType="text" />
+                android:inputType="text"
+                tools:text="Москва" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -112,10 +118,10 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/tiedtCityEng"
-                tools:text="Moscow"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text" />
+                android:inputType="text"
+                tools:text="Moscow" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -132,8 +138,8 @@
                 android:id="@+id/tiedtCountryRus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:text="Россия"
-                android:inputType="text" />
+                android:inputType="text"
+                tools:text="Россия" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -149,9 +155,9 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/tiedtCountryEng"
                 android:layout_width="match_parent"
-                tools:text="Russia"
                 android:layout_height="wrap_content"
-                android:inputType="text" />
+                android:inputType="text"
+                tools:text="Russia" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -167,8 +173,8 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/tiedtLatitude"
                 android:layout_width="match_parent"
-                android:inputType="numberDecimal"
                 android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
                 tools:text="54.356489484" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -212,7 +218,16 @@
             android:id="@+id/btnSave"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/save" />
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:background="@drawable/btn_bg_primary"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:text="@string/save"
+            android:textAllCaps="false"
+            android:textColor="@color/colorTextWhite"
+            app:layout_constraintBottom_toBottomOf="@+id/tilDate"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tilDate" />
     </LinearLayout>
 </ScrollView>

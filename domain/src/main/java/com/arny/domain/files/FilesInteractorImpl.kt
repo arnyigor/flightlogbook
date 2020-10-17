@@ -64,7 +64,7 @@ class FilesInteractorImpl @Inject constructor(
         var strDesc: String
         var airplaneTypeId: Long = 0
         var mDateTime: Long = 0
-        var planeType = PlaneType()
+        var planeType: PlaneType? = null
         var planeTypes = planeTypesRepository.loadPlaneTypes()
         var dbFlightTypes = flightTypesRepository.loadDBFlightTypes()
         var id = 1L
@@ -116,35 +116,50 @@ class FilesInteractorImpl @Inject constructor(
                             flight.flightTime = time
                         }
                         3 -> {
-                            try {
-                                val airplaneTypeName = myCell.toString()
-                                val typeId = planeTypes.find { it.typeName == airplaneTypeName }?.typeId
-                                if (typeId != null) {
-                                    airplaneTypeId = typeId
-                                } else {
-                                    if (!airplaneTypeName.isBlank()) {
-                                        planeType.typeName = airplaneTypeName
-                                    }
+                            val airplaneTypeName = myCell.toString()
+                            val type = planeTypes.find { it.typeName.equals(airplaneTypeName, true) }
+                            if (type?.typeId == null && airplaneTypeName.isNotBlank()) {
+                                planeType = PlaneType().apply {
+                                    typeName = airplaneTypeName
                                 }
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                                airplaneTypeId = 0
+                            } else {
+                                planeType = type
                             }
-                            flight.planeId = airplaneTypeId
                         }
                         4 -> {
-                            var regNo: String
-                            try {
-                                regNo = myCell.toString()
-                            } catch (e: Exception) {
-                                regNo = ""
-                                e.printStackTrace()
+                            val regNo: String = myCell.toString()
+                            if (planeType?.typeId != null && !planeType.regNo.isNullOrBlank() && regNo == planeType.regNo) {
+                                flight.planeId = planeType.typeId
+                                flight.regNo = planeType.regNo
+                            } else {
+                                val type = planeTypes.find { it.regNo == regNo }
+                                if (type?.typeId != null) {
+                                    planeType = type
+                                } else {
+                                    if (planeType != null) {
+                                        val typeName = planeType.typeName
+                                        planeType = PlaneType().apply {
+                                            this.typeName = typeName
+                                            this.regNo = regNo
+                                        }
+                                        airplaneTypeId = planeTypesRepository.addType(planeType)
+                                        planeType.typeId = airplaneTypeId
+                                        planeTypes = planeTypesRepository.loadPlaneTypes()
+                                    } else {
+                                        planeType = PlaneType().apply {
+                                            this.regNo = regNo
+                                        }
+                                        airplaneTypeId = planeTypesRepository.addType(planeType)
+                                        planeType.typeId = airplaneTypeId
+                                        planeTypes = planeTypesRepository.loadPlaneTypes()
+                                    }
+                                }
+                                if (planeType.typeId != null && !planeType.regNo.isNullOrBlank() && regNo ==
+                                        planeType.regNo) {
+                                    flight.planeId = planeType.typeId
+                                    flight.regNo = planeType.regNo
+                                }
                             }
-                            planeType.regNo = regNo
-                            airplaneTypeId =  planeTypesRepository.addType(planeType)
-                            planeTypes = planeTypesRepository.loadPlaneTypes()
-                            flight.planeId = airplaneTypeId
-                            flight.regNo = regNo
                         }
                         7 -> {
                             var flightTypeId: Long

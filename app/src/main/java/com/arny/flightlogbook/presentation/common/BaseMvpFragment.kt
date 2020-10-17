@@ -4,8 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.annotation.LayoutRes
-import com.arny.flightlogbook.presentation.main.MainActivity
 import moxy.MvpAppCompatFragment
 
 abstract class BaseMvpFragment : MvpAppCompatFragment() {
@@ -22,19 +22,21 @@ abstract class BaseMvpFragment : MvpAppCompatFragment() {
         this.activity?.title = getTitle()
     }
 
+    fun setState() {
+        requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+    }
+
+    fun setStateHidden() {
+        requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         updateTitle()
         val fragmentActivity = activity
-        if (fragmentActivity is MainActivity) {
+        if (fragmentActivity is FragmentContainerActivity) {
             fragmentActivity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
         }
     }
 
-    fun lockNavDrawer() {
-        val fragmentActivity = activity
-        if (fragmentActivity is MainActivity) {
-            fragmentActivity.lockNavigationDrawer()
-        }
-    }
 }

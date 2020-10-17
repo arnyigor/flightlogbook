@@ -28,4 +28,5 @@ interface ICustomFieldInteractor {
 
     fun getCustomFieldsWithValues(externalId: Long?): List<CustomFieldValue>
     fun saveValues(values: List<CustomFieldValue>): Boolean
+    fun removeField(id: Long): Boolean
 }

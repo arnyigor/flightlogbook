@@ -21,6 +21,12 @@ import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 
 class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickListener {
+    companion object {
+        fun getInstance(bundle: Bundle? = null) = PlaneTypesFragment().apply {
+            bundle?.let { arguments = it }
+        }
+    }
+
     private var adapter: PlaneTypesAdapter? = null
 
     @InjectPresenter
@@ -35,12 +41,6 @@ class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickL
         super.onAttach(context)
         if (context is AppRouter) {
             appRouter = context
-        }
-    }
-
-    companion object {
-        fun getInstance(bundle: Bundle? = null) = PlaneTypesFragment().apply {
-            bundle?.let { arguments = it }
         }
     }
 
@@ -78,7 +78,7 @@ class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickL
 
                     override fun onItemClick(position: Int, item: PlaneType) {
                         if (isRequestField) {
-                            appRouter?.onReturnResult(Intent().apply {
+                            appRouter?.setResultToTargetFragment(this@PlaneTypesFragment, Intent().apply {
                                 putExtra(CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID, item.typeId)
                             })
                         }

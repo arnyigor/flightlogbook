@@ -68,7 +68,6 @@ class CustomFieldsEditPresenter : BaseMvpPresenter<CustomFieldsEditView>() {
                     viewState.showProgress(false)
                     viewState.showResult(R.string.save_custom_field_success)
                     viewState.onResultOk()
-                    viewState.onReturnBack()
                 }, {
                     viewState.showProgress(false)
                     viewState.showError(R.string.error_custom_field_not_saved)
@@ -90,5 +89,21 @@ class CustomFieldsEditPresenter : BaseMvpPresenter<CustomFieldsEditView>() {
 
     fun setAddTimeChecked(checked: Boolean) {
         addTime = checked
+    }
+
+    fun onDelete() {
+        id?.let {
+            fromSingle { customFieldInteractor.removeField(it) }
+                    .subscribeFromPresenter({
+                        if (it) {
+                            viewState.showResult(R.string.custom_field_removed)
+                            viewState.onResultOk()
+                        } else {
+                            viewState.showError(R.string.error_custom_field_not_removed)
+                        }
+                    }, {
+                        viewState.showError(R.string.error_custom_field_not_removed)
+                    })
+        }
     }
 }

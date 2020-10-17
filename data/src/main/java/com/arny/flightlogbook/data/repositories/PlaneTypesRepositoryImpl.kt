@@ -24,8 +24,12 @@ class PlaneTypesRepositoryImpl @Inject constructor(private val aircraftTypeDAO: 
         return aircraftTypeDAO.queryAircraftByRegNo(regNo)?.toPlaneType()
     }
 
-    private fun PlaneType.toPlaneTypeEntity() =
-            PlaneTypeEntity(typeId, typeName, regNo, getDBMainType(mainType))
+    private fun PlaneType.toPlaneTypeEntity(): PlaneTypeEntity {
+        if (this.mainType == null) {
+            this.mainType = AircraftType.AIRPLANE
+        }
+        return PlaneTypeEntity(typeId, typeName, regNo, getDBMainType(mainType))
+    }
 
     private fun PlaneTypeEntity.toPlaneType() =
             PlaneType(typeId, typeName, getType(mainType), regNo)

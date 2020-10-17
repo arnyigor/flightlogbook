@@ -76,6 +76,43 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         FlightApp.appComponent.inject(this)
     }
 
+    override fun onFirstViewAttach() {
+        initState()
+    }
+
+    private fun loadFlight(id: Long) {
+        fromNullable { flightsInteractor.getFlight(id) }
+                .subscribeFromPresenter({ optionalNull ->
+                    val value = optionalNull.value
+                    if (value != null) {
+                        flight = value
+                        initUI(flight!!)
+                    } else {
+                        viewState.toastError(getString(R.string.record_not_found))
+                        initEmptyUI()
+                    }
+                })
+    }
+
+    private fun initEmptyUI() {
+        viewState.setDescription("")
+        viewState.setDate("")
+        viewState.setToolbarTitle(R.string.str_add_flight)
+        flight = Flight()
+        flight?.params = Params()
+        loadCustomFields()
+    }
+
+    private fun initState() {
+        if (flightId != null) {
+            viewState.setToolbarTitle(R.string.str_edt_flight)
+            loadFlight(flightId!!)
+        } else {
+            initEmptyUI()
+        }
+    }
+
+
     private fun initUI(flight: Flight) {
         viewState.setDescription(flight.description ?: "")
         loadColor(flight)
@@ -134,27 +171,31 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     }
 
     private fun loadColor(flight: Flight) {
-        flight.colorInt?.let {
-            viewState.setViewColor(it)
+        if (flight.colorInt != null) {
+            viewState.setViewColor(flight.colorInt!!)
             viewState.setRemoveColorVisible(true)
-        }?.run {
-            fromNullable { flight.params?.getParam(PARAM_COLOR, "") }
-                    .map {
-                        val hexColor = it.value
-                        if (!hexColor.isNullOrBlank()) {
-                            hexColor.toIntColor()
-                        } else {
-                            -1
-                        }
-                    }
-                    .subscribeFromPresenter({
-                        val hasColor = it != -1
-                        viewState.setRemoveColorVisible(hasColor)
-                        if (hasColor) {
-                            viewState.setViewColor(it)
-                        }
-                    })
+        } else {
+            loadColorParam(flight)
         }
+    }
+
+    private fun loadColorParam(flight: Flight) {
+        fromNullable { flight.params?.getParam(PARAM_COLOR, "") }
+                .map {
+                    val hexColor = it.value
+                    if (!hexColor.isNullOrBlank()) {
+                        hexColor.toIntColor()
+                    } else {
+                        -1
+                    }
+                }
+                .subscribeFromPresenter({
+                    val hasColor = it != -1
+                    viewState.setRemoveColorVisible(hasColor)
+                    if (hasColor) {
+                        viewState.setViewColor(it)
+                    }
+                })
     }
 
     private fun loadPlaneTypes(flight: Flight) {
@@ -242,7 +283,6 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                 })
     }
 
-
     fun correctArrivalTime(stringTime: String) {
         correctDayTimeObs(stringTime, intDepTime)
                 .doOnNext {
@@ -278,37 +318,6 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
 
     private fun correctDayTimeObs(stringTime: String, initTime: Int) =
             fromCallable { getCorrectDayTime(stringTime, initTime) }
-
-    private fun loadFlight(id: Long) {
-        fromNullable { flightsInteractor.getFlight(id) }
-                .subscribeFromPresenter({ optionalNull ->
-                    optionalNull.value?.let {
-                        flight = it
-                        initUI(it)
-                    }?.run {
-                        viewState.toastError(getString(R.string.record_not_found))
-                        initEmptyUI()
-                    }
-                })
-    }
-
-    private fun initEmptyUI() {
-        viewState.setDescription("")
-        viewState.setDate("")
-        viewState.setToolbarTitle(R.string.str_add_flight)
-        flight = Flight()
-        flight?.params = Params()
-        loadCustomFields()
-    }
-
-    fun initState() {
-        flightId?.let {
-            viewState.setToolbarTitle(R.string.str_edt_flight)
-            loadFlight(it)
-        }?.run {
-            initEmptyUI()
-        }
-    }
 
     fun onMotoTimeChange(startTime: String, finishTime: String) {
         if (startTime.isNotBlank() && finishTime.isNotBlank()) {
@@ -386,9 +395,8 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
             it.value?.let { planeType ->
                 flight?.planeId = planeType.typeId
                 flight?.planeType = planeType
-                val title =
-                        "${getString(R.string.str_type)}\n${getString(planeType.mainType?.nameRes)} " +
-                                "${planeType.typeName} ${getString(R.string.str_regnum)}:${planeType.regNo}"
+                val title = "${getString(R.string.str_type)}\n${getString(planeType.mainType?.nameRes)} " +
+                        "${planeType.typeName} ${getString(R.string.str_regnum)}:${planeType.regNo}"
                 viewState.setPlaneTypeTitle(title)
             } ?: run {
                 viewState.setPlaneTypeTitle("${getString(R.string.str_type)}:${getString(R.string.no_type)}")

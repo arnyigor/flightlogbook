@@ -50,16 +50,16 @@ fun AppCompatActivity.replaceFragment(
         fragment: Fragment, @IdRes frameId: Int,
         addToback: Boolean = false,
         tag: String? = null,
-        animResourses: Pair<Int, Int>? = null,
         onLoadFunc: () -> Unit? = {}
 ) {
     val tg = tag ?: fragment.javaClass.simpleName
     supportFragmentManager.transact {
-        if (animResourses != null) {
-            val slideIn = animResourses.first
-            val slideOut = animResourses.second
-            setCustomAnimations(slideIn, slideOut)
-        }
+        setCustomAnimations(
+                R.anim.anim_slide_in_left,
+                R.anim.anim_slide_out_left,
+                R.anim.anim_slide_in_right,
+                R.anim.anim_slide_out_right
+        )
         replace(frameId, fragment, tg)
         if (addToback) {
             addToBackStack(tag)
@@ -99,10 +99,10 @@ fun Fragment.replaceFragment(
 /**
  * Runs a FragmentTransaction, then calls commit().
  */
-private inline fun FragmentManager.transact(action: FragmentTransaction.() -> Unit) {
+inline fun FragmentManager.transact(action: FragmentTransaction.() -> Unit) {
     beginTransaction().apply {
         action()
-    }.commitAllowingStateLoss()
+    }.commit()
 }
 
 inline fun <reified T : Any> Activity.launchActivity(
@@ -142,17 +142,13 @@ fun Activity.launchIntent(
 inline fun <reified T : Any> Fragment.launchActivity(
         requestCode: Int = -1,
         options: Bundle? = null,
-        enterAnim: Int? = null,
-        exitAnim: Int? = null,
         noinline init: Intent.() -> Unit = {}) {
     val context = this.context
     if (context != null) {
         val intent = newIntent<T>(context)
         intent.init()
         startActivityForResult(intent, requestCode, options)
-        if (enterAnim != null && exitAnim != null) {
-            this.activity?.overridePendingTransition(enterAnim, exitAnim)
-        }
+        this.activity?.overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
     }
 }
 
@@ -438,8 +434,16 @@ fun AppCompatActivity.fragmentBackStackCnt(): Int {
     return supportFragmentManager.backStackEntryCount
 }
 
+fun AppCompatActivity.fragmentBackStack() {
+    if (supportFragmentManager.backStackEntryCount > 0) {
+        supportFragmentManager.popBackStack()
+    } else {
+        this.onBackPressed()
+    }
+}
+
 fun AppCompatActivity.fragmentBackStackClear() {
-    return supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
+    return supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 }
 
 fun inflate(inflater: LayoutInflater, container: ViewGroup?, @LayoutRes resource: Int): View? {
@@ -820,7 +824,7 @@ fun getTermination(count: Int, zero_other: String, one: String, two_four: String
 
 fun String?.orBlank() = this ?: ""
 
-fun String?.orBlank(predicate: () -> Boolean) =if(predicate()) this else ""
+fun String?.orBlank(predicate: () -> Boolean) = if (predicate()) this else ""
 
 /**
  * Extended function to check empty

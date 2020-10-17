@@ -4,7 +4,10 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.*
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -13,16 +16,16 @@ import com.arny.domain.models.Flight
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.flightlogbook.constants.CONSTS
+import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
 import com.arny.flightlogbook.presentation.flights.viewflights.presenter.ViewFlightsPresenter
 import com.arny.flightlogbook.presentation.main.MainFirstFragment
 import com.arny.helpers.utils.*
 import kotlinx.android.synthetic.main.fragment_flight_list.*
-import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 
-class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView, MainFirstFragment {
+class FlightListFragment : BaseMvpFragment(), ViewFlightsView, MainFirstFragment {
     companion object {
         fun getInstance(): FlightListFragment {
             return FlightListFragment()
@@ -48,13 +51,9 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView, MainFirstFra
         ToastMaker.toastError(context, msg)
     }
 
-    override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_flight_list, container, false)
-    }
+    override fun getTitle(): String = getString(R.string.fragment_logbook)
+
+    override fun getLayoutId(): Int = R.layout.fragment_flight_list
 
     override fun showError(message: String?) {
         requireView().showSnackBar(message)
@@ -63,11 +62,10 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView, MainFirstFra
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         fab_add_flight.setOnClickListener {
-            launchActivity<FragmentContainerActivity> {
+            launchActivity<FragmentContainerActivity>(CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT) {
                 action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_FLIGHT
             }
         }
-        requireActivity().title = getString(R.string.fragment_logbook)
         mLayoutManager = LinearLayoutManager(context)
         rvflights.layoutManager = mLayoutManager
         rvflights.itemAnimator = DefaultItemAnimator()

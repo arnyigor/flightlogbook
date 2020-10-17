@@ -26,6 +26,8 @@ class CustomFieldInteractor @Inject constructor(
         )
     }
 
+    override fun removeField(id: Long): Boolean = repository.removeCustomField(id)
+
     override fun getCustomField(id: Long): OptionalNull<CustomField?> =
             repository.getAllCustomField(id)
 

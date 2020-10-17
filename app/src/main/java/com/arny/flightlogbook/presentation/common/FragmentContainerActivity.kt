@@ -10,8 +10,8 @@ import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_EDIT_AIRPORT
 import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_EDIT_CUSTOM_FIELD
 import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_EDIT_FLIGHT
 import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_EDIT_PLANE_TYPE
-import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_GET_CUSTOM_FIELD
 import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_SELECT_AIRPORT
+import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_SELECT_CUSTOM_FIELD
 import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_SELECT_FLIGHT_TYPE
 import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_SELECT_PLANE_TYPE
 import com.arny.flightlogbook.presentation.airports.edit.AirportEditFragment
@@ -47,6 +47,7 @@ class FragmentContainerActivity : AppCompatActivity(), AppRouter {
             NavigateItems.FLIGHT_TYPE_SELECT -> EXTRA_ACTION_SELECT_FLIGHT_TYPE
             NavigateItems.PLANE_TYPE_EDIT -> EXTRA_ACTION_EDIT_PLANE_TYPE
             NavigateItems.ITEM_EDIT_FIELD -> EXTRA_ACTION_EDIT_CUSTOM_FIELD
+            NavigateItems.ITEM_SELECT_FIELD -> EXTRA_ACTION_SELECT_CUSTOM_FIELD
             NavigateItems.AIRPORT_SELECT -> EXTRA_ACTION_SELECT_AIRPORT
             NavigateItems.EDIT_AIRPORT -> EXTRA_ACTION_EDIT_AIRPORT
             else -> null
@@ -59,8 +60,8 @@ class FragmentContainerActivity : AppCompatActivity(), AppRouter {
     ): MvpAppCompatFragment? {
         return when (action) {
             EXTRA_ACTION_EDIT_FLIGHT -> AddEditFragment.getInstance(bundle)
-            EXTRA_ACTION_GET_CUSTOM_FIELD -> CustomFieldsListFragment.getInstance(request = true)
             EXTRA_ACTION_EDIT_CUSTOM_FIELD -> CustomFieldEditFragment.getInstance()
+            EXTRA_ACTION_SELECT_CUSTOM_FIELD -> CustomFieldsListFragment.getInstance(bundle)
             EXTRA_ACTION_SELECT_PLANE_TYPE -> PlaneTypesFragment.getInstance(bundle)
             EXTRA_ACTION_SELECT_FLIGHT_TYPE -> FlightTypesFragment.getInstance(bundle)
             EXTRA_ACTION_EDIT_PLANE_TYPE -> PlaneTypeEditFragment.getInstance(bundle)
@@ -71,11 +72,11 @@ class FragmentContainerActivity : AppCompatActivity(), AppRouter {
     }
 
     override fun navigateTo(
-        item: NavigateItems,
-        addToBackStack: Boolean,
-        bundle: Bundle?,
-        targetFragment: Fragment?,
-        requestCode: Int?
+            item: NavigateItems,
+            addToBackStack: Boolean,
+            bundle: Bundle?,
+            targetFragment: Fragment?,
+            requestCode: Int?
     ) {
         val fragment = getFragment(getAction(item), bundle)
         if (fragment != null) {
@@ -85,8 +86,7 @@ class FragmentContainerActivity : AppCompatActivity(), AppRouter {
             replaceFragment(
                     fragment,
                     R.id.fragment_container,
-                    addToBackStack,
-                    animResourses = R.anim.anim_slide_in_left to R.anim.anim_slide_out_left
+                    addToBackStack
             )
         }
     }
@@ -98,7 +98,7 @@ class FragmentContainerActivity : AppCompatActivity(), AppRouter {
 
     override fun setResultToTargetFragment(
             currentFragment: Fragment,
-            intent: Intent,
+            intent: Intent?,
             resultCode: Int
     ) {
         currentFragment.targetFragment?.onActivityResult(
@@ -110,8 +110,12 @@ class FragmentContainerActivity : AppCompatActivity(), AppRouter {
     }
 
     override fun onBackPressed() {
-        super.onBackPressed()
-        overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_out_right)
+        if (supportFragmentManager.backStackEntryCount > 0) {
+            supportFragmentManager.popBackStack()
+        } else {
+            super.onBackPressed()
+            overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_out_right)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

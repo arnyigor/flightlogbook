@@ -47,6 +47,8 @@
     <string name="error_empty_text_field">Пустое поле</string>
     <string name="error_custom_field_not_saved">Поле не сохранено</string>
     <string name="save_custom_field_success">Поле сохранено</string>
+    <string name="custom_field_removed">Поле удалено</string>
+    <string name="error_custom_field_not_removed">Поле не удалено</string>
 
     <string-array name="custom_fields_types">
         <item>@string/field_type_text</item>
@@ -67,7 +69,7 @@
     <string name="edit_plane_type">Редактирование типа ВС</string>
     <string name="error_plane_type_not_saved">ВС не сохранено</string>
     <string name="enter_airport_code">Введите код аэродрома ICAO, IATA, название или город</string>
-    <string name="airports">Аэропорты</string>
+    <string name="airports">Аэродромы</string>
     <string name="icao_code">Код ICAO</string>
     <string name="iata_code">Код IATA</string>
     <string name="airport_name_rus">Название аэродрома(рус.)</string>
