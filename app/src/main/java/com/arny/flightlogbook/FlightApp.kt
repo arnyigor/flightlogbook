@@ -8,11 +8,16 @@ import com.arny.flightlogbook.di.AppComponent
 import com.arny.flightlogbook.di.AppModule
 import com.arny.flightlogbook.di.DaggerAppComponent
 import com.facebook.stetho.Stetho
+import com.github.terrakok.cicerone.NavigatorHolder
+import javax.inject.Inject
 
 class FlightApp : Application() {
+    @Inject
+    lateinit var navigatorHolder: NavigatorHolder
 
     companion object {
-        @JvmStatic
+        internal lateinit var INSTANCE: FlightApp
+            private set
         lateinit var appComponent: AppComponent
     }
 
@@ -28,6 +33,7 @@ class FlightApp : Application() {
                 .builder()
                 .appModule(AppModule(this))
                 .build()
+        appComponent.inject(this)
         Stetho.initializeWithDefaults(this)
     }
 }

@@ -1,5 +1,6 @@
 package com.arny.flightlogbook.presentation.flights.addedit.view
 
+import androidx.annotation.StringRes
 import com.arny.domain.models.Airport
 import com.arny.flightlogbook.customfields.models.CustomFieldValue
 import moxy.MvpView
@@ -12,7 +13,7 @@ interface AddEditView : MvpView {
     fun setDate(date: String)
     fun setEdtFlightTimeText(strLogTime: String?)
     fun setMotoTimeResult(motoTime: String?)
-    fun setToolbarTitle(string: String)
+    fun setToolbarTitle(@StringRes title: Int)
     fun toastError(msg: String?)
     fun setPlaneTypeTitle(title: String?)
     fun setTotalTime(total: String)
@@ -20,7 +21,6 @@ interface AddEditView : MvpView {
     fun setFligtTypeTitle(title: String)
     fun toastSuccess(msg: String?)
     @OneExecution
-    fun onPressBack()
     fun setResultOK()
     fun setEdtNightTimeText(nightTimeText: String)
     fun setEdtGroundTimeText(groundTimeText: String)

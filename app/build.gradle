@@ -147,6 +147,7 @@ dependencies {
     implementation libs.dagger
     kapt libs.daggerCompiler
     //custom
+    implementation libs.cicerone
     implementation libs.rxpermissions
     implementation libs.betterpickers
     implementation libs.toasty

@@ -13,7 +13,7 @@ import com.arny.domain.models.Flight
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.flightlogbook.constants.CONSTS
-import com.arny.flightlogbook.presentation.flights.addedit.view.AddEditActivity
+import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
 import com.arny.flightlogbook.presentation.flights.viewflights.presenter.ViewFlightsPresenter
 import com.arny.flightlogbook.presentation.main.MainFirstFragment
 import com.arny.helpers.utils.*
@@ -23,10 +23,17 @@ import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 
 class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView, MainFirstFragment {
+    companion object {
+        fun getInstance(): FlightListFragment {
+            return FlightListFragment()
+        }
+    }
+
     private var adapter: FlightsAdapter? = null
     private var positionIndex: Int = 0
     private var mLayoutManager: LinearLayoutManager? = null
     private var topView: Int = 0
+
     private var hasSelectedItems: Boolean = false
 
     @InjectPresenter
@@ -41,15 +48,11 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView, MainFirstFra
         ToastMaker.toastError(context, msg)
     }
 
-    companion object {
-
-        @JvmStatic
-        fun getInstance(): FlightListFragment {
-            return FlightListFragment()
-        }
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.fragment_flight_list, container, false)
     }
 
@@ -60,11 +63,9 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView, MainFirstFra
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         fab_add_flight.setOnClickListener {
-            launchActivity<AddEditActivity>(
-                    CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT,
-                    enterAnim = R.anim.anim_slide_in_left,
-                    exitAnim = R.anim.anim_slide_out_left
-            )
+            launchActivity<FragmentContainerActivity> {
+                action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_FLIGHT
+            }
         }
         requireActivity().title = getString(R.string.fragment_logbook)
         mLayoutManager = LinearLayoutManager(context)
@@ -90,11 +91,8 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView, MainFirstFra
                     when {
                         hasSelectedItems -> presenter.onFlightSelect(position, item)
                         else -> {
-                            launchActivity<AddEditActivity>(
-                                    CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT,
-                                    enterAnim = R.anim.anim_slide_in_left,
-                                    exitAnim = R.anim.anim_slide_out_left
-                            ) {
+                            launchActivity<FragmentContainerActivity>(CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT) {
+                                action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_FLIGHT
                                 putExtra(CONSTS.DB.COLUMN_ID, item.id)
                             }
                         }
@@ -193,7 +191,8 @@ class FlightListFragment : MvpAppCompatFragment(), ViewFlightsView, MainFirstFra
         when (item.itemId) {
             R.id.action_filter -> {
                 val filters = resources.getStringArray(R.array.flights_filers)
-                val filterPos = Prefs.getInstance(activity as Context).get<Int>(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS)
+                val filterPos = Prefs.getInstance(activity as Context)
+                        .get<Int>(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS)
                         ?: 0
                 val filter = filters[filterPos]
                 listDialog(

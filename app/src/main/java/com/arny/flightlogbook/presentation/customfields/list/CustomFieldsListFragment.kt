@@ -44,13 +44,13 @@ class CustomFieldsListFragment : MvpAppCompatFragment(), CustomFieldsListView {
     private var reload: Boolean = false
     private lateinit var customFieldsAdapter: CustomFieldsAdapter
 
-    private var appRouter: AppRouter? = null
-
     @InjectPresenter
     lateinit var presenter: CustomFieldsListPresenter
 
     @ProvidePresenter
     fun providePresenter() = CustomFieldsListPresenter()
+
+    private var appRouter: AppRouter? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -67,7 +67,6 @@ class CustomFieldsListFragment : MvpAppCompatFragment(), CustomFieldsListView {
         super.onViewCreated(view, savedInstanceState)
         val isRequestField = arguments?.getBoolean(PARAM_REQUEST) == true
         requireActivity().title = getString(if (isRequestField) R.string.custom_field_select else R.string.custom_fields)
-        fabAddCustomField.isVisible = !isRequestField
         customFieldsAdapter = CustomFieldsAdapter()
         rvFieldsList.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -118,7 +117,7 @@ class CustomFieldsListFragment : MvpAppCompatFragment(), CustomFieldsListView {
                 true,
                 bundleOf(EXTRA_CUSTOM_FIELD_ID to id),
                 requestCode = REQUEST_EDIT_CUSTOM_FIELD,
-                targetFragment = this
+                targetFragment = this@CustomFieldsListFragment
         )
     }
 

@@ -96,7 +96,7 @@ ext.libs = [
         'dagger'              : "com.google.dagger:dagger:${versions.dagger}",
         'daggerCompiler'      : "com.google.dagger:dagger-compiler:${versions.dagger}",
 
-        'cicerone'            : "ru.terrakok.cicerone:cicerone:5.1.0",
+        'cicerone'            : "com.github.terrakok:cicerone:6.1",
 
         //network
         'gson'                : "com.google.code.gson:gson:${versions.gson}",

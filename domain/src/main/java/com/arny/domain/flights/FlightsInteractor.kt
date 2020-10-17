@@ -31,13 +31,9 @@ class FlightsInteractor @Inject constructor(
         private val filesRepository: FilesRepository
 ) {
 
-    fun updateFlight(flight: Flight): Single<Boolean> {
-        return fromSingle { flightsRepository.updateFlight(flight) }
-    }
+    fun updateFlight(flight: Flight): Boolean = flightsRepository.updateFlight(flight)
 
-    fun insertFlightAndGet(flight: Flight): Single<Long> {
-        return fromSingle { flightsRepository.insertFlightAndGet(flight) }
-    }
+    fun insertFlightAndGet(flight: Flight): Long = flightsRepository.insertFlightAndGet(flight)
 
     fun getFlight(id: Long?): Flight? {
         return flightsRepository.getFlight(id)
@@ -143,7 +139,12 @@ class FlightsInteractor @Inject constructor(
                         val planeTypes = planeTypesRepository.loadPlaneTypes()
                         val allAdditionalTime = customFieldsRepository.getAllAdditionalTime()
                         when (flightsResult) {
-                            is Result.Success -> getFlight(flightsResult.data, planeTypes, flightTypes, allAdditionalTime)
+                            is Result.Success -> getFlight(
+                                    flightsResult.data,
+                                    planeTypes,
+                                    flightTypes,
+                                    allAdditionalTime
+                            )
                             is Result.Error -> throw BusinessException(flightsResult.exception)
                         }
                     }

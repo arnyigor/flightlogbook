@@ -20,8 +20,8 @@ import com.arny.flightlogbook.presentation.flights.addedit.models.getCorrectDayT
 import com.arny.flightlogbook.presentation.flights.addedit.models.getCorrectTime
 import com.arny.flightlogbook.presentation.flights.addedit.view.AddEditView
 import com.arny.helpers.utils.*
+import com.arny.helpers.utils.DateTimeUtils.strLogTime
 import io.reactivex.Observable
-import io.reactivex.Single
 import io.reactivex.rxkotlin.Observables
 import moxy.InjectViewState
 import org.joda.time.DateTime
@@ -46,7 +46,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
 
     @Inject
     lateinit var preferencesInteractor: PreferencesInteractor
-    private var flightId: Long? = null
+    internal var flightId: Long? = null
 
     @Volatile
     var intFlightTime: Int = 0
@@ -78,7 +78,6 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
 
     private fun initUI(flight: Flight) {
         viewState.setDescription(flight.description ?: "")
-        viewState.setToolbarTitle(getString(R.string.str_edt_flight))
         loadColor(flight)
         loadDateTime(flight)
         loadTimes(flight)
@@ -93,11 +92,11 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     private fun loadDepArrivalTime(flight: Flight) {
         flight.departureUtcTime?.let {
             intDepTime = it
-            viewState.setEdtDepTimeText(DateTimeUtils.strLogTime(it))
+            viewState.setEdtDepTimeText(strLogTime(it))
         }
         flight.arrivalUtcTime?.let {
             intArrivalTime = it
-            viewState.setEdtArrTimeText(DateTimeUtils.strLogTime(it))
+            viewState.setEdtArrTimeText(strLogTime(it))
         }
     }
 
@@ -190,11 +189,11 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         intFlightTime = flight.flightTime
         intNightTime = flight.nightTime
         intGroundTime = flight.groundTime
-        fromCallable { DateTimeUtils.strLogTime(intFlightTime) }
+        fromCallable { strLogTime(intFlightTime) }
                 .subscribeFromPresenter({ viewState.setEdtFlightTimeText(it) })
-        fromCallable { DateTimeUtils.strLogTime(intNightTime) }
+        fromCallable { strLogTime(intNightTime) }
                 .subscribeFromPresenter({ viewState.setEdtNightTimeText(it) })
-        fromCallable { DateTimeUtils.strLogTime(intGroundTime) }
+        fromCallable { strLogTime(intGroundTime) }
                 .subscribeFromPresenter({ viewState.setEdtGroundTimeText(it) })
         timeSummChanged()
     }
@@ -203,11 +202,12 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         if (intNightTime > intFlightTime) {
             intFlightTime = intNightTime
         }
-        fromCallable { DateTimeUtils.strLogTime(intFlightTime) }
+        fromCallable { strLogTime(intFlightTime) }
                 .subscribeFromPresenter({ viewState.setEdtFlightTimeText(it) })
-        val customTimes = if(customFieldEnabled) flightsInteractor.getAddTimeSum(customFieldsValues) else 0
+        val customTimes =
+                if (customFieldEnabled) flightsInteractor.getAddTimeSum(customFieldsValues) else 0
         intTotalTime = intFlightTime + intGroundTime + customTimes
-        fromCallable { DateTimeUtils.strLogTime(intTotalTime) }
+        fromCallable { strLogTime(intTotalTime) }
                 .subscribeFromPresenter({ viewState.setTotalTime(it) })
     }
 
@@ -281,11 +281,11 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
 
     private fun loadFlight(id: Long) {
         fromNullable { flightsInteractor.getFlight(id) }
-                .subscribeFromPresenter({
-                    this.flight = it.value
-                    if (flight != null) {
-                        initUI(flight!!)
-                    } else {
+                .subscribeFromPresenter({ optionalNull ->
+                    optionalNull.value?.let {
+                        flight = it
+                        initUI(it)
+                    }?.run {
                         viewState.toastError(getString(R.string.record_not_found))
                         initEmptyUI()
                     }
@@ -295,17 +295,17 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     private fun initEmptyUI() {
         viewState.setDescription("")
         viewState.setDate("")
-        viewState.setToolbarTitle(getString(R.string.str_add_flight))
+        viewState.setToolbarTitle(R.string.str_add_flight)
         flight = Flight()
         flight?.params = Params()
         loadCustomFields()
     }
 
-    fun initState(id: Long?) {
-        this.flightId = id
-        if (id != null && id != 0L) {
-            loadFlight(id)
-        } else {
+    fun initState() {
+        flightId?.let {
+            viewState.setToolbarTitle(R.string.str_edt_flight)
+            loadFlight(it)
+        }?.run {
             initEmptyUI()
         }
     }
@@ -315,18 +315,13 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
             mMotoStart = startTime.toFloat()
             mMotoFinish = finishTime.toFloat()
             mMotoResult = getMotoTime(mMotoStart, mMotoFinish)
-            val motoTime = setLogTimefromMoto(mMotoResult)
-            viewState.setMotoTimeResult(DateTimeUtils.strLogTime(motoTime))
+            viewState.setMotoTimeResult(strLogTime(setLogTimefromMoto(mMotoResult)))
         }
     }
 
     fun setMotoResult() {
         intFlightTime = setLogTimefromMoto(mMotoResult)
-        val logHours = intFlightTime / 60
-        val logMinutes = intFlightTime % 60
-        val format =
-                String.format("%s:%s", DateTimeUtils.pad(logHours), DateTimeUtils.pad(logMinutes))
-        viewState.setEdtFlightTimeText(format)
+        viewState.setEdtFlightTimeText(strLogTime(intFlightTime))
     }
 
     private fun setLogTimefromMoto(motoTime: Float): Int {
@@ -391,8 +386,9 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
             it.value?.let { planeType ->
                 flight?.planeId = planeType.typeId
                 flight?.planeType = planeType
-                val title = "${getString(R.string.str_type)}\n${getString(planeType.mainType?.nameRes)} " +
-                        "${planeType.typeName} ${getString(R.string.str_regnum)}:${planeType.regNo}"
+                val title =
+                        "${getString(R.string.str_type)}\n${getString(planeType.mainType?.nameRes)} " +
+                                "${planeType.typeName} ${getString(R.string.str_regnum)}:${planeType.regNo}"
                 viewState.setPlaneTypeTitle(title)
             } ?: run {
                 viewState.setPlaneTypeTitle("${getString(R.string.str_type)}:${getString(R.string.no_type)}")
@@ -462,8 +458,8 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     }
 
     private fun addNewFlight(flt: Flight) {
-        flightsInteractor.insertFlightAndGet(flt)
-                .flatMap { saveId ->
+        fromSingle { flightsInteractor.insertFlightAndGet(flt) }
+                .map { saveId ->
                     val success = saveId != 0L
                     if (success) {
                         customFieldsValues.forEach { it.externalId = saveId }
@@ -474,7 +470,6 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                     if (success) {
                         viewState.toastSuccess(getString(R.string.flight_save_success))
                         viewState.setResultOK()
-                        viewState.onPressBack()
                     } else {
                         viewState.toastError(getString(R.string.flight_not_save))
                     }
@@ -484,13 +479,12 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     }
 
     private fun updateFlight(flt: Flight) {
-        flightsInteractor.updateFlight(flt)
-                .flatMap(::saveCustomFieldsValues)
+        fromSingle { flightsInteractor.updateFlight(flt) }
+                .map(::saveCustomFieldsValues)
                 .subscribeFromPresenter({
                     if (it) {
                         viewState.toastSuccess(getString(R.string.flight_save_success))
                         viewState.setResultOK()
-                        viewState.onPressBack()
                     } else {
                         viewState.toastError(getString(R.string.flight_not_save))
                     }
@@ -500,23 +494,20 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                 })
     }
 
-    private fun saveCustomFieldsValues(success: Boolean): Single<Boolean> {
+    private fun saveCustomFieldsValues(success: Boolean): Boolean {
         return when {
-            customFieldsValues.isEmpty() -> Single.just(true)
-            success -> saveValues()
-            else -> Single.just(false)
+            customFieldsValues.isEmpty() -> true
+            success -> customFieldInteractor.saveValues(customFieldsValues)
+            else -> false
         }
     }
-
-    private fun saveValues() = customFieldInteractor.saveValues(customFieldsValues)
 
     fun removeFlight() {
         flightsInteractor.removeFlight(flight?.id)
                 .subscribeFromPresenter({
                     if (it) {
-                        viewState.setResultOK()
                         viewState.toastSuccess(getString(R.string.flight_removed))
-                        viewState.onPressBack()
+                        viewState.setResultOK()
                     } else {
                         viewState.toastError(getString(R.string.flight_not_removed))
                     }
@@ -563,7 +554,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         if (item.type is CustomFieldType.Time) {
             correctTimeObs(value, DateTimeUtils.convertStringToTime(item.value.toString()))
                     .subscribeFromPresenter({
-                        item.value = DateTimeUtils.strLogTime(it.intTime)
+                        item.value = strLogTime(it.intTime)
                         viewState.notifyCustomFieldUpdate(item)
                         timeSummChanged()
                     })
@@ -574,16 +565,18 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
 
     fun addCustomField(customFieldId: Long?) {
         customFieldId?.let { id ->
-            customFieldInteractor.getCustomField(id)
+            fromSingle { customFieldInteractor.getCustomField(id) }
                     .subscribeFromPresenter({
                         val field = it.value
                         if (field != null) {
-                            customFieldsValues.add(CustomFieldValue(
-                                    field = field,
-                                    externalId = this.flightId,
-                                    type = field.type,
-                                    fieldId = id
-                            ))
+                            customFieldsValues.add(
+                                    CustomFieldValue(
+                                            field = field,
+                                            externalId = this.flightId,
+                                            type = field.type,
+                                            fieldId = id
+                                    )
+                            )
                             viewState.setFieldsList(customFieldsValues)
                         }
                     }, {

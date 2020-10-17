@@ -11,4 +11,7 @@ enum class NavigateItems(val index: Long) {
     PLANE_TYPE_EDIT(8),
     MENU_AIRPORTS(9),
     PLANE_TYPE_SELECT(10),
+    FLIGHT_TYPE_SELECT(11),
+    AIRPORT_SELECT(12),
+    EDIT_AIRPORT(13),
 }

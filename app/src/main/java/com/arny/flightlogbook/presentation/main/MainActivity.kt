@@ -1,6 +1,7 @@
 package com.arny.flightlogbook.presentation.main
 
 import android.app.ProgressDialog
+import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -14,7 +15,6 @@ import com.arny.flightlogbook.R
 import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.presentation.airports.list.AirportsFragment
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
-import com.arny.flightlogbook.presentation.customfields.edit.CustomFieldEditFragment
 import com.arny.flightlogbook.presentation.customfields.list.CustomFieldsListFragment
 import com.arny.flightlogbook.presentation.flights.viewflights.view.FlightListFragment
 import com.arny.flightlogbook.presentation.flighttypes.list.FlightTypesFragment
@@ -101,6 +101,22 @@ class MainActivity : AppCompatActivity(), AppRouter {
         actionBarDrawerToggle.syncState()
     }
 
+    override fun onSuccess(intent: Intent?, resultCode: Int) {
+        setResult(resultCode, intent)
+    }
+
+    override fun setResultToTargetFragment(
+            currentFragment: Fragment,
+            resultCode: Int,
+            intent: Intent
+    ) {
+        currentFragment.targetFragment?.onActivityResult(
+                currentFragment.targetRequestCode,
+                resultCode,
+                intent
+        )
+    }
+
     private fun toMenuItem(index: Long) = when (index) {
         NavigateItems.MENU_FLIGHTS.index -> R.id.menu_flights
         NavigateItems.MENU_FLIGHT_TYPES.index -> R.id.menu_flight_types
@@ -146,7 +162,13 @@ class MainActivity : AppCompatActivity(), AppRouter {
             NavigateItems.MENU_STATS.index -> StatisticFragment.getInstance()
             NavigateItems.MENU_SETTINGS.index -> SettingsFragment.getInstance()
             NavigateItems.MENU_AIRPORTS.index -> AirportsFragment.getInstance()
-            NavigateItems.ITEM_EDIT_FIELD.index -> CustomFieldEditFragment.getInstance(bundle)
+            NavigateItems.ITEM_EDIT_FIELD.index -> {
+                launchActivity<FragmentContainerActivity> {
+                    action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_CUSTOM_FIELD
+                    bundle?.let { putExtras(it) }
+                }
+                null
+            }
             NavigateItems.PLANE_TYPE_EDIT.index -> {
                 launchActivity<FragmentContainerActivity> {
                     action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_PLANE_TYPE

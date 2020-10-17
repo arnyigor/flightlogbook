@@ -36,7 +36,7 @@ class CustomFieldsEditPresenter : BaseMvpPresenter<CustomFieldsEditView>() {
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
         if (id != null && id != 0L) {
-            customFieldInteractor.getCustomField(id!!)
+            fromSingle { customFieldInteractor.getCustomField(id!!) }
                     .subscribeFromPresenter({
                         val customField = it.value
                         if (customField != null) {

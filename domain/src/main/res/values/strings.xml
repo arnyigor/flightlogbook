@@ -41,7 +41,7 @@
     <string name="str_total_time">Общее время:</string>
     <string name="str_total_item_flight_time">Летное время:</string>
     <string name="total_records">Всего записей:</string>
-    <string name="str_add_flight">Добавить</string>
+    <string name="str_add_flight">Добавить полет</string>
     <string name="str_edt_flight">Редактировать</string>
     <string name="str_delete">Удалить</string>
     <string name="str_clearall">Очистить все?</string>

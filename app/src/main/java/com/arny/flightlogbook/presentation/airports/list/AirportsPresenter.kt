@@ -36,4 +36,8 @@ class AirportsPresenter : BaseMvpPresenter<AirportsView>() {
                 })
                 .add()
     }
+
+    fun onEditResultOk() {
+        viewState.setAirports(emptyList())
+    }
 }

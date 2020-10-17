@@ -1,8 +1,8 @@
 package com.arny.helpers.utils
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.text.InputType
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
@@ -28,11 +28,23 @@ fun ContextThemeWrapper.showAlertDialog(title: String? = null, content: String? 
     return dialog
 }
 
-fun Activity.createCustomLayoutDialog(@LayoutRes layout: Int, initView: View.() -> Unit, cancelable: Boolean = true): AlertDialog? {
+fun Context.createCustomLayoutDialog(
+        title: String? = null,
+        @LayoutRes layout: Int,
+        cancelable: Boolean = true,
+        positivePair: Pair<Int, ((DialogInterface) -> Unit)?>? = null,
+        negativePair: Pair<Int, ((DialogInterface) -> Unit)?>? = null,
+        initView: View.() -> Unit,
+): AlertDialog? {
     val builder = AlertDialog.Builder(this)
     builder.setView(LayoutInflater.from(this).inflate(layout, null, false).apply(initView))
-    if (!cancelable) {
-        builder.setCancelable(false)
+    title?.let { builder.setTitle(title) }
+    builder.setCancelable(cancelable)
+    positivePair?.let {
+        builder.setPositiveButton(getString(it.first)) { di, _ -> it.second?.invoke(di) }
+    }
+    negativePair?.let {
+        builder.setNegativeButton(getString(it.first)) { di, _ -> it.second?.invoke(di) }
     }
     val dialog = builder.create()
     dialog.show()

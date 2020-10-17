@@ -18,7 +18,7 @@ abstract class BaseMvpFragment : MvpAppCompatFragment() {
         return inflater.inflate(getLayoutId(), container, false)
     }
 
-    private fun updateTitle() {
+    protected fun updateTitle() {
         this.activity?.title = getTitle()
     }
 

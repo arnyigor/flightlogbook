@@ -28,15 +28,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".presentation.flights.addedit.view.AddEditActivity"
-            android:screenOrientation="fullSensor"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
             android:name=".presentation.flighttypes.list.FlightTypesActivity"
             android:screenOrientation="fullSensor" />
         <activity
             android:name=".presentation.common.FragmentContainerActivity"
-            android:windowSoftInputMode="adjustResize"
+            android:windowSoftInputMode="stateHidden"
             android:screenOrientation="fullSensor" />
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -49,18 +45,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
-        <receiver
-            android:name=".presentation.widget.AppWidget"
-            android:icon="@drawable/ic_launcher"
-            android:label="@string/app_name" >
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_provider" />
-        </receiver>
     </application>
 
 </manifest>

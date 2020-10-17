@@ -1,6 +1,8 @@
 package com.arny.flightlogbook.presentation.airports.edit
 
 
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -8,7 +10,7 @@ import com.arny.domain.models.Airport
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
-import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
+import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.helpers.utils.getExtra
 import com.arny.helpers.utils.toastError
 import kotlinx.android.synthetic.main.f_airport_edit.*
@@ -24,9 +26,16 @@ class AirportEditFragment : BaseMvpFragment(), AirportEditView {
 
     private val presenter by moxyPresenter { AirportEditPresenter() }
 
+    private var appRouter: AppRouter? = null
+
     override fun getLayoutId(): Int = R.layout.f_airport_edit
 
     override fun getTitle(): String = getString(R.string.edit_airport)
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        appRouter = context as? AppRouter
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,10 +80,7 @@ class AirportEditFragment : BaseMvpFragment(), AirportEditView {
     }
 
     override fun setSuccessOk() {
-        val requireActivity = requireActivity()
-        if (requireActivity is FragmentContainerActivity) {
-            requireActivity.onSuccess(Intent())
-            requireActivity.onBackPressed()
-        }
+        appRouter?.onSuccess(Intent(), Activity.RESULT_OK)
+        appRouter?.onBackPress()
     }
 }

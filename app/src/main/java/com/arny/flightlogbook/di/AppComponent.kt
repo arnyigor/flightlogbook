@@ -1,5 +1,6 @@
 package com.arny.flightlogbook.di
 
+import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.presentation.airports.edit.AirportEditPresenter
 import com.arny.flightlogbook.presentation.airports.list.AirportsPresenter
 import com.arny.flightlogbook.presentation.customfields.edit.CustomFieldsEditPresenter
@@ -18,6 +19,7 @@ import javax.inject.Singleton
 @Singleton
 @Component(modules = [AppModule::class])
 interface AppComponent {
+    fun inject(app: FlightApp)
     fun inject(mainActivity: MainActivity)
     fun inject(typeListPresenter: PlaneTypesPresenter)
     fun inject(viewFlightsPresenter: ViewFlightsPresenter)

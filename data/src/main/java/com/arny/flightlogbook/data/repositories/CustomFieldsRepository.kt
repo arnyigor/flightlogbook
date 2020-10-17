@@ -12,10 +12,7 @@ import com.arny.flightlogbook.data.models.customfields.CustomFieldValueEntity
 import com.arny.flightlogbook.data.models.customfields.FieldWithValues
 import com.arny.helpers.utils.DateTimeUtils
 import com.arny.helpers.utils.OptionalNull
-import com.arny.helpers.utils.fromSingle
 import com.arny.helpers.utils.toOptionalNull
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 class CustomFieldsRepository @Inject constructor(
@@ -28,31 +25,14 @@ class CustomFieldsRepository @Inject constructor(
 
     private fun CustomField.toDBValue() = CustomFieldEntity(id, name, type.toString(), showByDefault, addTime)
 
-    override fun addCustomFields(vararg customField: CustomField): Single<Boolean> {
-        return fromSingle {
-            customFieldDAO.insertReplace(customField.map { it.toDBValue() }).any { it != 0L }
-        }
-                .subscribeOn(Schedulers.io())
-    }
+    override fun addCustomFieldValue(customFieldValue: CustomFieldValue): Boolean =
+            customFieldValuesDAO.insertReplace(customFieldValue.toDbValue()) != 0L
 
-    override fun removeCustomField(id: Long): Single<Boolean> {
-        return fromSingle { customFieldDAO.delete(id) != 0 }
-                .subscribeOn(Schedulers.io())
-    }
+    override fun getAllCustomField(id: Long): OptionalNull<CustomField?> =
+            customFieldDAO.getDbCustomField(id)?.let { toField(it) }.toOptionalNull()
 
-    override fun addCustomFieldValue(customFieldValue: CustomFieldValue): Single<Boolean> {
-        return fromSingle { customFieldValuesDAO.insertReplace(customFieldValue.toDbValue()) != 0L }
-                .subscribeOn(Schedulers.io())
-    }
-
-    override fun getAllCustomField(id: Long): Single<OptionalNull<CustomField?>> {
-        return fromSingle { customFieldDAO.getDbCustomField(id)?.let { toField(it) }.toOptionalNull() }
-                .subscribeOn(Schedulers.io())
-    }
-
-    override fun saveCustomFieldValues(values: List<CustomFieldValue>): Single<Array<Long>> {
-        return fromSingle { customFieldValuesDAO.insertReplace(values.map { it.toDbValue() }) }
-    }
+    override fun saveCustomFieldValues(values: List<CustomFieldValue>): Array<Long> =
+            customFieldValuesDAO.insertReplace(values.map { it.toDbValue() })
 
     private fun valueToString(type: CustomFieldType?, value: Any?): String {
         return when (type) {

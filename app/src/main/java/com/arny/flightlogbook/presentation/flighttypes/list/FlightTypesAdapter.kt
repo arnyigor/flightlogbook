@@ -6,12 +6,15 @@ import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import kotlinx.android.synthetic.main.type_list_item_layout.view.*
 
-class FlightTypesAdapter(private val typesListener: FlightTypesListener? = null, private val hideEdit: Boolean = false) : SimpleAbstractAdapter<FlightType>() {
+class FlightTypesAdapter(
+        private val hideEdit: Boolean = false,
+        private val typesListener: FlightTypesListener? = null
+) : SimpleAbstractAdapter<FlightType>() {
     override fun getLayout(viewType: Int): Int {
         return R.layout.type_list_item_layout
     }
 
-    interface FlightTypesListener {
+    interface FlightTypesListener : OnViewHolderListener<FlightType> {
         fun onEditType(position: Int, item: FlightType)
         fun onDeleteType(item: FlightType)
     }
@@ -21,7 +24,7 @@ class FlightTypesAdapter(private val typesListener: FlightTypesListener? = null,
             val position = viewHolder.adapterPosition
             tvTypeTitle.text = item.typeTitle
             iv_type_edit.isVisible = !hideEdit
-            iv_type_delete.isVisible  = !hideEdit
+            iv_type_delete.isVisible = !hideEdit
             iv_type_edit.setOnClickListener {
                 typesListener?.onEditType(position, item)
             }
@@ -29,7 +32,7 @@ class FlightTypesAdapter(private val typesListener: FlightTypesListener? = null,
                 typesListener?.onDeleteType(item)
             }
             setOnClickListener {
-                listener?.onItemClick(position, item)
+                typesListener?.onItemClick(position, item)
             }
         }
     }

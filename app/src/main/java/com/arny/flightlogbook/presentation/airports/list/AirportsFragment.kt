@@ -1,10 +1,13 @@
 package com.arny.flightlogbook.presentation.airports.list
 
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -14,6 +17,8 @@ import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_AIRPORT_ID
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
+import com.arny.flightlogbook.presentation.main.AppRouter
+import com.arny.flightlogbook.presentation.main.NavigateItems
 import com.arny.helpers.utils.getSystemLocale
 import com.arny.helpers.utils.launchActivity
 import com.arny.helpers.utils.toastError
@@ -27,6 +32,15 @@ class AirportsFragment : MvpAppCompatFragment(), AirportsView {
     companion object {
         fun getInstance(bundle: Bundle? = null) = AirportsFragment().apply {
             bundle?.let { arguments = it }
+        }
+    }
+
+    private var appRouter: AppRouter? = null
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is AppRouter) {
+            appRouter = context
         }
     }
 
@@ -65,27 +79,43 @@ class AirportsFragment : MvpAppCompatFragment(), AirportsView {
 
     private fun initAdapter(isRequest: Boolean) {
         airportsAdapter = AirportsAdapter(requireContext().getSystemLocale()?.language == "ru")
-        airportsAdapter.setViewHolderListener(object : SimpleAbstractAdapter.OnViewHolderListener<Airport> {
+        airportsAdapter.setViewHolderListener(object :
+                SimpleAbstractAdapter.OnViewHolderListener<Airport> {
             override fun onItemClick(position: Int, item: Airport) {
                 if (isRequest) {
-                    val requireActivity = requireActivity()
-                    if (requireActivity is FragmentContainerActivity) {
-                        requireActivity.onSuccess(Intent().apply {
-                            putExtra(CONSTS.EXTRAS.EXTRA_AIRPORT, item)
-                        })
-                        requireActivity.onBackPressed()
-                    }
+                    appRouter?.setResultToTargetFragment(
+                            this@AirportsFragment,
+                            Activity.RESULT_OK,
+                            Intent().apply {
+                                putExtra(CONSTS.EXTRAS.EXTRA_AIRPORT, item)
+                            })
+                    appRouter?.onBackPress()
                 } else {
-                    launchActivity<FragmentContainerActivity> {
-                        action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_AIRPORT
-                        putExtra(EXTRA_AIRPORT_ID, item.id)
-                    }
+                    appRouter?.navigateTo(
+                            NavigateItems.EDIT_AIRPORT,
+                            true,
+                            bundleOf(
+                                    CONSTS.REQUESTS.REQUEST to true,
+                                    EXTRA_AIRPORT_ID to item.id
+                            ),
+                            requestCode = CONSTS.REQUESTS.REQUEST_EDIT_AIRPORT,
+                            targetFragment = this@AirportsFragment
+                    )
                 }
             }
         })
         with(rvAirports) {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = airportsAdapter
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                CONSTS.REQUESTS.REQUEST_EDIT_AIRPORT -> presenter.onEditResultOk()
+            }
         }
     }
 

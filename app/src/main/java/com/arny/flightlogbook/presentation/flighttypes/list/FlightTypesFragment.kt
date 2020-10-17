@@ -1,6 +1,8 @@
 package com.arny.flightlogbook.presentation.flighttypes.list
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
 import android.view.LayoutInflater
@@ -10,6 +12,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.arny.domain.models.FlightType
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.helpers.utils.ToastMaker
 import com.arny.helpers.utils.alertDialog
@@ -21,7 +24,9 @@ import moxy.presenter.ProvidePresenter
 
 class FlightTypesFragment : MvpAppCompatFragment(), FlightTypesView {
     companion object {
-        fun getInstance(): FlightTypesFragment = FlightTypesFragment()
+        fun getInstance(bundle: Bundle? = null) = FlightTypesFragment().apply {
+            bundle?.let { arguments = it }
+        }
     }
 
     private var typesAdapter: FlightTypesAdapter? = null
@@ -47,12 +52,17 @@ class FlightTypesFragment : MvpAppCompatFragment(), FlightTypesView {
         ToastMaker.toastError(context, msg)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.flight_types_list_layout, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val isRequestField = arguments?.getBoolean(CONSTS.REQUESTS.REQUEST) == true
         requireActivity().title = getString(R.string.str_flight_types)
         fab_add_flight_type.setOnClickListener {
             inputDialog(
@@ -66,15 +76,28 @@ class FlightTypesFragment : MvpAppCompatFragment(), FlightTypesView {
                     dialogListener = { result -> flightTypesPresenter.addType(result) }
             )
         }
-        typesAdapter = FlightTypesAdapter(object : FlightTypesAdapter.FlightTypesListener {
-            override fun onEditType(position: Int, item: FlightType) {
-                showEditDialog(item)
-            }
+        typesAdapter =
+                FlightTypesAdapter(typesListener = object : FlightTypesAdapter.FlightTypesListener {
+                    override fun onEditType(position: Int, item: FlightType) {
+                        showEditDialog(item)
+                    }
 
-            override fun onDeleteType(item: FlightType) {
-                showConfirmDeleteDialog(item)
-            }
-        })
+                    override fun onDeleteType(item: FlightType) {
+                        showConfirmDeleteDialog(item)
+                    }
+
+                    override fun onItemClick(position: Int, item: FlightType) {
+                        if (isRequestField) {
+                            appRouter?.setResultToTargetFragment(
+                                    this@FlightTypesFragment,
+                                    Activity.RESULT_OK,
+                                    Intent().apply {
+                                        putExtra(CONSTS.EXTRAS.EXTRA_FLIGHT_TYPE, item.id)
+                                    })
+                            appRouter?.onBackPress()
+                        }
+                    }
+                })
         rv_flight_types.layoutManager = LinearLayoutManager(context)
         rv_flight_types.adapter = typesAdapter
         flightTypesPresenter.loadTypes()

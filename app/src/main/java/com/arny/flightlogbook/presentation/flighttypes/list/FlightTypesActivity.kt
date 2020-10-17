@@ -9,7 +9,6 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.arny.domain.models.FlightType
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.flightlogbook.constants.CONSTS
 import com.arny.helpers.utils.*
 import kotlinx.android.synthetic.main.flight_types_list_layout.*
@@ -44,7 +43,7 @@ class FlightTypesActivity : MvpAppCompatActivity(), FlightTypesView, View.OnClic
     }
 
     private fun initAdapter(request: Boolean) {
-        typesAdapter = FlightTypesAdapter(object : FlightTypesAdapter.FlightTypesListener {
+        typesAdapter = FlightTypesAdapter(request, object : FlightTypesAdapter.FlightTypesListener {
             override fun onEditType(position: Int, item: FlightType) {
                 showEditDialog(item)
             }
@@ -52,8 +51,7 @@ class FlightTypesActivity : MvpAppCompatActivity(), FlightTypesView, View.OnClic
             override fun onDeleteType(item: FlightType) {
                 showConfirmDeleteDialog(item)
             }
-        }, request)
-        typesAdapter?.setViewHolderListener(object : SimpleAbstractAdapter.OnViewHolderListener<FlightType> {
+
             override fun onItemClick(position: Int, item: FlightType) {
                 putExtras(Activity.RESULT_OK) {
                     putExtra(CONSTS.EXTRAS.EXTRA_FLIGHT_TYPE, item.id)
