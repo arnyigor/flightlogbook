@@ -1,5 +1,6 @@
 package com.arny.flightlogbook.presentation.main
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -13,13 +14,11 @@ interface AppRouter {
             requestCode: Int? = null
     )
 
-    fun onBackPress()
-
     fun setResultToTargetFragment(
             currentFragment: Fragment,
-            resultCode: Int,
-            intent: Intent
+            intent: Intent,
+            resultCode: Int = Activity.RESULT_OK
     )
 
-    fun onSuccess(intent: Intent?, resultCode: Int)
+    fun onReturnResult(intent: Intent? = null, resultCode: Int = Activity.RESULT_OK)
 }

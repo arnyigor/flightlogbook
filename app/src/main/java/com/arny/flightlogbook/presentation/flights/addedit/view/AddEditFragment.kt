@@ -600,8 +600,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     }
 
     override fun setResultOK() {
-        appRouter?.onSuccess(null, Activity.RESULT_OK)
-        appRouter?.onBackPress()
+        appRouter?.onReturnResult(null, Activity.RESULT_OK)
     }
 
     override fun setFligtTypeTitle(title: String) {

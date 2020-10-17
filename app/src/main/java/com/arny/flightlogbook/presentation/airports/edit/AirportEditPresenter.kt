@@ -15,7 +15,6 @@ class AirportEditPresenter : BaseMvpPresenter<AirportEditView>() {
         FlightApp.appComponent.inject(this)
     }
 
-
     @Inject
     lateinit var airportsInteractor: IAirportsInteractor
 

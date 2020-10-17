@@ -80,7 +80,6 @@ class AirportEditFragment : BaseMvpFragment(), AirportEditView {
     }
 
     override fun setSuccessOk() {
-        appRouter?.onSuccess(Intent(), Activity.RESULT_OK)
-        appRouter?.onBackPress()
+        appRouter?.onReturnResult(Intent(), Activity.RESULT_OK)
     }
 }

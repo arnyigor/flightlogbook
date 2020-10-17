@@ -16,7 +16,6 @@ import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_CUSTOM_FIELD_ID
 import com.arny.flightlogbook.constants.CONSTS.REQUESTS.REQUEST_EDIT_CUSTOM_FIELD
 import com.arny.flightlogbook.customfields.models.CustomField
-import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
 import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.flightlogbook.presentation.main.NavigateItems
 import com.arny.helpers.utils.ToastMaker
@@ -75,13 +74,7 @@ class CustomFieldsListFragment : MvpAppCompatFragment(), CustomFieldsListView {
         customFieldsAdapter.setViewHolderListener(object : SimpleAbstractAdapter.OnViewHolderListener<CustomField> {
             override fun onItemClick(position: Int, item: CustomField) {
                 if (isRequestField) {
-                    val requireActivity = requireActivity()
-                    if (requireActivity is FragmentContainerActivity) {
-                        requireActivity.onSuccess(Intent().apply {
-                            putExtra(EXTRA_CUSTOM_FIELD_ID, item.id)
-                        })
-                        requireActivity.onBackPressed()
-                    }
+                    appRouter?.onReturnResult(Intent().apply { putExtra(EXTRA_CUSTOM_FIELD_ID, item.id) })
                 } else {
                     presenter.onItemClick(item)
                 }

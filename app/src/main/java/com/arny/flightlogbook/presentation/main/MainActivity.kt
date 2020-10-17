@@ -101,14 +101,14 @@ class MainActivity : AppCompatActivity(), AppRouter {
         actionBarDrawerToggle.syncState()
     }
 
-    override fun onSuccess(intent: Intent?, resultCode: Int) {
+    override fun onReturnResult(intent: Intent?, resultCode: Int) {
         setResult(resultCode, intent)
     }
 
     override fun setResultToTargetFragment(
             currentFragment: Fragment,
-            resultCode: Int,
-            intent: Intent
+            intent: Intent,
+            resultCode: Int
     ) {
         currentFragment.targetFragment?.onActivityResult(
                 currentFragment.targetRequestCode,
@@ -147,10 +147,6 @@ class MainActivity : AppCompatActivity(), AppRouter {
 
     override fun navigateTo(item: NavigateItems, addToBackStack: Boolean, bundle: Bundle?, targetFragment: Fragment?, requestCode: Int?) {
         selectItem(item.index, addToBackStack, bundle, targetFragment, requestCode)
-    }
-
-    override fun onBackPress() {
-        super.onBackPressed()
     }
 
     private fun navigateFragments(position: Long, bundle: Bundle?): Fragment? {

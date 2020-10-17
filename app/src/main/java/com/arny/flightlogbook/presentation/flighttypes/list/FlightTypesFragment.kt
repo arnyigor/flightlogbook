@@ -1,6 +1,5 @@
 package com.arny.flightlogbook.presentation.flighttypes.list
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -90,11 +89,9 @@ class FlightTypesFragment : MvpAppCompatFragment(), FlightTypesView {
                         if (isRequestField) {
                             appRouter?.setResultToTargetFragment(
                                     this@FlightTypesFragment,
-                                    Activity.RESULT_OK,
                                     Intent().apply {
                                         putExtra(CONSTS.EXTRAS.EXTRA_FLIGHT_TYPE, item.id)
                                     })
-                            appRouter?.onBackPress()
                         }
                     }
                 })

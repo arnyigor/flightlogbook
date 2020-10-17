@@ -127,7 +127,6 @@ class CustomFieldEditFragment : MvpAppCompatFragment(), CustomFieldsEditView, Ba
         if (activity is MainActivity) {
             activity.unLockNavigationDrawer()
         }
-        appRouter?.onBackPress()
     }
 
     override fun showResult(@StringRes strRes: Int) {

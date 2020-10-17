@@ -85,11 +85,9 @@ class AirportsFragment : MvpAppCompatFragment(), AirportsView {
                 if (isRequest) {
                     appRouter?.setResultToTargetFragment(
                             this@AirportsFragment,
-                            Activity.RESULT_OK,
                             Intent().apply {
                                 putExtra(CONSTS.EXTRAS.EXTRA_AIRPORT, item)
                             })
-                    appRouter?.onBackPress()
                 } else {
                     appRouter?.navigateTo(
                             NavigateItems.EDIT_AIRPORT,

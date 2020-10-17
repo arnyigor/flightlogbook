@@ -1,7 +1,7 @@
 package com.arny.flightlogbook.presentation.planetypes.edit
 
 
-import android.content.Intent
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.StringRes
@@ -9,7 +9,7 @@ import androidx.core.widget.doAfterTextChanged
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
-import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
+import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.helpers.utils.KeyboardHelper
 import com.arny.helpers.utils.ToastMaker.toastError
 import com.arny.helpers.utils.getExtra
@@ -23,11 +23,21 @@ class PlaneTypeEditFragment : BaseMvpFragment(), PlaneTypeEditView {
         }
     }
 
+    private var appRouter: AppRouter? = null
+
     private val presenter by moxyPresenter { PlaneTypeEditPresenter() }
 
     override fun getTitle(): String? = getString(R.string.edit_plane_type)
 
     override fun getLayoutId(): Int = R.layout.f_plane_type_edit
+
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is AppRouter) {
+            appRouter = context
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,10 +91,6 @@ class PlaneTypeEditFragment : BaseMvpFragment(), PlaneTypeEditView {
     }
 
     override fun setResultOk() {
-        val requireActivity = requireActivity()
-        if (requireActivity is FragmentContainerActivity) {
-            requireActivity.onSuccess(Intent())
-            requireActivity.onBackPressed()
-        }
+        appRouter?.onReturnResult()
     }
 }

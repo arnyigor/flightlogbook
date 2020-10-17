@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.arny.domain.models.PlaneType
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.constants.CONSTS
-import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
 import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.flightlogbook.presentation.main.NavigateItems
 import com.arny.helpers.utils.ToastMaker
@@ -79,13 +78,9 @@ class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickL
 
                     override fun onItemClick(position: Int, item: PlaneType) {
                         if (isRequestField) {
-                            val requireActivity = requireActivity()
-                            if (requireActivity is FragmentContainerActivity) {
-                                requireActivity.onSuccess(Intent().apply {
-                                    putExtra(CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID, item.typeId)
-                                })
-                                requireActivity.onBackPressed()
-                            }
+                            appRouter?.onReturnResult(Intent().apply {
+                                putExtra(CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID, item.typeId)
+                            })
                         }
                     }
                 })

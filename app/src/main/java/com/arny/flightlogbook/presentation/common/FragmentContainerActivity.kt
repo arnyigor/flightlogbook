@@ -91,29 +91,27 @@ class FragmentContainerActivity : AppCompatActivity(), AppRouter {
         }
     }
 
-    override fun onBackPress() {
-        onBackPressed()
-    }
-
-    override fun onSuccess(intent: Intent?, resultCode: Int) {
+    override fun onReturnResult(intent: Intent?, resultCode: Int) {
         setResult(resultCode, intent)
+        onBackPressed()
     }
 
     override fun setResultToTargetFragment(
             currentFragment: Fragment,
-            resultCode: Int,
-            intent: Intent
+            intent: Intent,
+            resultCode: Int
     ) {
         currentFragment.targetFragment?.onActivityResult(
                 currentFragment.targetRequestCode,
                 resultCode,
                 intent
         )
+        onBackPressed()
     }
 
     override fun onBackPressed() {
-        overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_out_right)
         super.onBackPressed()
+        overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_out_right)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
