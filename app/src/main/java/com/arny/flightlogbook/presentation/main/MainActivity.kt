@@ -145,6 +145,13 @@ class MainActivity : AppCompatActivity(), AppRouter {
         super.onSaveInstanceState(outState)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        for (fragment in supportFragmentManager.fragments) {
+            fragment.onActivityResult(requestCode, resultCode, data)
+        }
+    }
+
     override fun navigateTo(item: NavigateItems, addToBackStack: Boolean, bundle: Bundle?, targetFragment: Fragment?, requestCode: Int?) {
         selectItem(item.index, addToBackStack, bundle, targetFragment, requestCode)
     }
@@ -159,21 +166,21 @@ class MainActivity : AppCompatActivity(), AppRouter {
             NavigateItems.MENU_SETTINGS.index -> SettingsFragment.getInstance()
             NavigateItems.MENU_AIRPORTS.index -> AirportsFragment.getInstance()
             NavigateItems.EDIT_AIRPORT.index -> {
-                launchActivity<FragmentContainerActivity> {
+                launchActivity<FragmentContainerActivity>(CONSTS.REQUESTS.REQUEST_EDIT_AIRPORT) {
                     action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_AIRPORT
                     bundle?.let { putExtras(it) }
                 }
                 null
             }
             NavigateItems.ITEM_EDIT_FIELD.index -> {
-                launchActivity<FragmentContainerActivity> {
+                launchActivity<FragmentContainerActivity>(CONSTS.REQUESTS.REQUEST_EDIT_CUSTOM_FIELD) {
                     action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_CUSTOM_FIELD
                     bundle?.let { putExtras(it) }
                 }
                 null
             }
             NavigateItems.PLANE_TYPE_EDIT.index -> {
-                launchActivity<FragmentContainerActivity> {
+                launchActivity<FragmentContainerActivity>(CONSTS.REQUESTS.REQUEST_EDIT_PLANE_TYPE) {
                     action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_PLANE_TYPE
                     bundle?.let { putExtras(it) }
                 }

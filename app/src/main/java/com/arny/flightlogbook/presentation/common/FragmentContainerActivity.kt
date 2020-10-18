@@ -60,7 +60,7 @@ class FragmentContainerActivity : AppCompatActivity(), AppRouter {
     ): MvpAppCompatFragment? {
         return when (action) {
             EXTRA_ACTION_EDIT_FLIGHT -> AddEditFragment.getInstance(bundle)
-            EXTRA_ACTION_EDIT_CUSTOM_FIELD -> CustomFieldEditFragment.getInstance()
+            EXTRA_ACTION_EDIT_CUSTOM_FIELD -> CustomFieldEditFragment.getInstance(bundle)
             EXTRA_ACTION_SELECT_CUSTOM_FIELD -> CustomFieldsListFragment.getInstance(bundle)
             EXTRA_ACTION_SELECT_PLANE_TYPE -> PlaneTypesFragment.getInstance(bundle)
             EXTRA_ACTION_SELECT_FLIGHT_TYPE -> FlightTypesFragment.getInstance(bundle)
@@ -101,11 +101,15 @@ class FragmentContainerActivity : AppCompatActivity(), AppRouter {
             intent: Intent?,
             resultCode: Int
     ) {
-        currentFragment.targetFragment?.onActivityResult(
-                currentFragment.targetRequestCode,
-                resultCode,
-                intent
-        )
+        if (currentFragment.targetFragment != null) {
+            currentFragment.targetFragment?.onActivityResult(
+                    currentFragment.targetRequestCode,
+                    resultCode,
+                    intent
+            )
+        } else {
+            setResult(resultCode, intent)
+        }
         onBackPressed()
     }
 

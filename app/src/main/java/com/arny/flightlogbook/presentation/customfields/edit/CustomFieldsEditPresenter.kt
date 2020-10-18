@@ -12,31 +12,28 @@ import javax.inject.Inject
 @InjectViewState
 class CustomFieldsEditPresenter : BaseMvpPresenter<CustomFieldsEditView>() {
 
+    init {
+        FlightApp.appComponent.inject(this)
+    }
+
     private var addTime: Boolean = false
     private var name: String? = null
     private var type: CustomFieldType = CustomFieldType.None
     private var showByDefault: Boolean = false
+
     private val uiTypes = CustomFieldType.values()
 
     @Inject
     lateinit var customFieldInteractor: ICustomFieldInteractor
 
-    private var id: Long? = null
-
-    fun setId(id: Long?) {
-        if (id != null && id != 0L) {
-            this.id = id
+    var fieldId: Long? = null
+        set(value) {
+            field = if (value != 0L) value else null
         }
-    }
-
-    init {
-        FlightApp.appComponent.inject(this)
-    }
 
     override fun onFirstViewAttach() {
-        super.onFirstViewAttach()
-        if (id != null && id != 0L) {
-            fromSingle { customFieldInteractor.getCustomField(id!!) }
+        if (fieldId != null && fieldId != 0L) {
+            fromSingle { customFieldInteractor.getCustomField(fieldId!!) }
                     .subscribeFromPresenter({
                         val customField = it.value
                         if (customField != null) {
@@ -53,7 +50,6 @@ class CustomFieldsEditPresenter : BaseMvpPresenter<CustomFieldsEditView>() {
                         it.printStackTrace()
                     })
         }
-
     }
 
     fun onSaveClicked(checkedAddTime: Boolean) {
@@ -63,7 +59,7 @@ class CustomFieldsEditPresenter : BaseMvpPresenter<CustomFieldsEditView>() {
             return
         }
         viewState.showProgress(false)
-        fromSingle { customFieldInteractor.save(id, name!!, type, showByDefault, addTime) }
+        fromSingle { customFieldInteractor.save(fieldId, name!!, type, showByDefault, addTime) }
                 .subscribeFromPresenter({
                     viewState.showProgress(false)
                     viewState.showResult(R.string.save_custom_field_success)
@@ -92,7 +88,7 @@ class CustomFieldsEditPresenter : BaseMvpPresenter<CustomFieldsEditView>() {
     }
 
     fun onDelete() {
-        id?.let {
+        fieldId?.let {
             fromSingle { customFieldInteractor.removeField(it) }
                     .subscribeFromPresenter({
                         if (it) {

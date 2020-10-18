@@ -5,9 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,15 +15,15 @@ import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_CUSTOM_FIELD_ID
 import com.arny.flightlogbook.constants.CONSTS.REQUESTS.REQUEST_EDIT_CUSTOM_FIELD
 import com.arny.flightlogbook.customfields.models.CustomField
+import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.flightlogbook.presentation.main.NavigateItems
 import com.arny.helpers.utils.ToastMaker
 import kotlinx.android.synthetic.main.fragment_custom_fields_list.*
-import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 
-class CustomFieldsListFragment : MvpAppCompatFragment(), CustomFieldsListView {
+class CustomFieldsListFragment : BaseMvpFragment(), CustomFieldsListView {
 
     companion object {
         fun getInstance(bundle: Bundle? = null) = CustomFieldsListFragment().apply {
@@ -34,6 +32,7 @@ class CustomFieldsListFragment : MvpAppCompatFragment(), CustomFieldsListView {
     }
 
     private var reload: Boolean = false
+    private var title: Int = R.string.custom_fields
     private lateinit var customFieldsAdapter: CustomFieldsAdapter
 
     @InjectPresenter
@@ -51,14 +50,15 @@ class CustomFieldsListFragment : MvpAppCompatFragment(), CustomFieldsListView {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_custom_fields_list, container, false)
-    }
+    override fun getLayoutId(): Int = R.layout.fragment_custom_fields_list
+
+    override fun getTitle(): String? = getString(title)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val isRequestField = arguments?.getBoolean(CONSTS.REQUESTS.REQUEST) == true
-        requireActivity().title = getString(if (isRequestField) R.string.custom_field_select else R.string.custom_fields)
+        title = if (isRequestField) R.string.custom_field_select else R.string.custom_fields
+        updateTitle()
         customFieldsAdapter = CustomFieldsAdapter()
         rvFieldsList.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -78,6 +78,10 @@ class CustomFieldsListFragment : MvpAppCompatFragment(), CustomFieldsListView {
         fabAddCustomField.setOnClickListener {
             presenter.onFabClicked()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
         if (reload) {
             presenter.loadCustomFields()
             reload = false

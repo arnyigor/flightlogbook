@@ -108,18 +108,12 @@ inline fun FragmentManager.transact(action: FragmentTransaction.() -> Unit) {
 inline fun <reified T : Any> Activity.launchActivity(
         requestCode: Int = -1,
         options: Bundle? = null,
-        animResourses: Pair<Int, Int>? = null,
-        useStandartTransition: Boolean = true,
         noinline init: Intent.() -> Unit = {}
 ) {
     val intent = newIntent<T>(this)
     intent.init()
     startActivityForResult(intent, requestCode, options)
-    if (animResourses != null) {
-        overridePendingTransition(animResourses.first, animResourses.second)
-    } else if (useStandartTransition) {
-        overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
-    }
+    overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
 }
 
 fun Activity.launchIntent(

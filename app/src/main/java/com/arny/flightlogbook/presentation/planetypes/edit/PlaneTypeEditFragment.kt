@@ -31,7 +31,6 @@ class PlaneTypeEditFragment : BaseMvpFragment(), PlaneTypeEditView {
 
     override fun getLayoutId(): Int = R.layout.f_plane_type_edit
 
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is AppRouter) {

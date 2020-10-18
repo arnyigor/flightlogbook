@@ -31,7 +31,7 @@ android {
         targetSdkVersion versions.targetSdk
         applicationId 'com.arny.flightlogbook'
         versionCode vMajor * 100 + vMinor * 10 + vBuild
-        versionName "${vMajor}" + "${vMinor}" +"${vBuild}"
+        versionName "${vMajor}" + "${vMinor}" + "${vBuild}"
         setProperty("archivesBaseName", applicationId + "-v" + "(" + versionName + ")")
         archivesBaseName = "$applicationId-v$versionCode($versionName)"
         vectorDrawables.useSupportLibrary = true
@@ -65,10 +65,11 @@ android {
             testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguardTest-rules.pro'
         }
         prerelease {
+            applicationIdSuffix ".debug"
             debuggable true
             minifyEnabled false
             useProguard false
-            resValue "string", "app_name", "Pilot Logbook"
+            resValue "string", "app_name", "Pilot Logbook[DEBUG]"
             shrinkResources false
             signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -175,10 +176,10 @@ android.applicationVariants.all { variant ->
 
 Properties props = new Properties()
 def propFile = new File('signing.properties')
-if (propFile.canRead()){
+if (propFile.canRead()) {
     props.load(new FileInputStream(propFile))
 
-    if (props!=null && props.containsKey('STORE_FILE') && props.containsKey('STORE_PASSWORD') &&
+    if (props != null && props.containsKey('STORE_FILE') && props.containsKey('STORE_PASSWORD') &&
             props.containsKey('KEY_ALIAS') && props.containsKey('KEY_PASSWORD')) {
         android.signingConfigs.release.storeFile = file(props['STORE_FILE'])
         android.signingConfigs.release.storePassword = props['STORE_PASSWORD']
@@ -188,7 +189,7 @@ if (propFile.canRead()){
         println 'signing.properties found but some entries are missing'
         android.buildTypes.release.signingConfig = null
     }
-}else {
+} else {
     println 'signing.properties not found'
     android.buildTypes.release.signingConfig = null
 }

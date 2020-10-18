@@ -1,10 +1,7 @@
 package com.arny.flightlogbook.presentation.common
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
+import android.view.*
 import androidx.annotation.LayoutRes
 import moxy.MvpAppCompatFragment
 
@@ -13,6 +10,9 @@ abstract class BaseMvpFragment : MvpAppCompatFragment() {
     @LayoutRes
     protected abstract fun getLayoutId(): Int
     protected open fun getTitle(): String? = null
+    protected open fun isKeyboardHidden(): Boolean = true
+    private var wndw: Window? = null
+    private var softInputMode: Int = 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(getLayoutId(), container, false)
@@ -22,12 +22,15 @@ abstract class BaseMvpFragment : MvpAppCompatFragment() {
         this.activity?.title = getTitle()
     }
 
-    fun setState() {
-        requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
-    }
-
-    fun setStateHidden() {
-        requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        wndw = requireActivity().window
+        softInputMode = wndw?.attributes?.softInputMode ?: 0
+        if (isKeyboardHidden()) {
+            wndw?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
+        } else {
+            wndw?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -39,4 +42,8 @@ abstract class BaseMvpFragment : MvpAppCompatFragment() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        wndw?.setSoftInputMode(softInputMode)
+    }
 }

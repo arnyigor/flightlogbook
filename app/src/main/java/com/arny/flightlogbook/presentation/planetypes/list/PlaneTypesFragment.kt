@@ -3,7 +3,9 @@ package com.arny.flightlogbook.presentation.planetypes.list
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.*
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.View
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DefaultItemAnimator
@@ -11,16 +13,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.arny.domain.models.PlaneType
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.constants.CONSTS
+import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.flightlogbook.presentation.main.NavigateItems
 import com.arny.helpers.utils.ToastMaker
 import com.arny.helpers.utils.alertDialog
 import kotlinx.android.synthetic.main.plane_types_layout.*
-import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 
-class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickListener {
+class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView, View.OnClickListener {
     companion object {
         fun getInstance(bundle: Bundle? = null) = PlaneTypesFragment().apply {
             bundle?.let { arguments = it }
@@ -49,13 +51,11 @@ class PlaneTypesFragment : MvpAppCompatFragment(), PlaneTypesView, View.OnClickL
         setHasOptionsMenu(true)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.plane_types_layout, container, false)
-    }
+    override fun getLayoutId(): Int = R.layout.plane_types_layout
+    override fun getTitle(): String? = getString(R.string.str_airplane_types)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        requireActivity().title = getString(R.string.str_airplane_types)
         val isRequestField = arguments?.getBoolean(CONSTS.REQUESTS.REQUEST) == true
         rv_plane_types.layoutManager = LinearLayoutManager(context)
         rv_plane_types.itemAnimator = DefaultItemAnimator()

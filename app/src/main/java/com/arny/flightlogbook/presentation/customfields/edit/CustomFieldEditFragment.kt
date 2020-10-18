@@ -20,6 +20,8 @@ import com.arny.flightlogbook.presentation.main.BackButtonListener
 import com.arny.flightlogbook.presentation.main.MainActivity
 import com.arny.helpers.utils.KeyboardHelper.hideKeyboard
 import com.arny.helpers.utils.ToastMaker
+import com.arny.helpers.utils.alertDialog
+import com.arny.helpers.utils.getExtra
 import kotlinx.android.synthetic.main.fragment_edit_custom_field_layout.*
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
@@ -53,7 +55,7 @@ class CustomFieldEditFragment : BaseMvpFragment(), CustomFieldsEditView, BackBut
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        arguments?.getLong(CONSTS.EXTRAS.EXTRA_CUSTOM_FIELD_ID)?.let { presenter.setId(it) }
+        presenter.fieldId = getExtra(CONSTS.EXTRAS.EXTRA_CUSTOM_FIELD_ID)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -69,7 +71,12 @@ class CustomFieldEditFragment : BaseMvpFragment(), CustomFieldsEditView, BackBut
             }
             R.id.action_delete -> {
                 hideKeyboard(requireActivity())
-                presenter.onDelete()
+                alertDialog(
+                        context = requireContext(),
+                        title = getString(R.string.str_delete),
+                        btnCancelText = getString(R.string.str_cancel),
+                        onConfirm = { presenter.onDelete() }
+                )
             }
         }
         return true
