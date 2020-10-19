@@ -2,7 +2,7 @@ package com.arny.flightlogbook.presentation.flights.addedit.view
 
 import android.view.inputmethod.EditorInfo
 import androidx.core.view.isVisible
-import androidx.core.widget.addTextChangedListener
+import androidx.core.widget.doAfterTextChanged
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.flightlogbook.customfields.models.CustomFieldType
@@ -15,11 +15,17 @@ class CustomFieldValuesAdapter(private val onFieldChangeListener: OnFieldChangeL
 
     interface OnFieldChangeListener {
         fun onValueChange(item: CustomFieldValue, value: String)
+        fun onValueRemove(position: Int, item: CustomFieldValue)
     }
 
     override fun bindView(item: CustomFieldValue, viewHolder: VH) {
+        val adapterPosition = viewHolder.adapterPosition
         var currentValue = ""
         viewHolder.itemView.apply {
+            ivRemoveCustomFieldValue.isVisible = item.field?.showByDefault == false
+            ivRemoveCustomFieldValue.setOnClickListener {
+                onFieldChangeListener?.onValueRemove(adapterPosition, item)
+            }
             val name = item.field?.name ?: ""
             val type = item.type ?: CustomFieldType.None
             tvTitleCustomField.isVisible = type != CustomFieldType.None
@@ -38,11 +44,12 @@ class CustomFieldValuesAdapter(private val onFieldChangeListener: OnFieldChangeL
             } else {
                 val emptyHint = if (type is CustomFieldType.Time) context.getString(R.string.str_time_zero) else ""
                 cfvView.editText?.let { editText ->
-                    editText.addTextChangedListener {
+                    editText.doAfterTextChanged {
                         if (it.toString().isBlank()) {
                             editText.hint = emptyHint
                         }
                         currentValue = it.toString()
+                        onFieldChangeListener?.onValueChange(item, currentValue)
                     }
                     editText.setOnFocusChangeListener { _, hasFocus ->
                         if (!hasFocus) {

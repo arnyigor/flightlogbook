@@ -602,4 +602,9 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         flight?.arrivalId = arrival?.id
         viewState.setArrival(arrival)
     }
+
+    fun onCustomFieldValueDelete(position: Int) {
+        customFieldsValues.removeAt(position)
+        viewState.setFieldsList(customFieldsValues)
+    }
 }

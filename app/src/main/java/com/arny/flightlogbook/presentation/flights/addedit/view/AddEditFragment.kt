@@ -213,6 +213,10 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
                     override fun onValueChange(item: CustomFieldValue, value: String) {
                         addEditPresenter.onCustomFieldValueChange(item, value)
                     }
+
+                    override fun onValueRemove(position: Int, item: CustomFieldValue) {
+                        addEditPresenter.onCustomFieldValueDelete(position)
+                    }
                 })
         rvCustomFields.apply {
             layoutManager = CustomRVLayoutManager(requireContext()).apply {

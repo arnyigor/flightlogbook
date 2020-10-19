@@ -102,7 +102,7 @@ fun Fragment.replaceFragment(
 inline fun FragmentManager.transact(action: FragmentTransaction.() -> Unit) {
     beginTransaction().apply {
         action()
-    }.commit()
+    }.commitAllowingStateLoss()
 }
 
 inline fun <reified T : Any> Activity.launchActivity(

@@ -112,8 +112,8 @@ class CustomFieldsRepository @Inject constructor(
                 it.id ?: 0,
                 it.name ?: "",
                 type,
-                it.addTime,
-                it.showByDefault
+                it.showByDefault,
+                it.addTime
         )
     }
 
