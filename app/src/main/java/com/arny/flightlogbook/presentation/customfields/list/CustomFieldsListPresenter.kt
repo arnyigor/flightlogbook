@@ -38,12 +38,9 @@ class CustomFieldsListPresenter : BaseMvpPresenter<CustomFieldsListView>() {
                 .subscribeFromPresenter({
                     viewState.showProgress(false)
                     viewState.showEmptyView(it.isEmpty())
-                    if (it.isNotEmpty()) {
-                        viewState.showList(it)
-                    }
+                    viewState.showList(it)
                 }, {
                     viewState.showProgress(false)
-                    it.printStackTrace()// TODO: 17.07.2020 убрать
                     viewState.toastError(it.message)
                 })
     }

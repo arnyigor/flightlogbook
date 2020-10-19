@@ -3,27 +3,23 @@ package com.arny.flightlogbook.presentation.customfields.edit
 import androidx.annotation.StringRes
 import com.arny.flightlogbook.customfields.models.CustomFieldType
 import moxy.MvpView
-import moxy.viewstate.strategy.AddToEndSingleStrategy
-import moxy.viewstate.strategy.OneExecutionStateStrategy
-import moxy.viewstate.strategy.StateStrategyType
+import moxy.viewstate.strategy.alias.AddToEndSingle
+import moxy.viewstate.strategy.alias.OneExecution
 
-@StateStrategyType(AddToEndSingleStrategy::class)
+@AddToEndSingle
 interface CustomFieldsEditView : MvpView {
     fun setTitle(name: String?)
     fun setType(type: CustomFieldType?)
     fun setDefaultChecked(showByDefault: Boolean)
     fun showNameError(stringRes: Int?)
 
-    @StateStrategyType(OneExecutionStateStrategy::class)
+    @OneExecution
     fun onResultOk()
 
-    @StateStrategyType(OneExecutionStateStrategy::class)
+    @OneExecution
     fun showError(@StringRes strRes: Int)
 
-    @StateStrategyType(OneExecutionStateStrategy::class)
-    fun onReturnBack()
-
-    @StateStrategyType(OneExecutionStateStrategy::class)
+    @OneExecution
     fun showResult(@StringRes strRes: Int)
     fun showProgress(show: Boolean)
     fun setAddTimeChecked(checked: Boolean)

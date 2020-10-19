@@ -15,7 +15,7 @@ class CustomFieldInteractor @Inject constructor(
     override fun getCustomFields(): List<CustomField> = repository.getAllCustomFields()
 
     override fun getCustomFieldValues(externalId: Long): List<CustomFieldValue> =
-        repository.getCustomFieldValues(externalId)
+            repository.getCustomFieldValues(externalId)
 
     override fun addCustomField(name: String, type: CustomFieldType): Boolean {
         return repository.addCustomField(
@@ -43,9 +43,22 @@ class CustomFieldInteractor @Inject constructor(
         return repository.getCustomFieldWithValues(externalId)
     }
 
-    override fun saveValues(values: List<CustomFieldValue>): Boolean {
+    override fun saveValues(values: List<CustomFieldValue>, flightId: Long?): Boolean {
+        val list = flightId?.let { repository.getCustomFieldValues(flightId) }
+                ?: emptyList()
+        val idsToRemove = getIdsToRemove(list, values)
+        if (idsToRemove.isNotEmpty()) {
+            repository.removeCustomFields(idsToRemove.mapNotNull { it.id })
+        }
         return repository.saveCustomFieldValues(values.filter { it.value != null })
                 .all { it != 0L }
+    }
+
+    private fun getIdsToRemove(
+            origin: List<CustomFieldValue>,
+            newList: List<CustomFieldValue>
+    ): List<CustomFieldValue> = origin.filter { listValue ->
+        newList.find { it.id == listValue.id } == null
     }
 
     override fun addCustomFieldValue(

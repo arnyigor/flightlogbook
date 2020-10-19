@@ -73,29 +73,6 @@ fun Context.getSystemLocale(): Locale? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) configuration.locales.get(0) else configuration.locale
 }
 
-fun Fragment.replaceFragment(
-        fragment: Fragment, @IdRes frameId: Int,
-        addToback: Boolean = false,
-        tag: String? = null,
-        onLoadFunc: () -> Unit? = {},
-        animResourses: Pair<Int, Int>? = null
-) {
-    val tg = tag ?: fragment.javaClass.simpleName
-    childFragmentManager.transact {
-        if (animResourses != null) {
-            val slideIn = animResourses.first
-            val slideOut = animResourses.second
-            setCustomAnimations(slideIn, slideOut)
-        }
-        replace(frameId, fragment, tg)
-        if (addToback) {
-            addToBackStack(tag)
-        }
-    }
-    onLoadFunc()
-}
-
-
 /**
  * Runs a FragmentTransaction, then calls commit().
  */

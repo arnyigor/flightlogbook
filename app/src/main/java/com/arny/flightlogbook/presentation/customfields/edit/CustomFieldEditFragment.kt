@@ -17,7 +17,6 @@ import com.arny.flightlogbook.customfields.models.CustomFieldType
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.flightlogbook.presentation.main.BackButtonListener
-import com.arny.flightlogbook.presentation.main.MainActivity
 import com.arny.helpers.utils.KeyboardHelper.hideKeyboard
 import com.arny.helpers.utils.ToastMaker
 import com.arny.helpers.utils.alertDialog
@@ -128,13 +127,6 @@ class CustomFieldEditFragment : BaseMvpFragment(), CustomFieldsEditView, BackBut
 
     override fun showError(@StringRes strRes: Int) {
         ToastMaker.toastError(context, getString(strRes))
-    }
-
-    override fun onReturnBack() {
-        val activity = activity
-        if (activity is MainActivity) {
-            activity.unLockNavigationDrawer()
-        }
     }
 
     override fun showResult(@StringRes strRes: Int) {

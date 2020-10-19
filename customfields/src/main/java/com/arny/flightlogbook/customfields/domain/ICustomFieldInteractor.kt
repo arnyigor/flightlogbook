@@ -27,6 +27,6 @@ interface ICustomFieldInteractor {
     ): Boolean
 
     fun getCustomFieldsWithValues(externalId: Long?): List<CustomFieldValue>
-    fun saveValues(values: List<CustomFieldValue>): Boolean
+    fun saveValues(values: List<CustomFieldValue>, flightId: Long?): Boolean
     fun removeField(id: Long): Boolean
 }

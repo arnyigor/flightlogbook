@@ -55,6 +55,8 @@ class CustomFieldsRepository @Inject constructor(
 
     override fun removeCustomField(id: Long): Boolean = customFieldDAO.delete(id) != 0
 
+    override fun removeCustomFields(idsToRemove: List<Long>) = customFieldValuesDAO.delete(idsToRemove) > 0
+
     private fun toValuesList(flightValues: List<FieldWithValues>, externalId: Long?): List<CustomFieldValue> {
         return flightValues.flatMap { flightValue ->
             val field = toField(flightValue.field!!)

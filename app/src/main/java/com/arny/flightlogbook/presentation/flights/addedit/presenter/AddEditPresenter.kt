@@ -504,8 +504,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
 
     private fun saveCustomFieldsValues(success: Boolean): Boolean {
         return when {
-            customFieldsValues.isEmpty() -> true
-            success -> customFieldInteractor.saveValues(customFieldsValues)
+            success -> customFieldInteractor.saveValues(customFieldsValues, flightId)
             else -> false
         }
     }

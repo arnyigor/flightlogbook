@@ -20,4 +20,7 @@ interface CustomFieldValuesDAO : BaseDao<CustomFieldValueEntity> {
 
     @Query("DELETE FROM custom_field_values")
     fun delete(): Int
+
+    @Query("DELETE FROM custom_field_values WHERE _id IN (:ids) ")
+    fun delete(ids: List<Long>): Int
 }
