@@ -5,7 +5,9 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import com.arny.domain.models.Airport
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.constants.CONSTS
@@ -39,26 +41,34 @@ class AirportEditFragment : BaseMvpFragment(), AirportEditView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         presenter.airportId = arguments?.getExtra<Long>(CONSTS.EXTRAS.EXTRA_AIRPORT_ID)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        btnSave.setOnClickListener {
-            presenter.saveAirport(
-                    tiedtIcaoCode.text.toString(),
-                    tiEdtIataCode.text.toString(),
-                    tiedtNameRus.text.toString(),
-                    tiedtNameEng.text.toString(),
-                    tiedtCityRus.text.toString(),
-                    tiedtCityEng.text.toString(),
-                    tiedtCountryRus.text.toString(),
-                    tiedtCountryEng.text.toString(),
-                    tiedtLatitude.text.toString(),
-                    tiedtLongitude.text.toString(),
-                    tiedtElevation.text.toString()
-            )
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.add_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_save -> {
+                presenter.saveAirport(
+                        tiedtIcaoCode.text.toString(),
+                        tiEdtIataCode.text.toString(),
+                        tiedtNameRus.text.toString(),
+                        tiedtNameEng.text.toString(),
+                        tiedtCityRus.text.toString(),
+                        tiedtCityEng.text.toString(),
+                        tiedtCountryRus.text.toString(),
+                        tiedtCountryEng.text.toString(),
+                        tiedtLatitude.text.toString(),
+                        tiedtLongitude.text.toString(),
+                        tiedtElevation.text.toString()
+                )
+            }
         }
+        return true
     }
 
     override fun setAirport(airport: Airport) {
@@ -77,6 +87,18 @@ class AirportEditFragment : BaseMvpFragment(), AirportEditView {
 
     override fun toastError(errorRes: Int, message: String?) {
         toastError(getString(errorRes, message))
+    }
+
+    override fun showEmptyIcao(errorRes: Int) {
+        tilIcaoCode.error = getString(errorRes)
+    }
+
+    override fun showEmptyIata(errorRes: Int) {
+        tilIataCode.error = getString(errorRes)
+    }
+
+    override fun showEmptyNameEng(errorRes: Int) {
+        tilNameEng.error = getString(errorRes)
     }
 
     override fun setSuccessOk() {

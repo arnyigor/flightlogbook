@@ -4,24 +4,21 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.arny.domain.models.FlightType
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.constants.CONSTS
+import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.helpers.utils.ToastMaker
 import com.arny.helpers.utils.alertDialog
 import com.arny.helpers.utils.inputDialog
 import kotlinx.android.synthetic.main.flight_types_list_layout.*
-import moxy.MvpAppCompatFragment
-import moxy.presenter.InjectPresenter
-import moxy.presenter.ProvidePresenter
+import moxy.ktx.moxyPresenter
 
-class FlightTypesFragment : MvpAppCompatFragment(), FlightTypesView {
+class FlightTypesFragment : BaseMvpFragment(), FlightTypesView {
     companion object {
         fun getInstance(bundle: Bundle? = null) = FlightTypesFragment().apply {
             bundle?.let { arguments = it }
@@ -29,16 +26,9 @@ class FlightTypesFragment : MvpAppCompatFragment(), FlightTypesView {
     }
 
     private var typesAdapter: FlightTypesAdapter? = null
-
     private var appRouter: AppRouter? = null
 
-    @InjectPresenter
-    lateinit var flightTypesPresenter: FlightTypesPresenter
-
-    @ProvidePresenter
-    fun provideFlightTypesPresenter(): FlightTypesPresenter {
-        return FlightTypesPresenter()
-    }
+    private val presenter by moxyPresenter { FlightTypesPresenter() }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -51,18 +41,13 @@ class FlightTypesFragment : MvpAppCompatFragment(), FlightTypesView {
         ToastMaker.toastError(context, msg)
     }
 
-    override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.flight_types_list_layout, container, false)
-    }
+    override fun getLayoutId(): Int = R.layout.flight_types_list_layout
+
+    override fun getTitle(): String? = getString(R.string.str_flight_types)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val isRequestField = arguments?.getBoolean(CONSTS.REQUESTS.REQUEST) == true
-        requireActivity().title = getString(R.string.str_flight_types)
         fab_add_flight_type.setOnClickListener {
             inputDialog(
                     requireActivity(),
@@ -72,32 +57,31 @@ class FlightTypesFragment : MvpAppCompatFragment(), FlightTypesView {
                     null,
                     getString(android.R.string.ok),
                     getString(android.R.string.cancel),
-                    dialogListener = { result -> flightTypesPresenter.addType(result) }
+                    dialogListener = { result -> presenter.addType(result) }
             )
         }
-        typesAdapter =
-                FlightTypesAdapter(typesListener = object : FlightTypesAdapter.FlightTypesListener {
-                    override fun onEditType(position: Int, item: FlightType) {
-                        showEditDialog(item)
-                    }
+        typesAdapter = FlightTypesAdapter(typesListener = object : FlightTypesAdapter.FlightTypesListener {
+            override fun onEditType(position: Int, item: FlightType) {
+                showEditDialog(item)
+            }
 
-                    override fun onDeleteType(item: FlightType) {
-                        showConfirmDeleteDialog(item)
-                    }
+            override fun onDeleteType(item: FlightType) {
+                showConfirmDeleteDialog(item)
+            }
 
-                    override fun onItemClick(position: Int, item: FlightType) {
-                        if (isRequestField) {
-                            appRouter?.setResultToTargetFragment(
-                                    this@FlightTypesFragment,
-                                    Intent().apply {
-                                        putExtra(CONSTS.EXTRAS.EXTRA_FLIGHT_TYPE, item.id)
-                                    })
-                        }
-                    }
-                })
+            override fun onItemClick(position: Int, item: FlightType) {
+                if (isRequestField) {
+                    appRouter?.setResultToTargetFragment(
+                            this@FlightTypesFragment,
+                            Intent().apply {
+                                putExtra(CONSTS.EXTRAS.EXTRA_FLIGHT_TYPE, item.id)
+                            })
+                }
+            }
+        })
         rv_flight_types.layoutManager = LinearLayoutManager(context)
         rv_flight_types.adapter = typesAdapter
-        flightTypesPresenter.loadTypes()
+        presenter.loadTypes()
     }
 
     private fun showConfirmDeleteDialog(item: FlightType) {
@@ -108,7 +92,7 @@ class FlightTypesFragment : MvpAppCompatFragment(), FlightTypesView {
                 getString(android.R.string.ok),
                 getString(android.R.string.cancel),
                 true,
-                onConfirm = { flightTypesPresenter.removeFlightType(item) }
+                onConfirm = { presenter.removeFlightType(item) }
         )
     }
 
@@ -124,14 +108,9 @@ class FlightTypesFragment : MvpAppCompatFragment(), FlightTypesView {
                 false,
                 InputType.TYPE_CLASS_TEXT,
                 dialogListener = { result ->
-                    flightTypesPresenter.editFlightTypeTitle(item, result)
+                    presenter.editFlightTypeTitle(item, result)
                 }
         )
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
     }
 
     override fun showEmptyView(vis: Boolean) {

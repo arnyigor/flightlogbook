@@ -6,12 +6,13 @@ import moxy.MvpView
 import moxy.viewstate.strategy.alias.AddToEndSingle
 import moxy.viewstate.strategy.alias.OneExecution
 
-@AddToEndSingle
+@OneExecution
 interface AirportEditView : MvpView {
+    @AddToEndSingle
     fun setAirport(airport: Airport)
-    @OneExecution
     fun toastError(@StringRes errorRes: Int, message: String?)
-
-    @OneExecution
     fun setSuccessOk()
+    fun showEmptyIcao(@StringRes errorRes: Int)
+    fun showEmptyNameEng(@StringRes errorRes: Int)
+    fun showEmptyIata(@StringRes errorRes: Int)
 }

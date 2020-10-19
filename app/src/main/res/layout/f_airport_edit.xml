@@ -213,21 +213,5 @@
                 android:inputType="numberDecimal"
                 tools:text="370" />
         </com.google.android.material.textfield.TextInputLayout>
-
-        <Button
-            android:id="@+id/btnSave"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:background="@drawable/btn_bg_primary"
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp"
-            android:text="@string/save"
-            android:textAllCaps="false"
-            android:textColor="@color/colorTextWhite"
-            app:layout_constraintBottom_toBottomOf="@+id/tilDate"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/tilDate" />
     </LinearLayout>
 </ScrollView>

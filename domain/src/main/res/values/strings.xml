@@ -59,7 +59,7 @@
     <string name="str_types_removes_fail">Типы ВС не удалены</string>
     <string name="str_type_add_succesfull">Тип ВС добавлен</string>
     <string name="str_type_add_fail">Тип ВС не добавлен</string>
-    <string name="str_type">ЛА</string>
+    <string name="str_type">Воздушное судно</string>
     <string name="str_flight_type_title">Тип полета</string>
     <string name="str_flight_title">Название полета</string>
     <string name="str_type_empty">Тип ВС: нет</string>

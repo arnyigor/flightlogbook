@@ -571,24 +571,26 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     }
 
     fun addCustomField(customFieldId: Long?) {
-        customFieldId?.let { id ->
-            fromSingle { customFieldInteractor.getCustomField(id) }
-                    .subscribeFromPresenter({
-                        val field = it.value
-                        if (field != null) {
-                            customFieldsValues.add(
-                                    CustomFieldValue(
-                                            field = field,
-                                            externalId = this.flightId,
-                                            type = field.type,
-                                            fieldId = id
-                                    )
-                            )
-                            viewState.setFieldsList(customFieldsValues)
-                        }
-                    }, {
-                        viewState.toastError(it.message)
-                    })
+        if (customFieldsValues.find { it.fieldId == customFieldId } == null) {
+            customFieldId?.let { id ->
+                fromSingle { customFieldInteractor.getCustomField(id) }
+                        .subscribeFromPresenter({
+                            val field = it.value
+                            if (field != null) {
+                                customFieldsValues.add(
+                                        CustomFieldValue(
+                                                field = field,
+                                                externalId = this.flightId,
+                                                type = field.type,
+                                                fieldId = id
+                                        )
+                                )
+                                viewState.setFieldsList(customFieldsValues)
+                            }
+                        }, {
+                            viewState.toastError(it.message)
+                        })
+            }
         }
     }
 

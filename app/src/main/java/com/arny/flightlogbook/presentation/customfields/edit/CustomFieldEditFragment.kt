@@ -58,7 +58,7 @@ class CustomFieldEditFragment : BaseMvpFragment(), CustomFieldsEditView, BackBut
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.custom_fields_menu, menu)
+        inflater.inflate(R.menu.add_edit_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
     }
 
@@ -68,7 +68,7 @@ class CustomFieldEditFragment : BaseMvpFragment(), CustomFieldsEditView, BackBut
                 hideKeyboard(requireActivity())
                 presenter.onSaveClicked(chbAddTime.isChecked)
             }
-            R.id.action_delete -> {
+            R.id.action_remove -> {
                 hideKeyboard(requireActivity())
                 alertDialog(
                         context = requireContext(),

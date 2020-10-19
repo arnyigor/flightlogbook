@@ -45,6 +45,18 @@ class AirportEditPresenter : BaseMvpPresenter<AirportEditView>() {
             longitudeStr: String,
             elevationStr: String
     ) {
+        if (icao.isBlank() || iata.isBlank()) {
+            if (icao.isBlank()) {
+                viewState.showEmptyIcao(R.string.error_empty_text_field)
+            } else {
+                viewState.showEmptyIata(R.string.error_empty_text_field)
+            }
+            return
+        }
+        if (nameEng.isBlank()) {
+            viewState.showEmptyNameEng(R.string.error_empty_text_field)
+            return
+        }
         val airport = Airport(
                 airportId,
                 icao.trimIndent(),

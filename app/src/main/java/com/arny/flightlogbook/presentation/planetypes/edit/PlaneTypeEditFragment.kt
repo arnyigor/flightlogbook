@@ -3,6 +3,9 @@ package com.arny.flightlogbook.presentation.planetypes.edit
 
 import android.content.Context
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import androidx.annotation.StringRes
 import androidx.core.widget.doAfterTextChanged
@@ -40,18 +43,30 @@ class PlaneTypeEditFragment : BaseMvpFragment(), PlaneTypeEditView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         presenter.planeTypeId = arguments?.getExtra<Long>(CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.add_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_save -> {
+                presenter.onSavePlaneType(
+                        tiedtPlaneTitle.text.toString(),
+                        tiedtRegNo.text.toString(),
+                        spinMainType.selectedItemPosition
+                )
+            }
+        }
+        return true
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        btnSave.setOnClickListener {
-            presenter.onSavePlaneType(
-                    tiedtPlaneTitle.text.toString(),
-                    tiedtRegNo.text.toString(),
-                    spinMainType.selectedItemPosition
-            )
-        }
         tiedtRegNo.doAfterTextChanged { tiLRegNo.error = null }
         tiedtPlaneTitle.doAfterTextChanged { tilPlaneTitle.error = null }
     }
