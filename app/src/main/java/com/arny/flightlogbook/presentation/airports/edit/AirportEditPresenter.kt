@@ -45,16 +45,27 @@ class AirportEditPresenter : BaseMvpPresenter<AirportEditView>() {
             longitudeStr: String,
             elevationStr: String
     ) {
-        if (icao.isBlank() || iata.isBlank()) {
-            if (icao.isBlank()) {
-                viewState.showEmptyIcao(R.string.error_empty_text_field)
-            } else {
-                viewState.showEmptyIata(R.string.error_empty_text_field)
+        resetAllErrors()
+        val codesError = icao.isBlank() && iata.isBlank()
+        if (codesError) {
+            when {
+                codesError -> {
+                    viewState.setIcaoError(R.string.error_empty_text_field)
+                    viewState.setIataError(R.string.error_empty_text_field)
+                    return
+                }
+                icao.isBlank() -> {
+                    viewState.setIcaoError(R.string.error_empty_text_field)
+                    return
+                }
+                iata.isBlank() -> {
+                    viewState.setIataError(R.string.error_empty_text_field)
+                    return
+                }
             }
-            return
         }
         if (nameEng.isBlank()) {
-            viewState.showEmptyNameEng(R.string.error_empty_text_field)
+            viewState.setNameEngError(R.string.error_empty_text_field)
             return
         }
         val airport = Airport(
@@ -81,5 +92,11 @@ class AirportEditPresenter : BaseMvpPresenter<AirportEditView>() {
                 }, {
                     viewState.toastError(R.string.save_error, it.message)
                 })
+    }
+
+    private fun resetAllErrors() {
+        viewState.setIcaoError(null)
+        viewState.setIataError(null)
+        viewState.setIataError(null)
     }
 }

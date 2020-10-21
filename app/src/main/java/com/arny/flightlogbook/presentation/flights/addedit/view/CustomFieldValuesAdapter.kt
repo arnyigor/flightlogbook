@@ -2,7 +2,6 @@ package com.arny.flightlogbook.presentation.flights.addedit.view
 
 import android.view.inputmethod.EditorInfo
 import androidx.core.view.isVisible
-import androidx.core.widget.doAfterTextChanged
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.flightlogbook.customfields.models.CustomFieldType
@@ -20,7 +19,6 @@ class CustomFieldValuesAdapter(private val onFieldChangeListener: OnFieldChangeL
 
     override fun bindView(item: CustomFieldValue, viewHolder: VH) {
         val adapterPosition = viewHolder.adapterPosition
-        var currentValue = ""
         viewHolder.itemView.apply {
             ivRemoveCustomFieldValue.isVisible = item.field?.showByDefault == false
             ivRemoveCustomFieldValue.setOnClickListener {
@@ -44,17 +42,10 @@ class CustomFieldValuesAdapter(private val onFieldChangeListener: OnFieldChangeL
             } else {
                 val emptyHint = if (type is CustomFieldType.Time) context.getString(R.string.str_time_zero) else ""
                 cfvView.editText?.let { editText ->
-                    editText.doAfterTextChanged {
-                        if (it.toString().isBlank()) {
-                            editText.hint = emptyHint
-                        }
-                        currentValue = it.toString()
-                        onFieldChangeListener?.onValueChange(item, currentValue)
-                    }
                     editText.setOnFocusChangeListener { _, hasFocus ->
                         if (!hasFocus) {
                             editText.setSelectAllOnFocus(false)
-                            onFieldChangeListener?.onValueChange(item, currentValue)
+                            onFieldChangeListener?.onValueChange(item, editText.text.toString())
                         }
                         val flTime = editText.text.toString()
                         if (flTime.isBlank()) {
@@ -73,7 +64,7 @@ class CustomFieldValuesAdapter(private val onFieldChangeListener: OnFieldChangeL
                     editText.setOnEditorActionListener { _, actionId, _ ->
                         when (actionId) {
                             EditorInfo.IME_ACTION_NEXT -> {
-                                onFieldChangeListener?.onValueChange(item, currentValue)
+                                onFieldChangeListener?.onValueChange(item, editText.text.toString())
                                 true
                             }
                             else -> false

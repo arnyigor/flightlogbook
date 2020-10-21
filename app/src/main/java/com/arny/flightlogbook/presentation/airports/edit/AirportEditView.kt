@@ -12,7 +12,7 @@ interface AirportEditView : MvpView {
     fun setAirport(airport: Airport)
     fun toastError(@StringRes errorRes: Int, message: String?)
     fun setSuccessOk()
-    fun showEmptyIcao(@StringRes errorRes: Int)
-    fun showEmptyNameEng(@StringRes errorRes: Int)
-    fun showEmptyIata(@StringRes errorRes: Int)
+    fun setIcaoError(@StringRes errorRes: Int?)
+    fun setNameEngError(@StringRes errorRes: Int?)
+    fun setIataError(@StringRes errorRes: Int?)
 }

@@ -4,16 +4,17 @@ import android.content.Context
 import android.text.InputType
 import android.util.AttributeSet
 import android.view.Gravity
+import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.LinearLayout
-import android.widget.Switch
+import androidx.appcompat.widget.SwitchCompat
 import com.arny.flightlogbook.customfields.R
 import com.arny.flightlogbook.customfields.models.CustomFieldType
 import com.arny.flightlogbook.customfields.models.toCustomFieldType
 
 class CustomFieldView : LinearLayout {
     private var name: String? = null
-    var switch: Switch? = null
+    var switch: SwitchCompat? = null
     var editText: EditText? = null
     private var styleType: Int? = null
     private var type: String? = null
@@ -60,11 +61,12 @@ class CustomFieldView : LinearLayout {
             is CustomFieldType.Text -> {
                 editText = EditText(context)
                 editText?.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+                editText?.imeOptions = EditorInfo.IME_ACTION_NEXT
                 editText?.inputType = InputType.TYPE_CLASS_TEXT
                 addView(editText, 0)
             }
             is CustomFieldType.Bool -> {
-                switch = Switch(context)
+                switch = SwitchCompat(context)
                 switch?.text = name
                 switch?.layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
                 addView(switch, 0)
@@ -72,6 +74,7 @@ class CustomFieldView : LinearLayout {
             is CustomFieldType.Number -> {
                 editText = EditText(context)
                 editText?.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+                editText?.imeOptions = EditorInfo.IME_ACTION_NEXT
                 editText?.inputType = InputType.TYPE_CLASS_NUMBER
                 editText?.gravity = Gravity.CENTER_HORIZONTAL
                 addView(editText, 0)
@@ -79,6 +82,7 @@ class CustomFieldView : LinearLayout {
             is CustomFieldType.Time -> {
                 editText = EditText(context)
                 editText?.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+                editText?.imeOptions = EditorInfo.IME_ACTION_NEXT
                 editText?.inputType = InputType.TYPE_CLASS_DATETIME
                 editText?.gravity = Gravity.CENTER_HORIZONTAL
                 addView(editText, 0)

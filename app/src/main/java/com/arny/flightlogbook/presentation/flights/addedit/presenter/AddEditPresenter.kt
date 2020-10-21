@@ -510,17 +510,21 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     }
 
     fun removeFlight() {
-        flightsInteractor.removeFlight(flight?.id)
-                .subscribeFromPresenter({
-                    if (it) {
-                        viewState.toastSuccess(getString(R.string.flight_removed))
-                        viewState.setResultOK()
-                    } else {
-                        viewState.toastError(getString(R.string.flight_not_removed))
-                    }
-                }, {
-                    viewState.toastError(it.message)
-                })
+        if (flight?.id != null) {
+            flightsInteractor.removeFlight(flight?.id)
+                    .subscribeFromPresenter({
+                        if (it) {
+                            viewState.toastSuccess(getString(R.string.flight_removed))
+                            viewState.setResultOK()
+                        } else {
+                            viewState.toastError(getString(R.string.flight_not_removed))
+                        }
+                    }, {
+                        viewState.toastError(it.message)
+                    })
+        } else {
+            viewState.setResultOK()
+        }
     }
 
     private fun getString(res: Int?) = resourcesInteractor.getString(res)
@@ -607,5 +611,6 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     fun onCustomFieldValueDelete(position: Int) {
         customFieldsValues.removeAt(position)
         viewState.setFieldsList(customFieldsValues)
+        timeSummChanged()
     }
 }

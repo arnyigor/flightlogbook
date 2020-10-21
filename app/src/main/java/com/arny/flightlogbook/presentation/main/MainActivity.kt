@@ -1,6 +1,5 @@
 package com.arny.flightlogbook.presentation.main
 
-import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
@@ -8,7 +7,6 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_UNLOCKED
 import androidx.fragment.app.Fragment
 import com.arny.flightlogbook.R
@@ -27,7 +25,6 @@ import com.arny.helpers.utils.replaceFragment
 import com.arny.helpers.utils.showSnackBar
 import kotlinx.android.synthetic.main.activity_home.*
 
-
 class MainActivity : AppCompatActivity(), AppRouter {
     companion object {
         private const val DRAWER_SELECTION = "drawer_selection"
@@ -36,14 +33,11 @@ class MainActivity : AppCompatActivity(), AppRouter {
 
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
     private lateinit var toolbar: Toolbar
-    private var pDialog: ProgressDialog? = null
     private var backPressedTime: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
-        pDialog = ProgressDialog(this)
-        pDialog?.setCancelable(false)
         toolbar = findViewById(R.id.home_toolbar)
         setSupportActionBar(toolbar)
         toolbar.title = getString(R.string.fragment_logbook)
@@ -87,18 +81,6 @@ class MainActivity : AppCompatActivity(), AppRouter {
         R.id.menu_settings -> NavigateItems.MENU_SETTINGS.index
         R.id.menu_stats -> NavigateItems.MENU_STATS.index
         else -> -1
-    }
-
-    fun lockNavigationDrawer() {
-        dlMain.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-        actionBarDrawerToggle.isDrawerIndicatorEnabled = false
-        actionBarDrawerToggle.syncState()
-    }
-
-    fun unLockNavigationDrawer() {
-        dlMain.setDrawerLockMode(LOCK_MODE_UNLOCKED)
-        actionBarDrawerToggle.isDrawerIndicatorEnabled = true
-        actionBarDrawerToggle.syncState()
     }
 
     override fun onReturnResult(intent: Intent?, resultCode: Int) {
@@ -221,35 +203,18 @@ class MainActivity : AppCompatActivity(), AppRouter {
         if (drawerLayout?.isDrawerOpen(navViewMain) == true) {
             drawerLayout.closeDrawer(navViewMain)
         } else {
-            val fragments = supportFragmentManager.fragments
-            var isMain = false
-            var hasFragments = false
-            for (curFrag in fragments) {
-                if (curFrag is BackButtonListener) {
-                    if (curFrag.onBackPressed()) {
-                        lockNavigationDrawer()
-                        hasFragments = true
-                        break
-                    }
-                }
-                if (curFrag != null && curFrag.isVisible && curFrag is MainFirstFragment) {
-                    isMain = true
-                }
-            }
-            if (!hasFragments) {
-                if (!isMain) {
-                    selectItem(NavigateItems.MENU_FLIGHTS.index, requestCode = null)
-                } else {
-                    if (backPressedTime + TIME_DELAY > System.currentTimeMillis()) {
-                        finish()
-                    } else {
-                        container.showSnackBar(getString(R.string.press_back_again_to_exit))
-                    }
-                    backPressedTime = System.currentTimeMillis()
-                }
+            val isMain = supportFragmentManager.fragments.find { curFrag ->
+                curFrag is MainFirstFragment && curFrag.isVisible
+            } != null
+            if (!isMain) {
+                selectItem(NavigateItems.MENU_FLIGHTS.index, requestCode = null)
             } else {
-                unLockNavigationDrawer()
-                super.onBackPressed()
+                if (backPressedTime + TIME_DELAY > System.currentTimeMillis()) {
+                    finish()
+                } else {
+                    container.showSnackBar(getString(R.string.press_back_again_to_exit))
+                }
+                backPressedTime = System.currentTimeMillis()
             }
         }
     }

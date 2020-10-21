@@ -59,14 +59,13 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     private var sGroundTime = ""
     private var currentTitle = R.string.str_add_flight
     private var tvMotoResult: TextView? = null
+    private var appRouter: AppRouter? = null
 
     private val addEditPresenter by moxyPresenter { AddEditPresenter() }
 
     override fun getLayoutId(): Int = R.layout.f_addedit
 
     override fun getTitle(): String = getString(currentTitle)
-
-    private var appRouter: AppRouter? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -85,6 +84,26 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         super.onViewCreated(view, savedInstanceState)
         rxPermissions = RxPermissions(this)
         initUI()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.add_edit_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_save -> addEditPresenter.checkAutoExportFile()
+            R.id.action_remove -> {
+                alertDialog(
+                        context = requireContext(),
+                        title = getString(R.string.str_delete),
+                        btnCancelText = getString(R.string.str_cancel),
+                        onConfirm = { addEditPresenter.removeFlight() }
+                )
+            }
+        }
+        return true
     }
 
     override fun setTotalFlightTime(flightTime: String) {
@@ -523,26 +542,6 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
 
     override fun setEdtGroundTimeText(groundTimeText: String) {
         edtGroundTime.setText(groundTimeText)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.add_edit_menu, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.action_save -> addEditPresenter.checkAutoExportFile()
-            R.id.action_remove -> {
-                alertDialog(
-                        context = requireContext(),
-                        title = getString(R.string.str_delete),
-                        btnCancelText = getString(R.string.str_cancel),
-                        onConfirm = { addEditPresenter.removeFlight() }
-                )
-            }
-        }
-        return true
     }
 
     override fun requestStorageAndSave() {

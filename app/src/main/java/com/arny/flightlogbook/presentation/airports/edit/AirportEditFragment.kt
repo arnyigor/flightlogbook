@@ -8,6 +8,8 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.view.View
+import androidx.core.widget.doAfterTextChanged
 import com.arny.domain.models.Airport
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.constants.CONSTS
@@ -43,6 +45,13 @@ class AirportEditFragment : BaseMvpFragment(), AirportEditView {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         presenter.airportId = arguments?.getExtra<Long>(CONSTS.EXTRAS.EXTRA_AIRPORT_ID)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        tiedtIcaoCode.doAfterTextChanged { tilIcaoCode.error = null }
+        tiEdtIataCode.doAfterTextChanged { tilIataCode.error = null }
+        tiedtNameEng.doAfterTextChanged { tilNameEng.error = null }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -89,16 +98,16 @@ class AirportEditFragment : BaseMvpFragment(), AirportEditView {
         toastError(getString(errorRes, message))
     }
 
-    override fun showEmptyIcao(errorRes: Int) {
-        tilIcaoCode.error = getString(errorRes)
+    override fun setIcaoError(errorRes: Int?) {
+        tilIcaoCode.error = errorRes?.let { getString(it) }
     }
 
-    override fun showEmptyIata(errorRes: Int) {
-        tilIataCode.error = getString(errorRes)
+    override fun setIataError(errorRes: Int?) {
+        tilIataCode.error = errorRes?.let { getString(it) }
     }
 
-    override fun showEmptyNameEng(errorRes: Int) {
-        tilNameEng.error = getString(errorRes)
+    override fun setNameEngError(errorRes: Int?) {
+        tilNameEng.error = errorRes?.let { getString(it) }
     }
 
     override fun setSuccessOk() {

@@ -16,16 +16,14 @@ import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.customfields.models.CustomFieldType
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.main.AppRouter
-import com.arny.flightlogbook.presentation.main.BackButtonListener
 import com.arny.helpers.utils.KeyboardHelper.hideKeyboard
 import com.arny.helpers.utils.ToastMaker
 import com.arny.helpers.utils.alertDialog
 import com.arny.helpers.utils.getExtra
 import kotlinx.android.synthetic.main.fragment_edit_custom_field_layout.*
-import moxy.presenter.InjectPresenter
-import moxy.presenter.ProvidePresenter
+import moxy.ktx.moxyPresenter
 
-class CustomFieldEditFragment : BaseMvpFragment(), CustomFieldsEditView, BackButtonListener {
+class CustomFieldEditFragment : BaseMvpFragment(), CustomFieldsEditView {
     private var appRouter: AppRouter? = null
 
     companion object {
@@ -38,11 +36,7 @@ class CustomFieldEditFragment : BaseMvpFragment(), CustomFieldsEditView, BackBut
 
     private lateinit var types: Array<String>
 
-    @InjectPresenter
-    lateinit var presenter: CustomFieldsEditPresenter
-
-    @ProvidePresenter
-    fun providePresenter() = CustomFieldsEditPresenter()
+    private val presenter by moxyPresenter { CustomFieldsEditPresenter() }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -141,18 +135,13 @@ class CustomFieldEditFragment : BaseMvpFragment(), CustomFieldsEditView, BackBut
         }
     }
 
-    override fun onBackPressed(): Boolean {
-        return true
-    }
-
     override fun setTitle(name: String?) {
         tiedtCustomFieldName.setText(name)
     }
 
     override fun setType(type: CustomFieldType?) {
         if (type != null) {
-            val element = getString(type.nameRes)
-            val indexOf = types.indexOf(element)
+            val indexOf = types.indexOf(getString(type.nameRes))
             spinFieldType.setSelection(indexOf)
         }
     }
