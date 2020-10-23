@@ -45,7 +45,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     lateinit var resourcesInteractor: ResourcesInteractor
 
     @Inject
-    lateinit var preferencesInteractor: PreferencesInteractor
+    lateinit var prefsInteractor: PreferencesInteractor
     internal var flightId: Long? = null
 
     @Volatile
@@ -65,6 +65,8 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
 
     @Volatile
     private var intTotalTime: Int = 0
+
+    @Volatile
     private var flight: Flight? = null
     private var mDateTime: Long = 0
     private var mMotoStart: Float = 0.toFloat()
@@ -101,6 +103,17 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         flight = Flight()
         flight?.params = Params()
         loadCustomFields()
+        loadLastSavedData()
+    }
+
+    private fun loadLastSavedData() {
+        prefsInteractor.getSavedFlightTypeId()?.let {
+            flight?.flightTypeId = it
+            loadFlightType(flight?.flightTypeId)
+        }
+        prefsInteractor.getSavedAircraftId()?.let {
+            setFlightPlaneType(it)
+        }
     }
 
     private fun initState() {
@@ -119,7 +132,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         loadDateTime(flight)
         loadTimes(flight)
         loadIfrVfr(flight)
-        loadFlightType()
+        loadFlightType(flight.flightTypeId)
         loadPlaneTypes(flight)
         loadCustomFields()
         loadDepArrival(flight)
@@ -207,8 +220,8 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         }
     }
 
-    private fun loadFlightType() {
-        flight?.flightTypeId?.let {
+    private fun loadFlightType(typeId: Int?) {
+        typeId?.let {
             fromNullable { flightsInteractor.loadFlightType(it.toLong()) }
                     .subscribeFromPresenter({
                         val title =
@@ -474,6 +487,12 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                     }
                     saveCustomFieldsValues(success)
                 }
+                .doOnSuccess {
+                    if (it) {
+                        prefsInteractor.setSavedAircraftId(flt.planeId)
+                        prefsInteractor.setSavedFlightTypeId(flt.flightTypeId)
+                    }
+                }
                 .subscribeFromPresenter({ success ->
                     if (success) {
                         viewState.toastSuccess(getString(R.string.flight_save_success))
@@ -489,6 +508,12 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     private fun updateFlight(flt: Flight) {
         fromSingle { flightsInteractor.updateFlight(flt) }
                 .map(::saveCustomFieldsValues)
+                .doOnSuccess {
+                    if (it) {
+                        prefsInteractor.setSavedAircraftId(flt.planeId)
+                        prefsInteractor.setSavedFlightTypeId(flt.flightTypeId)
+                    }
+                }
                 .subscribeFromPresenter({
                     if (it) {
                         viewState.toastSuccess(getString(R.string.flight_save_success))
@@ -553,7 +578,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     }
 
     fun checkAutoExportFile() {
-        val autoExportXLS = preferencesInteractor.isAutoExportXLS()
+        val autoExportXLS = prefsInteractor.isAutoExportXLS()
         if (autoExportXLS) {
             viewState.requestStorageAndSave()
         } else {

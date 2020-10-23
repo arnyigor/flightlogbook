@@ -2,6 +2,7 @@ package com.arny.flightlogbook.presentation.settings.presenter
 
 import android.net.Uri
 import android.os.Handler
+import android.webkit.MimeTypeMap
 import com.arny.domain.common.PreferencesInteractor
 import com.arny.domain.files.FilesInteractor
 import com.arny.domain.flights.FlightsInteractor
@@ -12,6 +13,7 @@ import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import com.arny.flightlogbook.presentation.settings.view.SettingsView
 import com.arny.helpers.utils.fromNullable
 import moxy.InjectViewState
+import java.io.File
 import javax.inject.Inject
 
 @InjectViewState
@@ -38,6 +40,7 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
 
     private fun initState() {
         viewState.setAutoExportChecked(prefs.isAutoExportXLS())
+        viewState.setSaveLastFlightData(prefs.isSaveLastData())
         showFileData()
     }
 
@@ -104,7 +107,7 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
                                 viewState.showError(R.string.error_export_file, null)
                             }
                         }
-                        is Result.Error-> {
+                        is Result.Error -> {
                             viewState.showError(R.string.error_export_file, it.exception?.message)
                         }
                     }
@@ -155,5 +158,16 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
                     viewState.showError(R.string.error_share_file, it.message)
                     viewState.setShareFileVisible(false)
                 })
+    }
+
+    fun openDefauilFileWith() {
+        val fromFile = Uri.fromFile(File(filesInteractor.getDefaultFilePath()))
+        val extension = MimeTypeMap.getFileExtensionFromUrl(fromFile.toString())
+        val mimetype = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+        viewState.openWith(Pair(fromFile, mimetype))
+    }
+
+    fun onSaveLastDataChanged(checked: Boolean) {
+        prefs.setSaveLastData(checked)
     }
 }

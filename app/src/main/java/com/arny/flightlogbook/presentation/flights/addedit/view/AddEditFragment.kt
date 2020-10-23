@@ -200,15 +200,17 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
                 edtArrivalTime.setSelectAllOnFocus(false)
                 addEditPresenter.correctArrivalTime(sArrivalTime)
             }
-            val depTime = edtArrivalTime.text.toString()
-            if (depTime.isBlank()) {
+            val arrivalTime = edtArrivalTime.text.toString()
+            if (arrivalTime.isBlank()) {
                 if (hasFocus) {
+                    tilArrTime?.hint = getString(R.string.utc_time)
                     edtArrivalTime?.hint = timeZero
                 } else {
-                    edtArrivalTime?.hint = null
+                    tilArrTime?.hint = null
+                    edtArrivalTime?.hint = timeZero
                 }
             } else {
-                if (hasFocus && depTime == timeZero) {
+                if (hasFocus && arrivalTime == timeZero) {
                     edtArrivalTime.setSelectAllOnFocus(true)
                     edtArrivalTime.selectAll()
                 }

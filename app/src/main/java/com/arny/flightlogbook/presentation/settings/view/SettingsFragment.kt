@@ -7,13 +7,11 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.view.isVisible
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.constants.CONSTS
+import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.settings.presenter.SettingsPresenter
 import com.arny.helpers.utils.Utility
 import com.arny.helpers.utils.alertDialog
@@ -21,41 +19,25 @@ import com.arny.helpers.utils.launchIntent
 import com.arny.helpers.utils.shareFileWithType
 import com.tbruyelle.rxpermissions2.RxPermissions
 import kotlinx.android.synthetic.main.settings_fragment.*
-import moxy.MvpAppCompatFragment
-import moxy.presenter.InjectPresenter
-import moxy.presenter.ProvidePresenter
-import java.io.File
+import moxy.ktx.moxyPresenter
 
 
-class SettingsFragment : MvpAppCompatFragment(), SettingsView {
+class SettingsFragment : BaseMvpFragment(), SettingsView {
     private var pDialog: ProgressDialog? = null
     private var rxPermissions: RxPermissions? = null
 
     companion object {
-        fun getInstance(): SettingsFragment {
-            return SettingsFragment()
-        }
+        fun getInstance(): SettingsFragment = SettingsFragment()
     }
 
-    @InjectPresenter
-    lateinit var settingsPresenter: SettingsPresenter
+    private val presenter by moxyPresenter { SettingsPresenter() }
 
-    @ProvidePresenter
-    fun provideSettingsPresenter(): SettingsPresenter {
-        return SettingsPresenter()
-    }
+    override fun getLayoutId(): Int = R.layout.settings_fragment
 
-    override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.settings_fragment, container, false)
-    }
+    override fun getTitle(): String? = getString(R.string.str_settings)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        requireActivity().title = getString(R.string.str_settings)
         pDialog = ProgressDialog(context)
         pDialog?.setCancelable(false)
         pDialog?.setCanceledOnTouchOutside(false)
@@ -78,15 +60,18 @@ class SettingsFragment : MvpAppCompatFragment(), SettingsView {
             )
                     ?.subscribe { granted ->
                         if (granted) {
-                            settingsPresenter.exportToFile()
+                            presenter.exportToFile()
                         }
                     }
         }
         chbAutoExport.setOnCheckedChangeListener { _, isChecked ->
-            settingsPresenter.onAutoExportChanged(isChecked)
+            presenter.onAutoExportChanged(isChecked)
+        }
+        chbSaveLastFlightData.setOnCheckedChangeListener { _, isChecked ->
+            presenter.onSaveLastDataChanged(isChecked)
         }
         ivShareFile.setOnClickListener {
-            settingsPresenter.onShareFileClick()
+            presenter.onShareFileClick()
         }
     }
 
@@ -110,7 +95,7 @@ class SettingsFragment : MvpAppCompatFragment(), SettingsView {
                 getString(R.string.str_import_local_file),
                 getString(R.string.str_import_file_from_disk),
                 true, {
-            settingsPresenter.loadDefaultFile()
+            presenter.loadDefaultFile()
         }, (::requestFile)
         )
     }
@@ -132,8 +117,7 @@ class SettingsFragment : MvpAppCompatFragment(), SettingsView {
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
                 CONSTS.REQUESTS.REQUEST_OPEN_FILE -> {
-                    val uri = data?.data
-                    settingsPresenter.onFileImport(uri)
+                    presenter.onFileImport(data?.data)
                 }
             }
         }
@@ -179,19 +163,20 @@ class SettingsFragment : MvpAppCompatFragment(), SettingsView {
         Utility.hideProgress(pDialog)
     }
 
+    override fun setSaveLastFlightData(checked: Boolean) {
+        chbSaveLastFlightData.isChecked = checked
+    }
+
+    override fun openWith(pair: Pair<Uri, String?>) {
+        with(Intent(Intent.ACTION_VIEW)) {
+            val (fromFile, mimetype) = pair
+            setDataAndType(fromFile, mimetype)
+            startActivity(this)
+        }
+    }
+
     // TODO: 28.06.2020 использовать позже
     private fun openFileWith() {
-        try {
-            val myIntent = Intent(Intent.ACTION_VIEW)
-            val sdPath = Environment.getExternalStorageDirectory()
-            val file = File("$sdPath/Android/data/com.arny.flightlogbook/files", CONSTS.FILES.EXEL_FILE_NAME)
-            val fromFile = Uri.fromFile(file)
-            val extension = android.webkit.MimeTypeMap.getFileExtensionFromUrl(fromFile.toString())
-            val mimetype = android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
-            myIntent.setDataAndType(fromFile, mimetype)
-            startActivity(myIntent)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        presenter.openDefauilFileWith()
     }
 }

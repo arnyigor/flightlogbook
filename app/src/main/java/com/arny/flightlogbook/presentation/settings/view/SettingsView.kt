@@ -2,22 +2,26 @@ package com.arny.flightlogbook.presentation.settings.view
 
 import android.net.Uri
 import moxy.MvpView
-import moxy.viewstate.strategy.AddToEndSingleStrategy
-import moxy.viewstate.strategy.OneExecutionStateStrategy
-import moxy.viewstate.strategy.StateStrategyType
+import moxy.viewstate.strategy.alias.AddToEndSingle
+import moxy.viewstate.strategy.alias.OneExecution
 
-@StateStrategyType(value = AddToEndSingleStrategy::class)
+@AddToEndSingle
 interface SettingsView : MvpView {
     fun showProgress(msg: Int)
     fun hideProgress()
 
-    @StateStrategyType(value = OneExecutionStateStrategy::class)
+    @OneExecution
     fun showError(msg: Int, error: String? = null)
     fun showResults(intRes: Int, path: String)
     fun showResults(results: String)
     fun hideResults()
     fun setAutoExportChecked(checked: Boolean)
     fun setShareFileVisible(visible: Boolean)
-    @StateStrategyType(value = OneExecutionStateStrategy::class)
+
+    @OneExecution
     fun shareFile(uri: Uri, fileType: String)
+    fun setSaveLastFlightData(checked: Boolean)
+
+    @OneExecution
+    fun openWith(pair: Pair<Uri, String?>)
 }

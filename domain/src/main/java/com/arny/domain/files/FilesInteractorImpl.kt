@@ -52,7 +52,7 @@ class FilesInteractorImpl @Inject constructor(
 
     private fun getFileName(fromSystem: Boolean, uri: Uri?): String {
         return if (fromSystem)
-            getDefaultFilePath(context)
+            getDefaultFilePath()
         else
             FilePathUtils.getPath(uri, context).toString()
     }
@@ -317,14 +317,14 @@ class FilesInteractorImpl @Inject constructor(
     }
 
     override fun getDefaultFileUri(): Uri? {
-        return FileUtils.getFileUri(context, File(getDefaultFilePath(context)))
+        return FileUtils.getFileUri(context, File(getDefaultFilePath()))
     }
 
-    private fun getDefaultFilePath(context: Context) =
+    override fun getDefaultFilePath() =
             FileUtils.getWorkDir(context) + File.separator + CONSTS.FILES.EXEL_FILE_NAME
 
     override fun getFileData(): String? {
-        val file = File(getDefaultFilePath(context))
+        val file = File(getDefaultFilePath())
         return if (file.isFile && file.exists()) {
             StringBuilder()
                     .apply {

@@ -87,4 +87,5 @@
     <string name="elevation">Высота</string>
     <string name="edit_airport">Редактирование аэродрома</string>
     <string name="save_error">Ошибка сохранения %s</string>
+    <string name="save_last_flight_data">Сохранять последние данные полета</string>
 </resources>

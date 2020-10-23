@@ -9,4 +9,5 @@ interface FilesInteractor {
     fun exportFile(): Observable<Result<String>>
     fun getDefaultFileUri(): Uri?
     fun getFileData(): String?
+    fun getDefaultFilePath(): String
 }
