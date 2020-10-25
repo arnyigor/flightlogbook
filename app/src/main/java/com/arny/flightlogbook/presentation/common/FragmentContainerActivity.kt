@@ -27,7 +27,6 @@ import com.arny.flightlogbook.presentation.planetypes.list.PlaneTypesFragment
 import com.arny.helpers.utils.replaceFragment
 import com.arny.helpers.utils.replaceFragmentInActivity
 import kotlinx.android.synthetic.main.about_layout.*
-import moxy.MvpAppCompatFragment
 
 class FragmentContainerActivity : AppCompatActivity(), AppRouter {
 
@@ -36,8 +35,8 @@ class FragmentContainerActivity : AppCompatActivity(), AppRouter {
         setContentView(R.layout.activity_fragment_container)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        getFragment(intent.action, intent.extras)
-                ?.let { replaceFragmentInActivity(it, R.id.fragment_container) }
+        getFragmentContainer(intent.action, intent.extras)
+                ?.let { replaceFragmentInActivity(it.fragment, R.id.fragment_container, it.tag) }
     }
 
 
@@ -54,19 +53,43 @@ class FragmentContainerActivity : AppCompatActivity(), AppRouter {
         }
     }
 
-    private fun getFragment(
+    private fun getFragmentContainer(
             action: String?,
             bundle: Bundle?
-    ): MvpAppCompatFragment? {
+    ): FragmentContainer? {
         return when (action) {
-            EXTRA_ACTION_EDIT_FLIGHT -> AddEditFragment.getInstance(bundle)
-            EXTRA_ACTION_EDIT_CUSTOM_FIELD -> CustomFieldEditFragment.getInstance(bundle)
-            EXTRA_ACTION_SELECT_CUSTOM_FIELD -> CustomFieldsListFragment.getInstance(bundle)
-            EXTRA_ACTION_SELECT_PLANE_TYPE -> PlaneTypesFragment.getInstance(bundle)
-            EXTRA_ACTION_SELECT_FLIGHT_TYPE -> FlightTypesFragment.getInstance(bundle)
-            EXTRA_ACTION_EDIT_PLANE_TYPE -> PlaneTypeEditFragment.getInstance(bundle)
-            EXTRA_ACTION_SELECT_AIRPORT -> AirportsFragment.getInstance(bundle)
-            EXTRA_ACTION_EDIT_AIRPORT -> AirportEditFragment.getInstance(bundle)
+            EXTRA_ACTION_EDIT_FLIGHT -> FragmentContainer(
+                    AddEditFragment.getInstance(bundle),
+                    "AddEditFragment"
+            )
+            EXTRA_ACTION_EDIT_CUSTOM_FIELD -> FragmentContainer(
+                    CustomFieldEditFragment.getInstance(bundle),
+                    "CustomFieldEditFragment"
+            )
+            EXTRA_ACTION_SELECT_CUSTOM_FIELD -> FragmentContainer(
+                    CustomFieldsListFragment.getInstance(bundle),
+                    "CustomFieldsListFragment"
+            )
+            EXTRA_ACTION_SELECT_PLANE_TYPE -> FragmentContainer(
+                    PlaneTypesFragment.getInstance(bundle),
+                    "PlaneTypesFragment"
+            )
+            EXTRA_ACTION_SELECT_FLIGHT_TYPE -> FragmentContainer(
+                    FlightTypesFragment.getInstance(bundle),
+                    "FlightTypesFragment"
+            )
+            EXTRA_ACTION_EDIT_PLANE_TYPE -> FragmentContainer(
+                    PlaneTypeEditFragment.getInstance(bundle),
+                    "PlaneTypeEditFragment"
+            )
+            EXTRA_ACTION_SELECT_AIRPORT -> FragmentContainer(
+                    AirportsFragment.getInstance(bundle),
+                    "AirportsFragment"
+            )
+            EXTRA_ACTION_EDIT_AIRPORT -> FragmentContainer(
+                    AirportEditFragment.getInstance(bundle),
+                    "AirportEditFragment"
+            )
             else -> null
         }
     }
@@ -78,15 +101,16 @@ class FragmentContainerActivity : AppCompatActivity(), AppRouter {
             targetFragment: Fragment?,
             requestCode: Int?
     ) {
-        val fragment = getFragment(getAction(item), bundle)
-        if (fragment != null) {
-            if (targetFragment != null) {
-                fragment.setTargetFragment(targetFragment, requestCode ?: 0)
+        val fragmentContainer = getFragmentContainer(getAction(item), bundle)
+        fragmentContainer?.fragment?.let { fragment ->
+            targetFragment?.let {
+                fragment.setTargetFragment(it, requestCode ?: 0)
             }
             replaceFragment(
                     fragment,
                     R.id.fragment_container,
-                    addToBackStack
+                    addToBackStack,
+                    fragmentContainer.tag
             )
         }
     }

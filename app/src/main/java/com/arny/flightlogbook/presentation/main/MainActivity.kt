@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.presentation.airports.list.AirportsFragment
+import com.arny.flightlogbook.presentation.common.FragmentContainer
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
 import com.arny.flightlogbook.presentation.customfields.list.CustomFieldsListFragment
 import com.arny.flightlogbook.presentation.flights.viewflights.view.FlightListFragment
@@ -138,15 +139,15 @@ class MainActivity : AppCompatActivity(), AppRouter {
         selectItem(item.index, addToBackStack, bundle, targetFragment, requestCode)
     }
 
-    private fun navigateFragments(position: Long, bundle: Bundle?): Fragment? {
+    private fun getFragmentContainer(position: Long, bundle: Bundle?): FragmentContainer? {
         return when (position) {
-            NavigateItems.MENU_FLIGHTS.index -> FlightListFragment.getInstance()
-            NavigateItems.MENU_PLANE_TYPES.index -> PlaneTypesFragment.getInstance()
-            NavigateItems.MENU_FLIGHT_TYPES.index -> FlightTypesFragment.getInstance()
-            NavigateItems.MENU_CUSTOM_FIELDS.index -> CustomFieldsListFragment.getInstance()
-            NavigateItems.MENU_STATS.index -> StatisticFragment.getInstance()
-            NavigateItems.MENU_SETTINGS.index -> SettingsFragment.getInstance()
-            NavigateItems.MENU_AIRPORTS.index -> AirportsFragment.getInstance()
+            NavigateItems.MENU_FLIGHTS.index -> FragmentContainer(FlightListFragment.getInstance(), "FlightListFragment")
+            NavigateItems.MENU_PLANE_TYPES.index -> FragmentContainer(PlaneTypesFragment.getInstance(), "PlaneTypesFragment")
+            NavigateItems.MENU_FLIGHT_TYPES.index -> FragmentContainer(FlightTypesFragment.getInstance(), "FlightTypesFragment")
+            NavigateItems.MENU_CUSTOM_FIELDS.index -> FragmentContainer(CustomFieldsListFragment.getInstance(), "CustomFieldsListFragment")
+            NavigateItems.MENU_STATS.index -> FragmentContainer(StatisticFragment.getInstance(), "StatisticFragment")
+            NavigateItems.MENU_SETTINGS.index -> FragmentContainer(SettingsFragment.getInstance(), "SettingsFragment")
+            NavigateItems.MENU_AIRPORTS.index -> FragmentContainer(AirportsFragment.getInstance(), "AirportsFragment")
             NavigateItems.EDIT_AIRPORT.index -> {
                 launchActivity<FragmentContainerActivity>(CONSTS.REQUESTS.REQUEST_EDIT_AIRPORT) {
                     action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_AIRPORT
@@ -179,11 +180,10 @@ class MainActivity : AppCompatActivity(), AppRouter {
             targetFragment: Fragment? = null,
             requestCode: Int? = null
     ) {
-        val fragmentItem = navigateFragments(position, bundle)
-        val fragmentTag = fragmentItem?.javaClass?.simpleName
-        var fragment = getFragmentByTag(fragmentTag)
+        val fragmentContainer = getFragmentContainer(position, bundle)
+        var fragment = getFragmentByTag(fragmentContainer?.tag)
         if (fragment == null) {
-            fragment = fragmentItem
+            fragment = fragmentContainer?.fragment
         }
         if (fragment != null) {
             if (targetFragment != null) {
@@ -192,7 +192,8 @@ class MainActivity : AppCompatActivity(), AppRouter {
             replaceFragment(
                     fragment,
                     R.id.container,
-                    addToBackStack
+                    addToBackStack,
+                    fragmentContainer?.tag
             )
         }
         dlMain.closeDrawer(navViewMain)

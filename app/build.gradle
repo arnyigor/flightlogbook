@@ -78,10 +78,10 @@ android {
         }
         prerelease {
             debuggable true
-            minifyEnabled false
-            useProguard false
+            minifyEnabled true
+            useProguard true
             resValue "string", "app_name", "Pilot Logbook"
-            shrinkResources false
+            shrinkResources true
             signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguardTest-rules.pro'
