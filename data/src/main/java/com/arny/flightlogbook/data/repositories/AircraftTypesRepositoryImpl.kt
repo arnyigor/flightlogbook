@@ -16,12 +16,6 @@ class AircraftTypesRepositoryImpl @Inject constructor(private val aircraftTypeDA
                 .map { it.toPlaneType() }
     }
 
-    override fun loadAircraftNames(): List<PlaneType> {
-        return aircraftTypeDAO.queryAircraftTypes()
-                .distinctBy { it.typeName }
-                .map { it.toPlaneType() }
-    }
-
     override fun loadAircraftType(id: Long?): PlaneType? {
         return aircraftTypeDAO.queryAircraftType(id)?.toPlaneType()
     }

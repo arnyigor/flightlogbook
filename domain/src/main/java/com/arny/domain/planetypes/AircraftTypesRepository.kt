@@ -3,7 +3,6 @@ package com.arny.domain.planetypes
 import com.arny.domain.models.PlaneType
 
 interface AircraftTypesRepository {
-    fun loadAircraftNames(): List<PlaneType>
     fun loadAircraftTypes(): List<PlaneType>
     fun loadAircraftType(id: Long?): PlaneType?
     fun loadPlaneTypeByRegNo(regNo: String?): PlaneType?

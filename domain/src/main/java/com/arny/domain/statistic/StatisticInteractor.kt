@@ -36,28 +36,59 @@ class StatisticInteractor @Inject constructor(
     }
 
     fun loadFilteredFlightsByAircraftTypes(
-            types: List<Long?>,
+            types: List<String>,
             startdatetime: Long,
             enddatetime: Long,
             extendedStatistic: Boolean,
             includeEnd: Boolean
-    ): Observable<ArrayList<Statistic>> {
-        return returnStatistic(
-                extendedStatistic,
-                fromCallable { flightsRepository.getStatisticDbFlightsByAircraftTypes(startdatetime, enddatetime, types, includeEnd) }
-        )
-    }
+    ): Observable<ArrayList<Statistic>> = returnStatistic(
+            extendedStatistic,
+            fromCallable {
+                aircraftTypesRepository.loadAircraftTypes()
+                        .filter { resourcesProvider.getString(it.mainType?.nameRes) in types }
+                        .map { it.typeId }
+            }
+                    .map {
+                        flightsRepository.getStatisticDbFlightsByAircraftTypes(
+                                startdatetime,
+                                enddatetime,
+                                it,
+                                includeEnd
+                        )
+                    }
+    )
 
     fun loadFilteredFlightsByAircraftNames(
-            names: List<String?>,
+            names: List<String>,
             startdatetime: Long,
             enddatetime: Long,
             extendedStatistic: Boolean,
             includeEnd: Boolean
     ): Observable<ArrayList<Statistic>> {
         return returnStatistic(extendedStatistic, fromCallable {
-            aircraftTypesRepository.loadAircraftNames()
+            aircraftTypesRepository.loadAircraftTypes()
                     .filter { it.typeName in names }
+                    .map { it.typeId }
+        }.map {
+            flightsRepository.getStatisticDbFlightsByAircraftTypes(
+                    startdatetime,
+                    enddatetime,
+                    it,
+                    includeEnd
+            )
+        })
+    }
+
+    fun loadFilteredFlightsByAircraftRegNo(
+            regNumbers: List<String>,
+            startdatetime: Long,
+            enddatetime: Long,
+            extendedStatistic: Boolean,
+            includeEnd: Boolean
+    ): Observable<ArrayList<Statistic>> {
+        return returnStatistic(extendedStatistic, fromCallable {
+            aircraftTypesRepository.loadAircraftTypes()
+                    .filter { it.regNo in regNumbers }
                     .map { it.typeId }
         }.map {
             flightsRepository.getStatisticDbFlightsByAircraftTypes(
@@ -179,6 +210,9 @@ class StatisticInteractor @Inject constructor(
                 append("<b>${resourcesProvider.getString(R.string.str_type)}:</b>")
                 append(flight.planeType?.typeName ?: "-")
                 append("<br>")
+                append("<b>${resourcesProvider.getString(R.string.str_regnum)}:</b>")
+                append(flight.planeType?.regNo ?: "-")
+                append("<br>")
                 append("<b>${resourcesProvider.getString(R.string.stat_flight_type)}:</b>")
                 append(flight.flightType?.typeTitle ?: "-")
             }
@@ -190,20 +224,14 @@ class StatisticInteractor @Inject constructor(
 
     private fun getTime(time: Int) = DateTimeUtils.strLogTime(time)
 
-    fun loadPlaneTypes(): Observable<List<PlaneType>> {
-        return fromCallable { aircraftTypesRepository.loadAircraftTypes() }
-    }
+    fun loadAircraftsTypes(): List<String> = resourcesProvider.getStringArray(R.array.plane_main_types).toList()
 
-    fun loadFlightTypes(): Observable<List<FlightType>> {
-        return fromCallable { flightTypesRepository.loadDBFlightTypes() }
-    }
+    fun loadFlightTypes(): List<FlightType> = flightTypesRepository.loadDBFlightTypes()
 
     fun loadColors(): Single<IntArray> {
         return flightsRepository.getNotEmptyColors()
                 .map { it.toIntColorsArray() }
     }
 
-    fun loadPlaneNames(): Observable<List<PlaneType>> {
-        return fromCallable { aircraftTypesRepository.loadAircraftNames() }
-    }
+    fun loadAircrafts(): List<PlaneType> = aircraftTypesRepository.loadAircraftTypes()
 }

@@ -3,6 +3,7 @@ package com.arny.flightlogbook.data.repositories
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
+import androidx.annotation.ArrayRes
 import androidx.core.content.ContextCompat
 import com.arny.domain.common.ResourcesProvider
 import javax.inject.Inject
@@ -14,6 +15,15 @@ class ResourcesProviderImpl @Inject constructor(private val context: Context) : 
             context.resources.getString(res)
         } catch (e: Resources.NotFoundException) {
             ""
+        }
+    }
+
+    override fun getStringArray(@ArrayRes res: Int?): Array<String> {
+        if (res == null) return emptyArray()
+        return try {
+            context.resources.getStringArray(res)
+        } catch (e: Resources.NotFoundException) {
+            emptyArray()
         }
     }
 
