@@ -9,13 +9,12 @@ import android.util.Log
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.arny.helpers.utils.*
+import com.arny.core.utils.*
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.util.ArrayList
 import kotlin.Comparator
-import kotlin.text.isEmpty
 
 class DBUtils {
     companion object {

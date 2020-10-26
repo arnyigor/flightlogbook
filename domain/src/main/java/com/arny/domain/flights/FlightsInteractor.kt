@@ -1,19 +1,19 @@
 package com.arny.domain.flights
 
 import android.graphics.Color
+import com.arny.core.CONSTS
+import com.arny.core.CONSTS.STRINGS.PARAM_COLOR
+import com.arny.core.utils.*
 import com.arny.domain.R
 import com.arny.domain.common.PreferencesProvider
 import com.arny.domain.common.ResourcesProvider
 import com.arny.domain.files.FilesRepository
 import com.arny.domain.flighttypes.FlightTypesRepository
 import com.arny.domain.models.*
-import com.arny.domain.planetypes.PlaneTypesRepository
-import com.arny.flightlogbook.constants.CONSTS
-import com.arny.flightlogbook.constants.CONSTS.STRINGS.PARAM_COLOR
+import com.arny.domain.planetypes.AircraftTypesRepository
 import com.arny.flightlogbook.customfields.models.CustomFieldType
 import com.arny.flightlogbook.customfields.models.CustomFieldValue
 import com.arny.flightlogbook.customfields.repository.ICustomFieldsRepository
-import com.arny.helpers.utils.*
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -25,7 +25,7 @@ class FlightsInteractor @Inject constructor(
         private val flightTypesRepository: FlightTypesRepository,
         private val flightsRepository: FlightsRepository,
         private val resourcesProvider: ResourcesProvider,
-        private val planeTypesRepository: PlaneTypesRepository,
+        private val aircraftTypesRepository: AircraftTypesRepository,
         private val customFieldsRepository: ICustomFieldsRepository,
         private val preferencesProvider: PreferencesProvider,
         private val filesRepository: FilesRepository
@@ -39,17 +39,17 @@ class FlightsInteractor @Inject constructor(
         return flightsRepository.getFlight(id)
                 ?.apply {
                     colorInt = params?.getParam(PARAM_COLOR, "")?.toIntColor()
-                    planeType = planeTypesRepository.loadPlaneType(planeId)
+                    planeType = aircraftTypesRepository.loadAircraftType(planeId)
                     flightType = flightTypesRepository.loadDBFlightType(flightTypeId?.toLong())
                 }
     }
 
     fun loadPlaneType(id: Long?): PlaneType? {
-        return planeTypesRepository.loadPlaneType(id)
+        return aircraftTypesRepository.loadAircraftType(id)
     }
 
     fun loadPlaneTypeByRegNo(regNo: String?): PlaneType? {
-        return planeTypesRepository.loadPlaneTypeByRegNo(regNo)
+        return aircraftTypesRepository.loadPlaneTypeByRegNo(regNo)
     }
 
     fun loadFlightType(id: Long?): FlightType? {
@@ -111,7 +111,7 @@ class FlightsInteractor @Inject constructor(
     fun loadDBFlights(): List<Flight> {
         return flightsRepository.getDbFlights()
                 .map { flight ->
-                    flight.planeType = planeTypesRepository.loadPlaneType(flight.planeId)
+                    flight.planeType = aircraftTypesRepository.loadAircraftType(flight.planeId)
                     flight.flightType =
                             flightTypesRepository.loadDBFlightType(flight.flightTypeId?.toLong())
                     flight.totalTime = flight.flightTime + flight.groundTime
@@ -136,7 +136,7 @@ class FlightsInteractor @Inject constructor(
                 .flatMap { flightsResult ->
                     fromCallable {
                         val flightTypes = flightTypesRepository.loadDBFlightTypes()
-                        val planeTypes = planeTypesRepository.loadPlaneTypes()
+                        val planeTypes = aircraftTypesRepository.loadAircraftTypes()
                         val allAdditionalTime = customFieldsRepository.getAllAdditionalTime()
                         when (flightsResult) {
                             is Result.Success -> getFlight(

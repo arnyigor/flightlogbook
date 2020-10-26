@@ -1,7 +1,7 @@
 package com.arny.flightlogbook.data.repositories
 
+import com.arny.core.utils.Prefs
 import com.arny.domain.common.PreferencesProvider
-import com.arny.helpers.utils.Prefs
 import javax.inject.Inject
 
 class PreferencesProviderImpl @Inject constructor(private val prefs: Prefs) : PreferencesProvider {

@@ -1,7 +1,7 @@
 package com.arny.flightlogbook.presentation.flights.addedit.models
 
-import com.arny.helpers.utils.DateTimeUtils
-import com.arny.helpers.utils.parseInt
+import com.arny.core.utils.DateTimeUtils
+import com.arny.core.utils.parseInt
 
 fun getCorrectTime(stringTime: String, initTime: Int): CorrectedTimePair {
     var logMinutes: Int

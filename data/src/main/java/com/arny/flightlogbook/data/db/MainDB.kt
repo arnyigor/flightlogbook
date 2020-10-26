@@ -2,7 +2,7 @@ package com.arny.flightlogbook.data.db
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.arny.flightlogbook.constants.CONSTS
+import com.arny.core.CONSTS
 import com.arny.flightlogbook.data.db.daos.*
 import com.arny.flightlogbook.data.models.airports.AirportEntity
 import com.arny.flightlogbook.data.models.customfields.CustomFieldEntity

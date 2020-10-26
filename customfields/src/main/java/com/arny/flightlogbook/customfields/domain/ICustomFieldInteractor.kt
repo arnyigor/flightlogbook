@@ -1,9 +1,9 @@
 package com.arny.flightlogbook.customfields.domain
 
+import com.arny.core.utils.OptionalNull
 import com.arny.flightlogbook.customfields.models.CustomField
 import com.arny.flightlogbook.customfields.models.CustomFieldType
 import com.arny.flightlogbook.customfields.models.CustomFieldValue
-import com.arny.helpers.utils.OptionalNull
 
 interface ICustomFieldInteractor {
     fun getCustomFields(): List<CustomField>

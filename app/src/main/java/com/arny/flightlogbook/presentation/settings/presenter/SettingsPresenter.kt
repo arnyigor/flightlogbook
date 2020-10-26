@@ -3,6 +3,7 @@ package com.arny.flightlogbook.presentation.settings.presenter
 import android.net.Uri
 import android.os.Handler
 import android.webkit.MimeTypeMap
+import com.arny.core.utils.fromNullable
 import com.arny.domain.common.PreferencesInteractor
 import com.arny.domain.files.FilesInteractor
 import com.arny.domain.flights.FlightsInteractor
@@ -11,7 +12,6 @@ import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import com.arny.flightlogbook.presentation.settings.view.SettingsView
-import com.arny.helpers.utils.fromNullable
 import moxy.InjectViewState
 import java.io.File
 import javax.inject.Inject

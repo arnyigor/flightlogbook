@@ -46,8 +46,7 @@ android {
 }
 
 dependencies {
-    implementation project(path: ':helpers')
-    implementation project(path: ':constants')
+    implementation project(path: ':core')
     implementation project(path: ':customfields')
     implementation libs.kotlinStdlib
     //rx2

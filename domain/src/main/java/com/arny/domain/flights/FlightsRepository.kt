@@ -18,13 +18,12 @@ interface FlightsRepository {
             includeEnd: Boolean
     ): List<Flight>
 
-    fun getStatisticDbFlightsByPlanes(
+    fun getStatisticDbFlightsByAircraftTypes(
             startDate: Long,
             endDate: Long,
             planeTypes: List<Long?>,
             includeEnd: Boolean
     ): List<Flight>
-
 
     fun getStatisticDbFlightsByColor(
             startDate: Long,

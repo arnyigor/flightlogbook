@@ -4,9 +4,9 @@ import androidx.room.testing.MigrationTestHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.arny.core.utils.getIntValue
+import com.arny.core.utils.toList
 import com.arny.flightlogbook.data.db.DatabaseMigrations
-import com.arny.helpers.utils.getIntValue
-import com.arny.helpers.utils.toList
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

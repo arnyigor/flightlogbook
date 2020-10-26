@@ -1,8 +1,8 @@
 package com.arny.domain.airports
 
+import com.arny.core.utils.OptionalNull
+import com.arny.core.utils.toOptionalNull
 import com.arny.domain.models.Airport
-import com.arny.helpers.utils.OptionalNull
-import com.arny.helpers.utils.toOptionalNull
 import javax.inject.Inject
 
 class AirportsInteractor @Inject constructor(

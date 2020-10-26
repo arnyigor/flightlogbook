@@ -10,13 +10,13 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.core.widget.doAfterTextChanged
+import com.arny.core.CONSTS
+import com.arny.core.utils.getExtra
+import com.arny.core.utils.toastError
 import com.arny.domain.models.Airport
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.main.AppRouter
-import com.arny.helpers.utils.getExtra
-import com.arny.helpers.utils.toastError
 import kotlinx.android.synthetic.main.f_airport_edit.*
 import moxy.ktx.moxyPresenter
 

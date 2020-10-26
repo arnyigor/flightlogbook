@@ -3,9 +3,9 @@ package com.arny.flightlogbook.data.models.flights
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.arny.core.utils.DateTimeUtils
 import com.arny.domain.models.Flight
 import com.arny.domain.models.Params
-import com.arny.helpers.utils.DateTimeUtils
 
 @Entity(tableName = "main_table")
 data class FlightEntity constructor(

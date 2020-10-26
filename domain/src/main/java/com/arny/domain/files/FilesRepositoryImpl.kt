@@ -1,13 +1,13 @@
 package com.arny.domain.files
 
 import android.content.Context
+import com.arny.core.CONSTS
+import com.arny.core.utils.DateTimeUtils
+import com.arny.core.utils.FileUtils
 import com.arny.domain.R
 import com.arny.domain.flighttypes.FlightTypesRepository
 import com.arny.domain.models.Flight
-import com.arny.domain.planetypes.PlaneTypesRepository
-import com.arny.flightlogbook.constants.CONSTS
-import com.arny.helpers.utils.DateTimeUtils
-import com.arny.helpers.utils.FileUtils
+import com.arny.domain.planetypes.AircraftTypesRepository
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.Row
@@ -16,9 +16,9 @@ import java.io.FileOutputStream
 import javax.inject.Inject
 
 class FilesRepositoryImpl @Inject constructor(
-        private val  context: Context,
+        private val context: Context,
         private val flightTypesRepository: FlightTypesRepository,
-        private val planeTypesRepository: PlaneTypesRepository,
+        private val aircraftTypesRepository: AircraftTypesRepository,
 ) : FilesRepository {
 
     companion object {
@@ -36,7 +36,7 @@ class FilesRepositoryImpl @Inject constructor(
             c = row.createCell(1)
             c.setCellValue(context.getString(R.string.str_itemlogtime))
             c = row.createCell(2)
-            c.setCellValue(context.getString(R.string.str_type_null))
+        c.setCellValue(context.getString(R.string.str_aircraft_type))
             c = row.createCell(3)
             c.setCellValue(context.getString(R.string.str_regnum))
             c = row.createCell(4)
@@ -53,7 +53,7 @@ class FilesRepositoryImpl @Inject constructor(
             c.setCellValue(context.getString(R.string.cell_ground_time))
             val exportData = dbFlights
                     .map { flight ->
-                        flight.planeType = planeTypesRepository.loadPlaneType(flight.planeId)
+                        flight.planeType = aircraftTypesRepository.loadAircraftType(flight.planeId)
                         flight.flightType =
                                 flightTypesRepository.loadDBFlightType(flight.flightTypeId?.toLong())
                         flight

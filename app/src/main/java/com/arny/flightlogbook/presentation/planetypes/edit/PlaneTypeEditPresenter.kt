@@ -1,12 +1,12 @@
 package com.arny.flightlogbook.presentation.planetypes.edit
 
+import com.arny.core.utils.fromNullable
+import com.arny.core.utils.fromSingle
 import com.arny.domain.planetypes.AircraftType
 import com.arny.domain.planetypes.PlaneTypesInteractor
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
-import com.arny.helpers.utils.fromNullable
-import com.arny.helpers.utils.fromSingle
 import moxy.InjectViewState
 import javax.inject.Inject
 

@@ -1,7 +1,7 @@
 package com.arny.domain.flighttypes
 
+import com.arny.core.utils.fromCallable
 import com.arny.domain.models.FlightType
-import com.arny.helpers.utils.fromCallable
 import io.reactivex.Observable
 import javax.inject.Inject
 import javax.inject.Singleton

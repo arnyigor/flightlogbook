@@ -1,5 +1,9 @@
 package com.arny.flightlogbook.presentation.flights.addedit.presenter
 
+import com.arny.core.CONSTS
+import com.arny.core.CONSTS.STRINGS.PARAM_COLOR
+import com.arny.core.utils.*
+import com.arny.core.utils.DateTimeUtils.strLogTime
 import com.arny.domain.airports.IAirportsInteractor
 import com.arny.domain.common.PreferencesInteractor
 import com.arny.domain.common.ResourcesInteractor
@@ -10,8 +14,6 @@ import com.arny.domain.models.Params
 import com.arny.domain.models.PlaneType
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.constants.CONSTS
-import com.arny.flightlogbook.constants.CONSTS.STRINGS.PARAM_COLOR
 import com.arny.flightlogbook.customfields.domain.CustomFieldInteractor
 import com.arny.flightlogbook.customfields.models.CustomFieldType
 import com.arny.flightlogbook.customfields.models.CustomFieldValue
@@ -19,8 +21,6 @@ import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import com.arny.flightlogbook.presentation.flights.addedit.models.getCorrectDayTime
 import com.arny.flightlogbook.presentation.flights.addedit.models.getCorrectTime
 import com.arny.flightlogbook.presentation.flights.addedit.view.AddEditView
-import com.arny.helpers.utils.*
-import com.arny.helpers.utils.DateTimeUtils.strLogTime
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.Observables
 import moxy.InjectViewState

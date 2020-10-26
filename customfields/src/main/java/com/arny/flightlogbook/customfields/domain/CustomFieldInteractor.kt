@@ -1,10 +1,10 @@
 package com.arny.flightlogbook.customfields.domain
 
+import com.arny.core.utils.OptionalNull
 import com.arny.flightlogbook.customfields.models.CustomField
 import com.arny.flightlogbook.customfields.models.CustomFieldType
 import com.arny.flightlogbook.customfields.models.CustomFieldValue
 import com.arny.flightlogbook.customfields.repository.ICustomFieldsRepository
-import com.arny.helpers.utils.OptionalNull
 import javax.inject.Inject
 import javax.inject.Singleton
 

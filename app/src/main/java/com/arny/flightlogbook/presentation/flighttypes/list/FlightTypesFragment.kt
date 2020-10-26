@@ -7,14 +7,14 @@ import android.text.InputType
 import android.view.View
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.arny.core.CONSTS
+import com.arny.core.utils.ToastMaker
+import com.arny.core.utils.alertDialog
+import com.arny.core.utils.inputDialog
 import com.arny.domain.models.FlightType
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.main.AppRouter
-import com.arny.helpers.utils.ToastMaker
-import com.arny.helpers.utils.alertDialog
-import com.arny.helpers.utils.inputDialog
 import kotlinx.android.synthetic.main.flight_types_list_layout.*
 import moxy.ktx.moxyPresenter
 

@@ -10,14 +10,14 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.arny.core.CONSTS
+import com.arny.core.utils.ToastMaker
+import com.arny.core.utils.alertDialog
 import com.arny.domain.models.PlaneType
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.flightlogbook.presentation.main.NavigateItems
-import com.arny.helpers.utils.ToastMaker
-import com.arny.helpers.utils.alertDialog
 import kotlinx.android.synthetic.main.plane_types_layout.*
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter

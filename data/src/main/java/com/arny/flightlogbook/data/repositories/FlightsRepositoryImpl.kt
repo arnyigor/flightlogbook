@@ -1,19 +1,19 @@
 package com.arny.flightlogbook.data.repositories
 
 import android.database.Cursor
+import com.arny.core.CONSTS
+import com.arny.core.CONSTS.STRINGS.PARAM_COLOR
+import com.arny.core.utils.*
 import com.arny.domain.common.PreferencesProvider
 import com.arny.domain.flights.FlightsRepository
 import com.arny.domain.models.Flight
 import com.arny.domain.models.Params
 import com.arny.domain.models.Result
 import com.arny.domain.models.toResult
-import com.arny.flightlogbook.constants.CONSTS
-import com.arny.flightlogbook.constants.CONSTS.STRINGS.PARAM_COLOR
 import com.arny.flightlogbook.data.db.MainDB
 import com.arny.flightlogbook.data.db.daos.FlightDAO
 import com.arny.flightlogbook.data.models.flights.toFlightEntity
 import com.arny.flightlogbook.data.utils.DBUtils
-import com.arny.helpers.utils.*
 import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
@@ -105,7 +105,7 @@ class FlightsRepositoryImpl @Inject constructor(
                 .map { it.toFlight() }
     }
 
-    override fun getStatisticDbFlightsByPlanes(
+    override fun getStatisticDbFlightsByAircraftTypes(
             startDate: Long,
             endDate: Long,
             planeTypes: List<Long?>,

@@ -1,8 +1,8 @@
 package com.arny.flightlogbook.customfields.repository
 
+import com.arny.core.utils.OptionalNull
 import com.arny.flightlogbook.customfields.models.CustomField
 import com.arny.flightlogbook.customfields.models.CustomFieldValue
-import com.arny.helpers.utils.OptionalNull
 
 interface ICustomFieldsRepository {
     fun getAllCustomFields(): List<CustomField>

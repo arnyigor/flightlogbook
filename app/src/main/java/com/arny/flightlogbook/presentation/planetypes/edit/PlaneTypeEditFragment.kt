@@ -9,13 +9,13 @@ import android.view.MenuItem
 import android.view.View
 import androidx.annotation.StringRes
 import androidx.core.widget.doAfterTextChanged
+import com.arny.core.CONSTS
+import com.arny.core.utils.KeyboardHelper
+import com.arny.core.utils.ToastMaker.toastError
+import com.arny.core.utils.getExtra
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.main.AppRouter
-import com.arny.helpers.utils.KeyboardHelper
-import com.arny.helpers.utils.ToastMaker.toastError
-import com.arny.helpers.utils.getExtra
 import kotlinx.android.synthetic.main.f_plane_type_edit.*
 import moxy.ktx.moxyPresenter
 

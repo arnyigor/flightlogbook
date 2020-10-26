@@ -1,5 +1,6 @@
 package com.arny.flightlogbook.presentation.flights.viewflights.presenter
 
+import com.arny.core.utils.fromSingle
 import com.arny.domain.common.ResourcesInteractor
 import com.arny.domain.flights.FlightsInteractor
 import com.arny.domain.models.Flight
@@ -8,7 +9,6 @@ import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import com.arny.flightlogbook.presentation.flights.viewflights.view.ViewFlightsView
-import com.arny.helpers.utils.fromSingle
 import moxy.InjectViewState
 import javax.inject.Inject
 

@@ -1,11 +1,11 @@
 package com.arny.flightlogbook.presentation.flighttypes.list
 
+import com.arny.core.utils.addTo
+import com.arny.core.utils.observeOnMain
 import com.arny.domain.common.ResourcesInteractor
 import com.arny.domain.flighttypes.FlightTypesInteractor
 import com.arny.domain.models.FlightType
 import com.arny.flightlogbook.FlightApp
-import com.arny.helpers.utils.addTo
-import com.arny.helpers.utils.observeOnMain
 import io.reactivex.disposables.CompositeDisposable
 import moxy.InjectViewState
 import moxy.MvpPresenter

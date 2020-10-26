@@ -1,11 +1,11 @@
 package com.arny.flightlogbook.presentation.customfields.edit
 
+import com.arny.core.utils.fromSingle
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.customfields.domain.ICustomFieldInteractor
 import com.arny.flightlogbook.customfields.models.CustomFieldType
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
-import com.arny.helpers.utils.fromSingle
 import moxy.InjectViewState
 import javax.inject.Inject
 

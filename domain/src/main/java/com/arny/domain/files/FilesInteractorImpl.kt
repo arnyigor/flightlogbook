@@ -2,16 +2,16 @@ package com.arny.domain.files
 
 import android.content.Context
 import android.net.Uri
+import com.arny.core.CONSTS
+import com.arny.core.CONSTS.FLIGHT.TYPE_CIRCLE
+import com.arny.core.CONSTS.FLIGHT.TYPE_RUOTE
+import com.arny.core.CONSTS.FLIGHT.TYPE_ZONE
+import com.arny.core.utils.*
 import com.arny.domain.R
 import com.arny.domain.flights.FlightsRepository
 import com.arny.domain.flighttypes.FlightTypesRepository
 import com.arny.domain.models.*
-import com.arny.domain.planetypes.PlaneTypesRepository
-import com.arny.flightlogbook.constants.CONSTS
-import com.arny.flightlogbook.constants.CONSTS.FLIGHT.TYPE_CIRCLE
-import com.arny.flightlogbook.constants.CONSTS.FLIGHT.TYPE_RUOTE
-import com.arny.flightlogbook.constants.CONSTS.FLIGHT.TYPE_ZONE
-import com.arny.helpers.utils.*
+import com.arny.domain.planetypes.AircraftTypesRepository
 import io.reactivex.Observable
 import org.apache.poi.hssf.usermodel.HSSFCell
 import org.apache.poi.hssf.usermodel.HSSFRow
@@ -25,7 +25,7 @@ import javax.inject.Inject
 class FilesInteractorImpl @Inject constructor(
         private val context: Context,
         private val flightsRepository: FlightsRepository,
-        private val planeTypesRepository: PlaneTypesRepository,
+        private val aircraftTypesRepository: AircraftTypesRepository,
         private val filesRepository: FilesRepository,
         private val flightTypesRepository: FlightTypesRepository
 ) : FilesInteractor {
@@ -65,7 +65,7 @@ class FilesInteractorImpl @Inject constructor(
         var airplaneTypeId: Long = 0
         var mDateTime: Long = 0
         var planeType: PlaneType? = null
-        var planeTypes = planeTypesRepository.loadPlaneTypes()
+        var planeTypes = aircraftTypesRepository.loadAircraftTypes()
         var dbFlightTypes = flightTypesRepository.loadDBFlightTypes()
         var id = 1L
         while (rowIter.hasNext()) {
@@ -142,16 +142,16 @@ class FilesInteractorImpl @Inject constructor(
                                             this.typeName = typeName
                                             this.regNo = regNo
                                         }
-                                        airplaneTypeId = planeTypesRepository.addType(planeType)
+                                        airplaneTypeId = aircraftTypesRepository.addType(planeType)
                                         planeType.typeId = airplaneTypeId
-                                        planeTypes = planeTypesRepository.loadPlaneTypes()
+                                        planeTypes = aircraftTypesRepository.loadAircraftTypes()
                                     } else {
                                         planeType = PlaneType().apply {
                                             this.regNo = regNo
                                         }
-                                        airplaneTypeId = planeTypesRepository.addType(planeType)
+                                        airplaneTypeId = aircraftTypesRepository.addType(planeType)
                                         planeType.typeId = airplaneTypeId
-                                        planeTypes = planeTypesRepository.loadPlaneTypes()
+                                        planeTypes = aircraftTypesRepository.loadAircraftTypes()
                                     }
                                 }
                                 if (planeType.typeId != null && !planeType.regNo.isNullOrBlank() && regNo ==

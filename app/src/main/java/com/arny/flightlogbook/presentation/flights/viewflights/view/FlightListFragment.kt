@@ -12,15 +12,15 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.arny.core.CONSTS
+import com.arny.core.utils.*
 import com.arny.domain.models.Flight
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
-import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
 import com.arny.flightlogbook.presentation.flights.viewflights.presenter.ViewFlightsPresenter
 import com.arny.flightlogbook.presentation.main.MainFirstFragment
-import com.arny.helpers.utils.*
 import kotlinx.android.synthetic.main.fragment_flight_list.*
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter

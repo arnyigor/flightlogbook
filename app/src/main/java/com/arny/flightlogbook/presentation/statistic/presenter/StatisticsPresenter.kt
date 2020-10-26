@@ -1,6 +1,7 @@
 package com.arny.flightlogbook.presentation.statistic.presenter
 
 import android.graphics.Color
+import com.arny.core.utils.*
 import com.arny.domain.common.ResourcesInteractor
 import com.arny.domain.flights.FlightsInteractor
 import com.arny.domain.models.FilterType
@@ -11,7 +12,6 @@ import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import com.arny.flightlogbook.presentation.statistic.view.StatisticsView
-import com.arny.helpers.utils.*
 import io.reactivex.Observable
 import moxy.InjectViewState
 import org.joda.time.DateTime
@@ -23,7 +23,7 @@ import javax.inject.Inject
 class StatisticsPresenter : BaseMvpPresenter<StatisticsView>() {
     private var color: Int = Color.BLACK
     private var filterList = listOf<StatisticFilter>()
-    private var filterType = FilterType.FLIGHT
+    private var filterType = FilterType.AIRCRAFT_NAME
     private var filterSelection = arrayListOf<Long?>()
     private var extendedStatistic = false
     private var enableFilter = false
@@ -155,8 +155,10 @@ class StatisticsPresenter : BaseMvpPresenter<StatisticsView>() {
     private fun loadStatisticData() {
         if (enableFilter && filterSelection.isNotEmpty()) {
             when (filterType) {
-                FilterType.FLIGHT -> filterBySelectedPlanetypes(filterSelection)
-                FilterType.PLANE -> filterBySelectedFlightTypes(filterSelection)
+                FilterType.AIRCRAFT_NAME -> filterBySelectedAircraftNames(filterSelection)
+                FilterType.AIRCRAFT_REG_NO -> filterBySelectedAircraftTypes(filterSelection)
+                FilterType.AIRCRAFT_TYPE -> filterBySelectedAircraftTypes(filterSelection)
+                FilterType.FLIGHT_TYPE -> filterBySelectedFlightTypes(filterSelection)
                 FilterType.COLOR -> filterBySelectedColor()
             }
         } else {
@@ -191,23 +193,6 @@ class StatisticsPresenter : BaseMvpPresenter<StatisticsView>() {
             statisticInteractor.loadDBFlights(startdatetime, enddatetime, extendedStatistic, false)
         }
     }
-
-    /* private fun filterBySelectedTimetypes(filterSelection: List<Long?>) {
-         if (isRanged()) {
-             getMinMaxDateRange().flatMap { statisticInteractor.loadDBFlightsByTimes(startdatetime, enddatetime, extendedStatistic, filterSelection, true) }
-         } else {
-             statisticInteractor.loadDBFlightsByTimes(startdatetime, enddatetime, extendedStatistic, filterSelection, false)
-         }
-                 .observeOnMain()
-                 .subscribe({
-                     viewState.clearAdapter()
-                     viewState.updateAdapter(it)
-                     viewState.showEmptyView(it.isEmpty())
-                 }, {
-                     it.printStackTrace()
-                 })
-                 .addTo(compositeDisposable)
-     }*/
 
     private fun filterBySelectedFlightTypes(filterSelection: List<Long?>) {
         updateStatistic(getFlightTypeStat(filterSelection))
@@ -362,26 +347,35 @@ class StatisticsPresenter : BaseMvpPresenter<StatisticsView>() {
     }
 
     fun onFilterTypeSelected(selectedfilterPosition: Int, mSelection: List<Int>) {
-        val statisticType = when (selectedfilterPosition) {
-            0 -> FilterType.FLIGHT
-            1 -> FilterType.PLANE
-            2 -> FilterType.COLOR
-            else -> FilterType.FLIGHT
-        }
+        val statisticType = FilterType.values()
+                .find { it.index == selectedfilterPosition }
+                ?: FilterType.AIRCRAFT_TYPE
         filterType = statisticType
         filterSelection.clear()
         filterSelection.addAll(filterList.withIndex().filter { it.index in mSelection }.map { it.value.id })
         loadStatisticData()
     }
 
-    private fun filterBySelectedPlanetypes(types: List<Long?>) {
+    private fun filterBySelectedAircraftTypes(types: List<Long?>) {
         val statList = if (isRanged()) {
             getMinMaxDateRange().flatMap {
-                statisticInteractor.loadFilteredFlightsByPlaneTypes(
+                statisticInteractor.loadFilteredFlightsByAircraftTypes(
                         types, startdatetime, enddatetime, extendedStatistic, true)
             }
         } else {
-            statisticInteractor.loadFilteredFlightsByPlaneTypes(types, startdatetime, enddatetime, extendedStatistic, false)
+            statisticInteractor.loadFilteredFlightsByAircraftTypes(types, startdatetime, enddatetime, extendedStatistic, false)
+        }
+        updateStatistic(statList)
+    }
+
+    private fun filterBySelectedAircraftNames(names: List<String?>) {
+        val statList = if (isRanged()) {
+            getMinMaxDateRange().flatMap {
+                statisticInteractor.loadFilteredFlightsByAircraftNames(
+                        names, startdatetime, enddatetime, extendedStatistic, true)
+            }
+        } else {
+            statisticInteractor.loadFilteredFlightsByAircraftNames(names, startdatetime, enddatetime, extendedStatistic, false)
         }
         updateStatistic(statList)
     }
@@ -402,12 +396,17 @@ class StatisticsPresenter : BaseMvpPresenter<StatisticsView>() {
     }
 
     fun onFilterSelected(position: Int) {
-        viewState.setViewColorVisible(position == 2)
-        viewState.setFilterTypeVisible(position != 2)
-        when (position) {
-            0 -> loadFilterPlaneTypes()
-            1 -> loadFilterFlightTypes()
-            2 -> loadFilterColor()
+        viewState.setViewColorVisible(position == FilterType.COLOR.index)
+        viewState.setFilterTypeVisible(position != FilterType.COLOR.index)
+        val filterType = (FilterType.values()
+                .find { it.index == position }
+                ?: FilterType.AIRCRAFT_TYPE)
+        when (filterType) {
+            FilterType.AIRCRAFT_NAME -> loadFilterPlaneNames()
+            FilterType.AIRCRAFT_REG_NO -> loadFilterPlaneTypes()
+            FilterType.AIRCRAFT_TYPE -> loadFilterPlaneTypes()
+            FilterType.FLIGHT_TYPE -> loadFilterFlightTypes()
+            FilterType.COLOR -> loadFilterColor()
         }
     }
 
@@ -415,7 +414,7 @@ class StatisticsPresenter : BaseMvpPresenter<StatisticsView>() {
         statisticInteractor.loadFlightTypes()
                 .map { flTypes ->
                     flTypes.map {
-                        StatisticFilter(FilterType.FLIGHT, it.id, it.typeTitle ?: "")
+                        StatisticFilter(FilterType.FLIGHT_TYPE, it.id, it.typeTitle ?: "")
                     }
                 }
                 .subscribeFromPresenter({
@@ -436,7 +435,22 @@ class StatisticsPresenter : BaseMvpPresenter<StatisticsView>() {
         statisticInteractor.loadPlaneTypes()
                 .map { types ->
                     types.map {
-                        StatisticFilter(FilterType.PLANE, it.typeId, it.typeName ?: "")
+                        StatisticFilter(FilterType.AIRCRAFT_TYPE, it.typeId, it.typeName ?: "")
+                    }
+                }
+                .subscribeFromPresenter({
+                    filterList = it
+                    initFilter()
+                }, {
+                    it.printStackTrace()
+                })
+    }
+
+    private fun loadFilterPlaneNames() {
+        statisticInteractor.loadPlaneNames()
+                .map { types ->
+                    types.map {
+                        StatisticFilter(FilterType.AIRCRAFT_NAME, it.typeId, it.typeName ?: "")
                     }
                 }
                 .subscribeFromPresenter({

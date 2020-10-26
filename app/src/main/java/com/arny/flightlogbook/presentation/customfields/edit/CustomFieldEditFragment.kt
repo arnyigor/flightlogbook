@@ -10,16 +10,16 @@ import android.widget.AdapterView
 import androidx.annotation.StringRes
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
+import com.arny.core.CONSTS
+import com.arny.core.utils.KeyboardHelper.hideKeyboard
+import com.arny.core.utils.ToastMaker
+import com.arny.core.utils.alertDialog
+import com.arny.core.utils.getExtra
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.AbstractArrayAdapter
-import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.customfields.models.CustomFieldType
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.main.AppRouter
-import com.arny.helpers.utils.KeyboardHelper.hideKeyboard
-import com.arny.helpers.utils.ToastMaker
-import com.arny.helpers.utils.alertDialog
-import com.arny.helpers.utils.getExtra
 import kotlinx.android.synthetic.main.fragment_edit_custom_field_layout.*
 import moxy.ktx.moxyPresenter
 

@@ -2,10 +2,10 @@ package com.arny.flightlogbook.presentation.flights.viewflights.view
 
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import com.arny.core.utils.DateTimeUtils
 import com.arny.domain.models.Flight
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
-import com.arny.helpers.utils.DateTimeUtils
 import kotlinx.android.synthetic.main.flight_list_item.view.*
 
 class FlightsAdapter(private val onFlightsListListener: OnFlightsListListener? = null) : SimpleAbstractAdapter<Flight>() {

@@ -4,9 +4,9 @@ import android.content.Context
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.arny.core.utils.Utility
 import com.arny.flightlogbook.data.R
 import com.arny.flightlogbook.data.utils.DBUtils
-import com.arny.helpers.utils.Utility
 
 class DatabaseMigrations(val context: Context) {
     fun getMigration12To13(): Migration = object : Migration(12, 13) {

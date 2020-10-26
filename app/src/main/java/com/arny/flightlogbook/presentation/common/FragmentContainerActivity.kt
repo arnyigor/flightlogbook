@@ -5,15 +5,17 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.arny.core.CONSTS.EXTRAS.EXTRA_ACTION_EDIT_AIRPORT
+import com.arny.core.CONSTS.EXTRAS.EXTRA_ACTION_EDIT_CUSTOM_FIELD
+import com.arny.core.CONSTS.EXTRAS.EXTRA_ACTION_EDIT_FLIGHT
+import com.arny.core.CONSTS.EXTRAS.EXTRA_ACTION_EDIT_PLANE_TYPE
+import com.arny.core.CONSTS.EXTRAS.EXTRA_ACTION_SELECT_AIRPORT
+import com.arny.core.CONSTS.EXTRAS.EXTRA_ACTION_SELECT_CUSTOM_FIELD
+import com.arny.core.CONSTS.EXTRAS.EXTRA_ACTION_SELECT_FLIGHT_TYPE
+import com.arny.core.CONSTS.EXTRAS.EXTRA_ACTION_SELECT_PLANE_TYPE
+import com.arny.core.utils.replaceFragment
+import com.arny.core.utils.replaceFragmentInActivity
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_EDIT_AIRPORT
-import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_EDIT_CUSTOM_FIELD
-import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_EDIT_FLIGHT
-import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_EDIT_PLANE_TYPE
-import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_SELECT_AIRPORT
-import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_SELECT_CUSTOM_FIELD
-import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_SELECT_FLIGHT_TYPE
-import com.arny.flightlogbook.constants.CONSTS.EXTRAS.EXTRA_ACTION_SELECT_PLANE_TYPE
 import com.arny.flightlogbook.presentation.airports.edit.AirportEditFragment
 import com.arny.flightlogbook.presentation.airports.list.AirportsFragment
 import com.arny.flightlogbook.presentation.customfields.edit.CustomFieldEditFragment
@@ -24,8 +26,6 @@ import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.flightlogbook.presentation.main.NavigateItems
 import com.arny.flightlogbook.presentation.planetypes.edit.PlaneTypeEditFragment
 import com.arny.flightlogbook.presentation.planetypes.list.PlaneTypesFragment
-import com.arny.helpers.utils.replaceFragment
-import com.arny.helpers.utils.replaceFragmentInActivity
 import kotlinx.android.synthetic.main.about_layout.*
 
 class FragmentContainerActivity : AppCompatActivity(), AppRouter {

@@ -1,5 +1,8 @@
 package com.arny.flightlogbook.data.repositories
 
+import com.arny.core.utils.DateTimeUtils
+import com.arny.core.utils.OptionalNull
+import com.arny.core.utils.toOptionalNull
 import com.arny.flightlogbook.customfields.models.CustomField
 import com.arny.flightlogbook.customfields.models.CustomFieldType
 import com.arny.flightlogbook.customfields.models.CustomFieldValue
@@ -10,9 +13,6 @@ import com.arny.flightlogbook.data.db.daos.CustomFieldValuesDAO
 import com.arny.flightlogbook.data.models.customfields.CustomFieldEntity
 import com.arny.flightlogbook.data.models.customfields.CustomFieldValueEntity
 import com.arny.flightlogbook.data.models.customfields.FieldWithValues
-import com.arny.helpers.utils.DateTimeUtils
-import com.arny.helpers.utils.OptionalNull
-import com.arny.helpers.utils.toOptionalNull
 import javax.inject.Inject
 
 class CustomFieldsRepository @Inject constructor(

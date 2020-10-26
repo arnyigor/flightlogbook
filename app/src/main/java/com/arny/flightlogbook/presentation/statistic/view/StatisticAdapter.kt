@@ -1,9 +1,9 @@
 package com.arny.flightlogbook.presentation.statistic.view
 
+import com.arny.core.utils.fromHtml
 import com.arny.domain.models.Statistic
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
-import com.arny.helpers.utils.fromHtml
 import kotlinx.android.synthetic.main.statistic_item_layout.view.*
 
 class StatisticAdapter : SimpleAbstractAdapter<Statistic>() {

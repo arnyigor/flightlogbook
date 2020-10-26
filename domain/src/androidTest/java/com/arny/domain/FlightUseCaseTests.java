@@ -6,7 +6,7 @@ import com.arny.domain.flights.FlightsInteractor;
 import com.arny.domain.flights.FlightsRepository;
 import com.arny.domain.flighttypes.FlightTypesRepository;
 import com.arny.domain.models.Flight;
-import com.arny.domain.planetypes.PlaneTypesRepository;
+import com.arny.domain.planetypes.AircraftTypesRepository;
 
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -35,7 +35,7 @@ public class FlightUseCaseTests {
     @Mock
     private ResourcesProvider resourcesProvider;
     @Mock
-    private PlaneTypesRepository planeTypesRepository;
+    private AircraftTypesRepository aircraftTypesRepository;
     @Mock
     private PreferencesProvider preferencesProvider;
     @Rule
@@ -47,7 +47,7 @@ public class FlightUseCaseTests {
                 flightTypesRepository,
                 flightsRepository,
                 resourcesProvider,
-                planeTypesRepository,
+                aircraftTypesRepository,
                 preferencesProvider
         );
     }

@@ -49,8 +49,7 @@ android {
 
 dependencies {
     implementation libs.multidex
-    implementation project(path: ':helpers')
-    implementation project(path: ':constants')
+    implementation project(path: ':core')
     implementation project(path: ':domain')
     implementation project(path: ':customfields')
     implementation libs.kotlinStdlib

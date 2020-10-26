@@ -1,11 +1,11 @@
 package com.arny.flightlogbook.presentation.airports.edit
 
+import com.arny.core.utils.fromCallable
 import com.arny.domain.airports.IAirportsInteractor
 import com.arny.domain.models.Airport
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
-import com.arny.helpers.utils.fromCallable
 import moxy.InjectViewState
 import javax.inject.Inject
 

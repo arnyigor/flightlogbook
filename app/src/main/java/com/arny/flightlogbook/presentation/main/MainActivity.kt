@@ -9,8 +9,12 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_UNLOCKED
 import androidx.fragment.app.Fragment
+import com.arny.core.CONSTS
+import com.arny.core.utils.getFragmentByTag
+import com.arny.core.utils.launchActivity
+import com.arny.core.utils.replaceFragment
+import com.arny.core.utils.showSnackBar
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.constants.CONSTS
 import com.arny.flightlogbook.presentation.airports.list.AirportsFragment
 import com.arny.flightlogbook.presentation.common.FragmentContainer
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
@@ -20,10 +24,6 @@ import com.arny.flightlogbook.presentation.flighttypes.list.FlightTypesFragment
 import com.arny.flightlogbook.presentation.planetypes.list.PlaneTypesFragment
 import com.arny.flightlogbook.presentation.settings.view.SettingsFragment
 import com.arny.flightlogbook.presentation.statistic.view.StatisticFragment
-import com.arny.helpers.utils.getFragmentByTag
-import com.arny.helpers.utils.launchActivity
-import com.arny.helpers.utils.replaceFragment
-import com.arny.helpers.utils.showSnackBar
 import kotlinx.android.synthetic.main.activity_home.*
 
 class MainActivity : AppCompatActivity(), AppRouter {

@@ -1,9 +1,9 @@
 package com.arny.flightlogbook.presentation.airports.list
 
+import com.arny.core.utils.ifNull
 import com.arny.domain.models.Airport
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
-import com.arny.helpers.utils.ifNull
 import kotlinx.android.synthetic.main.i_airport.view.*
 
 class AirportsAdapter(private val isRus: Boolean) : SimpleAbstractAdapter<Airport>() {

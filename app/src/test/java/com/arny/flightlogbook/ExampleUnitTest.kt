@@ -1,7 +1,7 @@
 package com.arny.flightlogbook
 
-import com.arny.helpers.utils.DateTimeUtils
-import com.arny.helpers.utils.Utility.getTimeDiff
+import com.arny.core.utils.DateTimeUtils
+import com.arny.core.utils.Utility.getTimeDiff
 import junit.framework.Assert.assertTrue
 import org.joda.time.DateTime
 import org.junit.FixMethodOrder

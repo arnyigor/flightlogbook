@@ -13,7 +13,9 @@
     <string name="str_date">Дата</string>
     <string name="str_itemlogtime">Налет</string>
     <string name="str_itemlogtime_hint">чч:мм</string>
-    <string name="str_type_null">Тип ВС</string>
+    <string name="str_aircraft_type">Тип ВС</string>
+    <string name="str_aircraft_name">Название ВС</string>
+    <string name="str_aircraft_reg_no">Рег.№ ВС</string>
     <string name="str_regnum">Рег.№</string>
     <string name="str_regnum_formatted">Рег.№:\u00A0%s</string>
     <string name="str_day_night">День/Ночь</string>
@@ -113,7 +115,9 @@
     </string-array>
 
     <string-array name="statistic_filter_type">
-        <item>@string/str_type_null</item>
+        <item>@string/str_aircraft_name</item>
+        <item>@string/str_aircraft_reg_no</item>
+        <item>@string/str_aircraft_type</item>
         <item>@string/stat_flight_type</item>
         <item>@string/stat_color</item>
     </string-array>

@@ -2,50 +2,41 @@ package com.arny.flightlogbook.presentation.statistic.view
 
 import android.graphics.Color
 import android.os.Bundle
-import android.view.*
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.View
 import android.widget.Adapter
 import android.widget.AdapterView
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.color.colorChooser
+import com.arny.core.utils.ToastMaker
 import com.arny.domain.models.Statistic
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.MultiSelectionSpinner
+import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.statistic.presenter.StatisticsPresenter
-import com.arny.helpers.utils.ToastMaker
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment
 import kotlinx.android.synthetic.main.statistic_fragment.*
-import moxy.MvpAppCompatFragment
-import moxy.presenter.InjectPresenter
-import moxy.presenter.ProvidePresenter
+import moxy.ktx.moxyPresenter
 import java.util.*
 
-class StatisticFragment : MvpAppCompatFragment(), StatisticsView, View.OnClickListener {
+class StatisticFragment : BaseMvpFragment(), StatisticsView, View.OnClickListener {
+    companion object {
+        fun getInstance(): StatisticFragment = StatisticFragment()
+    }
+
+    private val statisticsPresenter by moxyPresenter { StatisticsPresenter() }
+
     private var statAdapter: StatisticAdapter? = null
 
-    @InjectPresenter
-    lateinit var statisticsPresenter: StatisticsPresenter
+    override fun getLayoutId(): Int = R.layout.statistic_fragment
 
-    @ProvidePresenter
-    fun provideStatisticsPresenter(): StatisticsPresenter {
-        return StatisticsPresenter()
-    }
-
-    companion object {
-        @JvmStatic
-        fun getInstance(): StatisticFragment {
-            return StatisticFragment()
-        }
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.statistic_fragment, container, false)
-    }
+    override fun getTitle(): String? = getString(R.string.fragment_stats)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        requireActivity().title = getString(R.string.fragment_stats)
         tv_start_date.setOnClickListener(this)
         tv_end_date.setOnClickListener(this)
         tv_pediod_type.setOnClickListener(this)
@@ -53,8 +44,8 @@ class StatisticFragment : MvpAppCompatFragment(), StatisticsView, View.OnClickLi
         iv_period_right.setOnClickListener(this)
         vColor.setOnClickListener(this)
         statAdapter = StatisticAdapter()
-        rv_statistic.layoutManager = LinearLayoutManager(context)
-        rv_statistic.adapter = statAdapter
+        rvStatistic.layoutManager = LinearLayoutManager(context)
+        rvStatistic.adapter = statAdapter
         spinnerPeriod.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
 
@@ -75,7 +66,6 @@ class StatisticFragment : MvpAppCompatFragment(), StatisticsView, View.OnClickLi
         spinStatFilter.setSelection(Adapter.NO_SELECTION, true)
         spinStatFilter.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
-
             }
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {

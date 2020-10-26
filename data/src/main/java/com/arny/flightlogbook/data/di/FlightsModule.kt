@@ -2,10 +2,10 @@ package com.arny.flightlogbook.data.di
 
 import com.arny.domain.flights.FlightsRepository
 import com.arny.domain.flighttypes.FlightTypesRepository
-import com.arny.domain.planetypes.PlaneTypesRepository
+import com.arny.domain.planetypes.AircraftTypesRepository
+import com.arny.flightlogbook.data.repositories.AircraftTypesRepositoryImpl
 import com.arny.flightlogbook.data.repositories.FlightTypesRepositoryImpl
 import com.arny.flightlogbook.data.repositories.FlightsRepositoryImpl
-import com.arny.flightlogbook.data.repositories.PlaneTypesRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import javax.inject.Singleton
@@ -22,5 +22,5 @@ interface FlightsModule {
 
     @Binds
     @Singleton
-    fun bindPlaneTypeRepository(repositoryPlaneTypes: PlaneTypesRepositoryImpl): PlaneTypesRepository
+    fun bindPlaneTypeRepository(repositoryPlaneTypes: AircraftTypesRepositoryImpl): AircraftTypesRepository
 }

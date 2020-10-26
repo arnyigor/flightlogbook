@@ -27,7 +27,9 @@
     <string name="dropbox_sync_files_remote">Remote file:</string>
     <string name="str_date">Date</string>
     <string name="str_itemlogtime">Time</string>
-    <string name="str_type_null">Aircraft Type</string>
+    <string name="str_aircraft_type">Aircraft Type</string>
+    <string name="str_aircraft_name">Aircraft name</string>
+    <string name="str_aircraft_reg_no">Aircraft Reg.№</string>
     <string name="str_regnum">Reg №</string>
     <string name="str_regnum_formatted">Reg №:\u00A0%s</string>
     <string name="str_vfr_ifr">visual / instrument</string>
