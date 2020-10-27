@@ -162,33 +162,22 @@ class FilesInteractorImpl @Inject constructor(
                             }
                         }
                         7 -> {
-                            var flightTypeId: Long
-                            try {
-                                val fTypeStr = myCell.toString()
-                                flightTypeId = getFlightTypeId(fTypeStr)
-                                val dbFlightType = dbFlightTypes.find { it.id == flightTypeId }
-                                if (dbFlightType != null) {
-                                    flightTypeId = dbFlightType.id ?: -1
-                                } else {
-                                    if (flightTypeId != -1L) {
-                                        val oldTypeName = getOldFlightType(flightTypeId)
-                                        val oldFlightType =
-                                                dbFlightTypes.find { it.typeTitle == oldTypeName }
-                                        if (oldFlightType != null) {
-                                            flightTypeId = oldFlightType.id ?: -1
-                                        } else {
-                                            flightTypeId =
-                                                    flightTypesRepository.addFlightTypeAndGet(
-                                                            oldTypeName
-                                                    )
-                                            dbFlightTypes =
-                                                    flightTypesRepository.loadDBFlightTypes()
-                                        }
+                            val fTypeStr = myCell.toString()
+                            var flightTypeId = getFlightTypeId(fTypeStr)
+                            val dbFlightType = dbFlightTypes.find { it.id == flightTypeId }
+                            if (dbFlightType != null) {
+                                flightTypeId = dbFlightType.id ?: -1
+                            } else {
+                                if (flightTypeId != -1L) {
+                                    val oldTypeName = getOldFlightType(flightTypeId)
+                                    val oldFlightType = dbFlightTypes.find { it.typeTitle == oldTypeName }
+                                    if (oldFlightType != null) {
+                                        flightTypeId = oldFlightType.id ?: -1
+                                    } else {
+                                        flightTypeId = flightTypesRepository.addFlightTypeAndGet(FlightType(flightTypeId, oldTypeName))
+                                        dbFlightTypes = flightTypesRepository.loadDBFlightTypes()
                                     }
                                 }
-                            } catch (e: Exception) {
-                                flightTypeId = -1
-                                e.printStackTrace()
                             }
                             flight.flightTypeId = flightTypeId.toInt()
                         }
@@ -294,8 +283,8 @@ class FilesInteractorImpl @Inject constructor(
         }
     }
 
-    private fun getOldFlightType(flight_type: Long): String {
-        return when (flight_type) {
+    private fun getOldFlightType(type: Long): String {
+        return when (type) {
             TYPE_CIRCLE -> context.getString(R.string.flight_type_circle)
             TYPE_ZONE -> context.getString(R.string.flight_type_zone)
             TYPE_RUOTE -> context.getString(R.string.flight_type_route)

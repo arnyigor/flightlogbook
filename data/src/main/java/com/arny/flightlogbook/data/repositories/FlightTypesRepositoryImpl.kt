@@ -30,6 +30,10 @@ class FlightTypesRepositoryImpl @Inject constructor(private val flightTypeDAO: F
         return flightTypeDAO.insertReplace(type)
     }
 
+    override fun addFlightTypeAndGet(type: FlightType): Long {
+        return flightTypeDAO.insertReplace(type.toFlightTypeEntity())
+    }
+
     override fun addFlightType(type: FlightType): Boolean {
         val typeEntity = type.toFlightTypeEntity()
         return flightTypeDAO.insertReplace(typeEntity) > 0

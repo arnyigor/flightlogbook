@@ -25,7 +25,7 @@ android {
 
     def vMajor = 6
     def vMinor = 3
-    def vBuild = 0
+    def vBuild = 1
     defaultConfig {
         minSdkVersion versions.minSdk
         targetSdkVersion versions.targetSdk
@@ -57,10 +57,10 @@ android {
         }
         release {
             debuggable false
-            minifyEnabled false
-            useProguard false
+            minifyEnabled true
+            useProguard true
             resValue "string", "app_name", "Pilot Logbook"
-            shrinkResources false
+            shrinkResources true
             signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguardTest-rules.pro'
