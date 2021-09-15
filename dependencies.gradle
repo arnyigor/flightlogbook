@@ -1,8 +1,7 @@
 ext.versions = [
-        'androidPlugin'    : '3.6.3',
         'minSdk'           : 16,
-        'targetSdk'        : 29,
-        'compileSdk'       : 29,
+        'targetSdk'        : 30,
+        'compileSdk'       : 30,
         'buildTools'       : '30.0.2',
         'supportLibrary'   : '28.0.0',
         'constraint'       : '2.0.2',
@@ -16,7 +15,6 @@ ext.versions = [
         'room'             : '1.1.1',
         'lifecycle'        : '1.1.1',
         'realm'            : '5.8.0',
-        'dagger'           : '2.29.1',
         'gson'             : '2.8.6',
         'retrofit'         : '2.6.2',
         'retrofitRxAdapter': '1.0.0',
@@ -41,8 +39,6 @@ ext.versions = [
 ]
 
 ext.gradle = [
-        'gradlePlugin'       : "com.android.tools.build:gradle:${versions.androidPlugin}",
-        'kotlinGradlePlugin' : "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}",
         'realmPlugin'        : "io.realm:realm-gradle-plugin:${versions.realm}",
         'googleServices'     : "com.google.gms:google-services:${versions.gms}",
         'firebaseCrashPlugin': "com.google.firebase:firebase-crashlytics-gradle:2.1.1",
@@ -53,6 +49,8 @@ ext.libs = [
         'localBrodcast'       : "androidx.localbroadcastmanager:localbroadcastmanager:1.0.0",
         'multidex'            : "androidx.multidex:multidex:2.0.1",
         'ktxCore'             : "androidx.core:core-ktx:${versions.ktx}",
+        'fragmentKtx'         : "androidx.fragment:fragment-ktx:1.3.3",
+        'activityKtx'         : "androidx.activity:activity-ktx:1.2.2",
         'lifecycleExt'        : 'androidx.lifecycle:lifecycle-extensions:2.0.0',
         'lifecycleCommon'     : 'androidx.lifecycle:lifecycle-common-java8:2.0.0',
         //room
@@ -84,7 +82,7 @@ ext.libs = [
         'rxKotlin'            : "io.reactivex.rxjava2:rxkotlin:${versions.rxKotlin}",
         'rxbinding'           : "com.jakewharton.rxbinding4:rxbinding:${versions.rxbinding}",
         'rxbindingCore'       : "com.jakewharton.rxbinding4:rxbinding-core:${versions.rxbinding}",
-        'rxbindingAppcompat'       : "com.jakewharton.rxbinding4:rxbinding-appcompat:${versions.rxbinding}",
+        'rxbindingAppcompat'  : "com.jakewharton.rxbinding4:rxbinding-appcompat:${versions.rxbinding}",
 
         //moxy
         'moxy'                : "com.github.moxy-community:moxy:${versions.moxy}",
@@ -93,8 +91,8 @@ ext.libs = [
         'moxyKtx'             : "com.github.moxy-community:moxy-ktx:${versions.moxy}",
 
         //di
-        'dagger'              : "com.google.dagger:dagger:${versions.dagger}",
-        'daggerCompiler'      : "com.google.dagger:dagger-compiler:${versions.dagger}",
+        'dagger'              : "com.google.dagger:dagger:2.38.1",
+        'daggerCompiler'      : "com.google.dagger:dagger-compiler:2.38.1",
 
         'cicerone'            : "com.github.terrakok:cicerone:6.1",
 
@@ -127,29 +125,29 @@ ext.libs = [
         'materialDialogsInput': 'com.afollestad.material-dialogs:input:3.3.0',
         'materialDialogsColor': 'com.afollestad.material-dialogs:color:3.3.0',
         'betterpickers'       : 'com.code-troopers.betterpickers:library:3.1.0',
-        'rxpermissions'  : 'com.github.tbruyelle:rxpermissions:0.10.2',
-        'inputmask'      : 'com.redmadrobot:input-mask-android:5.0.0',
-        'leakcanary'     : 'com.squareup.leakcanary:leakcanary-android:1.6.3',
+        'rxpermissions'       : 'com.github.tbruyelle:rxpermissions:0.10.2',
+        'inputmask'           : 'com.redmadrobot:input-mask-android:5.0.0',
+        'leakcanary'          : 'com.squareup.leakcanary:leakcanary-android:1.6.3',
 
         //tests
-        'junit'          : "junit:junit:${versions.junit}",
-        'extJunit'       : 'androidx.test.ext:junit:1.1.1',
-        'rules'          : 'androidx.test:rules:1.1.1',
-        'runner'         : 'androidx.test:runner:1.2.0',
-        'assertjCore'    : "org.assertj:assertj-core:3.12.2",
-        'assertjAndroid' : 'com.squareup.assertj:assertj-android:1.2.0',
-        'assertjSupport' : 'com.squareup.assertj:assertj-android-support-v4:1.2.0',
-        'mockitoCore'    : "org.mockito:mockito-core:${versions.mockito}",
-        'mockitoAndroid' : "org.mockito:mockito-android:${versions.mockito}",
-        'mockitoKotlin'  : "com.nhaarman:mockito-kotlin:${versions.mockitoKotlin}",
-        'robolectric'    : "org.robolectric:robolectric:${versions.robolectric}",
-        'mockWebServer'  : "com.squareup.okhttp3:mockwebserver:${versions.okhttp}",
-        'roomxTesting'   : 'androidx.room:room-testing:2.0.0',
-        'roomTesting'    : "android.arch.persistence.room:testing:${versions.room}",
-        'livedataTesting': 'androidx.arch.core:core-testing:2.0.0',
+        'junit'               : "junit:junit:${versions.junit}",
+        'extJunit'            : 'androidx.test.ext:junit:1.1.1',
+        'rules'               : 'androidx.test:rules:1.1.1',
+        'runner'              : 'androidx.test:runner:1.2.0',
+        'assertjCore'         : "org.assertj:assertj-core:3.12.2",
+        'assertjAndroid'      : 'com.squareup.assertj:assertj-android:1.2.0',
+        'assertjSupport'      : 'com.squareup.assertj:assertj-android-support-v4:1.2.0',
+        'mockitoCore'         : "org.mockito:mockito-core:${versions.mockito}",
+        'mockitoAndroid'      : "org.mockito:mockito-android:${versions.mockito}",
+        'mockitoKotlin'       : "com.nhaarman:mockito-kotlin:${versions.mockitoKotlin}",
+        'robolectric'         : "org.robolectric:robolectric:${versions.robolectric}",
+        'mockWebServer'       : "com.squareup.okhttp3:mockwebserver:${versions.okhttp}",
+        'roomxTesting'        : 'androidx.room:room-testing:2.0.0',
+        'roomTesting'         : "android.arch.persistence.room:testing:${versions.room}",
+        'livedataTesting'     : 'androidx.arch.core:core-testing:2.0.0',
 
-        'dbDebug'        : 'com.amitshekhar.android:debug-db:1.0.6',
+        'dbDebug'             : 'com.amitshekhar.android:debug-db:1.0.6',
 
-        'poi'            : "org.apache.poi:poi:3.9",
-        'dropboxCoreSdk' : "com.dropbox.core:dropbox-core-sdk:3.1.3",
+        'poi'                 : "org.apache.poi:poi:3.9",
+        'dropboxCoreSdk'      : "com.dropbox.core:dropbox-core-sdk:3.1.3",
 ]

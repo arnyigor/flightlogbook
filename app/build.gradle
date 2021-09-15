@@ -92,6 +92,10 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
+
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 dependencies {
@@ -101,6 +105,7 @@ dependencies {
     implementation project(path: ':domain')
     implementation project(path: ':customfields')
     implementation project(path: ':data')
+    implementation libs.fragmentKtx
     implementation libs.firebaseCrash
     implementation libs.multidex
     implementation libs.kotlinStdlib

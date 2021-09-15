@@ -2,10 +2,7 @@ package com.arny.flightlogbook.presentation.customfields.edit
 
 import android.content.Context
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.widget.AdapterView
 import androidx.annotation.StringRes
 import androidx.core.view.isVisible
@@ -18,12 +15,13 @@ import com.arny.core.utils.getExtra
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.AbstractArrayAdapter
 import com.arny.flightlogbook.customfields.models.CustomFieldType
+import com.arny.flightlogbook.databinding.FragmentEditCustomFieldLayoutBinding
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.main.AppRouter
-import kotlinx.android.synthetic.main.fragment_edit_custom_field_layout.*
 import moxy.ktx.moxyPresenter
 
 class CustomFieldEditFragment : BaseMvpFragment(), CustomFieldsEditView {
+    private lateinit var binding: FragmentEditCustomFieldLayoutBinding
     private var appRouter: AppRouter? = null
 
     companion object {
@@ -60,57 +58,69 @@ class CustomFieldEditFragment : BaseMvpFragment(), CustomFieldsEditView {
         when (item.itemId) {
             R.id.action_save -> {
                 hideKeyboard(requireActivity())
-                presenter.onSaveClicked(chbAddTime.isChecked)
+                presenter.onSaveClicked(binding.chbAddTime.isChecked)
             }
             R.id.action_remove -> {
                 hideKeyboard(requireActivity())
                 alertDialog(
-                        context = requireContext(),
-                        title = getString(R.string.str_delete),
-                        btnCancelText = getString(R.string.str_cancel),
-                        onConfirm = { presenter.onDelete() }
+                    context = requireContext(),
+                    title = getString(R.string.str_delete),
+                    btnCancelText = getString(R.string.str_cancel),
+                    onConfirm = { presenter.onDelete() }
                 )
             }
         }
         return true
     }
 
-    override fun getLayoutId(): Int = R.layout.fragment_edit_custom_field_layout
+    override fun getTitle(): String = getString(R.string.edit)
 
-    override fun getTitle(): String? = getString(R.string.edit)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentEditCustomFieldLayoutBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         types = resources.getStringArray(R.array.custom_fields_types)
-        tiedtCustomFieldName.doAfterTextChanged {
-            if (tiedtCustomFieldName.isFocused) {
+        binding.tiedtCustomFieldName.doAfterTextChanged {
+            if (binding.tiedtCustomFieldName.isFocused) {
                 presenter.setFieldName(it.toString())
             }
         }
         val map = CustomFieldType.values().map { getString(it.nameRes) }.toTypedArray()
         val abstractArrayAdapter = object : AbstractArrayAdapter<String>(
-                context,
-                android.R.layout.simple_list_item_1,
-                map
+            context,
+            android.R.layout.simple_list_item_1,
+            map
         ) {
             override fun getItemTitle(item: String?) = item
         }
-        spinFieldType.adapter = abstractArrayAdapter
-        spinFieldType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        binding.spinFieldType.adapter = abstractArrayAdapter
+        binding.spinFieldType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
-                presenter.setType(spinFieldType.selectedItemPosition)
+                presenter.setType(binding.spinFieldType.selectedItemPosition)
             }
 
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                presenter.setType(spinFieldType.selectedItemPosition)
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                presenter.setType(binding.spinFieldType.selectedItemPosition)
             }
         }
 
-        chbDefault.setOnCheckedChangeListener { _, isChecked ->
+        binding.chbDefault.setOnCheckedChangeListener { _, isChecked ->
             presenter.setDefaultChecked(isChecked)
         }
 
-        chbAddTime.setOnCheckedChangeListener { _, isChecked ->
+        binding.chbAddTime.setOnCheckedChangeListener { _, isChecked ->
             presenter.setAddTimeChecked(isChecked)
         }
     }
@@ -129,36 +139,36 @@ class CustomFieldEditFragment : BaseMvpFragment(), CustomFieldsEditView {
 
     override fun showProgress(show: Boolean) {
         if (show) {
-            clpbLoading.show()
+            binding.clpbLoading.show()
         } else {
-            clpbLoading.hide()
+            binding.clpbLoading.hide()
         }
     }
 
     override fun setTitle(name: String?) {
-        tiedtCustomFieldName.setText(name)
+        binding.tiedtCustomFieldName.setText(name)
     }
 
     override fun setType(type: CustomFieldType?) {
         if (type != null) {
             val indexOf = types.indexOf(getString(type.nameRes))
-            spinFieldType.setSelection(indexOf)
+            binding.spinFieldType.setSelection(indexOf)
         }
     }
 
     override fun showNameError(stringRes: Int?) {
-        tiedtCustomFieldName.error = stringRes?.let { getString(it) }
+        binding.tiedtCustomFieldName.error = stringRes?.let { getString(it) }
     }
 
     override fun setDefaultChecked(showByDefault: Boolean) {
-        chbDefault.isChecked = showByDefault
+        binding.chbDefault.isChecked = showByDefault
     }
 
     override fun setAddTimeChecked(checked: Boolean) {
-        chbAddTime.isChecked = checked
+        binding.chbAddTime.isChecked = checked
     }
 
     override fun setChBoxAddTimeVisible(visible: Boolean) {
-        chbAddTime.isVisible = visible
+        binding.chbAddTime.isVisible = visible
     }
 }

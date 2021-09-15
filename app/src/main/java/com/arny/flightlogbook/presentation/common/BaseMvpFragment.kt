@@ -1,22 +1,16 @@
 package com.arny.flightlogbook.presentation.common
 
 import android.os.Bundle
-import android.view.*
-import androidx.annotation.LayoutRes
+import android.view.View
+import android.view.Window
+import android.view.WindowManager
 import moxy.MvpAppCompatFragment
 
 abstract class BaseMvpFragment : MvpAppCompatFragment() {
-
-    @LayoutRes
-    protected abstract fun getLayoutId(): Int
     protected open fun getTitle(): String? = null
     protected open fun isKeyboardHidden(): Boolean = true
     private var wndw: Window? = null
     private var softInputMode: Int = 0
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(getLayoutId(), container, false)
-    }
 
     protected fun updateTitle() {
         this.activity?.title = getTitle()

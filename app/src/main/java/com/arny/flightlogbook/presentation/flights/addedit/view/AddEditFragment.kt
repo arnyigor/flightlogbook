@@ -9,10 +9,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.TextView
@@ -30,6 +27,7 @@ import com.arny.domain.models.Airport
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.CustomRVLayoutManager
 import com.arny.flightlogbook.customfields.models.CustomFieldValue
+import com.arny.flightlogbook.databinding.FAddeditBinding
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.flights.addedit.presenter.AddEditPresenter
 import com.arny.flightlogbook.presentation.main.AppRouter
@@ -38,14 +36,13 @@ import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialo
 import com.redmadrobot.inputmask.MaskedTextChangedListener
 import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.disposables.CompositeDisposable
-import kotlinx.android.synthetic.main.f_addedit.*
 import moxy.ktx.moxyPresenter
 import java.util.*
 
 
 class AddEditFragment : BaseMvpFragment(), AddEditView,
-        CalendarDatePickerDialogFragment.OnDateSetListener,
-        View.OnClickListener, TimePickerDialog.OnTimeSetListener {
+    CalendarDatePickerDialogFragment.OnDateSetListener,
+    View.OnClickListener, TimePickerDialog.OnTimeSetListener {
 
     companion object {
         fun getInstance(bundle: Bundle? = null) = AddEditFragment().apply {
@@ -53,6 +50,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         }
     }
 
+    private lateinit var binding: FAddeditBinding
     private var fromDialog: Boolean = false
     private var timeSetView: EditText? = null
     private val compositeDisposable = CompositeDisposable()
@@ -69,8 +67,6 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
 
     private val addEditPresenter by moxyPresenter { AddEditPresenter() }
 
-    override fun getLayoutId(): Int = R.layout.f_addedit
-
     override fun getTitle(): String = getString(currentTitle)
 
     override fun onAttach(context: Context) {
@@ -84,6 +80,15 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         addEditPresenter.flightId = getExtra<Long>(CONSTS.DB.COLUMN_ID)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FAddeditBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -102,10 +107,10 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
             R.id.action_save -> addEditPresenter.checkAutoExportFile()
             R.id.action_remove -> {
                 alertDialog(
-                        context = requireContext(),
-                        title = getString(R.string.str_delete),
-                        btnCancelText = getString(R.string.str_cancel),
-                        onConfirm = { addEditPresenter.removeFlight() }
+                    context = requireContext(),
+                    title = getString(R.string.str_delete),
+                    btnCancelText = getString(R.string.str_cancel),
+                    onConfirm = { addEditPresenter.removeFlight() }
                 )
             }
         }
@@ -124,7 +129,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     }
 
     override fun setTotalFlightTime(flightTime: String) {
-        tvTotalTime.text = flightTime
+        binding.tvTotalTime.text = flightTime
     }
 
     override fun toastError(msg: String?) {
@@ -132,26 +137,28 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     }
 
     override fun setTotalTime(total: String) {
-        tvTotalTime.text = total
+        binding.tvTotalTime.text = total
     }
 
     private fun initUI() {
-        select_plane_type.setOnClickListener(this)
-        btnSelectFlightType.setOnClickListener(this)
-        btnMoto.setOnClickListener(this)
-        ivDate.setOnClickListener(this)
-        tvColor.setOnClickListener(this)
-        tvDeparture.setOnClickListener(this)
-        tvArrival.setOnClickListener(this)
-        vColor.setOnClickListener(this)
-        ivRemoveColor.setOnClickListener(this)
-        radioGroupIfrVfr.setOnCheckedChangeListener { _, checkedId ->
-            when (checkedId) {
-                R.id.rbVfr -> addEditPresenter.setVfrIfr(0)
-                else -> addEditPresenter.setVfrIfr(1)
+        with(binding) {
+            selectPlaneType.setOnClickListener(this@AddEditFragment)
+            btnSelectFlightType.setOnClickListener(this@AddEditFragment)
+            btnMoto.setOnClickListener(this@AddEditFragment)
+            ivDate.setOnClickListener(this@AddEditFragment)
+            tvColor.setOnClickListener(this@AddEditFragment)
+            tvDeparture.setOnClickListener(this@AddEditFragment)
+            tvArrival.setOnClickListener(this@AddEditFragment)
+            vColor.setOnClickListener(this@AddEditFragment)
+            ivRemoveColor.setOnClickListener(this@AddEditFragment)
+            radioGroupIfrVfr.setOnCheckedChangeListener { _, checkedId ->
+                when (checkedId) {
+                    R.id.rbVfr -> addEditPresenter.setVfrIfr(0)
+                    else -> addEditPresenter.setVfrIfr(1)
+                }
             }
+            btnAddField.setOnClickListener(this@AddEditFragment)
         }
-        btnAddField.setOnClickListener(this)
         onDateTimeChanges()
         onFlightTimeChanges()
         onNightTimeChanges()
@@ -161,7 +168,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         onCustomViewsInit()
     }
 
-    private fun onDepartureTimeChanges() {
+    private fun onDepartureTimeChanges() = with(binding) {
         val timeZero = getTimeZero()
         edtDepartureTime.setDrawableRightClick {
             openTimeDialog(edtDepartureTime)
@@ -184,14 +191,14 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
             val depTime = edtDepartureTime.text.toString()
             if (depTime.isBlank()) {
                 if (hasFocus) {
-                    edtDepartureTime?.hint = getString(R.string.utc_time)
-                    edtDepartureTime?.hint = timeZero
+                    edtDepartureTime.hint = getString(R.string.utc_time)
+                    edtDepartureTime.hint = timeZero
                 } else {
-                    edtDepartureTime?.hint = null
-                    edtDepartureTime?.hint = timeZero
+                    edtDepartureTime.hint = null
+                    edtDepartureTime.hint = timeZero
                 }
             } else {
-                edtDepartureTime?.hint = timeZero
+                edtDepartureTime.hint = timeZero
                 if (hasFocus && depTime == timeZero) {
                     edtDepartureTime.setSelectAllOnFocus(true)
                     edtDepartureTime.selectAll()
@@ -210,7 +217,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         }
     }
 
-    private fun onArrivalTimeChanges() {
+    private fun onArrivalTimeChanges() = with(binding) {
         val timeZero = getTimeZero()
         edtArrivalTime.setDrawableRightClick {
             openTimeDialog(edtArrivalTime)
@@ -233,9 +240,9 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
             val arrivalTime = edtArrivalTime.text.toString()
             if (arrivalTime.isBlank()) {
                 if (hasFocus) {
-                    edtArrivalTime?.hint = timeZero
+                    edtArrivalTime.hint = timeZero
                 } else {
-                    edtArrivalTime?.hint = null
+                    edtArrivalTime.hint = null
                 }
             } else {
                 if (hasFocus && arrivalTime == timeZero) {
@@ -258,16 +265,16 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
 
     private fun onCustomViewsInit() {
         customFieldValuesAdapter =
-                CustomFieldValuesAdapter(object : CustomFieldValuesAdapter.OnFieldChangeListener {
-                    override fun onValueChange(item: CustomFieldValue, value: String) {
-                        addEditPresenter.onCustomFieldValueChange(item, value)
-                    }
+            CustomFieldValuesAdapter(object : CustomFieldValuesAdapter.OnFieldChangeListener {
+                override fun onValueChange(item: CustomFieldValue, value: String) {
+                    addEditPresenter.onCustomFieldValueChange(item, value)
+                }
 
-                    override fun onValueRemove(position: Int, item: CustomFieldValue) {
-                        addEditPresenter.onCustomFieldValueDelete(position)
-                    }
-                })
-        rvCustomFields.apply {
+                override fun onValueRemove(position: Int, item: CustomFieldValue) {
+                    addEditPresenter.onCustomFieldValueDelete(position)
+                }
+            })
+        binding.rvCustomFields.apply {
             layoutManager = CustomRVLayoutManager(requireContext()).apply {
                 setScrollEnabled(false)
             }
@@ -275,7 +282,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         }
     }
 
-    private fun onNightTimeChanges() {
+    private fun onNightTimeChanges() = with(binding) {
         val timeZero = getTimeZero()
         edtNightTime.setDrawableRightClick {
             openTimeDialog(edtNightTime)
@@ -298,9 +305,9 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
             val nightTime = edtNightTime.text.toString()
             if (nightTime.isBlank()) {
                 if (hasFocus) {
-                    edtNightTime?.hint = timeZero
+                    edtNightTime.hint = timeZero
                 } else {
-                    edtNightTime?.hint = null
+                    edtNightTime.hint = null
                 }
             } else {
                 if (hasFocus && nightTime == timeZero) {
@@ -321,7 +328,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         }
     }
 
-    private fun onGroundTimeChanges() {
+    private fun onGroundTimeChanges() = with(binding) {
         val timeZero = getTimeZero()
         edtGroundTime.setDrawableRightClick {
             openTimeDialog(edtGroundTime)
@@ -344,9 +351,9 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
             val grTime = edtGroundTime.text.toString()
             if (grTime.isBlank()) {
                 if (hasFocus) {
-                    edtGroundTime?.hint = timeZero
+                    edtGroundTime.hint = timeZero
                 } else {
-                    edtGroundTime?.hint = null
+                    edtGroundTime.hint = null
                 }
             } else {
                 if (hasFocus && grTime == timeZero) {
@@ -367,63 +374,63 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         }
     }
 
-    private fun onDateTimeChanges() {
-        tiedt_date?.setOnFocusChangeListener { _, hasFocus ->
-            val empty = Utility.empty(tiedt_date?.text.toString())
+    private fun onDateTimeChanges() = with(binding) {
+        tiedtDate.setOnFocusChangeListener { _, hasFocus ->
+            val empty = Utility.empty(tiedtDate.text.toString())
             if (empty) {
                 if (hasFocus) {
-                    tilDate?.hint = getString(R.string.str_date)
-                    tiedt_date?.hint = getString(R.string.str_date_format)
+                    tilDate.hint = getString(R.string.str_date)
+                    tiedtDate.hint = getString(R.string.str_date_format)
                 } else {
-                    tilDate?.hint = null
-                    tiedt_date?.hint = getString(R.string.str_date)
+                    tilDate.hint = null
+                    tiedtDate.hint = getString(R.string.str_date)
                 }
             } else {
-                tilDate?.hint = getString(R.string.str_date)
-                tiedt_date?.hint = getString(R.string.str_date)
+                tilDate.hint = getString(R.string.str_date)
+                tiedtDate.hint = getString(R.string.str_date)
                 if (!hasFocus) {
-                    val dat = tiedt_date?.text.toString()
+                    val dat = tiedtDate.text.toString()
                     val pattern = "^(3[01]|[12][0-9]|0[1-9]).(1[0-2]|0[1-9]).[0-9]{4}\$".toRegex()
                     val containsMatchIn = pattern.containsMatchIn(dat)
                     if (!containsMatchIn) {
-                        tiedt_date.setText("")
+                        tiedtDate.setText("")
                         ToastMaker.toastError(
-                                requireContext(),
-                                getString(R.string.date_time_input_error)
+                            requireContext(),
+                            getString(R.string.date_time_input_error)
                         )
                     }
                 }
             }
         }
-        tiedt_date?.addTextChangedListener(
-                MaskedTextChangedListener(
-                        "[00].[00].[0000]",
-                        ArrayList(),
-                        false,
-                        tiedt_date,
-                        object : _TextWatcher {
-                            override fun afterTextChanged(s: Editable) {
-                                if (Utility.empty(tiedt_date.text.toString())) {
-                                    tilDate?.hint = getString(R.string.str_date)
-                                    tiedt_date?.hint = null
-                                }
-                            }
-                        },
-                        object : MaskedTextChangedListener.ValueListener {
-                            override fun onTextChanged(
-                                    maskFilled: Boolean,
-                                    extractedValue: String,
-                                    formattedValue: String
-                            ) {
-                                if (maskFilled && tiedt_date.isFocused) {
-                                    addEditPresenter.initDateFromMask(extractedValue)
-                                }
-                            }
-                        })
+        tiedtDate.addTextChangedListener(
+            MaskedTextChangedListener(
+                "[00].[00].[0000]",
+                ArrayList(),
+                false,
+                tiedtDate,
+                object : _TextWatcher {
+                    override fun afterTextChanged(s: Editable) {
+                        if (Utility.empty(tiedtDate.text.toString())) {
+                            tilDate.hint = getString(R.string.str_date)
+                            tiedtDate.hint = null
+                        }
+                    }
+                },
+                object : MaskedTextChangedListener.ValueListener {
+                    override fun onTextChanged(
+                        maskFilled: Boolean,
+                        extractedValue: String,
+                        formattedValue: String
+                    ) {
+                        if (maskFilled && tiedtDate.isFocused) {
+                            addEditPresenter.initDateFromMask(extractedValue)
+                        }
+                    }
+                })
         )
     }
 
-    private fun onFlightTimeChanges() {
+    private fun onFlightTimeChanges() = with(binding) {
         edtFlightTime.setDrawableRightClick {
             openTimeDialog(edtFlightTime)
         }
@@ -446,9 +453,9 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
             val flTime = edtFlightTime.text.toString()
             if (flTime.isBlank()) {
                 if (hasFocus) {
-                    edtFlightTime?.hint = timeZero
+                    edtFlightTime.hint = timeZero
                 } else {
-                    edtFlightTime?.hint = null
+                    edtFlightTime.hint = null
                 }
             } else {
                 if (hasFocus && flTime == timeZero) {
@@ -476,27 +483,27 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
             R.id.ivDate -> {
                 addEditPresenter.correctFlightTime(sFlightTime)
                 val cdp = CalendarDatePickerDialogFragment()
-                        .setOnDateSetListener(this@AddEditFragment)
+                    .setOnDateSetListener(this@AddEditFragment)
                 cdp.show(childFragmentManager, "fragment_date_picker_name")
             }
             R.id.select_plane_type -> {
                 addEditPresenter.correctFlightTime(sFlightTime)
                 appRouter?.navigateTo(
-                        NavigateItems.PLANE_TYPE_SELECT,
-                        true,
-                        bundleOf(CONSTS.REQUESTS.REQUEST to true),
-                        requestCode = CONSTS.REQUESTS.REQUEST_SELECT_PLANE_TYPE,
-                        targetFragment = this@AddEditFragment
+                    NavigateItems.PLANE_TYPE_SELECT,
+                    true,
+                    bundleOf(CONSTS.REQUESTS.REQUEST to true),
+                    requestCode = CONSTS.REQUESTS.REQUEST_SELECT_PLANE_TYPE,
+                    targetFragment = this@AddEditFragment
                 )
             }
             R.id.btnSelectFlightType -> {
                 addEditPresenter.correctFlightTime(sFlightTime)
                 appRouter?.navigateTo(
-                        NavigateItems.FLIGHT_TYPE_SELECT,
-                        true,
-                        bundleOf(CONSTS.REQUESTS.REQUEST to true),
-                        requestCode = CONSTS.REQUESTS.REQUEST_SELECT_FLIGHT_TYPE,
-                        targetFragment = this@AddEditFragment
+                    NavigateItems.FLIGHT_TYPE_SELECT,
+                    true,
+                    bundleOf(CONSTS.REQUESTS.REQUEST to true),
+                    requestCode = CONSTS.REQUESTS.REQUEST_SELECT_FLIGHT_TYPE,
+                    targetFragment = this@AddEditFragment
                 )
             }
             R.id.btnMoto -> showMotoDialog()
@@ -505,29 +512,29 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
             R.id.ivRemoveColor -> addEditPresenter.removeColor()
             R.id.btnAddField -> {
                 appRouter?.navigateTo(
-                        NavigateItems.ITEM_SELECT_FIELD,
-                        true,
-                        bundleOf(CONSTS.REQUESTS.REQUEST to true),
-                        requestCode = CONSTS.REQUESTS.REQUEST_SELECT_CUSTOM_FIELD,
-                        targetFragment = this@AddEditFragment
+                    NavigateItems.ITEM_SELECT_FIELD,
+                    true,
+                    bundleOf(CONSTS.REQUESTS.REQUEST to true),
+                    requestCode = CONSTS.REQUESTS.REQUEST_SELECT_CUSTOM_FIELD,
+                    targetFragment = this@AddEditFragment
                 )
             }
             R.id.tvDeparture -> {
                 appRouter?.navigateTo(
-                        NavigateItems.AIRPORT_SELECT,
-                        true,
-                        bundleOf(CONSTS.REQUESTS.REQUEST to true),
-                        requestCode = CONSTS.REQUESTS.REQUEST_SELECT_AIRPORT_DEPARTURE,
-                        targetFragment = this@AddEditFragment
+                    NavigateItems.AIRPORT_SELECT,
+                    true,
+                    bundleOf(CONSTS.REQUESTS.REQUEST to true),
+                    requestCode = CONSTS.REQUESTS.REQUEST_SELECT_AIRPORT_DEPARTURE,
+                    targetFragment = this@AddEditFragment
                 )
             }
             R.id.tvArrival -> {
                 appRouter?.navigateTo(
-                        NavigateItems.AIRPORT_SELECT,
-                        true,
-                        bundleOf(CONSTS.REQUESTS.REQUEST to true),
-                        requestCode = CONSTS.REQUESTS.REQUEST_SELECT_AIRPORT_ARRIVAL,
-                        targetFragment = this@AddEditFragment
+                    NavigateItems.AIRPORT_SELECT,
+                    true,
+                    bundleOf(CONSTS.REQUESTS.REQUEST to true),
+                    requestCode = CONSTS.REQUESTS.REQUEST_SELECT_AIRPORT_ARRIVAL,
+                    targetFragment = this@AddEditFragment
                 )
             }
         }
@@ -538,36 +545,36 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
                 CONSTS.REQUESTS.REQUEST_SELECT_PLANE_TYPE -> addEditPresenter.setFlightPlaneType(
-                        data.getExtra<Long>(
-                                CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID
-                        )
+                    data.getExtra<Long>(
+                        CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID
+                    )
                 )
                 CONSTS.REQUESTS.REQUEST_SELECT_FLIGHT_TYPE -> addEditPresenter.setFlightType(
-                        data.getExtra<Long>(
-                                CONSTS.EXTRAS.EXTRA_FLIGHT_TYPE
-                        )
+                    data.getExtra<Long>(
+                        CONSTS.EXTRAS.EXTRA_FLIGHT_TYPE
+                    )
                 )
                 CONSTS.REQUESTS.REQUEST_SELECT_CUSTOM_FIELD -> addEditPresenter.addCustomField(
-                        data.getExtra<Long>(
-                                CONSTS.EXTRAS.EXTRA_CUSTOM_FIELD_ID
-                        )
+                    data.getExtra<Long>(
+                        CONSTS.EXTRAS.EXTRA_CUSTOM_FIELD_ID
+                    )
                 )
                 CONSTS.REQUESTS.REQUEST_SELECT_AIRPORT_DEPARTURE -> addEditPresenter.setDeparture(
-                        data?.getParcelableExtra(
-                                CONSTS.EXTRAS.EXTRA_AIRPORT
-                        )
+                    data?.getParcelableExtra(
+                        CONSTS.EXTRAS.EXTRA_AIRPORT
+                    )
                 )
                 CONSTS.REQUESTS.REQUEST_SELECT_AIRPORT_ARRIVAL -> addEditPresenter.setArrival(
-                        data?.getParcelableExtra(
-                                CONSTS.EXTRAS.EXTRA_AIRPORT
-                        )
+                    data?.getParcelableExtra(
+                        CONSTS.EXTRAS.EXTRA_AIRPORT
+                    )
                 )
             }
         }
     }
 
     override fun setPlaneTypeTitle(title: String?) {
-        tvAirplaneType.text = title
+        binding.tvAirplaneType.text = title
     }
 
     override fun setToolbarTitle(title: Int) {
@@ -576,43 +583,43 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     }
 
     override fun setEdtFlightTimeText(strLogTime: String?) {
-        edtFlightTime.setText(strLogTime)
+        binding.edtFlightTime.setText(strLogTime)
     }
 
     override fun setEdtNightTimeText(nightTimeText: String) {
-        edtNightTime.setText(nightTimeText)
+        binding.edtNightTime.setText(nightTimeText)
     }
 
     override fun setDescription(desc: String) {
-        edtDesc.setText(desc)
+        binding.edtDesc.setText(desc)
     }
 
     override fun setDate(date: String) {
-        tiedt_date.setText(date)
+        binding.tiedtDate.setText(date)
     }
 
     override fun setEdtGroundTimeText(groundTimeText: String) {
-        edtGroundTime.setText(groundTimeText)
+        binding.edtGroundTime.setText(groundTimeText)
     }
 
     override fun requestStorageAndSave() {
         rxPermissions.request(
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
         )
-                ?.subscribe { granted ->
-                    if (granted) {
-                        saveDataFlight()
-                    }
-                }?.addTo(compositeDisposable)
+            ?.subscribe { granted ->
+                if (granted) {
+                    saveDataFlight()
+                }
+            }?.addTo(compositeDisposable)
     }
 
     private fun saveDataFlight() {
         addEditPresenter.saveFlight(
-                edtDesc.text.toString(),
-                sFlightTime,
-                sGroundTime,
-                sNightTime
+            binding.edtDesc.text.toString(),
+            sFlightTime,
+            sGroundTime,
+            sNightTime
         )
     }
 
@@ -626,13 +633,13 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
 
     private fun showMotoDialog() {
         requireContext().createCustomLayoutDialog(
-                layout = R.layout.moto,
-                title = getString(R.string.str_moto),
-                positivePair = Pair(R.string.str_ok, { dialog ->
-                    dialog.dismiss()
-                    addEditPresenter.setMotoResult()
-                }),
-                negativePair = Pair(R.string.str_cancel, { dialog -> dialog.cancel() }),
+            layout = R.layout.moto,
+            title = getString(R.string.str_moto),
+            positivePair = Pair(R.string.str_ok, { dialog ->
+                dialog.dismiss()
+                addEditPresenter.setMotoResult()
+            }),
+            negativePair = Pair(R.string.str_cancel, { dialog -> dialog.cancel() }),
         ) {
             val edtMotoStart = findViewById<EditText>(R.id.edtStartMoto)
             val edtMotoFinish = findViewById<EditText>(R.id.edtFinishMoto)
@@ -659,38 +666,40 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     }
 
     override fun setFligtTypeTitle(title: String) {
-        tvFlightType.text = title
+        binding.tvFlightType.text = title
     }
 
     override fun setIfrSelected(selected: Boolean) {
-        radioGroupIfrVfr.check(if (selected) R.id.rbIfr else R.id.rbVfr)
+        binding.radioGroupIfrVfr.check(if (selected) R.id.rbIfr else R.id.rbVfr)
     }
 
     override fun setFieldsList(list: List<CustomFieldValue>) {
         customFieldValuesAdapter?.addAll(list)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun notifyCustomFieldUpdate(item: CustomFieldValue) {
         customFieldValuesAdapter?.notifyDataSetChanged()
     }
 
     override fun setViewColor(color: Int) {
-        vColor.setBackgroundColor(color)
+        binding.vColor.setBackgroundColor(color)
     }
 
     override fun setRemoveColorVisible(visible: Boolean) {
-        ivRemoveColor.isVisible = visible
+        binding.ivRemoveColor.isVisible = visible
     }
 
     override fun onDateSet(
-            dialog: CalendarDatePickerDialogFragment,
-            year: Int,
-            monthOfYear: Int,
-            dayOfMonth: Int
+        dialog: CalendarDatePickerDialogFragment,
+        year: Int,
+        monthOfYear: Int,
+        dayOfMonth: Int
     ) {
         addEditPresenter.onDateSet(dayOfMonth, monthOfYear, year)
     }
 
+    @SuppressLint("CheckResult")
     override fun onColorSelect(colors: IntArray) {
         MaterialDialog(requireContext()).show {
             title(R.string.select_color)
@@ -702,26 +711,26 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     }
 
     override fun setCustomFieldsVisible(visible: Boolean) {
-        rvCustomFields.isVisible = visible
-        btnAddField.isVisible = visible
+        binding.rvCustomFields.isVisible = visible
+        binding.btnAddField.isVisible = visible
     }
 
     override fun setDeparture(departure: Airport?) {
-        tvDeparture.text =
-                getString(R.string.string_format_two_strings, departure?.iata, "(${departure?.icao})")
+        binding.tvDeparture.text =
+            getString(R.string.string_format_two_strings, departure?.iata, "(${departure?.icao})")
 
     }
 
     override fun setArrival(arrival: Airport?) {
-        tvArrival.text =
-                getString(R.string.string_format_two_strings, arrival?.iata, "(${arrival?.icao})")
+        binding.tvArrival.text =
+            getString(R.string.string_format_two_strings, arrival?.iata, "(${arrival?.icao})")
     }
 
     override fun setEdtDepTimeText(depTime: String) {
-        edtDepartureTime.setText(depTime)
+        binding.edtDepartureTime.setText(depTime)
     }
 
     override fun setEdtArrTimeText(arrTime: String) {
-        edtArrivalTime.setText(arrTime)
+        binding.edtArrivalTime.setText(arrTime)
     }
 }
