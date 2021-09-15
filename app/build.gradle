@@ -1,20 +1,8 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
-
-buildscript {
-    repositories {
-        google()
-    }
-}
-
-repositories {
-    maven { url 'https://jitpack.io' }
-    jcenter()
-}
 
 android {
     signingConfigs {
@@ -51,14 +39,12 @@ android {
             resValue "string", "app_name", "Pilot Logbook[DEBUG]"
             debuggable true
             minifyEnabled false
-            useProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguardTest-rules.pro'
         }
         release {
             debuggable false
             minifyEnabled true
-            useProguard true
             resValue "string", "app_name", "Pilot Logbook"
             shrinkResources true
             signingConfig signingConfigs.release
@@ -69,7 +55,6 @@ android {
             applicationIdSuffix ".debug"
             debuggable true
             minifyEnabled false
-            useProguard false
             resValue "string", "app_name", "Pilot Logbook[DEBUG]"
             shrinkResources false
             signingConfig signingConfigs.release
@@ -79,7 +64,6 @@ android {
         prerelease {
             debuggable true
             minifyEnabled true
-            useProguard true
             resValue "string", "app_name", "Pilot Logbook"
             shrinkResources true
             signingConfig signingConfigs.release

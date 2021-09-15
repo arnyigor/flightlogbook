@@ -7,8 +7,6 @@ android {
     defaultConfig {
         minSdkVersion versions.minSdk
         targetSdkVersion versions.targetSdk
-        versionCode 1
-        versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         kapt {
@@ -19,17 +17,9 @@ android {
     }
 
     buildTypes {
-        debug {
-            debuggable true
-        }
-        release {
-            debuggable false
-        }
         forTest {
-            debuggable true
         }
         prerelease {
-            debuggable true
         }
     }
 
