@@ -1,114 +1,10 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
-
-buildscript {
-    repositories {
-        google()
-    }
-}
-
-repositories {
-    maven { url 'https://jitpack.io' }
-    jcenter()
-}
-
-android {
-    signingConfigs {
-        release
-    }
-    compileSdkVersion versions.compileSdk
-    buildToolsVersion versions.buildTools
-
-    def vMajor = 6
-    def vMinor = 3
-    def vBuild = 1
-    defaultConfig {
-        minSdkVersion versions.minSdk
-        targetSdkVersion versions.targetSdk
-        applicationId 'com.arny.flightlogbook'
-        versionCode vMajor * 100 + vMinor * 10 + vBuild
-        versionName "${vMajor}" + "${vMinor}" + "${vBuild}"
-        setProperty("archivesBaseName", applicationId + "-v" + "(" + versionName + ")")
-        archivesBaseName = "$applicationId-v$versionCode($versionName)"
-        vectorDrawables.useSupportLibrary = true
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        multiDexEnabled true
-        kapt {
-            arguments {
-                arg("room.schemaLocation", "$projectDir/schemas")
-                arg("dagger.gradle.incremental", "true")
-            }
-        }
-    }
-
-    buildTypes {
-        debug {
-            applicationIdSuffix ".debug"
-            resValue "string", "app_name", "Pilot Logbook[DEBUG]"
-            debuggable true
-            minifyEnabled false
-            useProguard false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguardTest-rules.pro'
-        }
-        release {
-            debuggable false
-            minifyEnabled true
-            useProguard true
-            resValue "string", "app_name", "Pilot Logbook"
-            shrinkResources true
-            signingConfig signingConfigs.release
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguardTest-rules.pro'
-        }
-        forTest {
-            applicationIdSuffix ".debug"
-            debuggable true
-            minifyEnabled false
-            useProguard false
-            resValue "string", "app_name", "Pilot Logbook[DEBUG]"
-            shrinkResources false
-            signingConfig signingConfigs.release
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguardTest-rules.pro'
-        }
-        prerelease {
-            debuggable true
-            minifyEnabled true
-            useProguard true
-            resValue "string", "app_name", "Pilot Logbook"
-            shrinkResources true
-            signingConfig signingConfigs.release
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguardTest-rules.pro'
-        }
-    }
-    packagingOptions {
-        exclude 'META-INF/ASL2.0'
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/NOTICE.txt'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/MANIFEST.MF'
-    }
-    compileOptions {
-        targetCompatibility JavaVersion.VERSION_1_8
-        sourceCompatibility JavaVersion.VERSION_1_8
-    }
-    testOptions {
-        unitTests {
-            includeAndroidResources = true
-            returnDefaultValues = true
-        }
-    }
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
-    }
-}
+apply from: "$dep_aliases"
+apply from: "$commonconfig"
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
@@ -117,63 +13,32 @@ dependencies {
     implementation project(path: ':domain')
     implementation project(path: ':customfields')
     implementation project(path: ':data')
-    implementation libs.firebaseCrash
-    implementation libs.multidex
-    implementation libs.kotlinStdlib
-    implementation libs.ktxCore
-    implementation libs.lifecycleExt
-    /*tests*/
-    debugImplementation libs.dbDebug
-    implementation libs.junit
-    androidTestImplementation libs.assertjCore
-    androidTestImplementation libs.assertjAndroid
-    androidTestImplementation libs.extJunit
-    androidTestImplementation libs.rules
-    androidTestImplementation libs.runner
-    implementation libs.mockitoCore
-    androidTestImplementation libs.mockitoAndroid
-    /*support*/
-    implementation libs.appCompat
-    implementation libs.design
-    implementation libs.recyclerView
-    implementation libs.preference
-    implementation libs.drawerlayout
-    implementation libs.cardView
-    implementation libs.constraint
-    implementation libs.vector
-    //rx
-    implementation libs.rxJava
-    implementation libs.rxAndroid
-    implementation libs.rxKotlin
-    //room
-    implementation libs.roomRuntime
-    kapt libs.roomCompiler
-    implementation libs.roomRx
-    //mvp
-    implementation libs.moxy
-    implementation libs.moxyAndroidX
-    implementation libs.moxyKtx
-    kapt libs.moxyCompiler
-    //di
-    implementation libs.dagger
-    kapt libs.daggerCompiler
-    //custom
-    implementation libs.rxpermissions
-    implementation libs.betterpickers
-    implementation libs.toasty
-    implementation libs.dropboxCoreSdk
-    implementation libs.jodaTime
-    implementation libs.materialTypeface
-    implementation libs.materialDialogsCore
-    implementation libs.materialDialogsColor
-    implementation libs.materialDialogsInput
-    implementation libs.drawer
-    implementation libs.drawerNav
-    implementation libs.drawerIcon
-    implementation libs.stetho
-    implementation libs.inputmask
+    kotlin()
+    fragment()
+    activity()
+    lifecycle()
+    unitTest()
+    androidTest()
+    appcompat()
+    supportLegacy()
+    material()
+    recycler()
+    preference()
+    cardview()
+    constraintlayout()
+    rxjava2()
+    room()
+    moxy()
+    dagger()
+    betterpickers()
+    toasty()
+    jodaTime()
+    materialDialog()
+    materialdrawer()
+    stetho()
+    inputmask()
+//    implementation libs.dropboxCoreSdk
 }
-
 // end of file
 android.applicationVariants.all { variant ->
     variant.outputs.all {
@@ -182,24 +47,3 @@ android.applicationVariants.all { variant ->
         }
     }
 }
-
-Properties props = new Properties()
-def propFile = new File('signing.properties')
-if (propFile.canRead()) {
-    props.load(new FileInputStream(propFile))
-
-    if (props != null && props.containsKey('STORE_FILE') && props.containsKey('STORE_PASSWORD') &&
-            props.containsKey('KEY_ALIAS') && props.containsKey('KEY_PASSWORD')) {
-        android.signingConfigs.release.storeFile = file(props['STORE_FILE'])
-        android.signingConfigs.release.storePassword = props['STORE_PASSWORD']
-        android.signingConfigs.release.keyAlias = props['KEY_ALIAS']
-        android.signingConfigs.release.keyPassword = props['KEY_PASSWORD']
-    } else {
-        println 'signing.properties found but some entries are missing'
-        android.buildTypes.release.signingConfig = null
-    }
-} else {
-    println 'signing.properties not found'
-    android.buildTypes.release.signingConfig = null
-}
-

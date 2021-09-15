@@ -1,155 +1,339 @@
-ext.versions = [
-        'androidPlugin'    : '3.6.3',
-        'minSdk'           : 16,
-        'targetSdk'        : 29,
-        'compileSdk'       : 29,
-        'buildTools'       : '30.0.2',
-        'supportLibrary'   : '28.0.0',
-        'constraint'       : '2.0.2',
-        'kotlin'           : '1.4.10',
-        'coroutines'       : '1.3.2',
-        'ktx'              : '1.3.2',
-        'gms'              : '4.3.3',
-        'appcompatx'       : '1.1.0',
-        'material'         : '1.0.0',
-        'roomx'            : '2.2.5',
-        'room'             : '1.1.1',
-        'lifecycle'        : '1.1.1',
-        'realm'            : '5.8.0',
-        'dagger'           : '2.29.1',
-        'gson'             : '2.8.6',
-        'retrofit'         : '2.6.2',
-        'retrofitRxAdapter': '1.0.0',
-        'okhttp'           : '4.2.2',
-        'okhttpDownloader' : '1.1.0',
-        'picasso'          : '2.5.2',
-        'rxJava'           : '2.2.15',
-        'moxy'             : '2.2.0',
-        'rxAndroid'        : '2.1.1',
-        'rxKotlin'         : '2.4.0',
-        'stetho'           : '1.5.1',
-        'junit'            : '4.12',
-        'atsl'             : '1.0.1',
-        'assertjAndroid'   : '1.2.0',
-        'mockitoKotlin'    : '2.1.0',
-        'robolectric'      : '3.6.1',
-        'mockito'          : '3.0.0',
-        'sourceCompat'     : JavaVersion.VERSION_1_8,
-        'targetCompat'     : JavaVersion.VERSION_1_8,
-        'materialdrawer'   : '8.1.3',
-        'rxbinding'        : '4.0.0'
-]
+/**
+ * Нужно в build.gradle модуля прописать:
+ * apply from: "$dep_aliases"
+ */
 
-ext.gradle = [
-        'gradlePlugin'       : "com.android.tools.build:gradle:${versions.androidPlugin}",
-        'kotlinGradlePlugin' : "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}",
-        'realmPlugin'        : "io.realm:realm-gradle-plugin:${versions.realm}",
-        'googleServices'     : "com.google.gms:google-services:${versions.gms}",
-        'firebaseCrashPlugin': "com.google.firebase:firebase-crashlytics-gradle:2.1.1",
-]
+def Alias(Closure closure) {
+    closure.delegate = dependencies
+    closure()
+}
 
-ext.libs = [
-        'firebaseCrash'       : "com.google.firebase:firebase-crashlytics:17.0.0",
-        'localBrodcast'       : "androidx.localbroadcastmanager:localbroadcastmanager:1.0.0",
-        'multidex'            : "androidx.multidex:multidex:2.0.1",
-        'ktxCore'             : "androidx.core:core-ktx:${versions.ktx}",
-        'lifecycleExt'        : 'androidx.lifecycle:lifecycle-extensions:2.0.0',
-        'lifecycleCommon'     : 'androidx.lifecycle:lifecycle-common-java8:2.0.0',
-        //room
-        'roomRuntime'         : "androidx.room:room-runtime:${versions.roomx}",
-        'roomCompiler'        : "androidx.room:room-compiler:${versions.roomx}",
-        'roomRx'              : "androidx.room:room-rxjava2:${versions.roomx}",
+ext {
 
-        //support
-        'appCompat'           : 'androidx.appcompat:appcompat:1.2.0',
-        'recyclerView'        : 'androidx.recyclerview:recyclerview:1.1.0',
-        'cardView'            : 'androidx.cardview:cardview:1.0.0',
-        'preference'          : 'androidx.preference:preference:1.1.0',
-        'drawerlayout'        : 'androidx.drawerlayout:drawerlayout:1.1.0',
-        'support'             : 'androidx.legacy:legacy-support-v4:1.0.0',
-        'design'              : 'com.google.android.material:material:1.1.0',
-        'vector'              : 'androidx.vectordrawable:vectordrawable:1.0.0',
-        'constraint'          : 'androidx.constraintlayout:constraintlayout:1.1.3',
+    versions = [
+            minSdkVersion    : 16,
+            compileSdkVersion: 30,
+            targetSdkVersion : 30,
+            buildToolsVersion: "30.0.2"
+    ]
 
-        //kotlin
-        'kotlinStdlib'        : "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin}",
-        'kotlinReflect'       : "org.jetbrains.kotlin:kotlin-reflect:${versions.kotlin}",
-        'kotlinAndroid'       : "org.jetbrains.kotlin:kotlin-android-extensions:${versions.kotlin}",
-        'coroutinesCore'      : "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.coroutines}",
-        'coroutinesAndroid'   : "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.coroutines}",
+    kotlin = { stdlib_version = '1.5.0' -> Alias {
+        implementation "org.jetbrains.kotlin:kotlin-stdlib:$stdlib_version"
+        implementation "org.jetbrains.kotlin:kotlin-reflect:$stdlib_version"
+        implementation 'androidx.core:core-ktx:1.3.2'
+    }}
 
-        //rx
-        'rxJava'              : "io.reactivex.rxjava2:rxjava:${versions.rxJava}",
-        'rxAndroid'           : "io.reactivex.rxjava2:rxandroid:${versions.rxAndroid}",
-        'rxKotlin'            : "io.reactivex.rxjava2:rxkotlin:${versions.rxKotlin}",
-        'rxbinding'           : "com.jakewharton.rxbinding4:rxbinding:${versions.rxbinding}",
-        'rxbindingCore'       : "com.jakewharton.rxbinding4:rxbinding-core:${versions.rxbinding}",
-        'rxbindingAppcompat'       : "com.jakewharton.rxbinding4:rxbinding-appcompat:${versions.rxbinding}",
+    fragment = { version = '1.3.3' -> Alias {
+        implementation "androidx.fragment:fragment-ktx:$version"
+    }}
 
-        //moxy
-        'moxy'                : "com.github.moxy-community:moxy:${versions.moxy}",
-        'moxyCompiler'        : "com.github.moxy-community:moxy-compiler:${versions.moxy}",
-        'moxyAndroidX'        : "com.github.moxy-community:moxy-androidx:${versions.moxy}",
-        'moxyKtx'             : "com.github.moxy-community:moxy-ktx:${versions.moxy}",
+    activity = { version = '1.2.2' -> Alias {
+        implementation "androidx.activity:activity-ktx:$version"
+    }}
 
-        //di
-        'dagger'              : "com.google.dagger:dagger:${versions.dagger}",
-        'daggerCompiler'      : "com.google.dagger:dagger-compiler:${versions.dagger}",
+    drawerlayout = { version = '1.0.0' -> Alias {
+        implementation "androidx.drawerlayout:drawerlayout:$version"
+    }}
 
-        'cicerone'            : "com.github.terrakok:cicerone:6.1",
+    moxy = { moxyVersion = '2.2.1' -> Alias {
+        implementation "com.github.moxy-community:moxy:$moxyVersion"
+        implementation "com.github.moxy-community:moxy-androidx:$moxyVersion"
+        implementation "com.github.moxy-community:moxy-ktx:$moxyVersion"
+        kapt "com.github.moxy-community:moxy-compiler:$moxyVersion"
+    }}
 
-        //network
-        'gson'                : "com.google.code.gson:gson:${versions.gson}",
-        'retrofit'            : "com.squareup.retrofit2:retrofit:${versions.retrofit}",
-        'rxAdapter'           : "com.squareup.retrofit2:adapter-rxjava2:${versions.retrofit}",
-        'coroutinsAdapter'    : 'com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2',
-        'gsonConverter'       : "com.squareup.retrofit2:converter-gson:${versions.retrofit}",
-        'okhttp'              : "com.squareup.okhttp3:okhttp:${versions.okhttp}",
-        'logging'             : 'com.squareup.okhttp3:logging-interceptor:3.14.1',
-        'picasso'             : "com.squareup.picasso:picasso:${versions.picasso}",
-        'okhttpDownloader'    : "com.jakewharton.picasso:picasso2-okhttp3-downloader:${versions.okhttpDownloader}",
-        'retrofitRxAdapter'   : "com.jakewharton.retrofit:retrofit2-rxjava2-adapter:${versions.retrofitRxAdapter}",
-        'stetho'              : "com.facebook.stetho:stetho:${versions.stetho}",
-        'networkInterceptor'  : "com.facebook.stetho:stetho-okhttp3:${versions.stetho}",
+    lifecycle = { version = '2.3.0' -> Alias {
+        implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
+        implementation "androidx.lifecycle:lifecycle-livedata-core-ktx:$version"
+        implementation "androidx.lifecycle:lifecycle-livedata-ktx:$version"
+        implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$version"
+    }}
 
-        // icons
-        'materialTypeface'    : "com.mikepenz:google-material-typeface:3.0.1.2.original@aar",
-        'iconicsCore'         : "com.mikepenz:iconics-core:3.0.4@aar",
-        'iconicsTypeface'     : "com.mikepenz:material-design-iconic-typeface:2.2.0.4@aar",
-        'textDrawable'        : "com.amulyakhare:com.amulyakhare.textdrawable:1.0.1",
-        'drawer'              : "com.mikepenz:materialdrawer:${versions.materialdrawer}",
-        'drawerNav'           : "com.mikepenz:materialdrawer-nav:${versions.materialdrawer}",
-        'drawerIcon'          : "com.mikepenz:materialdrawer-iconics:${versions.materialdrawer}",
+    room = { version = '2.2.6' -> Alias {
+        implementation "androidx.room:room-runtime:$version"
+        kapt "androidx.room:room-compiler:$version"
+        implementation "androidx.room:room-ktx:$version"
+        implementation "androidx.room:room-rxjava2:$version"
+    }}
 
-        'jodaTime'            : 'joda-time:joda-time:2.10.3',
-        'toasty'              : 'com.github.GrenderG:Toasty:1.4.2',
-        'materialDialogsCore' : 'com.afollestad.material-dialogs:core:3.3.0',//https://github.com/afollestad/material-dialogs
-        'materialDialogsInput': 'com.afollestad.material-dialogs:input:3.3.0',
-        'materialDialogsColor': 'com.afollestad.material-dialogs:color:3.3.0',
-        'betterpickers'       : 'com.code-troopers.betterpickers:library:3.1.0',
-        'rxpermissions'  : 'com.github.tbruyelle:rxpermissions:0.10.2',
-        'inputmask'      : 'com.redmadrobot:input-mask-android:5.0.0',
-        'leakcanary'     : 'com.squareup.leakcanary:leakcanary-android:1.6.3',
+    multidex = { version = '2.0.1' -> Alias {
+        implementation "androidx.multidex:multidex:$version"
+    }}
 
-        //tests
-        'junit'          : "junit:junit:${versions.junit}",
-        'extJunit'       : 'androidx.test.ext:junit:1.1.1',
-        'rules'          : 'androidx.test:rules:1.1.1',
-        'runner'         : 'androidx.test:runner:1.2.0',
-        'assertjCore'    : "org.assertj:assertj-core:3.12.2",
-        'assertjAndroid' : 'com.squareup.assertj:assertj-android:1.2.0',
-        'assertjSupport' : 'com.squareup.assertj:assertj-android-support-v4:1.2.0',
-        'mockitoCore'    : "org.mockito:mockito-core:${versions.mockito}",
-        'mockitoAndroid' : "org.mockito:mockito-android:${versions.mockito}",
-        'mockitoKotlin'  : "com.nhaarman:mockito-kotlin:${versions.mockitoKotlin}",
-        'robolectric'    : "org.robolectric:robolectric:${versions.robolectric}",
-        'mockWebServer'  : "com.squareup.okhttp3:mockwebserver:${versions.okhttp}",
-        'roomxTesting'   : 'androidx.room:room-testing:2.0.0',
-        'roomTesting'    : "android.arch.persistence.room:testing:${versions.room}",
-        'livedataTesting': 'androidx.arch.core:core-testing:2.0.0',
+    navigation = { version = '2.3.2' -> Alias {
+        implementation "androidx.navigation:navigation-fragment-ktx:$version"
+        implementation "androidx.navigation:navigation-ui-ktx:$version"
+    }}
 
-        'dbDebug'        : 'com.amitshekhar.android:debug-db:1.0.6',
+    preference = { version = '1.1.1' -> Alias {
+        implementation "androidx.preference:preference:$version"
+    }}
 
-        'poi'            : "org.apache.poi:poi:3.9",
-        'dropboxCoreSdk' : "com.dropbox.core:dropbox-core-sdk:3.1.3",
-]
+    firebaseBom = { version = '26.3.0' -> Alias {
+        implementation platform('com.google.firebase:firebase-bom:26.3.0')
+    }}
+
+    firebaseAuth = { version = '19.2.0' -> Alias {
+        implementation "com.google.firebase:firebase-auth-ktx"
+    }}
+
+    analytics = { version = '26.3.0' -> Alias {
+        implementation 'com.google.firebase:firebase-crashlytics-ktx'
+        implementation 'com.google.firebase:firebase-analytics-ktx'
+    }}
+
+    firestore = { version = '26.3.0' -> Alias {
+        implementation 'com.google.firebase:firebase-firestore-ktx'
+    }}
+
+    googleSheets = { version = 'v4-rev612-1.25.0' -> Alias {
+        implementation("com.google.apis:google-api-services-sheets:$version")
+    }}
+
+    googleDrive = { version = 'v3-rev69-1.22.0' -> Alias {
+        implementation("com.google.apis:google-api-services-drive:$version") {
+            exclude group: 'org.apache.httpcomponents'
+        }
+    }}
+
+    googleAuth = { version = '19.0.0' -> Alias {
+        implementation "com.google.android.gms:play-services-auth:$version"
+    }}
+
+    googleApiClient = { version = '1.23.0' -> Alias {
+        implementation('com.google.api-client:google-api-client-android:1.23.0') {
+            exclude group: 'org.apache.httpcomponents'
+        }
+    }}
+
+    exoplayer = { version = '2.12.2' -> Alias {
+        implementation "com.google.android.exoplayer:exoplayer:$version"
+        implementation "com.google.android.exoplayer:exoplayer-core:$version"
+        implementation "com.google.android.exoplayer:exoplayer-dash:$version"
+        implementation "com.google.android.exoplayer:extension-mediasession:2.8.4"
+        implementation "com.google.android.exoplayer:exoplayer-ui:$version"
+        implementation "com.google.android.exoplayer:exoplayer-hls:$version"
+        implementation "com.google.android.exoplayer:extension-workmanager:$version"
+    }}
+
+    media = { version = '1.1.0' -> Alias {
+        implementation "androidx.media:media:$version"
+    }}
+
+    cicerone = { version = '6.6' -> Alias {
+        implementation "com.github.terrakok:cicerone:$version"
+    }}
+
+    jodaTime = { version = '2.10.8' -> Alias {
+        implementation "joda-time:joda-time:$version"
+    }}
+
+    rxpermissions = { version = '0.10.2' -> Alias {
+        implementation "com.github.tbruyelle:rxpermissions:$version"
+    }}
+
+    firebaseDatabase = { version = '19.2.1' -> Alias {
+        implementation "com.google.firebase:firebase-database-ktx:$version"
+    }}
+
+    viewbindingpropertydelegate = { version = '1.3.0' -> Alias {
+        implementation "com.kirich1409.viewbindingpropertydelegate:vbpd-noreflection:$version"
+    }}
+
+    tests = { junit = '4.13.1' -> Alias {
+        testImplementation "junit:junit:$version"
+        androidTestImplementation "androidx.test.ext:junit:1.1.2"
+        androidTestImplementation "androidx.test.espresso:espresso-core:3.3.0"
+    }}
+
+    coroutines = { version = '1.4.2' -> Alias {
+        implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$version"
+        implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$version"
+    }}
+
+    rxjava2 = { version = '2.2.15' -> Alias {
+        implementation "io.reactivex.rxjava2:rxjava:$version"
+        implementation "io.reactivex.rxjava2:rxandroid:2.1.1"
+        implementation "io.reactivex.rxjava2:rxkotlin:2.4.0"
+    }}
+
+    materialdrawer = { version = '8.4.3' -> Alias {
+        implementation "com.mikepenz:materialdrawer:$version"
+        implementation "com.mikepenz:materialdrawer-nav:$version"
+        implementation "com.mikepenz:materialdrawer-iconics:$version"
+    }}
+
+    androidChart = { version = 'v3.1.0' -> Alias {
+        implementation "com.github.PhilJay:MPAndroidChart:$version"
+    }}
+
+    toasty = { version = '1.5.0' -> Alias {
+        implementation "com.github.GrenderG:Toasty:$version"
+    }}
+
+    rxjava3 = { version = '3.0.0' -> Alias {
+        implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+        implementation 'io.reactivex.rxjava3:rxjava:3.0.0'
+        implementation "io.reactivex.rxjava3:rxkotlin:3.0.0"
+    }}
+
+    coroutineScopes = { version = '1.0.1' -> Alias {
+        implementation 'be.rottenrei:android-coroutine-scopes:1.0.1'
+    }}
+
+    retrofit = { version = '2.6.2' -> Alias {
+        implementation("com.squareup.retrofit2:retrofit:$version") {
+            exclude module: 'okhttp'
+        }
+        implementation "com.squareup.retrofit2:converter-gson:$version"
+        implementation "com.squareup.retrofit2:converter-scalars:$version"
+    }}
+
+    rxjava2Adapter = { version = '2.2.0' -> Alias {
+        implementation "com.squareup.retrofit2:adapter-rxjava2:$version"
+    }}
+
+    gson = { version = '2.8.5' -> Alias {
+        implementation "com.google.code.gson:gson:$version"
+    }}
+
+    jsoup = { version = '1.13.1' -> Alias {
+        implementation "org.jsoup:jsoup:$version"
+    }}
+
+    retrofitHtmlConverter = { version = '0.0.2' -> Alias {
+        implementation "com.github.slashrootv200:retrofit-html-converter:$version"
+    }}
+
+    okhttp = { version = '4.9.0' -> Alias {
+        implementation "com.squareup.okhttp3:okhttp:$version"
+        implementation "com.squareup.okhttp3:logging-interceptor:$version"
+    }}
+
+    chuck = { version = '1.1.0' -> Alias {
+        implementation "com.readystatesoftware.chuck:library:$version"
+    }}
+
+    stetho = { version = '1.5.1' -> Alias {
+        implementation "com.facebook.stetho:stetho:$version"
+        implementation "com.facebook.stetho:stetho-okhttp3:$version"
+    }}
+
+    dagger = { version = '2.33' -> Alias {
+        implementation "com.google.dagger:dagger:$version"
+        implementation "com.google.dagger:dagger-android:$version"
+        implementation "com.google.dagger:dagger-android-support:$version"
+        kapt "com.google.dagger:dagger-compiler:$version"
+        kapt "com.google.dagger:dagger-android-processor:$version"
+    }}
+
+    daggerHilt = { version = '2.33-beta' -> Alias {
+        implementation "com.google.dagger:hilt-android:$version"
+        kapt "com.google.dagger:hilt-compiler:$version"
+    }}
+
+    daggerHiltTests = { version = '2.33-beta' -> Alias {
+        androidTestImplementation  "com.google.dagger:hilt-android-testing:$version"
+        kaptAndroidTest "com.google.dagger:hilt-compiler:$version"
+        testImplementation "com.google.dagger:hilt-android-testing:$version"
+        kaptTest "com.google.dagger:hilt-compiler:$version"
+    }}
+
+    glide = { version = '4.11.0' -> Alias {
+        implementation "com.github.bumptech.glide:glide:$version"
+        kapt "com.github.bumptech.glide:compiler:$version"
+        implementation("com.github.bumptech.glide:okhttp3-integration:$version") {
+            exclude group: 'glide-parent'
+        }
+    }}
+
+    appcompat = { version = '1.2.0' -> Alias {
+        implementation "androidx.appcompat:appcompat:$version"
+    }}
+
+    supportLegacy = { version = '1.0.0' -> Alias {
+        implementation "androidx.legacy:legacy-support-v4:$version"
+    }}
+
+    recycler = { version = '1.2.0' -> Alias {
+        implementation "androidx.recyclerview:recyclerview:$version"
+    }}
+
+    constraintlayout = { version = '2.0.4' -> Alias {
+        implementation "androidx.constraintlayout:constraintlayout:$version"
+    }}
+
+    swiperefresh = { version = '1.1.0' -> Alias {
+        implementation "androidx.swiperefreshlayout:swiperefreshlayout:$version"
+    }}
+
+    viewpager2 = { version = '1.0.0' -> Alias {
+        implementation "androidx.viewpager2:viewpager2:$version"
+    }}
+
+    paging = { version = '3.0.0' -> Alias {
+        implementation "androidx.paging:paging-runtime-ktx:$version"
+    }}
+
+    exifinterface = { version = '1.1.0' -> Alias {
+        implementation "androidx.exifinterface:exifinterface:$version"
+    }}
+
+    transition = { version = '1.3.1' -> Alias {
+        implementation "androidx.transition:transition:$version"
+    }}
+
+    cardview = { version = '1.0.0' -> Alias {
+        implementation "androidx.cardview:cardview:$version"
+    }}
+
+    material = { version = '1.3.0' -> Alias {
+        implementation "com.google.android.material:material:$version"
+    }}
+
+    inputmask = { version = '6.0.0' -> Alias {
+        implementation "com.redmadrobot:input-mask-android:$version"
+    }}
+
+    textdrawable = { version = '1.0.1' -> Alias {
+        implementation "com.amulyakhare:com.amulyakhare.textdrawable:$version"
+    }}
+
+    poi = { version = '3.9' -> Alias {
+        implementation "org.apache.poi:poi:$version"
+    }}
+
+    materialDialog = { version = '3.3.0' -> Alias {
+        implementation "com.afollestad.material-dialogs:core:$version"
+        implementation "com.afollestad.material-dialogs:input:$version"
+        implementation "com.afollestad.material-dialogs:color:$version"
+    }}
+
+    groupie = { version = '2.8.1' -> Alias {
+        implementation "com.xwray:groupie:$version"
+        implementation "com.xwray:groupie-kotlin-android-extensions:$version"
+        implementation "com.xwray:groupie-viewbinding:$version"
+    }}
+
+    leakcanary = { version = '2.7' -> Alias {
+        debugImplementation "com.squareup.leakcanary:leakcanary-android:$version"
+    }}
+
+    betterpickers = { version = '3.1.0' -> Alias {
+        implementation "com.code-troopers.betterpickers:library:$version"
+    }}
+
+    unitTest = { version = '' -> Alias {
+        testImplementation 'org.junit.jupiter:junit-jupiter:5.5.2'
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.2'
+        testCompileOnly 'org.junit.jupiter:junit-jupiter-engine:5.5.2'
+        testImplementation 'com.google.guava:guava:28.1-android'
+        testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
+    }}
+
+    androidTest = { -> Alias {
+        androidTestImplementation 'org.mockito:mockito-android:3.1.0'
+        androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+        androidTestImplementation 'androidx.test:runner:1.2.0'
+    }}
+}

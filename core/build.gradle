@@ -1,65 +1,26 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-
-android {
-    compileSdkVersion versions.compileSdk
-    buildToolsVersion versions.buildTools
-    defaultConfig {
-        minSdkVersion versions.minSdk
-        targetSdkVersion versions.targetSdk
-        versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    buildTypes {
-        debug {
-            debuggable true
-        }
-        release {
-            debuggable false
-        }
-        forTest {
-            debuggable true
-        }
-        prerelease {
-            debuggable true
-        }
-    }
-
-    compileOptions {
-        targetCompatibility JavaVersion.VERSION_1_8
-        sourceCompatibility JavaVersion.VERSION_1_8
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
-    }
-}
+apply plugin: 'kotlin-kapt'
+apply from: "$dep_aliases"
+apply from: "$commonconfig"
 
 dependencies {
-    implementation libs.kotlinStdlib
-    /*support*/
-    implementation libs.appCompat
-    implementation libs.design
-    implementation libs.support
-    implementation libs.preference
-    implementation libs.ktxCore
-    //rx2
-    implementation libs.rxJava
-    implementation libs.rxAndroid
-    implementation libs.rxKotlin
-    //room
-    implementation libs.roomRx
-    //custom
-    implementation libs.jodaTime
-    implementation libs.gson
-    implementation libs.okhttp
-    implementation libs.toasty
-    implementation libs.materialTypeface
-    implementation libs.materialDialogsCore
-    implementation libs.materialDialogsInput
-    implementation libs.iconicsCore
-    implementation libs.iconicsTypeface
-    implementation libs.textDrawable
+    kotlin()
+    lifecycle()
+    unitTest()
+    androidTest()
+    appcompat()
+    supportLegacy()
+    material()
+    room()
+    preference()
+    cardview()
+    constraintlayout()
+    rxjava2()
+    gson()
+    okhttp()
+    dagger()
+    toasty()
+    jodaTime()
+    textdrawable()
 }

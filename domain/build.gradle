@@ -1,72 +1,17 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
-
-android {
-    compileSdkVersion versions.compileSdk
-    buildToolsVersion versions.buildTools
-    defaultConfig {
-        minSdkVersion versions.minSdk
-        targetSdkVersion versions.targetSdk
-        versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        multiDexEnabled true
-    }
-
-    buildTypes {
-        debug {
-            debuggable true
-        }
-        release {
-            debuggable false
-        }
-        forTest {
-            debuggable true
-        }
-        prerelease {
-            debuggable true
-        }
-    }
-
-    compileOptions {
-        targetCompatibility JavaVersion.VERSION_1_8
-        sourceCompatibility JavaVersion.VERSION_1_8
-    }
-
-    testOptions {
-        unitTests {
-            includeAndroidResources = true
-            returnDefaultValues = true
-        }
-    }
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
-    }
-}
+apply from: "$dep_aliases"
+apply from: "$commonconfig"
 
 dependencies {
     implementation project(path: ':core')
     implementation project(path: ':customfields')
-    implementation libs.kotlinStdlib
-    //rx2
-    implementation libs.rxJava
-    implementation libs.rxAndroid
-    implementation libs.rxKotlin
-    /*tests*/
-    implementation libs.junit
-    androidTestImplementation libs.extJunit
-    androidTestImplementation libs.rules
-    implementation libs.assertjCore
-    androidTestImplementation libs.assertjAndroid
-    implementation libs.mockitoCore
-    androidTestImplementation libs.mockitoAndroid
-    //di
-    implementation libs.dagger
-    kapt libs.daggerCompiler
-    implementation libs.poi
-
-    implementation libs.okhttp
-    implementation libs.dropboxCoreSdk
-    implementation libs.localBrodcast
+    kotlin()
+    rxjava2()
+    unitTest()
+    androidTest()
+    dagger()
+    poi()
+    okhttp()
 }

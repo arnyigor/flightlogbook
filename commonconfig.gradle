@@ -1,0 +1,141 @@
+android {
+    signingConfigs {
+        release
+    }
+    compileSdkVersion versions.compileSdkVersion
+    buildToolsVersion versions.buildToolsVersion
+    def vMajor = 6
+    def vMinor = 3
+    def vBuild = 1
+    defaultConfig {
+        minSdkVersion versions.minSdkVersion
+        targetSdkVersion versions.targetSdkVersion
+        versionCode vMajor * 100 + vMinor * 10 + vBuild
+        versionName "${vMajor}" + "${vMinor}" + "${vBuild}"
+        setProperty("archivesBaseName", applicationId + "-v" + "(" + versionName + ")")
+        archivesBaseName = "$applicationId-v$versionCode($versionName)"
+        vectorDrawables.useSupportLibrary = true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [
+                        "dagger.experimentalDaggerErrorMessages": "enabled"
+                ]
+            }
+        }
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+
+    packagingOptions {
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/MANIFEST.MF'
+    }
+
+    sourceSets {
+        main.java.srcDirs += "src/main/kotlin"
+        test.java.srcDirs += "src/test/kotlin"
+        androidTest.java.srcDirs += "src/androidTest/kotlin"
+        test.resources.srcDirs += 'src/unitTests/resources'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+        freeCompilerArgs += "-Xuse-experimental=kotlin.Experimental"
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+            resValue "string", "app_name", "Pilot Logbook[DEBUG]"
+            debuggable true
+            minifyEnabled false
+            useProguard false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguardTest-rules.pro'
+        }
+        release {
+            debuggable false
+            minifyEnabled true
+            useProguard true
+            resValue "string", "app_name", "Pilot Logbook"
+            shrinkResources true
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguardTest-rules.pro'
+        }
+        forTest {
+            applicationIdSuffix ".debug"
+            debuggable true
+            minifyEnabled false
+            useProguard false
+            resValue "string", "app_name", "Pilot Logbook[DEBUG]"
+            shrinkResources false
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguardTest-rules.pro'
+        }
+        prerelease {
+            debuggable true
+            minifyEnabled true
+            useProguard true
+            resValue "string", "app_name", "Pilot Logbook"
+            shrinkResources true
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguardTest-rules.pro'
+        }
+    }
+
+    compileOptions {
+        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_8
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+            returnDefaultValues = true
+        }
+    }
+
+    testOptions.unitTests.all {
+        jvmArgs "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap"
+    }
+}
+
+//Properties props = new Properties()
+//def propFile = new File('signing.properties')
+//if (propFile.canRead()) {
+//    props.load(new FileInputStream(propFile))
+//
+//    if (props != null && props.containsKey('STORE_FILE') && props.containsKey('STORE_PASSWORD') &&
+//            props.containsKey('KEY_ALIAS') && props.containsKey('KEY_PASSWORD')) {
+//        android.signingConfigs.release.storeFile = file(props['STORE_FILE'])
+//        android.signingConfigs.release.storePassword = props['STORE_PASSWORD']
+//        android.signingConfigs.release.keyAlias = props['KEY_ALIAS']
+//        android.signingConfigs.release.keyPassword = props['KEY_PASSWORD']
+//    } else {
+//        println 'signing.properties found but some entries are missing'
+//        android.buildTypes.release.signingConfig = null
+//    }
+//} else {
+//    println 'signing.properties not found'
+//    android.buildTypes.release.signingConfig = null
+//}
