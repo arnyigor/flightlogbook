@@ -1,15 +1,19 @@
 package com.arny.flightlogbook.presentation.flighttypes.list
 
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import androidx.core.view.isVisible
 import com.arny.domain.models.FlightType
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
-import kotlinx.android.synthetic.main.type_list_item_layout.view.*
+import com.arny.flightlogbook.databinding.TypeListItemLayoutBinding
 
 class FlightTypesAdapter(
-        private val hideEdit: Boolean = false,
-        private val typesListener: FlightTypesListener? = null
+    private val hideEdit: Boolean = false,
+    private val typesListener: FlightTypesListener? = null
 ) : SimpleAbstractAdapter<FlightType>() {
+    private lateinit var binding: TypeListItemLayoutBinding
+
     override fun getLayout(viewType: Int): Int {
         return R.layout.type_list_item_layout
     }
@@ -19,17 +23,25 @@ class FlightTypesAdapter(
         fun onDeleteType(item: FlightType)
     }
 
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+        val inflater = LayoutInflater.from(parent.context)
+        binding = TypeListItemLayoutBinding.inflate(inflater, parent, false)
+        return VH(binding.root)
+    }
+
     override fun bindView(item: FlightType, viewHolder: VH) {
         viewHolder.itemView.apply {
             val position = viewHolder.adapterPosition
-            tvTypeTitle.text = item.typeTitle
-            iv_type_edit.isVisible = !hideEdit
-            iv_type_delete.isVisible = !hideEdit
-            iv_type_edit.setOnClickListener {
-                typesListener?.onEditType(position, item)
-            }
-            iv_type_delete.setOnClickListener {
-                typesListener?.onDeleteType(item)
+            with(binding) {
+                tvTypeTitle.text = item.typeTitle
+                ivTypeEdit.isVisible = !hideEdit
+                ivTypeDelete.isVisible = !hideEdit
+                ivTypeEdit.setOnClickListener {
+                    typesListener?.onEditType(position, item)
+                }
+                ivTypeDelete.setOnClickListener {
+                    typesListener?.onDeleteType(item)
+                }
             }
             setOnClickListener {
                 typesListener?.onItemClick(position, item)

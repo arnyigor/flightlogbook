@@ -1,11 +1,12 @@
 package com.arny.flightlogbook.presentation.customfields.list
 
-
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,10 +17,10 @@ import com.arny.core.utils.ToastMaker
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.flightlogbook.customfields.models.CustomField
+import com.arny.flightlogbook.databinding.FragmentCustomFieldsListBinding
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.flightlogbook.presentation.main.NavigateItems
-import kotlinx.android.synthetic.main.fragment_custom_fields_list.*
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 
@@ -31,6 +32,7 @@ class CustomFieldsListFragment : BaseMvpFragment(), CustomFieldsListView {
         }
     }
 
+    private lateinit var binding: FragmentCustomFieldsListBinding
     private var reload: Boolean = false
     private var title: Int = R.string.custom_fields
     private lateinit var customFieldsAdapter: CustomFieldsAdapter
@@ -50,9 +52,16 @@ class CustomFieldsListFragment : BaseMvpFragment(), CustomFieldsListView {
         }
     }
 
-    override fun getLayoutId(): Int = R.layout.fragment_custom_fields_list
+    override fun getTitle(): String = getString(title)
 
-    override fun getTitle(): String? = getString(title)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentCustomFieldsListBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -60,22 +69,25 @@ class CustomFieldsListFragment : BaseMvpFragment(), CustomFieldsListView {
         title = if (isRequestField) R.string.custom_field_select else R.string.custom_fields
         updateTitle()
         customFieldsAdapter = CustomFieldsAdapter()
-        rvFieldsList.apply {
+        binding.rvFieldsList.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = customFieldsAdapter
         }
-        customFieldsAdapter.setViewHolderListener(object : SimpleAbstractAdapter.OnViewHolderListener<CustomField> {
+        customFieldsAdapter.setViewHolderListener(object :
+            SimpleAbstractAdapter.OnViewHolderListener<CustomField> {
             override fun onItemClick(position: Int, item: CustomField) {
                 if (isRequestField) {
-                    appRouter?.setResultToTargetFragment(this@CustomFieldsListFragment, Intent().apply {
-                        putExtra(EXTRA_CUSTOM_FIELD_ID, item.id)
-                    })
+                    appRouter?.setResultToTargetFragment(
+                        this@CustomFieldsListFragment,
+                        Intent().apply {
+                            putExtra(EXTRA_CUSTOM_FIELD_ID, item.id)
+                        })
                 } else {
                     presenter.onItemClick(item)
                 }
             }
         })
-        fabAddCustomField.setOnClickListener {
+        binding.fabAddCustomField.setOnClickListener {
             presenter.onFabClicked()
         }
     }
@@ -89,7 +101,7 @@ class CustomFieldsListFragment : BaseMvpFragment(), CustomFieldsListView {
     }
 
     override fun showProgress(show: Boolean) {
-        pbLoader.isVisible = show
+        binding.pbLoader.isVisible = show
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -105,19 +117,19 @@ class CustomFieldsListFragment : BaseMvpFragment(), CustomFieldsListView {
 
     override fun navigateToFieldEdit(id: Long?) {
         appRouter?.navigateTo(
-                NavigateItems.ITEM_EDIT_FIELD,
-                true,
-                bundleOf(
-                        EXTRA_CUSTOM_FIELD_ID to id,
-                        CONSTS.REQUESTS.REQUEST to true
-                ),
-                requestCode = REQUEST_EDIT_CUSTOM_FIELD,
-                targetFragment = this@CustomFieldsListFragment
+            NavigateItems.ITEM_EDIT_FIELD,
+            true,
+            bundleOf(
+                EXTRA_CUSTOM_FIELD_ID to id,
+                CONSTS.REQUESTS.REQUEST to true
+            ),
+            requestCode = REQUEST_EDIT_CUSTOM_FIELD,
+            targetFragment = this@CustomFieldsListFragment
         )
     }
 
     override fun showEmptyView(show: Boolean) {
-        tvEmptyView.isVisible = show
+        binding.tvEmptyView.isVisible = show
     }
 
     override fun showList(list: List<CustomField>) {

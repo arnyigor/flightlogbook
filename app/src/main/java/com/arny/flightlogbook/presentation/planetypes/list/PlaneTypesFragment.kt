@@ -3,9 +3,7 @@ package com.arny.flightlogbook.presentation.planetypes.list
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.View
+import android.view.*
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DefaultItemAnimator
@@ -15,10 +13,10 @@ import com.arny.core.utils.ToastMaker
 import com.arny.core.utils.alertDialog
 import com.arny.domain.models.PlaneType
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.databinding.PlaneTypesLayoutBinding
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.flightlogbook.presentation.main.NavigateItems
-import kotlinx.android.synthetic.main.plane_types_layout.*
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 
@@ -29,6 +27,7 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView, View.OnClickListen
         }
     }
 
+    private lateinit var binding: PlaneTypesLayoutBinding
     private var adapter: PlaneTypesAdapter? = null
 
     @InjectPresenter
@@ -51,41 +50,51 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView, View.OnClickListen
         setHasOptionsMenu(true)
     }
 
-    override fun getLayoutId(): Int = R.layout.plane_types_layout
-    override fun getTitle(): String? = getString(R.string.str_airplane_types)
+    override fun getTitle(): String = getString(R.string.str_airplane_types)
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = PlaneTypesLayoutBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val isRequestField = arguments?.getBoolean(CONSTS.REQUESTS.REQUEST) == true
-        rv_plane_types.layoutManager = LinearLayoutManager(context)
-        rv_plane_types.itemAnimator = DefaultItemAnimator()
+        binding.rvPlaneTypes.layoutManager = LinearLayoutManager(context)
+        binding.rvPlaneTypes.itemAnimator = DefaultItemAnimator()
         adapter = PlaneTypesAdapter(
-                false,
-                typesListener = object : PlaneTypesAdapter.PlaneTypesListener {
-                    override fun onEditType(position: Int, item: PlaneType) {
-                        appRouter?.navigateTo(
-                                NavigateItems.PLANE_TYPE_EDIT,
-                                true,
-                                bundleOf(CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID to item.typeId),
-                                requestCode = CONSTS.REQUESTS.REQUEST_EDIT_PLANE_TYPE,
-                                targetFragment = this@PlaneTypesFragment
-                        )
-                    }
+            false,
+            typesListener = object : PlaneTypesAdapter.PlaneTypesListener {
+                override fun onEditType(position: Int, item: PlaneType) {
+                    appRouter?.navigateTo(
+                        NavigateItems.PLANE_TYPE_EDIT,
+                        true,
+                        bundleOf(CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID to item.typeId),
+                        requestCode = CONSTS.REQUESTS.REQUEST_EDIT_PLANE_TYPE,
+                        targetFragment = this@PlaneTypesFragment
+                    )
+                }
 
-                    override fun onDeleteType(position: Int, item: PlaneType) {
-                        showRemoveDialog(item)
-                    }
+                override fun onDeleteType(position: Int, item: PlaneType) {
+                    showRemoveDialog(item)
+                }
 
-                    override fun onItemClick(position: Int, item: PlaneType) {
-                        if (isRequestField) {
-                            appRouter?.setResultToTargetFragment(this@PlaneTypesFragment, Intent().apply {
+                override fun onItemClick(position: Int, item: PlaneType) {
+                    if (isRequestField) {
+                        appRouter?.setResultToTargetFragment(
+                            this@PlaneTypesFragment,
+                            Intent().apply {
                                 putExtra(CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID, item.typeId)
                             })
-                        }
                     }
-                })
-        rv_plane_types.adapter = adapter
-        fab_add_plane_type.setOnClickListener(this)
+                }
+            })
+        binding.rvPlaneTypes.adapter = adapter
+        binding.fabAddPlaneType.setOnClickListener(this)
     }
 
     override fun onResume() {
@@ -103,17 +112,17 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView, View.OnClickListen
     }
 
     override fun setEmptyViewVisible(vis: Boolean) {
-        tv_no_plane_types.isVisible = vis
+        binding.tvNoPlaneTypes.isVisible = vis
     }
 
     override fun onClick(v: View) {
         when (v.id) {
             R.id.fab_add_plane_type -> {
                 appRouter?.navigateTo(
-                        NavigateItems.PLANE_TYPE_EDIT,
-                        true,
-                        requestCode = CONSTS.REQUESTS.REQUEST_EDIT_PLANE_TYPE,
-                        targetFragment = this@PlaneTypesFragment
+                    NavigateItems.PLANE_TYPE_EDIT,
+                    true,
+                    requestCode = CONSTS.REQUESTS.REQUEST_EDIT_PLANE_TYPE,
+                    targetFragment = this@PlaneTypesFragment
                 )
             }
         }
@@ -121,15 +130,16 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView, View.OnClickListen
 
     private fun showRemoveDialog(item: PlaneType) {
         alertDialog(
-                requireActivity(),
-                "${getString(R.string.str_delete)} ${item.typeName}?",
-                null,
-                getString(R.string.str_ok),
-                getString(R.string.str_cancel),
-                false,
-                onConfirm = {
-                    typeListPresenter.removeType(item)
-                })
+            context = requireActivity(),
+            title = "${getString(R.string.str_delete)} ${item.typeName}?",
+            content = null,
+            btnOkText = getString(R.string.str_ok),
+            btnCancelText = getString(R.string.str_cancel),
+            cancelable = false,
+            onConfirm = {
+                typeListPresenter.removeType(item)
+            }
+        )
     }
 
     override fun notifyItemChanged(position: Int) {

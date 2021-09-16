@@ -8,8 +8,8 @@ import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 
-
-abstract class SimpleAbstractAdapter<T>(private var items: ArrayList<T> = arrayListOf()) : RecyclerView.Adapter<SimpleAbstractAdapter.VH>() {
+abstract class SimpleAbstractAdapter<T>(private var items: ArrayList<T> = arrayListOf()) :
+    RecyclerView.Adapter<SimpleAbstractAdapter.VH>() {
     protected var listener: OnViewHolderListener<T>? = null
     private val filter = ArrayFilter()
     private val lock = Any()
@@ -58,16 +58,19 @@ abstract class SimpleAbstractAdapter<T>(private var items: ArrayList<T> = arrayL
 
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
             return areContentsTheSame(
-                    mOldItems[oldItemPosition],
-                    mNewItems[newItemPosition]
+                mOldItems[oldItemPosition],
+                mNewItems[newItemPosition]
             )
         }
 
         abstract fun areContentsTheSame(oldItem: T, newItem: T): Boolean
     }
 
-    class VH(itemView: View) : RecyclerView.ViewHolder(itemView){
-        constructor(parent: ViewGroup, @LayoutRes layout: Int):this(LayoutInflater.from(parent.context).inflate(layout, parent, false))
+    class VH(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        constructor(
+            parent: ViewGroup,
+            @LayoutRes layout: Int
+        ) : this(LayoutInflater.from(parent.context).inflate(layout, parent, false))
     }
 
     interface OnViewHolderListener<T> {
@@ -97,7 +100,7 @@ abstract class SimpleAbstractAdapter<T>(private var items: ArrayList<T> = arrayL
                     items.addAll(list)
                     diffResult.dispatchUpdatesTo(this)
                 }
-            }else{
+            } else {
                 items.addAll(list)
                 notifyDataSetChanged()
             }
@@ -115,10 +118,10 @@ abstract class SimpleAbstractAdapter<T>(private var items: ArrayList<T> = arrayL
         }
     }
 
-    fun add(position:Int, item: T) {
+    fun add(position: Int, item: T) {
         //Log.i(SimpleAbstractAdapter::class.java.simpleName, "add: position:$position,item:$item");
         try {
-            items.add(position,item)
+            items.add(position, item)
             notifyItemInserted(position)
         } catch (e: Exception) {
         }
@@ -142,7 +145,7 @@ abstract class SimpleAbstractAdapter<T>(private var items: ArrayList<T> = arrayL
         }
     }
 
-    fun clear(notify: Boolean=false) {
+    fun clear(notify: Boolean = false) {
         //Log.i(SimpleAbstractAdapter::class.java.simpleName, "clear: notify:$notify");
         items.clear()
         if (notify) {
@@ -243,7 +246,8 @@ abstract class SimpleAbstractAdapter<T>(private var items: ArrayList<T> = arrayL
             if (valueText.startsWith(contains.toString())) {
                 return true
             } else {
-                val words = valueText.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                val words =
+                    valueText.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
                 for (word in words) {
                     if (word.contains(contains)) {
                         return true

@@ -16,6 +16,7 @@ import com.arny.core.CONSTS.EXTRAS.EXTRA_ACTION_SELECT_PLANE_TYPE
 import com.arny.core.utils.replaceFragment
 import com.arny.core.utils.replaceFragmentInActivity
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.databinding.ActivityFragmentContainerBinding
 import com.arny.flightlogbook.presentation.airports.edit.AirportEditFragment
 import com.arny.flightlogbook.presentation.airports.list.AirportsFragment
 import com.arny.flightlogbook.presentation.customfields.edit.CustomFieldEditFragment
@@ -26,14 +27,16 @@ import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.flightlogbook.presentation.main.NavigateItems
 import com.arny.flightlogbook.presentation.planetypes.edit.PlaneTypeEditFragment
 import com.arny.flightlogbook.presentation.planetypes.list.PlaneTypesFragment
-import kotlinx.android.synthetic.main.about_layout.*
 
 class FragmentContainerActivity : AppCompatActivity(), AppRouter {
 
+    private lateinit var binding: ActivityFragmentContainerBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_fragment_container)
-        setSupportActionBar(toolbar)
+        binding = ActivityFragmentContainerBinding.inflate(layoutInflater);
+        setContentView(binding.root);
+        setSupportActionBar(binding.incMainToolbar.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         getFragmentContainer(intent.action, intent.extras)
                 ?.let { replaceFragmentInActivity(it.fragment, R.id.fragment_container, it.tag) }

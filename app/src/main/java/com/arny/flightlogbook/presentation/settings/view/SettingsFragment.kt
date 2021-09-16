@@ -7,7 +7,9 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.view.isVisible
 import com.arny.core.CONSTS
 import com.arny.core.utils.Utility
@@ -15,14 +17,14 @@ import com.arny.core.utils.alertDialog
 import com.arny.core.utils.launchIntent
 import com.arny.core.utils.shareFileWithType
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.databinding.SettingsFragmentBinding
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.settings.presenter.SettingsPresenter
 import com.tbruyelle.rxpermissions2.RxPermissions
-import kotlinx.android.synthetic.main.settings_fragment.*
 import moxy.ktx.moxyPresenter
 
-
 class SettingsFragment : BaseMvpFragment(), SettingsView {
+    private lateinit var binding: SettingsFragmentBinding
     private var pDialog: ProgressDialog? = null
     private var rxPermissions: RxPermissions? = null
 
@@ -32,9 +34,16 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
 
     private val presenter by moxyPresenter { SettingsPresenter() }
 
-    override fun getLayoutId(): Int = R.layout.settings_fragment
+    override fun getTitle(): String = getString(R.string.str_settings)
 
-    override fun getTitle(): String? = getString(R.string.str_settings)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = SettingsFragmentBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -42,61 +51,61 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
         pDialog?.setCancelable(false)
         pDialog?.setCanceledOnTouchOutside(false)
         rxPermissions = RxPermissions(this)
-        btnLoadFromFile.setOnClickListener {
+        binding.btnLoadFromFile.setOnClickListener {
             rxPermissions?.request(
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
             )
-                    ?.subscribe { granted ->
-                        if (granted) {
-                            showAlertImport()
-                        }
+                ?.subscribe { granted ->
+                    if (granted) {
+                        showAlertImport()
                     }
+                }
         }
-        btnExportToFile.setOnClickListener {
+        binding.btnExportToFile.setOnClickListener {
             rxPermissions?.request(
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
             )
-                    ?.subscribe { granted ->
-                        if (granted) {
-                            presenter.exportToFile()
-                        }
+                ?.subscribe { granted ->
+                    if (granted) {
+                        presenter.exportToFile()
                     }
+                }
         }
-        chbAutoExport.setOnCheckedChangeListener { _, isChecked ->
+        binding.chbAutoExport.setOnCheckedChangeListener { _, isChecked ->
             presenter.onAutoExportChanged(isChecked)
         }
-        chbSaveLastFlightData.setOnCheckedChangeListener { _, isChecked ->
+        binding.chbSaveLastFlightData.setOnCheckedChangeListener { _, isChecked ->
             presenter.onSaveLastDataChanged(isChecked)
         }
-        ivShareFile.setOnClickListener {
+        binding.ivShareFile.setOnClickListener {
             presenter.onShareFileClick()
         }
     }
 
     private fun showAlertImport() {
         alertDialog(
-                context,
-                getString(R.string.str_import_attention),
-                getString(R.string.str_import_massage),
-                getString(R.string.str_ok),
-                getString(R.string.str_cancel),
-                true,
-                (::chooseFile)
+            context = context,
+            title = getString(R.string.str_import_attention),
+            content = getString(R.string.str_import_massage),
+            btnOkText = getString(R.string.str_ok),
+            btnCancelText = getString(R.string.str_cancel),
+            cancelable = true,
+            onConfirm = (::chooseFile)
         )
     }
 
     private fun chooseFile() {
         alertDialog(
-                context,
-                getString(R.string.str_import_attention),
-                getString(R.string.str_import_local_file_or_disk),
-                getString(R.string.str_import_local_file),
-                getString(R.string.str_import_file_from_disk),
-                true, {
-            presenter.loadDefaultFile()
-        }, (::requestFile)
+            context = context,
+            title = getString(R.string.str_import_attention),
+            content = getString(R.string.str_import_local_file_or_disk),
+            btnOkText = getString(R.string.str_import_local_file),
+            btnCancelText = getString(R.string.str_import_file_from_disk),
+            cancelable = true, onConfirm = {
+                presenter.loadDefaultFile()
+            }, onCancel = (::requestFile)
         )
     }
 
@@ -129,30 +138,30 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
 
     override fun showError(msg: Int, error: String?) {
         if (error.isNullOrBlank()) {
-            tvResultInfo.text = getString(msg)
+            binding.tvResultInfo.text = getString(msg)
         } else {
-            tvResultInfo.text = getString(msg, error)
+            binding.tvResultInfo.text = getString(msg, error)
         }
     }
 
     override fun setAutoExportChecked(checked: Boolean) {
-        chbAutoExport.isChecked = checked
+        binding.chbAutoExport.isChecked = checked
     }
 
     override fun setShareFileVisible(visible: Boolean) {
-        ivShareFile.isVisible = visible
+        binding.ivShareFile.isVisible = visible
     }
 
     override fun showResults(intRes: Int, path: String) {
-        tvResultInfo.text = getString(intRes, path)
+        binding.tvResultInfo.text = getString(intRes, path)
     }
 
     override fun showResults(results: String) {
-        tvResultInfo.text = results
+        binding.tvResultInfo.text = results
     }
 
     override fun hideResults() {
-        tvResultInfo.text = ""
+        binding.tvResultInfo.text = ""
     }
 
     override fun showProgress(msg: Int) {
@@ -164,7 +173,7 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
     }
 
     override fun setSaveLastFlightData(checked: Boolean) {
-        chbSaveLastFlightData.isChecked = checked
+        binding.chbSaveLastFlightData.isChecked = checked
     }
 
     override fun openWith(pair: Pair<Uri, String?>) {

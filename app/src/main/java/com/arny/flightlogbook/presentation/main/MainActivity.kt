@@ -15,6 +15,7 @@ import com.arny.core.utils.launchActivity
 import com.arny.core.utils.replaceFragment
 import com.arny.core.utils.showSnackBar
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.databinding.ActivityHomeBinding
 import com.arny.flightlogbook.presentation.airports.list.AirportsFragment
 import com.arny.flightlogbook.presentation.common.FragmentContainer
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
@@ -24,7 +25,6 @@ import com.arny.flightlogbook.presentation.flighttypes.list.FlightTypesFragment
 import com.arny.flightlogbook.presentation.planetypes.list.PlaneTypesFragment
 import com.arny.flightlogbook.presentation.settings.view.SettingsFragment
 import com.arny.flightlogbook.presentation.statistic.view.StatisticFragment
-import kotlinx.android.synthetic.main.activity_home.*
 
 class MainActivity : AppCompatActivity(), AppRouter {
     companion object {
@@ -32,29 +32,34 @@ class MainActivity : AppCompatActivity(), AppRouter {
         private const val TIME_DELAY = 2000
     }
 
+    private lateinit var binding: ActivityHomeBinding
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
     private lateinit var toolbar: Toolbar
     private var backPressedTime: Long = 0
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_home)
+        binding = ActivityHomeBinding.inflate(layoutInflater);
+        setContentView(binding.root);
         toolbar = findViewById(R.id.home_toolbar)
         setSupportActionBar(toolbar)
         toolbar.title = getString(R.string.fragment_logbook)
-        actionBarDrawerToggle = ActionBarDrawerToggle(this,
-                dlMain,
-                toolbar,
-                R.string.openNavDrawer,
-                R.string.closeNavDrawer)
-        dlMain.addDrawerListener(actionBarDrawerToggle)
+        actionBarDrawerToggle = ActionBarDrawerToggle(
+            this,
+            binding.dlMain,
+            toolbar,
+            R.string.openNavDrawer,
+            R.string.closeNavDrawer
+        )
+        binding.dlMain.addDrawerListener(actionBarDrawerToggle)
         actionBarDrawerToggle.isDrawerIndicatorEnabled = true
         actionBarDrawerToggle.syncState()
-        navViewMain.setNavigationItemSelectedListener { item ->
+        binding.navViewMain.setNavigationItemSelectedListener { item ->
             val navItem = toNavigateItem(item)
             if (navItem != -1L) {
                 selectItem(navItem)
-                dlMain.closeDrawers()
+                binding.dlMain.closeDrawers()
                 true
             } else {
                 false
@@ -65,7 +70,7 @@ class MainActivity : AppCompatActivity(), AppRouter {
         } else {
             try {
                 savedInstanceState.getString(DRAWER_SELECTION)?.toLong()?.let { index ->
-                    toMenuItem(index)?.let { navViewMain.setCheckedItem(it) }
+                    toMenuItem(index)?.let { binding.navViewMain.setCheckedItem(it) }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -114,7 +119,7 @@ class MainActivity : AppCompatActivity(), AppRouter {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                if (dlMain.getDrawerLockMode(GravityCompat.START) != LOCK_MODE_UNLOCKED) {
+                if (binding.dlMain.getDrawerLockMode(GravityCompat.START) != LOCK_MODE_UNLOCKED) {
                     onBackPressed()
                 }
                 return true
@@ -124,7 +129,7 @@ class MainActivity : AppCompatActivity(), AppRouter {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString(DRAWER_SELECTION, toNavigateItem(navViewMain.checkedItem).toString())
+        outState.putString(DRAWER_SELECTION, toNavigateItem(binding.navViewMain.checkedItem).toString())
         super.onSaveInstanceState(outState)
     }
 
@@ -196,13 +201,13 @@ class MainActivity : AppCompatActivity(), AppRouter {
                     fragmentContainer?.tag
             )
         }
-        dlMain.closeDrawer(navViewMain)
+        binding.dlMain.closeDrawer(binding.navViewMain)
     }
 
     override fun onBackPressed() {
-        val drawerLayout = dlMain
-        if (drawerLayout?.isDrawerOpen(navViewMain) == true) {
-            drawerLayout.closeDrawer(navViewMain)
+        val drawerLayout = binding.dlMain
+        if (drawerLayout.isDrawerOpen(binding.navViewMain)) {
+            drawerLayout.closeDrawer(binding.navViewMain)
         } else {
             val isMain = supportFragmentManager.fragments.find { curFrag ->
                 curFrag is MainFirstFragment && curFrag.isVisible
@@ -213,7 +218,7 @@ class MainActivity : AppCompatActivity(), AppRouter {
                 if (backPressedTime + TIME_DELAY > System.currentTimeMillis()) {
                     finish()
                 } else {
-                    container.showSnackBar(getString(R.string.press_back_again_to_exit))
+                    binding.container.showSnackBar(getString(R.string.press_back_again_to_exit))
                 }
                 backPressedTime = System.currentTimeMillis()
             }

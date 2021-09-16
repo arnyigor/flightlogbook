@@ -1,15 +1,19 @@
 package com.arny.flightlogbook.presentation.planetypes.list
 
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import androidx.core.view.isVisible
 import com.arny.domain.models.PlaneType
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
-import kotlinx.android.synthetic.main.plane_type_list_item_layout.view.*
+import com.arny.flightlogbook.databinding.PlaneTypeListItemLayoutBinding
 
 class PlaneTypesAdapter(
     private val hideEdit: Boolean = false,
     private val typesListener: PlaneTypesListener? = null
 ) : SimpleAbstractAdapter<PlaneType>() {
+
+    private lateinit var binding: PlaneTypeListItemLayoutBinding
 
     interface PlaneTypesListener : OnViewHolderListener<PlaneType> {
         fun onEditType(position: Int, item: PlaneType)
@@ -18,22 +22,33 @@ class PlaneTypesAdapter(
 
     override fun getLayout(viewType: Int): Int = R.layout.plane_type_list_item_layout
 
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+        binding = PlaneTypeListItemLayoutBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
+        return VH(binding.root)
+    }
+
     override fun bindView(item: PlaneType, viewHolder: VH) {
         viewHolder.itemView.apply {
             val position = viewHolder.adapterPosition
-            item.mainType?.let { tvTypeName.text = context.getString(it.nameRes) }
-            tvTypeTitle.text = item.typeName
-            tvRegNo.text = context.getString(
-                R.string.str_regnum_formatted,
-                item.regNo
-            )
-            iv_type_edit.isVisible =!hideEdit
-            iv_type_delete.isVisible = !hideEdit
-            iv_type_edit.setOnClickListener {
-                typesListener?.onEditType(position, item)
-            }
-            iv_type_delete.setOnClickListener {
-                typesListener?.onDeleteType(position, item)
+            with(binding) {
+                item.mainType?.let { tvTypeName.text = context.getString(it.nameRes) }
+                tvTypeTitle.text = item.typeName
+                tvRegNo.text = context.getString(
+                    R.string.str_regnum_formatted,
+                    item.regNo
+                )
+                ivTypeEdit.isVisible = !hideEdit
+                ivTypeDelete.isVisible = !hideEdit
+                ivTypeEdit.setOnClickListener {
+                    typesListener?.onEditType(position, item)
+                }
+                ivTypeDelete.setOnClickListener {
+                    typesListener?.onDeleteType(position, item)
+                }
             }
             setOnClickListener {
                 typesListener?.onItemClick(position, item)
@@ -41,7 +56,7 @@ class PlaneTypesAdapter(
         }
     }
 
-    override fun getDiffCallback(): DiffCallback<PlaneType>? {
+    override fun getDiffCallback(): DiffCallback<PlaneType> {
         return object : DiffCallback<PlaneType>() {
             override fun areItemsTheSame(oldItem: PlaneType, newItem: PlaneType) =
                 oldItem.typeId == newItem.typeId

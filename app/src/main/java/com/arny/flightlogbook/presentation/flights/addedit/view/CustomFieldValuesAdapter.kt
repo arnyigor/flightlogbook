@@ -1,15 +1,19 @@
 package com.arny.flightlogbook.presentation.flights.addedit.view
 
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import androidx.core.view.isVisible
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.flightlogbook.customfields.models.CustomFieldType
 import com.arny.flightlogbook.customfields.models.CustomFieldValue
-import kotlinx.android.synthetic.main.custom_field_value_list_item.view.*
+import com.arny.flightlogbook.databinding.CustomFieldValueListItemBinding
 
 class CustomFieldValuesAdapter(private val onFieldChangeListener: OnFieldChangeListener? = null) :
-        SimpleAbstractAdapter<CustomFieldValue>() {
+    SimpleAbstractAdapter<CustomFieldValue>() {
+    private lateinit var binding: CustomFieldValueListItemBinding
+
     override fun getLayout(viewType: Int) = R.layout.custom_field_value_list_item
 
     interface OnFieldChangeListener {
@@ -17,31 +21,38 @@ class CustomFieldValuesAdapter(private val onFieldChangeListener: OnFieldChangeL
         fun onValueRemove(position: Int, item: CustomFieldValue)
     }
 
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+        val inflater = LayoutInflater.from(parent.context)
+        binding = CustomFieldValueListItemBinding.inflate(inflater, parent, false)
+        return VH(binding.root)
+    }
+
     override fun bindView(item: CustomFieldValue, viewHolder: VH) {
         val adapterPosition = viewHolder.adapterPosition
         viewHolder.itemView.apply {
-            ivRemoveCustomFieldValue.isVisible = item.field?.showByDefault == false
-            ivRemoveCustomFieldValue.setOnClickListener {
+            binding.ivRemoveCustomFieldValue.isVisible = item.field?.showByDefault == false
+            binding.ivRemoveCustomFieldValue.setOnClickListener {
                 onFieldChangeListener?.onValueRemove(adapterPosition, item)
             }
             val name = item.field?.name ?: ""
             val type = item.type ?: CustomFieldType.None
-            tvTitleCustomField.isVisible = type != CustomFieldType.None
+            binding.tvTitleCustomField.isVisible = type != CustomFieldType.None
                     && type != CustomFieldType.Bool
                     && name.isNotBlank()
-            tvTitleCustomField.text = name
-            cfvView.init(type, name)
+            binding.tvTitleCustomField.text = name
+            binding.cfvView.init(type, name)
             val value = item.value
             if (value != null && value != "null") {
-                cfvView.value = value
+                binding.cfvView.value = value
             }
             if (type == CustomFieldType.Bool) {
-                cfvView.switch?.setOnCheckedChangeListener { _, isChecked ->
+                binding.cfvView.switch?.setOnCheckedChangeListener { _, isChecked ->
                     onFieldChangeListener?.onValueChange(item, isChecked.toString())
                 }
             } else {
-                val emptyHint = if (type is CustomFieldType.Time) context.getString(R.string.str_time_zero) else ""
-                cfvView.editText?.let { editText ->
+                val emptyHint =
+                    if (type is CustomFieldType.Time) context.getString(R.string.str_time_zero) else ""
+                binding.cfvView.editText?.let { editText ->
                     editText.setOnFocusChangeListener { _, hasFocus ->
                         if (!hasFocus) {
                             editText.setSelectAllOnFocus(false)
@@ -75,11 +86,17 @@ class CustomFieldValuesAdapter(private val onFieldChangeListener: OnFieldChangeL
         }
     }
 
-    override fun getDiffCallback(): DiffCallback<CustomFieldValue>? {
+    override fun getDiffCallback(): DiffCallback<CustomFieldValue> {
         return object : DiffCallback<CustomFieldValue>() {
-            override fun areItemsTheSame(oldItem: CustomFieldValue, newItem: CustomFieldValue): Boolean = oldItem == newItem
+            override fun areItemsTheSame(
+                oldItem: CustomFieldValue,
+                newItem: CustomFieldValue
+            ): Boolean = oldItem == newItem
 
-            override fun areContentsTheSame(oldItem: CustomFieldValue, newItem: CustomFieldValue): Boolean = oldItem == newItem
+            override fun areContentsTheSame(
+                oldItem: CustomFieldValue,
+                newItem: CustomFieldValue
+            ): Boolean = oldItem == newItem
         }
     }
 }

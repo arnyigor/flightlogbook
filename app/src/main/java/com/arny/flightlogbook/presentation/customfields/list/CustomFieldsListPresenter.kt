@@ -8,7 +8,6 @@ import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import moxy.InjectViewState
 import javax.inject.Inject
 
-
 @InjectViewState
 class CustomFieldsListPresenter : BaseMvpPresenter<CustomFieldsListView>() {
     @Inject

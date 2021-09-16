@@ -1,12 +1,8 @@
 package com.arny.flightlogbook.presentation.planetypes.edit
 
-
 import android.content.Context
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import androidx.annotation.StringRes
 import androidx.core.widget.doAfterTextChanged
 import com.arny.core.CONSTS
@@ -14,9 +10,9 @@ import com.arny.core.utils.KeyboardHelper
 import com.arny.core.utils.ToastMaker.toastError
 import com.arny.core.utils.getExtra
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.databinding.FPlaneTypeEditBinding
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.main.AppRouter
-import kotlinx.android.synthetic.main.f_plane_type_edit.*
 import moxy.ktx.moxyPresenter
 
 class PlaneTypeEditFragment : BaseMvpFragment(), PlaneTypeEditView {
@@ -26,13 +22,12 @@ class PlaneTypeEditFragment : BaseMvpFragment(), PlaneTypeEditView {
         }
     }
 
+    private lateinit var binding: FPlaneTypeEditBinding
     private var appRouter: AppRouter? = null
 
     private val presenter by moxyPresenter { PlaneTypeEditPresenter() }
 
-    override fun getTitle(): String? = getString(R.string.edit_plane_type)
-
-    override fun getLayoutId(): Int = R.layout.f_plane_type_edit
+    override fun getTitle(): String = getString(R.string.edit_plane_type)
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -47,6 +42,15 @@ class PlaneTypeEditFragment : BaseMvpFragment(), PlaneTypeEditView {
         presenter.planeTypeId = arguments?.getExtra<Long>(CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID)
     }
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FPlaneTypeEditBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.add_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
@@ -56,9 +60,9 @@ class PlaneTypeEditFragment : BaseMvpFragment(), PlaneTypeEditView {
         when (item.itemId) {
             R.id.action_save -> {
                 presenter.onSavePlaneType(
-                        tiedtPlaneTitle.text.toString(),
-                        tiedtRegNo.text.toString(),
-                        spinMainType.selectedItemPosition
+                    binding.tiedtPlaneTitle.text.toString(),
+                    binding.tiedtRegNo.text.toString(),
+                    binding.spinMainType.selectedItemPosition
                 )
             }
         }
@@ -67,8 +71,8 @@ class PlaneTypeEditFragment : BaseMvpFragment(), PlaneTypeEditView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        tiedtRegNo.doAfterTextChanged { tiLRegNo.error = null }
-        tiedtPlaneTitle.doAfterTextChanged { tilPlaneTitle.error = null }
+        binding.tiedtRegNo.doAfterTextChanged { binding.tiLRegNo.error = null }
+        binding.tiedtPlaneTitle.doAfterTextChanged { binding.tilPlaneTitle.error = null }
     }
 
     override fun onPause() {
@@ -85,23 +89,23 @@ class PlaneTypeEditFragment : BaseMvpFragment(), PlaneTypeEditView {
     }
 
     override fun setPlaneTypeName(typeName: String?) {
-        tiedtPlaneTitle.setText(typeName)
+        binding.tiedtPlaneTitle.setText(typeName)
     }
 
     override fun setMainPlaneType(index: Int) {
-        spinMainType.setSelection(index)
+        binding.spinMainType.setSelection(index)
     }
 
     override fun setRegNo(regNo: String?) {
-        tiedtRegNo.setText(regNo)
+        binding.tiedtRegNo.setText(regNo)
     }
 
     override fun showTitleError(@StringRes strRes: Int) {
-        tilPlaneTitle.error = getString(strRes)
+        binding.tilPlaneTitle.error = getString(strRes)
     }
 
     override fun showRegNoError(@StringRes strRes: Int) {
-        tiLRegNo.error = getString(strRes)
+        binding.tiLRegNo.error = getString(strRes)
     }
 
     override fun setResultOk() {
