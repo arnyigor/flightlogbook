@@ -18,6 +18,7 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.core.widget.doAfterTextChanged
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.color.colorChooser
 import com.arny.core.CONSTS
@@ -25,7 +26,6 @@ import com.arny.core.utils.*
 import com.arny.core.utils.MathUtils.pad
 import com.arny.domain.models.Airport
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.adapters.CustomRVLayoutManager
 import com.arny.flightlogbook.customfields.models.CustomFieldValue
 import com.arny.flightlogbook.databinding.FAddeditBinding
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
@@ -38,7 +38,6 @@ import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.disposables.CompositeDisposable
 import moxy.ktx.moxyPresenter
 import java.util.*
-
 
 class AddEditFragment : BaseMvpFragment(), AddEditView,
     CalendarDatePickerDialogFragment.OnDateSetListener,
@@ -273,8 +272,8 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
             }
         )
         binding.rvCustomFields.apply {
-            layoutManager = CustomRVLayoutManager(requireContext()).apply {
-                setScrollEnabled(false)
+            layoutManager = object : LinearLayoutManager(requireContext()) {
+                override fun canScrollVertically(): Boolean = false
             }
             adapter = customFieldValuesAdapter
         }
@@ -677,7 +676,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     ) {
         customFieldValuesAdapter?.submitList(list)
         if (requestLayout) {
-            binding.rvCustomFields.requestLayout()
+            binding.root.requestLayout()
         }
     }
 
