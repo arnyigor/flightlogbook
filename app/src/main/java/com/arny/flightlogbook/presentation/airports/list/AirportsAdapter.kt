@@ -2,32 +2,41 @@ package com.arny.flightlogbook.presentation.airports.list
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
+import com.arny.core.utils.diffUtilCallback
 import com.arny.core.utils.ifNull
 import com.arny.domain.models.Airport
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.flightlogbook.databinding.IAirportBinding
 
+class AirportsAdapter(
+    private val isRus: Boolean,
+    private val onClick: (position: Int, item: Airport) -> Unit
+) :
+    ListAdapter<Airport, AirportsAdapter.AdapterViewholder>(
+        diffUtilCallback<Airport> { firstItem, secondItem -> firstItem == secondItem }
+    ) {
 
-class AirportsAdapter(private val isRus: Boolean) : SimpleAbstractAdapter<Airport>() {
-    private lateinit var binding: IAirportBinding
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): AdapterViewholder = AdapterViewholder(
+        IAirportBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false
+        )
+    )
 
-    override fun getLayout(viewType: Int): Int = R.layout.i_airport
-
-    override fun getDiffCallback() = object : DiffCallback<Airport>() {
-        override fun areItemsTheSame(oldItem: Airport, newItem: Airport) = oldItem.id == newItem.id
-        override fun areContentsTheSame(oldItem: Airport, newItem: Airport) = oldItem == newItem
+    override fun onBindViewHolder(holder: AdapterViewholder, position: Int) {
+        holder.bind(getItem(holder.adapterPosition))
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val inflater = LayoutInflater.from(parent.context)
-        binding = IAirportBinding.inflate(inflater, parent, false)
-        return VH(binding.root)
-    }
-
-    override fun bindView(item: Airport, viewHolder: VH) {
-        val position = viewHolder.adapterPosition
-        viewHolder.itemView.apply {
+    inner class AdapterViewholder(private val binding: IAirportBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(item: Airport) {
+            val root = binding.root
+            val context = root.context
+            val position = adapterPosition
             binding.tvAirportCodes.text = context.getString(
                 R.string.string_format_two_strings,
                 item.iata,
@@ -43,7 +52,8 @@ class AirportsAdapter(private val isRus: Boolean) : SimpleAbstractAdapter<Airpor
                 if (isRus) item.countryRus?.ifNull("") else item.countryEng?.ifNull("")
             binding.tvCity.text =
                 context.getString(R.string.string_format_two_strings, sityName, "(${countryName})")
-            setOnClickListener { listener?.onItemClick(position, item) }
+            root.setOnClickListener { onClick(position, item) }
         }
     }
+
 }

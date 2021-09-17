@@ -10,7 +10,6 @@ import moxy.viewstate.strategy.StateStrategyType
 interface ViewFlightsView : MvpView {
     fun updateAdapter(flights: List<Flight>)
     fun toastError(msg: String?)
-    fun clearAdaper()
     fun showEmptyView(vis: Boolean)
     fun showTotalsInfo(content: String?)
 

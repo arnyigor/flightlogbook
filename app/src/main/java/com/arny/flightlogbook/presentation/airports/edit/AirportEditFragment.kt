@@ -1,6 +1,5 @@
 package com.arny.flightlogbook.presentation.airports.edit
 
-
 import android.app.Activity
 import android.content.Context
 import android.content.Intent

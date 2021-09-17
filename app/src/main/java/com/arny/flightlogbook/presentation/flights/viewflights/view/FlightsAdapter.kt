@@ -4,34 +4,54 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import com.arny.core.utils.DateTimeUtils
+import com.arny.core.utils.getIntColor
 import com.arny.domain.models.Flight
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.flightlogbook.databinding.FlightListItemBinding
 
-class FlightsAdapter(private val onFlightsListListener: OnFlightsListListener? = null) : SimpleAbstractAdapter<Flight>() {
-    private lateinit var binding: FlightListItemBinding
+class FlightsAdapter(private val onFlightsListListener: OnFlightsListListener? = null) :
+    ListAdapter<Flight, FlightsAdapter.AdapterViewholder>(
+        object : DiffUtil.ItemCallback<Flight>() {
+            override fun areItemsTheSame(
+                oldItem: Flight,
+                newItem: Flight
+            ): Boolean = oldItem == newItem
 
-    override fun getLayout(viewType: Int): Int {
-        return R.layout.flight_list_item
-    }
+            override fun areContentsTheSame(
+                oldItem: Flight,
+                newItem: Flight
+            ): Boolean = oldItem == newItem
+        }
+    ) {
 
     interface OnFlightsListListener {
+        fun onItemClick(position: Int, item: Flight)
         fun onFlightSelect(position: Int, item: Flight)
         fun onFlightRemove(position: Int, item: Flight)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val inflater = LayoutInflater.from(parent.context)
-        binding = FlightListItemBinding.inflate(inflater, parent, false)
-        return VH(binding.root)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AdapterViewholder {
+        return AdapterViewholder(
+            FlightListItemBinding.inflate(
+                LayoutInflater.from(parent.context), parent, false
+            )
+        )
     }
 
-    override fun bindView(item: Flight, viewHolder: VH) {
-        val position = viewHolder.adapterPosition
-        viewHolder.itemView.apply {
-            with(binding){
+    override fun onBindViewHolder(holder: AdapterViewholder, position: Int) {
+        holder.bind(getItem(holder.adapterPosition))
+    }
+
+    inner class AdapterViewholder(private val binding: FlightListItemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(item: Flight) {
+            val view = binding.root
+            val context = view.context
+            with(binding) {
                 val datetime = item.datetime ?: 0
                 if (datetime > 0) {
                     tvDate.text = item.datetimeFormatted
@@ -44,14 +64,24 @@ class FlightsAdapter(private val onFlightsListListener: OnFlightsListListener? =
                 tvDescr.isVisible = !item.description.isNullOrBlank()
                 tvDescr.text = item.description
                 var colorText = item.colorText
-                    ?: ContextCompat.getColor(context, R.color.colorTextPrimary)
+                    ?: context.getIntColor(R.color.colorTextPrimary)
                 if (item.selected) {
                     colorText = ContextCompat.getColor(context, R.color.colorTextPrimary)
-                    clFlightsItemContainer.setBackgroundColor(ContextCompat.getColor(context, R.color.colorTextGrayBg))
+                    clFlightsItemContainer.setBackgroundColor(
+                        ContextCompat.getColor(
+                            context,
+                            R.color.colorTextGrayBg
+                        )
+                    )
                 } else {
                     val colorInt = item.colorInt
                     if (colorInt == 0 || colorInt == -1 || colorInt == null) {
-                        clFlightsItemContainer.setBackgroundColor(ContextCompat.getColor(context, R.color.colorTransparent))
+                        clFlightsItemContainer.setBackgroundColor(
+                            ContextCompat.getColor(
+                                context,
+                                R.color.colorTransparent
+                            )
+                        )
                     } else {
                         clFlightsItemContainer.setBackgroundColor(colorInt)
                     }
@@ -65,24 +95,17 @@ class FlightsAdapter(private val onFlightsListListener: OnFlightsListListener? =
                     tvDescr.setTextColor(it)
                     tvFlightType.setTextColor(it)
                 }
-                setOnClickListener {
-                    listener?.onItemClick(position, item)
+                view.setOnClickListener {
+                    onFlightsListListener?.onItemClick(adapterPosition, item)
                 }
                 ivRemove.setOnClickListener {
-                    onFlightsListListener?.onFlightRemove(position, item)
+                    onFlightsListListener?.onFlightRemove(adapterPosition, item)
                 }
-                setOnLongClickListener {
-                    onFlightsListListener?.onFlightSelect(position, item)
+                view.setOnLongClickListener {
+                    onFlightsListListener?.onFlightSelect(adapterPosition, item)
                     true
                 }
             }
-        }
-    }
-
-    override fun getDiffCallback(): DiffCallback<Flight>? {
-        return object : DiffCallback<Flight>() {
-            override fun areItemsTheSame(oldItem: Flight, newItem: Flight) = oldItem == newItem
-            override fun areContentsTheSame(oldItem: Flight, newItem: Flight) = oldItem == newItem
         }
     }
 }

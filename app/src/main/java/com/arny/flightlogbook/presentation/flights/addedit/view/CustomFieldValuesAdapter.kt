@@ -4,35 +4,47 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import androidx.core.view.isVisible
+import androidx.core.widget.doAfterTextChanged
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
+import com.arny.core.utils.diffUtilCallback
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.flightlogbook.customfields.models.CustomFieldType
 import com.arny.flightlogbook.customfields.models.CustomFieldValue
 import com.arny.flightlogbook.databinding.CustomFieldValueListItemBinding
 
-class CustomFieldValuesAdapter(private val onFieldChangeListener: OnFieldChangeListener? = null) :
-    SimpleAbstractAdapter<CustomFieldValue>() {
-    private lateinit var binding: CustomFieldValueListItemBinding
+class CustomFieldValuesAdapter(
+    private val onValueChange: (
+        item: CustomFieldValue,
+        value: String,
+    ) -> Unit,
+    private val onValueRemove: (position: Int) -> Unit
+) :
+    ListAdapter<CustomFieldValue, CustomFieldValuesAdapter.AdapterViewholder>(
+        diffUtilCallback<CustomFieldValue> { firstItem, secondItem -> firstItem == secondItem }
+    ) {
 
-    override fun getLayout(viewType: Int) = R.layout.custom_field_value_list_item
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): AdapterViewholder = AdapterViewholder(
+        CustomFieldValueListItemBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false
+        )
+    )
 
-    interface OnFieldChangeListener {
-        fun onValueChange(item: CustomFieldValue, value: String)
-        fun onValueRemove(position: Int, item: CustomFieldValue)
+    override fun onBindViewHolder(holder: AdapterViewholder, position: Int) {
+        holder.bind(getItem(holder.adapterPosition))
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val inflater = LayoutInflater.from(parent.context)
-        binding = CustomFieldValueListItemBinding.inflate(inflater, parent, false)
-        return VH(binding.root)
-    }
-
-    override fun bindView(item: CustomFieldValue, viewHolder: VH) {
-        val adapterPosition = viewHolder.adapterPosition
-        viewHolder.itemView.apply {
+    inner class AdapterViewholder(private val binding: CustomFieldValueListItemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(item: CustomFieldValue) {
+            val context = binding.root.context
             binding.ivRemoveCustomFieldValue.isVisible = item.field?.showByDefault == false
+            val adapterPosition = this.adapterPosition
             binding.ivRemoveCustomFieldValue.setOnClickListener {
-                onFieldChangeListener?.onValueRemove(adapterPosition, item)
+                onValueRemove(adapterPosition)
             }
             val name = item.field?.name ?: ""
             val type = item.type ?: CustomFieldType.None
@@ -47,16 +59,25 @@ class CustomFieldValuesAdapter(private val onFieldChangeListener: OnFieldChangeL
             }
             if (type == CustomFieldType.Bool) {
                 binding.cfvView.switch?.setOnCheckedChangeListener { _, isChecked ->
-                    onFieldChangeListener?.onValueChange(item, isChecked.toString())
+                    onValueChange(item, isChecked.toString())
                 }
             } else {
                 val emptyHint =
-                    if (type is CustomFieldType.Time) context.getString(R.string.str_time_zero) else ""
+                    if (type is CustomFieldType.Time) {
+                        context.getString(R.string.str_time_zero)
+                    } else {
+                        ""
+                    }
                 binding.cfvView.editText?.let { editText ->
+                    editText.doAfterTextChanged {
+                        if (editText.hasFocus()) {
+                            onValueChange(item, editText.text.toString())
+                        }
+                    }
                     editText.setOnFocusChangeListener { _, hasFocus ->
                         if (!hasFocus) {
                             editText.setSelectAllOnFocus(false)
-                            onFieldChangeListener?.onValueChange(item, editText.text.toString())
+                            onValueChange(item, editText.text.toString())
                         }
                         val flTime = editText.text.toString()
                         if (flTime.isBlank()) {
@@ -75,7 +96,7 @@ class CustomFieldValuesAdapter(private val onFieldChangeListener: OnFieldChangeL
                     editText.setOnEditorActionListener { _, actionId, _ ->
                         when (actionId) {
                             EditorInfo.IME_ACTION_NEXT -> {
-                                onFieldChangeListener?.onValueChange(item, editText.text.toString())
+                                onValueChange(item, editText.text.toString())
                                 true
                             }
                             else -> false
@@ -83,20 +104,6 @@ class CustomFieldValuesAdapter(private val onFieldChangeListener: OnFieldChangeL
                     }
                 }
             }
-        }
-    }
-
-    override fun getDiffCallback(): DiffCallback<CustomFieldValue> {
-        return object : DiffCallback<CustomFieldValue>() {
-            override fun areItemsTheSame(
-                oldItem: CustomFieldValue,
-                newItem: CustomFieldValue
-            ): Boolean = oldItem == newItem
-
-            override fun areContentsTheSame(
-                oldItem: CustomFieldValue,
-                newItem: CustomFieldValue
-            ): Boolean = oldItem == newItem
         }
     }
 }

@@ -16,13 +16,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.material.textfield.TextInputEditText
+    <EditText
         android:id="@+id/edtAirport"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:drawableEnd="@drawable/ic_clear_search_holo_light"
+        android:drawableRight="@drawable/ic_clear_search_holo_light"
+        android:importantForAutofill="no"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvSearchInfo" />
+        app:layout_constraintTop_toBottomOf="@+id/tvSearchInfo"
+        tools:ignore="LabelFor" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvAirports"

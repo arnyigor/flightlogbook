@@ -264,16 +264,14 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     }
 
     private fun onCustomViewsInit() {
-        customFieldValuesAdapter =
-            CustomFieldValuesAdapter(object : CustomFieldValuesAdapter.OnFieldChangeListener {
-                override fun onValueChange(item: CustomFieldValue, value: String) {
-                    addEditPresenter.onCustomFieldValueChange(item, value)
-                }
-
-                override fun onValueRemove(position: Int, item: CustomFieldValue) {
-                    addEditPresenter.onCustomFieldValueDelete(position)
-                }
-            })
+        customFieldValuesAdapter = CustomFieldValuesAdapter(
+            onValueChange = { item, value ->
+                addEditPresenter.onCustomFieldValueChange(item, value)
+            },
+            onValueRemove = { position ->
+                addEditPresenter.onCustomFieldValueDelete(position)
+            }
+        )
         binding.rvCustomFields.apply {
             layoutManager = CustomRVLayoutManager(requireContext()).apply {
                 setScrollEnabled(false)
@@ -673,13 +671,18 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         binding.radioGroupIfrVfr.check(if (selected) R.id.rbIfr else R.id.rbVfr)
     }
 
-    override fun setFieldsList(list: List<CustomFieldValue>) {
-        customFieldValuesAdapter?.addAll(list)
+    override fun setFieldsList(
+        list: List<CustomFieldValue>,
+        requestLayout: Boolean
+    ) {
+        customFieldValuesAdapter?.submitList(list)
+        if (requestLayout) {
+            binding.rvCustomFields.requestLayout()
+        }
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    override fun notifyCustomFieldUpdate(item: CustomFieldValue) {
-        customFieldValuesAdapter?.notifyDataSetChanged()
+    override fun removeItemFromAdapter(position: Int) {
+        customFieldValuesAdapter?.notifyItemRemoved(position)
     }
 
     override fun setViewColor(color: Int) {

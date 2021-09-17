@@ -13,7 +13,6 @@ import com.arny.core.CONSTS
 import com.arny.core.utils.*
 import com.arny.domain.models.Flight
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.flightlogbook.databinding.FragmentFlightListBinding
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
@@ -74,6 +73,17 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView, MainFirstFragment
         binding.rvflights.layoutManager = mLayoutManager
         binding.rvflights.itemAnimator = DefaultItemAnimator()
         adapter = FlightsAdapter(object : FlightsAdapter.OnFlightsListListener {
+            override fun onItemClick(position: Int, item: Flight) {
+                if (hasSelectedItems) {
+                    presenter.onFlightSelect(position, item)
+                } else {
+                    launchActivity<FragmentContainerActivity>(CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT) {
+                        action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_FLIGHT
+                        putExtra(CONSTS.DB.COLUMN_ID, item.id)
+                    }
+                }
+            }
+
             override fun onFlightSelect(position: Int, item: Flight) {
                 presenter.onFlightSelect(position, item)
             }
@@ -87,21 +97,7 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView, MainFirstFragment
                         presenter.removeItem(item)
                     })
             }
-        }).apply {
-            setViewHolderListener(object : SimpleAbstractAdapter.OnViewHolderListener<Flight> {
-                override fun onItemClick(position: Int, item: Flight) {
-                    when {
-                        hasSelectedItems -> presenter.onFlightSelect(position, item)
-                        else -> {
-                            launchActivity<FragmentContainerActivity>(CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT) {
-                                action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_FLIGHT
-                                putExtra(CONSTS.DB.COLUMN_ID, item.id)
-                            }
-                        }
-                    }
-                }
-            })
-        }
+        })
         binding.rvflights.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 when {
@@ -157,7 +153,7 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView, MainFirstFragment
     }
 
     override fun updateAdapter(flights: List<Flight>) {
-        adapter?.addAll(flights)
+        adapter?.submitList(flights)
         restoreListPosition()
     }
 
@@ -183,10 +179,7 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView, MainFirstFragment
     private fun saveListPosition() {
         positionIndex = mLayoutManager?.findFirstVisibleItemPosition() ?: 0
         val startView = binding.rvflights.getChildAt(0)
-        topView = if (startView == null) 0 else {
-            val paddingTop = binding.rvflights.paddingTop
-            startView.top - paddingTop
-        }
+        topView = if (startView == null) 0 else startView.top - binding.rvflights.paddingTop
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -209,8 +202,8 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView, MainFirstFragment
             }
             R.id.action_remove_items -> {
                 alertDialog(
-                    requireContext(),
-                    getString(R.string.remove_selected_items_question),
+                    context = requireContext(),
+                    title = getString(R.string.remove_selected_items_question),
                     btnCancelText = getString(R.string.str_cancel),
                     onConfirm = {
                         presenter.removeSelectedItems()
@@ -218,9 +211,5 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView, MainFirstFragment
             }
         }
         return true
-    }
-
-    override fun clearAdaper() {
-        adapter?.clear()
     }
 }

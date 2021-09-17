@@ -22,6 +22,7 @@ interface AddEditView : MvpView {
     fun setTotalFlightTime(flightTime: String)
     fun setFligtTypeTitle(title: String)
     fun toastSuccess(msg: String?)
+
     @OneExecution
     fun setResultOK()
     fun setEdtNightTimeText(nightTimeText: String)
@@ -32,12 +33,15 @@ interface AddEditView : MvpView {
     fun setIfrSelected(selected: Boolean)
     fun requestStorageAndSave()
     fun saveFlight()
-    fun setFieldsList(list: List<CustomFieldValue>)
-    @OneExecution
-    fun notifyCustomFieldUpdate(item: CustomFieldValue)
+    fun setFieldsList(
+        list: List<CustomFieldValue>,
+        requestLayout: Boolean = false,
+    )
+
     fun setCustomFieldsVisible(visible: Boolean)
     fun setDeparture(departure: Airport?)
     fun setArrival(arrival: Airport?)
     fun setEdtDepTimeText(depTime: String)
     fun setEdtArrTimeText(arrTime: String)
+    fun removeItemFromAdapter(position: Int)
 }

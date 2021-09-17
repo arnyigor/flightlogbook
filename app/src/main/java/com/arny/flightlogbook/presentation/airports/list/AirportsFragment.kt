@@ -15,10 +15,10 @@ import com.arny.core.CONSTS
 import com.arny.core.CONSTS.EXTRAS.EXTRA_AIRPORT_ID
 import com.arny.core.utils.getSystemLocale
 import com.arny.core.utils.launchActivity
+import com.arny.core.utils.setDrawableRightClick
 import com.arny.core.utils.toastError
 import com.arny.domain.models.Airport
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.flightlogbook.databinding.FAirportsBinding
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
@@ -75,13 +75,14 @@ class AirportsFragment : BaseMvpFragment(), AirportsView {
                 action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_AIRPORT
             }
         }
+        binding.edtAirport.setDrawableRightClick {
+            binding.edtAirport.setText("")
+        }
     }
 
     private fun initAdapter(isRequest: Boolean) {
-        airportsAdapter = AirportsAdapter(requireContext().getSystemLocale()?.language == "ru")
-        airportsAdapter.setViewHolderListener(object :
-            SimpleAbstractAdapter.OnViewHolderListener<Airport> {
-            override fun onItemClick(position: Int, item: Airport) {
+        airportsAdapter =
+            AirportsAdapter(requireContext().getSystemLocale()?.language == "ru") { _, item ->
                 if (isRequest) {
                     appRouter?.setResultToTargetFragment(
                         this@AirportsFragment,
@@ -101,7 +102,6 @@ class AirportsFragment : BaseMvpFragment(), AirportsView {
                     )
                 }
             }
-        })
         with(binding.rvAirports) {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = airportsAdapter
@@ -118,7 +118,7 @@ class AirportsFragment : BaseMvpFragment(), AirportsView {
     }
 
     override fun setAirports(list: List<Airport>) {
-        airportsAdapter.addAll(list)
+        airportsAdapter.submitList(list)
     }
 
     override fun showProgress() {
