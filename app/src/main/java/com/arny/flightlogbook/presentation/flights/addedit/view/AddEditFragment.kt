@@ -246,49 +246,49 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     }
 
     private fun onArrivalTimeChanges() = with(binding) {
-        val timeZero = getTimeZero()
-        edtArrivalTime.setDrawableRightClick {
-            openTimeDialog(edtArrivalTime)
-        }
-        edtArrivalTime.addTextChangedListener {
-            if (it.toString().isBlank()) {
-                edtArrivalTime.hint = timeZero
-            }
-            sArrivalTime = it.toString()
-            if (fromDialog) {
-                addEditPresenter.correctArrivalTime(sArrivalTime)
-                fromDialog = false
-            }
-        }
-        edtArrivalTime.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                edtArrivalTime.setSelectAllOnFocus(false)
-                addEditPresenter.correctArrivalTime(sArrivalTime)
-            }
-            val arrivalTime = edtArrivalTime.text.toString()
-            if (arrivalTime.isBlank()) {
-                if (hasFocus) {
-                    edtArrivalTime.hint = timeZero
-                } else {
-                    edtArrivalTime.hint = null
-                }
-            } else {
-                if (hasFocus && arrivalTime == timeZero) {
-                    edtArrivalTime.setSelectAllOnFocus(true)
-                    edtArrivalTime.selectAll()
-                }
-            }
-        }
-        edtArrivalTime.setOnEditorActionListener { _, actionId, _ ->
-            when (actionId) {
-                EditorInfo.IME_ACTION_NEXT -> {
-                    addEditPresenter.correctArrivalTime(sArrivalTime)
-                    edtFlightTime.requestFocus()
-                    true
-                }
-                else -> false
-            }
-        }
+//        val timeZero = getTimeZero()
+//        edtArrivalTime.setDrawableRightClick {
+//            openTimeDialog(edtArrivalTime)
+//        }
+//        edtArrivalTime.addTextChangedListener {
+//            if (it.toString().isBlank()) {
+//                edtArrivalTime.hint = timeZero
+//            }
+//            sArrivalTime = it.toString()
+//            if (fromDialog) {
+//                addEditPresenter.correctArrivalTime(sArrivalTime)
+//                fromDialog = false
+//            }
+//        }
+//        edtArrivalTime.setOnFocusChangeListener { _, hasFocus ->
+//            if (!hasFocus) {
+//                edtArrivalTime.setSelectAllOnFocus(false)
+//                addEditPresenter.correctArrivalTime(sArrivalTime)
+//            }
+//            val arrivalTime = edtArrivalTime.text.toString()
+//            if (arrivalTime.isBlank()) {
+//                if (hasFocus) {
+//                    edtArrivalTime.hint = timeZero
+//                } else {
+//                    edtArrivalTime.hint = null
+//                }
+//            } else {
+//                if (hasFocus && arrivalTime == timeZero) {
+//                    edtArrivalTime.setSelectAllOnFocus(true)
+//                    edtArrivalTime.selectAll()
+//                }
+//            }
+//        }
+//        edtArrivalTime.setOnEditorActionListener { _, actionId, _ ->
+//            when (actionId) {
+//                EditorInfo.IME_ACTION_NEXT -> {
+//                    addEditPresenter.correctArrivalTime(sArrivalTime)
+//                    edtFlightTime.requestFocus()
+//                    true
+//                }
+//                else -> false
+//            }
+//        }
     }
 
     private fun onCustomViewsInit() {
