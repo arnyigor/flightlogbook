@@ -167,12 +167,41 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         onCustomViewsInit()
     }
 
+    private fun TextView.setCloseClick() {
+        this.setDrawableLeftClick {
+            this.setText("")
+        }
+    }
+
+    private fun TextView.setCloseDrawable() {
+        if (this.text.isNotEmpty()) {
+            this.setDrawableStartWithTint(
+                R.drawable.ic_close,
+                requireContext().getColorCompat(R.color.gray_400)
+            )
+        } else {
+            this.setDrawableStartWithTint(
+                R.drawable.ic_close,
+                requireContext().getColorCompat(android.R.color.transparent)
+            )
+        }
+    }
+
     private fun onDepartureTimeChanges() = with(binding) {
-        val timeZero = getTimeZero()
+        edtDepartureTime.setTimeIconClickListener {
+            openTimeDialog(edtDepartureTime.edtTime)
+        }
+        edtDepartureTime.setDateChangedListener {
+            addEditPresenter.setDepartureTime(it)
+        }
+        /*val timeZero = getTimeZero()
         edtDepartureTime.setDrawableRightClick {
             openTimeDialog(edtDepartureTime)
         }
-        edtDepartureTime.addTextChangedListener {
+//        edtDepartureTime.setCloseDrawable()
+//        edtDepartureTime.setCloseClick()
+        edtDepartureTime.doAfterTextChanged {
+//            edtDepartureTime.setCloseDrawable()
             if (it.toString().isBlank()) {
                 edtDepartureTime.hint = timeZero
             }
@@ -213,7 +242,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
                 }
                 else -> false
             }
-        }
+        }*/
     }
 
     private fun onArrivalTimeChanges() = with(binding) {
@@ -728,8 +757,8 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
             getString(R.string.string_format_two_strings, arrival?.iata, "(${arrival?.icao})")
     }
 
-    override fun setEdtDepTimeText(depTime: String) {
-        binding.edtDepartureTime.setText(depTime)
+    override fun setEdtDepTime(depTime: Int) {
+        binding.edtDepartureTime.setTime(depTime)
     }
 
     override fun setEdtArrTimeText(arrTime: String) {

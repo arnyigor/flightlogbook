@@ -10,6 +10,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
@@ -19,12 +20,12 @@ import android.os.StrictMode
 import android.text.Spanned
 import android.view.*
 import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.*
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
@@ -499,17 +500,62 @@ fun View.showSnackBar(message: String?, duration: Int = Snackbar.LENGTH_SHORT) {
 }
 
 @SuppressLint("ClickableViewAccessibility")
-fun EditText.setDrawableRightClick(onClick: () -> Unit) {
+fun TextView.setDrawableRightClick(onClick: () -> Unit) {
     this.setOnTouchListener { v, event ->
         if (v is TextView) {
             if (event.action == MotionEvent.ACTION_UP) {
-                if (event.rawX >= (v.right - v.compoundDrawables[2].bounds.width())) {
+                val drawable = v.compoundDrawables.getOrNull(2)
+                if (drawable != null && event.x >= (v.right - drawable.bounds.width())) {
                     onClick.invoke()
                     return@setOnTouchListener true
                 }
             }
         }
         return@setOnTouchListener false
+    }
+}
+
+@SuppressLint("ClickableViewAccessibility")
+fun TextView.setDrawableLeftClick(onClick: () -> Unit) {
+    this.setOnTouchListener { v, event ->
+        if (v is TextView) {
+            if (event.action == MotionEvent.ACTION_UP) {
+                val drawable = v.compoundDrawables.getOrNull(0)
+                if (drawable != null && event.rawX <= v.totalPaddingLeft) {
+                    onClick.invoke()
+                    return@setOnTouchListener true
+                }
+            }
+        }
+        return@setOnTouchListener false
+    }
+}
+
+inline fun <T, R> T?.nonNullOrSkip(block: T.() -> R) {
+    this?.run(block)
+}
+
+fun Context.getColorCompat(@ColorRes colorRes: Int): Int =
+    ContextCompat.getColor(this, colorRes)
+
+fun Context.getDrawableCompat(@DrawableRes drawableRes: Int): Drawable? =
+    AppCompatResources.getDrawable(this, drawableRes)
+
+fun TextView?.setDrawableStartWithTint(@DrawableRes drawable: Int?, @ColorInt color: Int? = null) {
+    nonNullOrSkip {
+        setCompoundDrawablesRelativeWithIntrinsicBounds(
+            drawable?.let(context::getDrawableCompat)?.also { drawable ->
+                color?.also { tintColor ->
+                    drawable.mutate().colorFilter = PorterDuffColorFilter(
+                        tintColor,
+                        PorterDuff.Mode.SRC_ATOP
+                    )
+                }
+            },
+            compoundDrawablesRelative[1],
+            compoundDrawablesRelative[2],
+            compoundDrawablesRelative[3]
+        )
     }
 }
 

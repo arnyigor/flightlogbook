@@ -41,7 +41,7 @@ interface AddEditView : MvpView {
     fun setCustomFieldsVisible(visible: Boolean)
     fun setDeparture(departure: Airport?)
     fun setArrival(arrival: Airport?)
-    fun setEdtDepTimeText(depTime: String)
+    fun setEdtDepTime(depTime: Int)
     fun setEdtArrTimeText(arrTime: String)
     fun removeItemFromAdapter(position: Int)
 }

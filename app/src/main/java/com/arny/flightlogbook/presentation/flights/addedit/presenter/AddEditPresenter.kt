@@ -142,7 +142,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     private fun loadDepArrivalTime(flight: Flight) {
         flight.departureUtcTime?.let {
             intDepTime = it
-            viewState.setEdtDepTimeText(strLogTime(it))
+            viewState.setEdtDepTime(it)
         }
         flight.arrivalUtcTime?.let {
             intArrivalTime = it
@@ -295,17 +295,11 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
             })
     }
 
-    fun correctDepartureTime(stringTime: String) {
-        correctDayTimeObs(stringTime, intDepTime)
-            .doOnNext {
-                intDepTime = it.intTime
-                flight?.departureUtcTime = intDepTime
-                correctFlightTimeByDepArr()
-            }
-            .subscribeFromPresenter({
-                viewState.setEdtDepTimeText(it.strTime)
-                timeSummChanged()
-            })
+    fun setDepartureTime(time: Int) {
+        intDepTime = time
+        flight?.departureUtcTime = intDepTime
+        correctFlightTimeByDepArr()
+        timeSummChanged()
     }
 
     fun correctArrivalTime(stringTime: String) {
