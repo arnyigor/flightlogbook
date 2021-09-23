@@ -13,6 +13,7 @@ import com.arny.flightlogbook.R
 import com.arny.flightlogbook.databinding.InputTimeWithLocalComponentBinding
 import com.arny.flightlogbook.presentation.flights.addedit.models.CorrectedTimePair
 import com.arny.flightlogbook.presentation.flights.addedit.models.getCorrectDayTime
+import com.arny.flightlogbook.presentation.flights.addedit.models.getCorrectLocalDiffDayTime
 
 class InputTimeWithLocalComponent @JvmOverloads constructor(
     context: Context,
@@ -20,6 +21,7 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
 ) : ConstraintLayout(context, attrs) {
 
     private var correctedTime: CorrectedTimePair? = null
+    private var correctedTimeDiff: CorrectedTimePair? = null
     private var timeInMin = 0
     private var utcTime = true
     private val binding =
@@ -34,6 +36,7 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
 
     private fun updateTime() {
         correctedTime = getCorrectDayTime(binding.edtTime.text.toString(), timeInMin)
+        correctedTimeDiff = getCorrectLocalDiffDayTime(binding.edtTimeDiff.text.toString(), timeInMin)
         timeInMin = correctedTime?.intTime ?: 0
         textChangedListener?.invoke(timeInMin)
         refreshRemoveIconVisible()

@@ -9,8 +9,8 @@
 
     <TextView
         android:id="@+id/tvCaption"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:text="@string/utc_time"
         android:textSize="@dimen/font_size_xsmall"
@@ -20,7 +20,7 @@
 
     <EditText
         android:id="@+id/edtTime"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:focusable="true"
         android:focusableInTouchMode="true"

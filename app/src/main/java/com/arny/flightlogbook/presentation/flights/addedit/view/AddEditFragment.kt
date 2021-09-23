@@ -10,13 +10,11 @@ import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.view.*
-import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.TimePicker
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
-import androidx.core.widget.addTextChangedListener
 import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
@@ -309,95 +307,95 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     }
 
     private fun onNightTimeChanges() = with(binding) {
-        val timeZero = getTimeZero()
-        edtNightTime.setDrawableRightClick {
-            openTimeDialog(edtNightTime)
-        }
-        edtNightTime.addTextChangedListener {
-            if (it.toString().isBlank()) {
-                edtNightTime.hint = timeZero
-            }
-            sNightTime = it.toString()
-            if (fromDialog) {
-                addEditPresenter.correctNightTime(sNightTime)
-                fromDialog = false
-            }
-        }
-        edtNightTime.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                edtNightTime.setSelectAllOnFocus(false)
-                addEditPresenter.correctNightTime(sNightTime)
-            }
-            val nightTime = edtNightTime.text.toString()
-            if (nightTime.isBlank()) {
-                if (hasFocus) {
-                    edtNightTime.hint = timeZero
-                } else {
-                    edtNightTime.hint = null
-                }
-            } else {
-                if (hasFocus && nightTime == timeZero) {
-                    edtNightTime.setSelectAllOnFocus(true)
-                    edtNightTime.selectAll()
-                }
-            }
-        }
-        edtNightTime.setOnEditorActionListener { _, actionId, _ ->
-            when (actionId) {
-                EditorInfo.IME_ACTION_NEXT -> {
-                    addEditPresenter.correctNightTime(sNightTime)
-                    edtGroundTime.requestFocus()
-                    true
-                }
-                else -> false
-            }
-        }
+//        val timeZero = getTimeZero()
+//        edtNightTime.setDrawableRightClick {
+//            openTimeDialog(edtNightTime)
+//        }
+//        edtNightTime.addTextChangedListener {
+//            if (it.toString().isBlank()) {
+//                edtNightTime.hint = timeZero
+//            }
+//            sNightTime = it.toString()
+//            if (fromDialog) {
+//                addEditPresenter.correctNightTime(sNightTime)
+//                fromDialog = false
+//            }
+//        }
+//        edtNightTime.setOnFocusChangeListener { _, hasFocus ->
+//            if (!hasFocus) {
+//                edtNightTime.setSelectAllOnFocus(false)
+//                addEditPresenter.correctNightTime(sNightTime)
+//            }
+//            val nightTime = edtNightTime.text.toString()
+//            if (nightTime.isBlank()) {
+//                if (hasFocus) {
+//                    edtNightTime.hint = timeZero
+//                } else {
+//                    edtNightTime.hint = null
+//                }
+//            } else {
+//                if (hasFocus && nightTime == timeZero) {
+//                    edtNightTime.setSelectAllOnFocus(true)
+//                    edtNightTime.selectAll()
+//                }
+//            }
+//        }
+//        edtNightTime.setOnEditorActionListener { _, actionId, _ ->
+//            when (actionId) {
+//                EditorInfo.IME_ACTION_NEXT -> {
+//                    addEditPresenter.correctNightTime(sNightTime)
+//                    edtGroundTime.requestFocus()
+//                    true
+//                }
+//                else -> false
+//            }
+//        }
     }
 
     private fun onGroundTimeChanges() = with(binding) {
-        val timeZero = getTimeZero()
-        edtGroundTime.setDrawableRightClick {
-            openTimeDialog(edtGroundTime)
-        }
-        edtGroundTime.addTextChangedListener {
-            if (it.toString().isBlank()) {
-                edtGroundTime.hint = timeZero
-            }
-            sGroundTime = it.toString()
-            if (fromDialog) {
-                addEditPresenter.correctGroundTime(sGroundTime)
-                fromDialog = false
-            }
-        }
-        edtGroundTime.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                edtGroundTime.setSelectAllOnFocus(false)
-                addEditPresenter.correctGroundTime(sGroundTime)
-            }
-            val grTime = edtGroundTime.text.toString()
-            if (grTime.isBlank()) {
-                if (hasFocus) {
-                    edtGroundTime.hint = timeZero
-                } else {
-                    edtGroundTime.hint = null
-                }
-            } else {
-                if (hasFocus && grTime == timeZero) {
-                    edtGroundTime.setSelectAllOnFocus(true)
-                    edtGroundTime.selectAll()
-                }
-            }
-        }
-        edtGroundTime.setOnEditorActionListener { _, actionId, _ ->
-            when (actionId) {
-                EditorInfo.IME_ACTION_DONE -> {
-                    addEditPresenter.correctGroundTime(sGroundTime)
-                    Utility.hideSoftKeyboard(requireContext())
-                    true
-                }
-                else -> false
-            }
-        }
+//        val timeZero = getTimeZero()
+//        edtGroundTime.setDrawableRightClick {
+//            openTimeDialog(edtGroundTime)
+//        }
+//        edtGroundTime.addTextChangedListener {
+//            if (it.toString().isBlank()) {
+//                edtGroundTime.hint = timeZero
+//            }
+//            sGroundTime = it.toString()
+//            if (fromDialog) {
+//                addEditPresenter.correctGroundTime(sGroundTime)
+//                fromDialog = false
+//            }
+//        }
+//        edtGroundTime.setOnFocusChangeListener { _, hasFocus ->
+//            if (!hasFocus) {
+//                edtGroundTime.setSelectAllOnFocus(false)
+//                addEditPresenter.correctGroundTime(sGroundTime)
+//            }
+//            val grTime = edtGroundTime.text.toString()
+//            if (grTime.isBlank()) {
+//                if (hasFocus) {
+//                    edtGroundTime.hint = timeZero
+//                } else {
+//                    edtGroundTime.hint = null
+//                }
+//            } else {
+//                if (hasFocus && grTime == timeZero) {
+//                    edtGroundTime.setSelectAllOnFocus(true)
+//                    edtGroundTime.selectAll()
+//                }
+//            }
+//        }
+//        edtGroundTime.setOnEditorActionListener { _, actionId, _ ->
+//            when (actionId) {
+//                EditorInfo.IME_ACTION_DONE -> {
+//                    addEditPresenter.correctGroundTime(sGroundTime)
+//                    Utility.hideSoftKeyboard(requireContext())
+//                    true
+//                }
+//                else -> false
+//            }
+//        }
     }
 
     private fun onDateTimeChanges() = with(binding) {
@@ -457,49 +455,49 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     }
 
     private fun onFlightTimeChanges() = with(binding) {
-        edtFlightTime.setDrawableRightClick {
-            openTimeDialog(edtFlightTime)
-        }
-        val timeZero = getTimeZero()
-        edtFlightTime.addTextChangedListener {
-            if (it.toString().isBlank()) {
-                edtFlightTime.hint = timeZero
-            }
-            sFlightTime = it.toString()
-            if (fromDialog) {
-                addEditPresenter.correctFlightTime(sFlightTime)
-                fromDialog = false
-            }
-        }
-        edtFlightTime.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                edtFlightTime.setSelectAllOnFocus(false)
-                addEditPresenter.correctFlightTime(sFlightTime)
-            }
-            val flTime = edtFlightTime.text.toString()
-            if (flTime.isBlank()) {
-                if (hasFocus) {
-                    edtFlightTime.hint = timeZero
-                } else {
-                    edtFlightTime.hint = null
-                }
-            } else {
-                if (hasFocus && flTime == timeZero) {
-                    edtFlightTime.setSelectAllOnFocus(true)
-                    edtFlightTime.selectAll()
-                }
-            }
-        }
-        edtFlightTime.setOnEditorActionListener { _, actionId, _ ->
-            when (actionId) {
-                EditorInfo.IME_ACTION_NEXT -> {
-                    addEditPresenter.correctFlightTime(sFlightTime)
-                    edtNightTime.requestFocus()
-                    true
-                }
-                else -> false
-            }
-        }
+//        edtFlightTime.setDrawableRightClick {
+//            openTimeDialog(edtFlightTime)
+//        }
+//        val timeZero = getTimeZero()
+//        edtFlightTime.addTextChangedListener {
+//            if (it.toString().isBlank()) {
+//                edtFlightTime.hint = timeZero
+//            }
+//            sFlightTime = it.toString()
+//            if (fromDialog) {
+//                addEditPresenter.correctFlightTime(sFlightTime)
+//                fromDialog = false
+//            }
+//        }
+//        edtFlightTime.setOnFocusChangeListener { _, hasFocus ->
+//            if (!hasFocus) {
+//                edtFlightTime.setSelectAllOnFocus(false)
+//                addEditPresenter.correctFlightTime(sFlightTime)
+//            }
+//            val flTime = edtFlightTime.text.toString()
+//            if (flTime.isBlank()) {
+//                if (hasFocus) {
+//                    edtFlightTime.hint = timeZero
+//                } else {
+//                    edtFlightTime.hint = null
+//                }
+//            } else {
+//                if (hasFocus && flTime == timeZero) {
+//                    edtFlightTime.setSelectAllOnFocus(true)
+//                    edtFlightTime.selectAll()
+//                }
+//            }
+//        }
+//        edtFlightTime.setOnEditorActionListener { _, actionId, _ ->
+//            when (actionId) {
+//                EditorInfo.IME_ACTION_NEXT -> {
+//                    addEditPresenter.correctFlightTime(sFlightTime)
+//                    edtNightTime.requestFocus()
+//                    true
+//                }
+//                else -> false
+//            }
+//        }
     }
 
     private fun getTimeZero() = getString(R.string.str_time_zero)
