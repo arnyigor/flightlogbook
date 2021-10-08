@@ -19,41 +19,23 @@ class CustomFieldView : LinearLayout {
     private var styleType: Int? = null
     private var type: String? = null
 
-    fun init(type: CustomFieldType, name: String) {
-        this.type = type.toString()
-        this.name = name
-        invalidateTextPaintAndMeasurements()
-    }
-
-    var value: Any?
-        get() = returnValue()
-        set(value) {
-            setViewValue(value)
-        }
-
-    private fun setViewValue(value: Any?) {
-        when (type.toCustomFieldType()) {
-            is CustomFieldType.Text -> editText?.setText(value.toString())
-            is CustomFieldType.Number -> editText?.setText(value.toString())
-            is CustomFieldType.Time -> editText?.setText(value.toString())
-            is CustomFieldType.Bool -> switch?.isChecked = value.toString().toBoolean() || value.toString() == "1"
-            is CustomFieldType.None -> {
-            }
-        }
-    }
-
-    private fun returnValue(): Any? {
-        return when (type.toCustomFieldType()) {
-            is CustomFieldType.Text -> editText?.text.toString()
-            is CustomFieldType.Number -> editText?.text.toString()
-            is CustomFieldType.Time -> editText?.text.toString()
-            is CustomFieldType.Bool -> switch?.isChecked
-            is CustomFieldType.None -> null
-        }
-    }
-
     constructor(context: Context) : super(context) {
         init(null, 0)
+    }
+
+    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
+        init(attrs, 0)
+    }
+
+    constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(context, attrs, defStyle) {
+        init(attrs, defStyle)
+    }
+
+    private fun init(attrs: AttributeSet?, defStyle: Int) {
+        val a = context.obtainStyledAttributes(
+            attrs, R.styleable.CustomFieldView, defStyle, 0)
+        a.recycle()
+        invalidateTextPaintAndMeasurements()
     }
 
     private fun invalidateTextPaintAndMeasurements() {
@@ -92,18 +74,37 @@ class CustomFieldView : LinearLayout {
         }
     }
 
-    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
-        init(attrs, 0)
-    }
-
-    constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(context, attrs, defStyle) {
-        init(attrs, defStyle)
-    }
-
-    private fun init(attrs: AttributeSet?, defStyle: Int) {
-        val a = context.obtainStyledAttributes(
-                attrs, R.styleable.CustomFieldView, defStyle, 0)
-        a.recycle()
+    fun init(type: CustomFieldType, name: String) {
+        this.type = type.toString()
+        this.name = name
         invalidateTextPaintAndMeasurements()
     }
+
+    var value: Any?
+        get() = returnValue()
+        set(value) {
+            setViewValue(value)
+        }
+
+    private fun setViewValue(value: Any?) {
+        when (type.toCustomFieldType()) {
+            is CustomFieldType.Text -> editText?.setText(value.toString())
+            is CustomFieldType.Number -> editText?.setText(value.toString())
+            is CustomFieldType.Time -> editText?.setText(value.toString())
+            is CustomFieldType.Bool -> switch?.isChecked = value.toString().toBoolean() || value.toString() == "1"
+            is CustomFieldType.None -> {
+            }
+        }
+    }
+
+    private fun returnValue(): Any? {
+        return when (type.toCustomFieldType()) {
+            is CustomFieldType.Text -> editText?.text.toString()
+            is CustomFieldType.Number -> editText?.text.toString()
+            is CustomFieldType.Time -> editText?.text.toString()
+            is CustomFieldType.Bool -> switch?.isChecked
+            is CustomFieldType.None -> null
+        }
+    }
+
 }

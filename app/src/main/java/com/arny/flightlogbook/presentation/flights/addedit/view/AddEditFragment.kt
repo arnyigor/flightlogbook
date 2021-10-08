@@ -35,7 +35,6 @@ import com.redmadrobot.inputmask.MaskedTextChangedListener
 import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.disposables.CompositeDisposable
 import moxy.ktx.moxyPresenter
-import java.util.*
 
 class AddEditFragment : BaseMvpFragment(), AddEditView,
     CalendarDatePickerDialogFragment.OnDateSetListener,
@@ -185,13 +184,19 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         }
     }
 
-    private fun onDepartureTimeChanges() = with(binding) {
-        edtDepartureTime.setTimeIconClickListener {
-            openTimeDialog(edtDepartureTime.edtTime)
+    private fun onDepartureTimeChanges() {
+        with(binding) {
+            edtDepartureTime.setTimeIconClickListener {
+                openTimeDialog(edtDepartureTime.edtTime)
+            }
+            edtDepartureTime.setDateChangedListener {
+                addEditPresenter.setDepartureTime(it)
+            }
+            edtDepartureTime.setFocusChangedListener {
+                addEditPresenter.setDepartureTime(it)
+            }
         }
-        edtDepartureTime.setDateChangedListener {
-            addEditPresenter.setDepartureTime(it)
-        }
+
         /*val timeZero = getTimeZero()
         edtDepartureTime.setDrawableRightClick {
             openTimeDialog(edtDepartureTime)
@@ -243,7 +248,18 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         }*/
     }
 
-    private fun onArrivalTimeChanges() = with(binding) {
+    private fun onArrivalTimeChanges() {
+        with(binding) {
+            edtArrivalTime.setTimeIconClickListener {
+                openTimeDialog(edtArrivalTime.edtTime)
+            }
+            edtArrivalTime.setDateChangedListener {
+                addEditPresenter.setArrivalTime(it)
+            }
+            edtArrivalTime.setFocusChangedListener {
+                addEditPresenter.setArrivalTime(it)
+            }
+        }
 //        val timeZero = getTimeZero()
 //        edtArrivalTime.setDrawableRightClick {
 //            openTimeDialog(edtArrivalTime)

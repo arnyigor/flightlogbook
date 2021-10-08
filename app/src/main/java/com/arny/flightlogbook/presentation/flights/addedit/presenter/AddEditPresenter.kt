@@ -302,6 +302,13 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         timeSummChanged()
     }
 
+    fun setArrivalTime(time: Int) {
+        intArrivalTime = time
+        flight?.arrivalUtcTime = intArrivalTime
+        correctFlightTimeByDepArr()
+        timeSummChanged()
+    }
+
     fun correctArrivalTime(stringTime: String) {
         correctDayTimeObs(stringTime, intDepTime)
             .doOnNext {

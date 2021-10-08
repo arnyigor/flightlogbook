@@ -23,10 +23,12 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
     private var correctedTime: CorrectedTimePair? = null
     private var correctedTimeDiff: CorrectedTimePair? = null
     private var timeInMin = 0
+    private var timeDiffInMin = 0
     private var utcTime = true
     private val binding =
         InputTimeWithLocalComponentBinding.inflate(LayoutInflater.from(context), this)
-    private val watcher = binding.edtTime.doAfterTextChanged { updateTime() }
+    private val mainTimeUpdateListener = binding.edtTime.doAfterTextChanged { updateTime() }
+    private val timeDiffUpdateListener = binding.edtTimeDiff.doAfterTextChanged { updateTime() }
     val timeIcon: ImageView
         get() = binding.ivTimeIcon
     val clearIcon: ImageView
@@ -35,55 +37,95 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
         get() = binding.edtTime
 
     private fun updateTime() {
+        correctedTimeDiff =
+            getCorrectLocalDiffDayTime(binding.edtTimeDiff.text.toString(), timeDiffInMin)
+        timeDiffInMin = correctedTimeDiff?.intTime ?: 0
+        timeInMin = correctedTime?.intTime ?: 0 + timeDiffInMin
         correctedTime = getCorrectDayTime(binding.edtTime.text.toString(), timeInMin)
-        correctedTimeDiff = getCorrectLocalDiffDayTime(binding.edtTimeDiff.text.toString(), timeInMin)
         timeInMin = correctedTime?.intTime ?: 0
         textChangedListener?.invoke(timeInMin)
         refreshRemoveIconVisible()
+        refreshRemoveTimeDiffIconVisible()
     }
 
     init {
         changeUtcLocal()
-        binding.edtTime.addTextChangedListener(watcher)
-        binding.edtTime.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                binding.edtTime.setSelectAllOnFocus(false)
-                binding.edtTime.setText(correctedTime?.strTime)
-            }
-            val depTime = binding.edtTime.text.toString()
-            if (depTime.isBlank()) {
-                if (hasFocus) {
-                    binding.edtTime.hint = context.getString(R.string.utc_time)
-                    binding.edtTime.hint = context.getString(R.string.str_time_zero)
+        with(binding) {
+            edtTime.addTextChangedListener(mainTimeUpdateListener)
+            edtTimeDiff.addTextChangedListener(timeDiffUpdateListener)
+            edtTime.setOnFocusChangeListener { _, hasFocus ->
+                if (!hasFocus) {
+                    edtTime.setSelectAllOnFocus(false)
+                    edtTime.setText(correctedTime?.strTime)
+                    onFocusChangeListener?.invoke(timeInMin)
+                }
+                val depTime = edtTime.text.toString()
+                if (depTime.isBlank()) {
+                    if (hasFocus) {
+                        edtTime.hint = context.getString(R.string.utc_time)
+                        edtTime.hint = context.getString(R.string.str_time_zero)
+                    } else {
+                        edtTime.hint = null
+                        edtTime.hint = context.getString(R.string.str_time_zero)
+                    }
                 } else {
-                    binding.edtTime.hint = null
-                    binding.edtTime.hint = context.getString(R.string.str_time_zero)
-                }
-            } else {
-                binding.edtTime.hint = context.getString(R.string.str_time_zero)
-                if (hasFocus && depTime == context.getString(R.string.str_time_zero)) {
-                    binding.edtTime.setSelectAllOnFocus(true)
-                    binding.edtTime.selectAll()
+                    edtTime.hint = context.getString(R.string.str_time_zero)
+                    if (hasFocus && depTime == context.getString(R.string.str_time_zero)) {
+                        edtTime.setSelectAllOnFocus(true)
+                        edtTime.selectAll()
+                    }
                 }
             }
-        }
-        binding.ivTimeIcon.setOnClickListener { timeClickListener?.invoke() }
-        binding.ivTimeRemove.setOnClickListener {
-            timeInMin = 0
-            binding.edtTime.setText("")
-            updateTime()
-        }
-        binding.tvCaption.setOnClickListener {
-            utcTime = !utcTime
-            changeUtcLocal()
+            ivTimeIcon.setOnClickListener { timeClickListener?.invoke() }
+            ivTimeRemove.setOnClickListener {
+                timeInMin = 0
+                edtTime.setText("")
+                updateTime()
+            }
+            ivTimeDiffRemove.setOnClickListener {
+                timeDiffInMin = 0
+                edtTimeDiff.setText("")
+                updateTime()
+            }
+            tvCaption.setOnClickListener {
+                utcTime = !utcTime
+                changeUtcLocal()
+            }
+
+            edtTimeDiff.setOnFocusChangeListener { _, hasFocus ->
+                if (!hasFocus) {
+                    edtTimeDiff.setSelectAllOnFocus(false)
+                    edtTimeDiff.setText(correctedTimeDiff?.strTime)
+                    updateTime()
+                }
+                val depTime = edtTimeDiff.text.toString()
+                if (depTime.isBlank()) {
+                    if (hasFocus) {
+                        edtTimeDiff.hint = context.getString(R.string.str_time_zero)
+                    } else {
+                        edtTimeDiff.hint = context.getString(R.string.str_time_zero)
+                    }
+                } else {
+                    edtTimeDiff.hint = context.getString(R.string.str_time_zero)
+                    if (hasFocus && depTime == context.getString(R.string.str_time_zero)) {
+                        edtTimeDiff.setSelectAllOnFocus(true)
+                        edtTimeDiff.selectAll()
+                    }
+                }
+            }
         }
     }
 
     private var textChangedListener: ((Int) -> Unit)? = null
+    private var onFocusChangeListener: ((Int) -> Unit)? = null
     private var timeClickListener: (() -> Unit)? = null
 
     fun setDateChangedListener(listener: (Int) -> Unit) {
         textChangedListener = listener
+    }
+
+    fun setFocusChangedListener(listener: (Int) -> Unit) {
+        onFocusChangeListener = listener
     }
 
     fun setTimeIconClickListener(listener: () -> Unit) {
@@ -100,27 +142,33 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
                 }
             )
         binding.tvLocalTimeDiff.isVisible = !utcTime
+        binding.ivTimeDiffRemove.isVisible = !utcTime
         binding.edtTimeDiff.isVisible = !utcTime
+
     }
 
     fun refreshRemoveIconVisible() {
         binding.ivTimeRemove.isVisible = binding.edtTime.text.isNotBlank()
     }
 
+    private fun refreshRemoveTimeDiffIconVisible() {
+        binding.ivTimeDiffRemove.isVisible = binding.edtTimeDiff.text.isNotBlank()
+    }
+
     fun setText(text: CharSequence?) {
         with(binding.edtTime) {
             if (this.text != text) {
-                removeTextChangedListener(watcher)
+                removeTextChangedListener(mainTimeUpdateListener)
                 setText(text)
-                addTextChangedListener(watcher)
+                addTextChangedListener(mainTimeUpdateListener)
             }
         }
         refreshRemoveIconVisible()
+        refreshRemoveTimeDiffIconVisible()
     }
 
     fun setTime(time: Int) {
         timeInMin = time
-        binding.edtTime.setText(DateTimeUtils.strLogTime(time))
-        refreshRemoveIconVisible()
+        setText(DateTimeUtils.strLogTime(time))
     }
 }

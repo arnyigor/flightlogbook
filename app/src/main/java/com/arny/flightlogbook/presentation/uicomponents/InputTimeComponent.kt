@@ -16,8 +16,9 @@ import com.arny.flightlogbook.presentation.flights.addedit.models.getCorrectDayT
 
 class InputTimeComponent @JvmOverloads constructor(
     context: Context,
-    attrs: AttributeSet? = null
-) : ConstraintLayout(context, attrs) {
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0,
+) : ConstraintLayout(context, attrs, defStyleAttr) {
 
     private var correctedTime: CorrectedTimePair? = null
     private var timeInMin = 0
@@ -38,6 +39,11 @@ class InputTimeComponent @JvmOverloads constructor(
     }
 
     init {
+        val att = context.obtainStyledAttributes(
+            attrs, R.styleable.InputTimeComponent, defStyleAttr, 0
+        )
+        setCaptionVisible(att.getBoolean(R.styleable.InputTimeComponent_captionVisible, true))
+        att.recycle()
         binding.edtTime.addTextChangedListener(watcher)
         binding.edtTime.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
@@ -82,6 +88,14 @@ class InputTimeComponent @JvmOverloads constructor(
 
     fun refreshRemoveIconVisible() {
         binding.ivTimeRemove.isVisible = binding.edtTime.text.isNotBlank()
+    }
+
+    fun setCaption(text: CharSequence?) {
+        binding.tvCaption.text = text
+    }
+
+    fun setCaptionVisible(visible: Boolean) {
+        binding.tvCaption.isVisible = visible
     }
 
     fun setText(text: CharSequence?) {

@@ -68,13 +68,25 @@
         android:hint="@string/str_time_zero"
         android:importantForAutofill="no"
         android:inputType="time"
+        android:imeOptions="actionNext"
         android:paddingHorizontal="12dp"
-        android:text="+01:00"
+        android:text="@string/str_time_zero"
         android:textSize="@dimen/font_size_default"
         android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/ivTimeDiffRemove"
         app:layout_constraintStart_toEndOf="@+id/ivTimeIcon"
         app:layout_constraintTop_toBottomOf="@+id/tvLocalTimeDiff"
         tools:visibility="visible" />
+
+    <ImageView
+        android:id="@+id/ivTimeDiffRemove"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/edtTimeDiff"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvLocalTimeDiff"
+        app:srcCompat="@drawable/ic_close"
+        app:tint="@color/gray_400" />
 
     <TextView
         android:id="@+id/tvLocalTimeDiff"
@@ -89,6 +101,5 @@
         app:layout_constraintStart_toStartOf="@+id/edtTimeDiff"
         app:layout_constraintTop_toTopOf="parent"
         tools:visibility="visible" />
-
 
 </merge>

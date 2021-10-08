@@ -5,7 +5,7 @@ ext.versions = [
         'buildTools'       : '30.0.2',
         'supportLibrary'   : '28.0.0',
         'constraint'       : '2.0.2',
-        'kotlin'           : '1.4.10',
+        'kotlin'           : '1.5.31',
         'coroutines'       : '1.3.2',
         'ktx'              : '1.3.2',
         'gms'              : '4.3.3',
