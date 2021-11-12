@@ -68,9 +68,7 @@ class StatisticsPresenter : BaseMvpPresenter<StatisticsView>() {
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
         statisticInteractor.loadColors()
-                .subscribeFromPresenter({
-                    colors = it
-                })
+            .subscribeFromPresenter({ colors = it })
     }
 
     fun onPeriodChanged(position: Int) {

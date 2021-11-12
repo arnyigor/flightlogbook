@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion versions.compileSdk
@@ -35,6 +36,12 @@ dependencies {
     implementation libs.support
     implementation libs.preference
     implementation libs.ktxCore
+    implementation libs.ktxCore
+    //mvp
+    api libs.moxy
+    api libs.moxyAndroidX
+    api libs.moxyKtx
+    kapt libs.moxyCompiler
     //rx2
     implementation libs.rxJava
     implementation libs.rxAndroid

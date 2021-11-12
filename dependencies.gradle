@@ -109,6 +109,9 @@ ext.libs = [
         'retrofitRxAdapter'   : "com.jakewharton.retrofit:retrofit2-rxjava2-adapter:${versions.retrofitRxAdapter}",
         'stetho'              : "com.facebook.stetho:stetho:${versions.stetho}",
         'networkInterceptor'  : "com.facebook.stetho:stetho-okhttp3:${versions.stetho}",
+        'flipper'             : "com.facebook.flipper:flipper:0.63.0",
+        'flipperNetwork'      : "com.facebook.flipper:flipper-network-plugin:0.63.0",
+        'soloader'            : "com.facebook.soloader:soloader:0.9.0",
 
         // icons
         'materialTypeface'    : "com.mikepenz:google-material-typeface:3.0.1.2.original@aar",
