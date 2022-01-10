@@ -63,6 +63,27 @@ fun getCorrectTime(stringTime: String, initTime: Int): CorrectedTimePair {
     }
 }
 
+private fun correctMinHours(hours: Int, mins: Int): Pair<Int, Int> {
+    var logHours = hours
+    var logMinutes = mins
+    while (true) {
+        if (logMinutes > 59) {
+            logHours += 1
+            logMinutes -= 60
+        } else {
+            break
+        }
+    }
+    while (true) {
+        if (logHours > 23) {
+            logHours -= 24
+        } else {
+            break
+        }
+    }
+    return Pair(logHours, logMinutes)
+}
+
 fun getCorrectDayTime(stringTime: String, initTime: Int): CorrectedTimePair {
     var logMinutes: Int
     var logHours = 0
@@ -82,18 +103,14 @@ fun getCorrectDayTime(stringTime: String, initTime: Int): CorrectedTimePair {
         stringTime.length == 2 -> {
             logMinutes = stringTime.parseInt(0)
             logTime = stringTime.parseInt(0)
-            if (logMinutes > 59) {
-                logHours = 1
-                logMinutes -= 60
-            }
-            val format = String.format(
-                "%s:%s",
-                DateTimeUtils.pad(logHours),
-                DateTimeUtils.pad(logMinutes)
-            )
+            val (hours, minutes) = correctMinHours(logHours, logMinutes)
             CorrectedTimePair(
-                logTime,
-                format
+                intTime = logTime,
+                strTime = String.format(
+                    "%s:%s",
+                    DateTimeUtils.pad(hours),
+                    DateTimeUtils.pad(minutes)
+                )
             )
         }
         stringTime.length > 2 -> {
@@ -106,25 +123,11 @@ fun getCorrectDayTime(stringTime: String, initTime: Int): CorrectedTimePair {
                     stringTime.substring(stringTime.length - 2, stringTime.length).parseInt(0)
                 logHours = stringTime.substring(0, stringTime.length - 2).parseInt(0)
             }
-            while (true) {
-                if (logMinutes > 59) {
-                    logHours += 1
-                    logMinutes -= 60
-                } else {
-                    break
-                }
-            }
-            while (true) {
-                if (logHours > 23) {
-                    logHours -= 24
-                } else {
-                    break
-                }
-            }
-            logTime = DateTimeUtils.logTimeMinutes(logHours, logMinutes)
+            val (hours, minutes) = correctMinHours(logHours, logMinutes)
+            logTime = DateTimeUtils.logTimeMinutes(hours, minutes)
             CorrectedTimePair(
-                logTime,
-                DateTimeUtils.strLogTime(logTime)
+                intTime = logTime,
+                strTime = DateTimeUtils.strLogTime(logTime)
             )
         }
         else -> CorrectedTimePair(
@@ -135,83 +138,75 @@ fun getCorrectDayTime(stringTime: String, initTime: Int): CorrectedTimePair {
 }
 
 fun getCorrectLocalDiffDayTime(stringTime: String, initTime: Int): CorrectedTimePair {
-    var logMinutes: Int
-    var logHours = 0
+    val logMinutes: Int
+    val logHours: Int
     var logTime = initTime
+    var sign = 1
     return when {
         stringTime.isBlank() -> CorrectedTimePair(
-            logTime,
-            if (logTime != 0) DateTimeUtils.strLogTime(logTime) else ""
+            intTime = logTime,
+            strTime = if (logTime != 0) DateTimeUtils.strLogTime(logTime) else ""
         )
         stringTime.length == 1 -> {
             logTime = if (stringTime.contains("-")) 0 else stringTime.parseInt(0)
             CorrectedTimePair(
-                logTime,
-                if (logTime != 0) String.format("00:0%d", logTime) else "",
-                1
+                intTime = logTime,
+                strTime = if (logTime != 0) String.format("00:0%d", logTime) else "",
+                sign = 1
             )
         }
         stringTime.length == 2 -> {
-            if (stringTime.contains("-")) {
-                val sign = if (stringTime.getOrNull(0) == '-') -1 else 1
-                logMinutes = stringTime.getOrNull(1)?.toString().parseInt(0) * sign
-            } else {
-                logMinutes =
-                    stringTime.substring(stringTime.length - 2, stringTime.length).parseInt(0)
-                logHours = stringTime.substring(0, stringTime.length - 2).parseInt(0)
+            when {
+                stringTime.contains("-") -> { //-9->-00:09
+                    sign = if (stringTime.getOrNull(0) == '-') -1 else 1
+                    logMinutes =
+                        stringTime.substring(stringTime.length - 2, stringTime.length).parseInt(0)
+                    logHours = stringTime.substring(1, stringTime.length - 2).parseInt(0)
+                }
+                else -> {
+                    logMinutes =
+                        stringTime.substring(stringTime.length - 2, stringTime.length).parseInt(0)
+                    logHours = stringTime.substring(0, stringTime.length - 2).parseInt(0)
+                }
             }
-
-
-            logMinutes = stringTime.parseInt(0)
-            logTime = stringTime.parseInt(0)
-            if (logMinutes > 59) {
-                logHours = 1
-                logMinutes -= 60
-            }
-            val format = String.format(
-                "%s:%s",
-                DateTimeUtils.pad(logHours),
-                DateTimeUtils.pad(logMinutes)
-            )
+            val (hours, minutes) = correctMinHours(logHours, logMinutes)
             CorrectedTimePair(
-                logTime,
-                format
+                intTime = logTime,
+                strTime = String.format(
+                    "%s:%s",
+                    DateTimeUtils.pad(hours),
+                    DateTimeUtils.pad(minutes)
+                ),
+                sign = sign
             )
         }
         stringTime.length > 2 -> {
-            if (stringTime.contains(":")) {
-                logMinutes =
-                    stringTime.substring(stringTime.length - 2, stringTime.length).parseInt(0)
-                logHours = stringTime.substring(0, stringTime.length - 3).parseInt(0)
-            } else {
-                logMinutes =
-                    stringTime.substring(stringTime.length - 2, stringTime.length).parseInt(0)
-                logHours = stringTime.substring(0, stringTime.length - 2).parseInt(0)
-            }
-            while (true) {
-                if (logMinutes > 59) {
-                    logHours += 1
-                    logMinutes -= 60
-                } else {
-                    break
+            when {
+                stringTime == "00:00" -> {
+                    logMinutes = 0
+                    logHours = 0
+                }
+                stringTime.contains(":") -> {
+                    logMinutes =
+                        stringTime.substring(stringTime.length - 2, stringTime.length).parseInt(0)
+                    logHours = stringTime.substring(0, stringTime.length - 3).parseInt(0)
+                }
+                else -> {
+                    logMinutes =
+                        stringTime.substring(stringTime.length - 2, stringTime.length).parseInt(0)
+                    logHours = stringTime.substring(0, stringTime.length - 2).parseInt(0)
                 }
             }
-            while (true) {
-                if (logHours > 23) {
-                    logHours -= 24
-                } else {
-                    break
-                }
-            }
-            logTime = DateTimeUtils.logTimeMinutes(logHours, logMinutes)
+            val (hours, minutes) = correctMinHours(logHours, logMinutes)
+            logTime = DateTimeUtils.logTimeMinutes(hours, minutes)
             CorrectedTimePair(
-                logTime,
-                DateTimeUtils.strLogTime(logTime)
+                intTime = logTime,
+                strTime = DateTimeUtils.strLogTime(logTime)
             )
         }
         else -> CorrectedTimePair(
-            logTime,
-            if (logTime != 0) DateTimeUtils.strLogTime(logTime) else ""
+            intTime = logTime,
+            strTime = if (logTime != 0) DateTimeUtils.strLogTime(logTime) else ""
         )
     }
 }

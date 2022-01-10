@@ -40,7 +40,7 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
         correctedTimeDiff =
             getCorrectLocalDiffDayTime(binding.edtTimeDiff.text.toString(), timeDiffInMin)
         timeDiffInMin = correctedTimeDiff?.intTime ?: 0
-        timeInMin = correctedTime?.intTime ?: 0 + timeDiffInMin
+        timeInMin = correctedTime?.intTime ?: 0
         correctedTime = getCorrectDayTime(binding.edtTime.text.toString(), timeInMin)
         timeInMin = correctedTime?.intTime ?: 0
         textChangedListener?.invoke(timeInMin)
@@ -144,7 +144,6 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
         binding.tvLocalTimeDiff.isVisible = !utcTime
         binding.ivTimeDiffRemove.isVisible = !utcTime
         binding.edtTimeDiff.isVisible = !utcTime
-
     }
 
     fun refreshRemoveIconVisible() {
@@ -152,7 +151,8 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
     }
 
     private fun refreshRemoveTimeDiffIconVisible() {
-        binding.ivTimeDiffRemove.isVisible = binding.edtTimeDiff.text.isNotBlank()
+        binding.ivTimeDiffRemove.isVisible =
+            binding.edtTimeDiff.isVisible && binding.edtTimeDiff.text.isNotBlank()
     }
 
     fun setText(text: CharSequence?) {

@@ -18,11 +18,9 @@ import com.arny.flightlogbook.customfields.domain.CustomFieldInteractor
 import com.arny.flightlogbook.customfields.models.CustomFieldType
 import com.arny.flightlogbook.customfields.models.CustomFieldValue
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
-import com.arny.flightlogbook.presentation.flights.addedit.models.getCorrectDayTime
 import com.arny.flightlogbook.presentation.flights.addedit.models.getCorrectTime
 import com.arny.flightlogbook.presentation.flights.addedit.view.AddEditView
 import io.reactivex.Observable
-import io.reactivex.rxkotlin.Observables
 import moxy.InjectViewState
 import org.joda.time.DateTime
 import javax.inject.Inject
@@ -184,7 +182,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                 .subscribeFromPresenter({
                     customFieldsValues = it.toMutableList()
                     viewState.setFieldsList(customFieldsValues, true)
-                    timeSummChanged()
+                    timeSumChanged()
                 }, {
                     it.printStackTrace()
                 })
@@ -261,10 +259,10 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
             .subscribeFromPresenter({ viewState.setEdtNightTimeText(it) })
         fromCallable { strLogTime(intGroundTime) }
             .subscribeFromPresenter({ viewState.setEdtGroundTimeText(it) })
-        timeSummChanged()
+        timeSumChanged()
     }
 
-    private fun timeSummChanged() {
+    private fun timeSumChanged() {
         if (intNightTime > intFlightTime) {
             intFlightTime = intNightTime
         }
@@ -277,50 +275,34 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
             .subscribeFromPresenter({ viewState.setTotalTime(it) })
     }
 
-    fun correctFlightTime(stringTime: String) {
-        correctTimeObs(stringTime, intFlightTime)
-            .subscribeFromPresenter({
-                intFlightTime = it.intTime
-                viewState.setEdtFlightTimeText(it.strTime)
-                timeSummChanged()
-            })
-    }
-
-    fun correctNightTime(stringTime: String) {
-        correctTimeObs(stringTime, intNightTime)
-            .subscribeFromPresenter({
-                intNightTime = it.intTime
-                viewState.setEdtNightTimeText(it.strTime)
-                timeSummChanged()
-            })
-    }
-
     fun setDepartureTime(time: Int) {
         intDepTime = time
         flight?.departureUtcTime = intDepTime
         correctFlightTimeByDepArr()
-        timeSummChanged()
+        timeSumChanged()
     }
 
     fun setArrivalTime(time: Int) {
         intArrivalTime = time
         flight?.arrivalUtcTime = intArrivalTime
         correctFlightTimeByDepArr()
-        timeSummChanged()
+        timeSumChanged()
     }
 
-    fun correctArrivalTime(stringTime: String) {
-        correctDayTimeObs(stringTime, intDepTime)
-            .doOnNext {
-                intArrivalTime = it.intTime
-                flight?.arrivalUtcTime = intArrivalTime
-                correctFlightTimeByDepArr()
-            }
-            .subscribeFromPresenter({
-                viewState.setEdtArrTimeText(it.strTime)
-                timeSummChanged()
-            })
+    fun setNightTime(time: Int) {
+        intNightTime = time
+        flight?.nightTime = intNightTime
+        correctFlightTimeByDepArr()
+        timeSumChanged()
     }
+
+    fun setGroundTime(time: Int) {
+        intGroundTime = time
+        flight?.groundTime = intGroundTime
+        correctFlightTimeByDepArr()
+        timeSumChanged()
+    }
+
 
     private fun correctFlightTimeByDepArr() {
         intFlightTime = if (intArrivalTime >= intDepTime) {
@@ -330,36 +312,26 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         }
     }
 
-    fun correctGroundTime(stringTime: String) {
-        correctTimeObs(stringTime, intGroundTime)
-            .subscribeFromPresenter({
-                intGroundTime = it.intTime
-                viewState.setEdtGroundTimeText(it.strTime)
-                timeSummChanged()
-            })
-    }
 
     private fun correctTimeObs(stringTime: String, initTime: Int) =
         fromCallable { getCorrectTime(stringTime, initTime) }
 
-    private fun correctDayTimeObs(stringTime: String, initTime: Int) =
-        fromCallable { getCorrectDayTime(stringTime, initTime) }
 
     fun onMotoTimeChange(startTime: String, finishTime: String) {
         if (startTime.isNotBlank() && finishTime.isNotBlank()) {
             mMotoStart = startTime.toFloat()
             mMotoFinish = finishTime.toFloat()
             mMotoResult = getMotoTime(mMotoStart, mMotoFinish)
-            viewState.setMotoTimeResult(strLogTime(setLogTimefromMoto(mMotoResult)))
+            viewState.setMotoTimeResult(strLogTime(setLogTimeFromMoto(mMotoResult)))
         }
     }
 
     fun setMotoResult() {
-        intFlightTime = setLogTimefromMoto(mMotoResult)
+        intFlightTime = setLogTimeFromMoto(mMotoResult)
         viewState.setEdtFlightTimeText(strLogTime(intFlightTime))
     }
 
-    private fun setLogTimefromMoto(motoTime: Float): Int {
+    private fun setLogTimeFromMoto(motoTime: Float): Int {
         return (motoTime * 60).toInt()
     }
 
@@ -412,8 +384,8 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
 
     }
 
-    fun setFlightPlaneType(planetypeId: Long?) {
-        loadPlaneType(fromNullable { flightsInteractor.loadPlaneType(planetypeId) })
+    fun setFlightPlaneType(planeTypeId: Long?) {
+        loadPlaneType(fromNullable { flightsInteractor.loadPlaneType(planeTypeId) })
     }
 
     private fun loadPlaneType(planeTypeNullable: Observable<OptionalNull<PlaneType?>>) {
@@ -444,21 +416,10 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
             })
     }
 
-    fun saveFlight(
-        descr: String,
-        sFlightTime: String,
-        sGroundTime: String,
-        sNightTime: String
-    ) {
-        val flightTimeObs = correctTimeObs(sFlightTime, intFlightTime)
-        val groundTimeObs = correctTimeObs(sGroundTime, intGroundTime)
-        val nightTimeObs = correctTimeObs(sNightTime, intNightTime)
-        Observables.zip(flightTimeObs, groundTimeObs, nightTimeObs)
-            .map { (flightTime, groundTime, nightTime) ->
-                intFlightTime = flightTime.intTime
-                intGroundTime = groundTime.intTime
-                intNightTime = nightTime.intTime
-                timeSummChanged()
+    fun saveFlight(description: String) {
+        Observable.just(1)
+            .map {
+                timeSumChanged()
                 if (mDateTime == 0L) {
                     mDateTime = System.currentTimeMillis()
                 }
@@ -473,7 +434,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                     flt.nightTime = intNightTime
                     flt.groundTime = intGroundTime
                     flt.totalTime = intTotalTime
-                    flt.description = descr
+                    flt.description = description
                     val id = flt.id
                     if (id != null) {
                         updateFieldsExternalId(id)
@@ -612,7 +573,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                     customFieldsValues.find { it.fieldId == item.fieldId }?.let {
                         it.value = item.value
                     }
-                    timeSummChanged()
+                    timeSumChanged()
                 })
         } else {
             item.value = value
@@ -660,7 +621,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         customFieldsValues.getOrNull(position)?.let {
             customFieldsValues.removeAt(position)
             viewState.removeItemFromAdapter(position)
-            timeSummChanged()
+            timeSumChanged()
         }
     }
 }

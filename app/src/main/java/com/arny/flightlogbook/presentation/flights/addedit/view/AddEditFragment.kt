@@ -10,6 +10,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.view.*
+import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.TimePicker
@@ -52,11 +53,6 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     private val compositeDisposable = CompositeDisposable()
     private var customFieldValuesAdapter: CustomFieldValuesAdapter? = null
     private lateinit var rxPermissions: RxPermissions
-    private var sFlightTime = ""
-    private var sNightTime = ""
-    private var sDepTime = ""
-    private var sArrivalTime = ""
-    private var sGroundTime = ""
     private var currentTitle = R.string.str_add_flight
     private var tvMotoResult: TextView? = null
     private var appRouter: AppRouter? = null
@@ -192,60 +188,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
             edtDepartureTime.setDateChangedListener {
                 addEditPresenter.setDepartureTime(it)
             }
-            edtDepartureTime.setFocusChangedListener {
-                addEditPresenter.setDepartureTime(it)
-            }
         }
-
-        /*val timeZero = getTimeZero()
-        edtDepartureTime.setDrawableRightClick {
-            openTimeDialog(edtDepartureTime)
-        }
-//        edtDepartureTime.setCloseDrawable()
-//        edtDepartureTime.setCloseClick()
-        edtDepartureTime.doAfterTextChanged {
-//            edtDepartureTime.setCloseDrawable()
-            if (it.toString().isBlank()) {
-                edtDepartureTime.hint = timeZero
-            }
-            sDepTime = it.toString()
-            if (fromDialog) {
-                addEditPresenter.correctDepartureTime(sDepTime)
-                fromDialog = false
-            }
-        }
-        edtDepartureTime.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                edtDepartureTime.setSelectAllOnFocus(false)
-                addEditPresenter.correctDepartureTime(sDepTime)
-            }
-            val depTime = edtDepartureTime.text.toString()
-            if (depTime.isBlank()) {
-                if (hasFocus) {
-                    edtDepartureTime.hint = getString(R.string.utc_time)
-                    edtDepartureTime.hint = timeZero
-                } else {
-                    edtDepartureTime.hint = null
-                    edtDepartureTime.hint = timeZero
-                }
-            } else {
-                edtDepartureTime.hint = timeZero
-                if (hasFocus && depTime == timeZero) {
-                    edtDepartureTime.setSelectAllOnFocus(true)
-                    edtDepartureTime.selectAll()
-                }
-            }
-        }
-        edtDepartureTime.setOnEditorActionListener { _, actionId, _ ->
-            when (actionId) {
-                EditorInfo.IME_ACTION_NEXT -> {
-                    addEditPresenter.correctDepartureTime(sDepTime)
-                    edtArrivalTime.requestFocus()
-                    true
-                }
-                else -> false
-            }
-        }*/
     }
 
     private fun onArrivalTimeChanges() {
@@ -256,53 +199,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
             edtArrivalTime.setDateChangedListener {
                 addEditPresenter.setArrivalTime(it)
             }
-            edtArrivalTime.setFocusChangedListener {
-                addEditPresenter.setArrivalTime(it)
-            }
         }
-//        val timeZero = getTimeZero()
-//        edtArrivalTime.setDrawableRightClick {
-//            openTimeDialog(edtArrivalTime)
-//        }
-//        edtArrivalTime.addTextChangedListener {
-//            if (it.toString().isBlank()) {
-//                edtArrivalTime.hint = timeZero
-//            }
-//            sArrivalTime = it.toString()
-//            if (fromDialog) {
-//                addEditPresenter.correctArrivalTime(sArrivalTime)
-//                fromDialog = false
-//            }
-//        }
-//        edtArrivalTime.setOnFocusChangeListener { _, hasFocus ->
-//            if (!hasFocus) {
-//                edtArrivalTime.setSelectAllOnFocus(false)
-//                addEditPresenter.correctArrivalTime(sArrivalTime)
-//            }
-//            val arrivalTime = edtArrivalTime.text.toString()
-//            if (arrivalTime.isBlank()) {
-//                if (hasFocus) {
-//                    edtArrivalTime.hint = timeZero
-//                } else {
-//                    edtArrivalTime.hint = null
-//                }
-//            } else {
-//                if (hasFocus && arrivalTime == timeZero) {
-//                    edtArrivalTime.setSelectAllOnFocus(true)
-//                    edtArrivalTime.selectAll()
-//                }
-//            }
-//        }
-//        edtArrivalTime.setOnEditorActionListener { _, actionId, _ ->
-//            when (actionId) {
-//                EditorInfo.IME_ACTION_NEXT -> {
-//                    addEditPresenter.correctArrivalTime(sArrivalTime)
-//                    edtFlightTime.requestFocus()
-//                    true
-//                }
-//                else -> false
-//            }
-//        }
     }
 
     private fun onCustomViewsInit() {
@@ -322,96 +219,34 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         }
     }
 
-    private fun onNightTimeChanges() = with(binding) {
-//        val timeZero = getTimeZero()
-//        edtNightTime.setDrawableRightClick {
-//            openTimeDialog(edtNightTime)
-//        }
-//        edtNightTime.addTextChangedListener {
-//            if (it.toString().isBlank()) {
-//                edtNightTime.hint = timeZero
-//            }
-//            sNightTime = it.toString()
-//            if (fromDialog) {
-//                addEditPresenter.correctNightTime(sNightTime)
-//                fromDialog = false
-//            }
-//        }
-//        edtNightTime.setOnFocusChangeListener { _, hasFocus ->
-//            if (!hasFocus) {
-//                edtNightTime.setSelectAllOnFocus(false)
-//                addEditPresenter.correctNightTime(sNightTime)
-//            }
-//            val nightTime = edtNightTime.text.toString()
-//            if (nightTime.isBlank()) {
-//                if (hasFocus) {
-//                    edtNightTime.hint = timeZero
-//                } else {
-//                    edtNightTime.hint = null
-//                }
-//            } else {
-//                if (hasFocus && nightTime == timeZero) {
-//                    edtNightTime.setSelectAllOnFocus(true)
-//                    edtNightTime.selectAll()
-//                }
-//            }
-//        }
-//        edtNightTime.setOnEditorActionListener { _, actionId, _ ->
-//            when (actionId) {
-//                EditorInfo.IME_ACTION_NEXT -> {
-//                    addEditPresenter.correctNightTime(sNightTime)
-//                    edtGroundTime.requestFocus()
-//                    true
-//                }
-//                else -> false
-//            }
-//        }
+    private fun onNightTimeChanges() {
+        with(binding) {
+            edtNightTime.setTimeIconClickListener {
+                openTimeDialog(edtNightTime.edtTime)
+            }
+            edtNightTime.setDateChangedListener {
+                addEditPresenter.setNightTime(it)
+            }
+        }
     }
 
-    private fun onGroundTimeChanges() = with(binding) {
-//        val timeZero = getTimeZero()
-//        edtGroundTime.setDrawableRightClick {
-//            openTimeDialog(edtGroundTime)
-//        }
-//        edtGroundTime.addTextChangedListener {
-//            if (it.toString().isBlank()) {
-//                edtGroundTime.hint = timeZero
-//            }
-//            sGroundTime = it.toString()
-//            if (fromDialog) {
-//                addEditPresenter.correctGroundTime(sGroundTime)
-//                fromDialog = false
-//            }
-//        }
-//        edtGroundTime.setOnFocusChangeListener { _, hasFocus ->
-//            if (!hasFocus) {
-//                edtGroundTime.setSelectAllOnFocus(false)
-//                addEditPresenter.correctGroundTime(sGroundTime)
-//            }
-//            val grTime = edtGroundTime.text.toString()
-//            if (grTime.isBlank()) {
-//                if (hasFocus) {
-//                    edtGroundTime.hint = timeZero
-//                } else {
-//                    edtGroundTime.hint = null
-//                }
-//            } else {
-//                if (hasFocus && grTime == timeZero) {
-//                    edtGroundTime.setSelectAllOnFocus(true)
-//                    edtGroundTime.selectAll()
-//                }
-//            }
-//        }
-//        edtGroundTime.setOnEditorActionListener { _, actionId, _ ->
-//            when (actionId) {
-//                EditorInfo.IME_ACTION_DONE -> {
-//                    addEditPresenter.correctGroundTime(sGroundTime)
-//                    Utility.hideSoftKeyboard(requireContext())
-//                    true
-//                }
-//                else -> false
-//            }
-//        }
+    private fun onGroundTimeChanges() {
+        with(binding) {
+            edtGroundTime.setTimeIconClickListener {
+                openTimeDialog(edtGroundTime.edtTime)
+            }
+            edtGroundTime.setDateChangedListener {
+                addEditPresenter.setGroundTime(it)
+            }
+            edtGroundTime.setOnEditorActionListener { actionId, _ ->
+                when (actionId) {
+                    EditorInfo.IME_ACTION_NEXT -> {
+                        btnAddField.isSelected = true
+                        Utility.hideSoftKeyboard(requireContext())
+                    }
+                }
+            }
+        }
     }
 
     private fun onDateTimeChanges() = with(binding) {
@@ -516,18 +351,15 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
 //        }
     }
 
-    private fun getTimeZero() = getString(R.string.str_time_zero)
 
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.ivDate -> {
-                addEditPresenter.correctFlightTime(sFlightTime)
                 val cdp = CalendarDatePickerDialogFragment()
                     .setOnDateSetListener(this@AddEditFragment)
                 cdp.show(childFragmentManager, "fragment_date_picker_name")
             }
             R.id.select_plane_type -> {
-                addEditPresenter.correctFlightTime(sFlightTime)
                 appRouter?.navigateTo(
                     NavigateItems.PLANE_TYPE_SELECT,
                     true,
@@ -537,7 +369,6 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
                 )
             }
             R.id.btnSelectFlightType -> {
-                addEditPresenter.correctFlightTime(sFlightTime)
                 appRouter?.navigateTo(
                     NavigateItems.FLIGHT_TYPE_SELECT,
                     true,
@@ -655,12 +486,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     }
 
     private fun saveDataFlight() {
-        addEditPresenter.saveFlight(
-            binding.edtDesc.text.toString(),
-            sFlightTime,
-            sGroundTime,
-            sNightTime
-        )
+        addEditPresenter.saveFlight(binding.edtDesc.text.toString())
     }
 
     override fun saveFlight() {

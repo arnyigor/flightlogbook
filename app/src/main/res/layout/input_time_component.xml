@@ -33,17 +33,19 @@
         android:textSize="18sp"
         app:layout_constraintEnd_toStartOf="@+id/ivTimeIcon"
         app:layout_constraintStart_toEndOf="@+id/ivTimeRemove"
-        app:layout_constraintTop_toBottomOf="@+id/tvCaption"  />
+        app:layout_constraintTop_toBottomOf="@+id/tvCaption" />
 
     <ImageView
         android:id="@+id/ivTimeRemove"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/edtTime"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvCaption"
         app:srcCompat="@drawable/ic_close"
-        app:tint="@color/gray_400" />
+        app:tint="@color/gray_400"
+        tools:visibility="visible" />
 
     <ImageView
         android:id="@+id/ivTimeIcon"

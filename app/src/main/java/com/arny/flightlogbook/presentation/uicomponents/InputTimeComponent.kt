@@ -2,6 +2,7 @@ package com.arny.flightlogbook.presentation.uicomponents
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.widget.EditText
 import android.widget.ImageView
@@ -73,10 +74,16 @@ class InputTimeComponent @JvmOverloads constructor(
             binding.edtTime.setText("")
             updateTime()
         }
+
+        binding.edtTime.setOnEditorActionListener { _, actionId, event ->
+            editorActionListener?.invoke(actionId, event)
+            true
+        }
     }
 
     private var textChangedListener: ((Int) -> Unit)? = null
     private var timeClickListener: (() -> Unit)? = null
+    private var editorActionListener: ((actionId: Int, event: KeyEvent?) -> Unit)? = null
 
     fun setDateChangedListener(listener: (Int) -> Unit) {
         textChangedListener = listener
@@ -113,5 +120,9 @@ class InputTimeComponent @JvmOverloads constructor(
         timeInMin = time
         binding.edtTime.setText(DateTimeUtils.strLogTime(time))
         refreshRemoveIconVisible()
+    }
+
+    fun setOnEditorActionListener(listener: (actionId: Int, event: KeyEvent?) -> Unit) {
+        this.editorActionListener = listener
     }
 }
