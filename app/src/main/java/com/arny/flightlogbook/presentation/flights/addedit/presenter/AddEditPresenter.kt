@@ -259,7 +259,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
             .subscribeFromPresenter({ viewState.setEdtNightTimeText(it) })
         fromCallable { strLogTime(intGroundTime) }
             .subscribeFromPresenter({ viewState.setEdtGroundTimeText(it) })
-        timeSumChanged()
+        updateTimes()
     }
 
     private fun timeSumChanged() {
@@ -278,31 +278,31 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     fun setDepartureTime(time: Int) {
         intDepTime = time
         flight?.departureUtcTime = intDepTime
-        correctFlightTimeByDepArr()
-        timeSumChanged()
+        updateTimes()
     }
 
     fun setArrivalTime(time: Int) {
         intArrivalTime = time
         flight?.arrivalUtcTime = intArrivalTime
-        correctFlightTimeByDepArr()
-        timeSumChanged()
+        updateTimes()
     }
 
     fun setNightTime(time: Int) {
         intNightTime = time
         flight?.nightTime = intNightTime
-        correctFlightTimeByDepArr()
-        timeSumChanged()
+        updateTimes()
     }
 
     fun setGroundTime(time: Int) {
         intGroundTime = time
         flight?.groundTime = intGroundTime
+        updateTimes()
+    }
+
+    fun updateTimes(){
         correctFlightTimeByDepArr()
         timeSumChanged()
     }
-
 
     private fun correctFlightTimeByDepArr() {
         intFlightTime = if (intArrivalTime >= intDepTime) {

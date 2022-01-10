@@ -57,7 +57,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     private var tvMotoResult: TextView? = null
     private var appRouter: AppRouter? = null
 
-    private val addEditPresenter by moxyPresenter { AddEditPresenter() }
+    private val presenter by moxyPresenter { AddEditPresenter() }
 
     override fun getTitle(): String = getString(currentTitle)
 
@@ -71,7 +71,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        addEditPresenter.flightId = getExtra<Long>(CONSTS.DB.COLUMN_ID)
+        presenter.flightId = getExtra<Long>(CONSTS.DB.COLUMN_ID)
     }
 
     override fun onCreateView(
@@ -96,13 +96,13 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_save -> addEditPresenter.checkAutoExportFile()
+            R.id.action_save -> presenter.checkAutoExportFile()
             R.id.action_remove -> {
                 alertDialog(
                     context = requireContext(),
                     title = getString(R.string.str_delete),
                     btnCancelText = getString(R.string.str_cancel),
-                    onConfirm = { addEditPresenter.removeFlight() }
+                    onConfirm = { presenter.removeFlight() }
                 )
             }
         }
@@ -145,39 +145,18 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
             ivRemoveColor.setOnClickListener(this@AddEditFragment)
             radioGroupIfrVfr.setOnCheckedChangeListener { _, checkedId ->
                 when (checkedId) {
-                    R.id.rbVfr -> addEditPresenter.setVfrIfr(0)
-                    else -> addEditPresenter.setVfrIfr(1)
+                    R.id.rbVfr -> presenter.setVfrIfr(0)
+                    else -> presenter.setVfrIfr(1)
                 }
             }
             btnAddField.setOnClickListener(this@AddEditFragment)
         }
         onDateTimeChanges()
-        onFlightTimeChanges()
-        onNightTimeChanges()
-        onGroundTimeChanges()
         onDepartureTimeChanges()
         onArrivalTimeChanges()
+        onNightTimeChanges()
+        onGroundTimeChanges()
         onCustomViewsInit()
-    }
-
-    private fun TextView.setCloseClick() {
-        this.setDrawableLeftClick {
-            this.setText("")
-        }
-    }
-
-    private fun TextView.setCloseDrawable() {
-        if (this.text.isNotEmpty()) {
-            this.setDrawableStartWithTint(
-                R.drawable.ic_close,
-                requireContext().getColorCompat(R.color.gray_400)
-            )
-        } else {
-            this.setDrawableStartWithTint(
-                R.drawable.ic_close,
-                requireContext().getColorCompat(android.R.color.transparent)
-            )
-        }
     }
 
     private fun onDepartureTimeChanges() {
@@ -186,7 +165,14 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
                 openTimeDialog(edtDepartureTime.edtTime)
             }
             edtDepartureTime.setDateChangedListener {
-                addEditPresenter.setDepartureTime(it)
+                presenter.setDepartureTime(it)
+            }
+            edtDepartureTime.setOnEditorActionListener { actionId ->
+                when (actionId) {
+                    EditorInfo.IME_ACTION_NEXT -> {
+                        edtArrivalTime.requestFocus()
+                    }
+                }
             }
         }
     }
@@ -197,7 +183,14 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
                 openTimeDialog(edtArrivalTime.edtTime)
             }
             edtArrivalTime.setDateChangedListener {
-                addEditPresenter.setArrivalTime(it)
+                presenter.setArrivalTime(it)
+            }
+            edtArrivalTime.setOnEditorActionListener { actionId ->
+                when (actionId) {
+                    EditorInfo.IME_ACTION_NEXT -> {
+                        edtNightTime.requestFocus()
+                    }
+                }
             }
         }
     }
@@ -205,10 +198,10 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     private fun onCustomViewsInit() {
         customFieldValuesAdapter = CustomFieldValuesAdapter(
             onValueChange = { item, value ->
-                addEditPresenter.onCustomFieldValueChange(item, value)
+                presenter.onCustomFieldValueChange(item, value)
             },
             onValueRemove = { position ->
-                addEditPresenter.onCustomFieldValueDelete(position)
+                presenter.onCustomFieldValueDelete(position)
             }
         )
         binding.rvCustomFields.apply {
@@ -225,7 +218,14 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
                 openTimeDialog(edtNightTime.edtTime)
             }
             edtNightTime.setDateChangedListener {
-                addEditPresenter.setNightTime(it)
+                presenter.setNightTime(it)
+            }
+            edtNightTime.setOnEditorActionListener { actionId ->
+                when (actionId) {
+                    EditorInfo.IME_ACTION_NEXT -> {
+                        edtGroundTime.requestFocus()
+                    }
+                }
             }
         }
     }
@@ -236,13 +236,13 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
                 openTimeDialog(edtGroundTime.edtTime)
             }
             edtGroundTime.setDateChangedListener {
-                addEditPresenter.setGroundTime(it)
+                presenter.setGroundTime(it)
             }
-            edtGroundTime.setOnEditorActionListener { actionId, _ ->
+            edtGroundTime.setOnEditorActionListener { actionId ->
                 when (actionId) {
-                    EditorInfo.IME_ACTION_NEXT -> {
-                        btnAddField.isSelected = true
-                        Utility.hideSoftKeyboard(requireContext())
+                    EditorInfo.IME_ACTION_DONE -> {
+                        edtGroundTime.clearFocus()
+                        requireContext().showSoftKeyboard(false)
                     }
                 }
             }
@@ -298,59 +298,12 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
                         formattedValue: String
                     ) {
                         if (maskFilled && tiedtDate.isFocused) {
-                            addEditPresenter.initDateFromMask(extractedValue)
+                            presenter.initDateFromMask(extractedValue)
                         }
                     }
                 })
         )
     }
-
-    private fun onFlightTimeChanges() = with(binding) {
-//        edtFlightTime.setDrawableRightClick {
-//            openTimeDialog(edtFlightTime)
-//        }
-//        val timeZero = getTimeZero()
-//        edtFlightTime.addTextChangedListener {
-//            if (it.toString().isBlank()) {
-//                edtFlightTime.hint = timeZero
-//            }
-//            sFlightTime = it.toString()
-//            if (fromDialog) {
-//                addEditPresenter.correctFlightTime(sFlightTime)
-//                fromDialog = false
-//            }
-//        }
-//        edtFlightTime.setOnFocusChangeListener { _, hasFocus ->
-//            if (!hasFocus) {
-//                edtFlightTime.setSelectAllOnFocus(false)
-//                addEditPresenter.correctFlightTime(sFlightTime)
-//            }
-//            val flTime = edtFlightTime.text.toString()
-//            if (flTime.isBlank()) {
-//                if (hasFocus) {
-//                    edtFlightTime.hint = timeZero
-//                } else {
-//                    edtFlightTime.hint = null
-//                }
-//            } else {
-//                if (hasFocus && flTime == timeZero) {
-//                    edtFlightTime.setSelectAllOnFocus(true)
-//                    edtFlightTime.selectAll()
-//                }
-//            }
-//        }
-//        edtFlightTime.setOnEditorActionListener { _, actionId, _ ->
-//            when (actionId) {
-//                EditorInfo.IME_ACTION_NEXT -> {
-//                    addEditPresenter.correctFlightTime(sFlightTime)
-//                    edtNightTime.requestFocus()
-//                    true
-//                }
-//                else -> false
-//            }
-//        }
-    }
-
 
     override fun onClick(v: View?) {
         when (v?.id) {
@@ -379,8 +332,8 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
             }
             R.id.btnMoto -> showMotoDialog()
             R.id.vColor,
-            R.id.tvColor -> addEditPresenter.colorClick()
-            R.id.ivRemoveColor -> addEditPresenter.removeColor()
+            R.id.tvColor -> presenter.colorClick()
+            R.id.ivRemoveColor -> presenter.removeColor()
             R.id.btnAddField -> {
                 appRouter?.navigateTo(
                     NavigateItems.ITEM_SELECT_FIELD,
@@ -415,27 +368,27 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
-                CONSTS.REQUESTS.REQUEST_SELECT_PLANE_TYPE -> addEditPresenter.setFlightPlaneType(
+                CONSTS.REQUESTS.REQUEST_SELECT_PLANE_TYPE -> presenter.setFlightPlaneType(
                     data.getExtra<Long>(
                         CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID
                     )
                 )
-                CONSTS.REQUESTS.REQUEST_SELECT_FLIGHT_TYPE -> addEditPresenter.setFlightType(
+                CONSTS.REQUESTS.REQUEST_SELECT_FLIGHT_TYPE -> presenter.setFlightType(
                     data.getExtra<Long>(
                         CONSTS.EXTRAS.EXTRA_FLIGHT_TYPE
                     )
                 )
-                CONSTS.REQUESTS.REQUEST_SELECT_CUSTOM_FIELD -> addEditPresenter.addCustomField(
+                CONSTS.REQUESTS.REQUEST_SELECT_CUSTOM_FIELD -> presenter.addCustomField(
                     data.getExtra<Long>(
                         CONSTS.EXTRAS.EXTRA_CUSTOM_FIELD_ID
                     )
                 )
-                CONSTS.REQUESTS.REQUEST_SELECT_AIRPORT_DEPARTURE -> addEditPresenter.setDeparture(
+                CONSTS.REQUESTS.REQUEST_SELECT_AIRPORT_DEPARTURE -> presenter.setDeparture(
                     data?.getParcelableExtra(
                         CONSTS.EXTRAS.EXTRA_AIRPORT
                     )
                 )
-                CONSTS.REQUESTS.REQUEST_SELECT_AIRPORT_ARRIVAL -> addEditPresenter.setArrival(
+                CONSTS.REQUESTS.REQUEST_SELECT_AIRPORT_ARRIVAL -> presenter.setArrival(
                     data?.getParcelableExtra(
                         CONSTS.EXTRAS.EXTRA_AIRPORT
                     )
@@ -486,7 +439,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     }
 
     private fun saveDataFlight() {
-        addEditPresenter.saveFlight(binding.edtDesc.text.toString())
+        presenter.saveFlight(binding.edtDesc.text.toString())
     }
 
     override fun saveFlight() {
@@ -503,7 +456,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
             title = getString(R.string.str_moto),
             positivePair = Pair(R.string.str_ok, { dialog ->
                 dialog.dismiss()
-                addEditPresenter.setMotoResult()
+                presenter.setMotoResult()
             }),
             negativePair = Pair(R.string.str_cancel, { dialog -> dialog.cancel() }),
         ) {
@@ -512,12 +465,12 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
             tvMotoResult = findViewById(R.id.tvMotoresult)
             edtMotoStart.doAfterTextChanged { edt ->
                 if (edtMotoStart.isFocused) {
-                    addEditPresenter.onMotoTimeChange(edt.toString(), edtMotoFinish.text.toString())
+                    presenter.onMotoTimeChange(edt.toString(), edtMotoFinish.text.toString())
                 }
             }
             edtMotoFinish.doAfterTextChanged { edt ->
                 if (edtMotoFinish.isFocused) {
-                    addEditPresenter.onMotoTimeChange(edtMotoStart.text.toString(), edt.toString())
+                    presenter.onMotoTimeChange(edtMotoStart.text.toString(), edt.toString())
                 }
             }
         }
@@ -567,7 +520,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         monthOfYear: Int,
         dayOfMonth: Int
     ) {
-        addEditPresenter.onDateSet(dayOfMonth, monthOfYear, year)
+        presenter.onDateSet(dayOfMonth, monthOfYear, year)
     }
 
     @SuppressLint("CheckResult")
@@ -575,7 +528,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         MaterialDialog(requireContext()).show {
             title(R.string.select_color)
             colorChooser(colors, initialSelection = Color.BLUE) { _, color ->
-                addEditPresenter.onColorSelected(color)
+                presenter.onColorSelected(color)
             }
             positiveButton(R.string.select)
         }

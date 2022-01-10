@@ -5,6 +5,7 @@
     tools:layout_height="wrap_content"
     tools:layout_width="match_parent"
     tools:orientation="vertical"
+    android:id="@+id/inputContainer"
     tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
     <TextView
@@ -26,11 +27,10 @@
         android:focusableInTouchMode="true"
         android:gravity="center_horizontal"
         android:hint="@string/str_time_zero"
-        android:imeOptions="actionNext"
         android:importantForAutofill="no"
         android:inputType="time"
         android:paddingHorizontal="24dp"
-        android:textSize="18sp"
+        android:textSize="@dimen/font_size_medium"
         app:layout_constraintEnd_toStartOf="@+id/ivTimeIcon"
         app:layout_constraintStart_toEndOf="@+id/ivTimeRemove"
         app:layout_constraintTop_toBottomOf="@+id/tvCaption" />
@@ -44,8 +44,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvCaption"
         app:srcCompat="@drawable/ic_close"
-        app:tint="@color/gray_400"
-        tools:visibility="visible" />
+        app:tint="@color/gray_400" />
 
     <ImageView
         android:id="@+id/ivTimeIcon"

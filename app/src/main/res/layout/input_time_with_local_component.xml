@@ -40,6 +40,7 @@
         android:id="@+id/ivTimeRemove"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/edtTime"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvCaption"
@@ -67,7 +68,7 @@
         android:focusableInTouchMode="true"
         android:gravity="center_horizontal"
         android:hint="@string/str_time_zero"
-        android:imeOptions="actionNext"
+        android:digits="0123456789-:"
         android:importantForAutofill="no"
         android:inputType="time"
         android:paddingHorizontal="8dp"
@@ -86,8 +87,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvLocalTimeDiff"
         app:srcCompat="@drawable/ic_close"
-        app:tint="@color/gray_400"
-        tools:visibility="visible" />
+        app:tint="@color/gray_400" />
 
     <TextView
         android:id="@+id/tvLocalTimeDiff"

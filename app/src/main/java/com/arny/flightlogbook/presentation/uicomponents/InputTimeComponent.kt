@@ -2,10 +2,9 @@ package com.arny.flightlogbook.presentation.uicomponents
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.KeyEvent
 import android.view.LayoutInflater
+import android.view.inputmethod.EditorInfo
 import android.widget.EditText
-import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
@@ -21,16 +20,71 @@ class InputTimeComponent @JvmOverloads constructor(
     defStyleAttr: Int = 0,
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
 
-    private var correctedTime: CorrectedTimePair? = null
-    private var timeInMin = 0
     private val binding = InputTimeComponentBinding.inflate(LayoutInflater.from(context), this)
+
     private val watcher = binding.edtTime.doAfterTextChanged { updateTime() }
-    val timeIcon: ImageView
-        get() = binding.ivTimeIcon
-    val clearIcon: ImageView
-        get() = binding.ivTimeRemove
+    private var textChangedListener: ((Int) -> Unit)? = null
+    private var timeClickListener: (() -> Unit)? = null
+    private var editorActionListener: ((actionId: Int) -> Unit)? = null
+
     val edtTime: EditText
         get() = binding.edtTime
+
+    private var edited: Boolean = true
+    private var correctedTime: CorrectedTimePair? = null
+    private var timeInMin = 0
+
+    init {
+        val utcTime = context.getString(R.string.utc_time)
+        val utcTimeZero = context.getString(R.string.str_time_zero)
+        val att = context.obtainStyledAttributes(
+            attrs, R.styleable.InputTimeComponent, defStyleAttr, 0
+        )
+        setCaptionVisible(att.getBoolean(R.styleable.InputTimeComponent_captionVisible, true))
+        setEditable(att.getBoolean(R.styleable.InputTimeComponent_editable, true))
+        setImeOptions(
+            att.getBoolean(
+                R.styleable.InputTimeComponent_imeDone,
+                false
+            )
+        )
+        att.recycle()
+        with(binding) {
+            edtTime.addTextChangedListener(watcher)
+            edtTime.setOnFocusChangeListener { _, hasFocus ->
+                if (!hasFocus) {
+                    edtTime.setSelectAllOnFocus(false)
+                    edtTime.setText(correctedTime?.strTime)
+                }
+                val depTime = edtTime.text.toString()
+                if (depTime.isBlank()) {
+                    if (hasFocus) {
+                        edtTime.hint = utcTime
+                        edtTime.hint = utcTimeZero
+                    } else {
+                        edtTime.hint = null
+                        edtTime.hint = utcTimeZero
+                    }
+                } else {
+                    edtTime.hint = utcTimeZero
+                    if (hasFocus && depTime == utcTimeZero) {
+                        edtTime.setSelectAllOnFocus(true)
+                        edtTime.selectAll()
+                    }
+                }
+            }
+            ivTimeIcon.setOnClickListener { timeClickListener?.invoke() }
+            ivTimeRemove.setOnClickListener {
+                timeInMin = 0
+                edtTime.setText("")
+                updateTime()
+            }
+            edtTime.setOnEditorActionListener { _, actionId, _ ->
+                editorActionListener?.invoke(actionId)
+                true
+            }
+        }
+    }
 
     private fun updateTime() {
         correctedTime = getCorrectDayTime(binding.edtTime.text.toString(), timeInMin)
@@ -39,51 +93,16 @@ class InputTimeComponent @JvmOverloads constructor(
         refreshRemoveIconVisible()
     }
 
-    init {
-        val att = context.obtainStyledAttributes(
-            attrs, R.styleable.InputTimeComponent, defStyleAttr, 0
-        )
-        setCaptionVisible(att.getBoolean(R.styleable.InputTimeComponent_captionVisible, true))
-        att.recycle()
-        binding.edtTime.addTextChangedListener(watcher)
-        binding.edtTime.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                binding.edtTime.setSelectAllOnFocus(false)
-                binding.edtTime.setText(correctedTime?.strTime)
-            }
-            val depTime = binding.edtTime.text.toString()
-            if (depTime.isBlank()) {
-                if (hasFocus) {
-                    binding.edtTime.hint = context.getString(R.string.utc_time)
-                    binding.edtTime.hint = context.getString(R.string.str_time_zero)
-                } else {
-                    binding.edtTime.hint = null
-                    binding.edtTime.hint = context.getString(R.string.str_time_zero)
-                }
-            } else {
-                binding.edtTime.hint = context.getString(R.string.str_time_zero)
-                if (hasFocus && depTime == context.getString(R.string.str_time_zero)) {
-                    binding.edtTime.setSelectAllOnFocus(true)
-                    binding.edtTime.selectAll()
-                }
-            }
-        }
-        binding.ivTimeIcon.setOnClickListener { timeClickListener?.invoke() }
-        binding.ivTimeRemove.setOnClickListener {
-            timeInMin = 0
-            binding.edtTime.setText("")
-            updateTime()
-        }
-
-        binding.edtTime.setOnEditorActionListener { _, actionId, event ->
-            editorActionListener?.invoke(actionId, event)
-            true
+    private fun setEditable(edited: Boolean) {
+        this.edited = edited
+        with(binding) {
+            ivTimeIcon.isVisible = edited
+            edtTime.isClickable = edited
+            edtTime.isFocusable = edited
+            edtTime.isFocusableInTouchMode = edited
+            edtTime.isLongClickable = edited
         }
     }
-
-    private var textChangedListener: ((Int) -> Unit)? = null
-    private var timeClickListener: (() -> Unit)? = null
-    private var editorActionListener: ((actionId: Int, event: KeyEvent?) -> Unit)? = null
 
     fun setDateChangedListener(listener: (Int) -> Unit) {
         textChangedListener = listener
@@ -94,14 +113,23 @@ class InputTimeComponent @JvmOverloads constructor(
     }
 
     fun refreshRemoveIconVisible() {
-        binding.ivTimeRemove.isVisible = binding.edtTime.text.isNotBlank()
+        if (edited) {
+            binding.ivTimeRemove.isVisible = binding.edtTime.text.isNotBlank()
+        }
     }
 
     fun setCaption(text: CharSequence?) {
         binding.tvCaption.text = text
     }
 
-    fun setCaptionVisible(visible: Boolean) {
+    private fun setImeOptions(useDone: Boolean = false) {
+        binding.edtTime.imeOptions = if (useDone)
+            EditorInfo.IME_ACTION_DONE
+        else
+            EditorInfo.IME_ACTION_NEXT
+    }
+
+    private fun setCaptionVisible(visible: Boolean) {
         binding.tvCaption.isVisible = visible
     }
 
@@ -122,7 +150,7 @@ class InputTimeComponent @JvmOverloads constructor(
         refreshRemoveIconVisible()
     }
 
-    fun setOnEditorActionListener(listener: (actionId: Int, event: KeyEvent?) -> Unit) {
+    fun setOnEditorActionListener(listener: (actionId: Int) -> Unit) {
         this.editorActionListener = listener
     }
 }

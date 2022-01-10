@@ -11,7 +11,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
 
@@ -589,20 +588,6 @@ public class Utility {
 
     public static String getThread() {
         return Thread.currentThread().getName();
-    }
-
-    public static void hideSoftKeyboard(Context context) {
-        InputMethodManager systemService = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        if (systemService != null) {
-            systemService.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0);
-        }
-    }
-
-    public static void showSoftKeyboard(Context context) {
-        InputMethodManager systemService = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        if (systemService != null) {
-            systemService.toggleSoftInput(0, InputMethodManager.HIDE_IMPLICIT_ONLY);
-        }
     }
 
     private void hideSystemUI(Activity activity) {

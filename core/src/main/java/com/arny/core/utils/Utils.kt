@@ -499,6 +499,24 @@ fun View.showSnackBar(message: String?, duration: Int = Snackbar.LENGTH_SHORT) {
     }
 }
 
+fun Context?.showSoftKeyboard(show: Boolean) {
+    (this?.getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager)?.let { im ->
+        if (show) {
+            im.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0)
+        } else {
+            im.toggleSoftInput(0, InputMethodManager.HIDE_IMPLICIT_ONLY)
+        }
+    }
+}
+
+fun View.showSoftKeyboard() {
+    this.context.showSoftKeyboard(true)
+}
+
+fun View.hideSoftKeyboard() {
+    this.context.showSoftKeyboard(false)
+}
+
 @SuppressLint("ClickableViewAccessibility")
 fun TextView.setDrawableRightClick(onClick: () -> Unit) {
     this.setOnTouchListener { v, event ->

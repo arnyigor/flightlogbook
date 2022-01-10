@@ -1,5 +1,12 @@
 <resources>
     <declare-styleable name="InputTimeComponent">
         <attr name="captionVisible" format="boolean" />
+        <attr name="imeDone" format="boolean" />
+        <attr name="editable" format="boolean" />
     </declare-styleable>
+
+    <declare-styleable name="InputTimeWithLocalComponent">
+        <attr name="imeTypeDone" format="boolean" />
+    </declare-styleable>
+
 </resources>

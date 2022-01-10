@@ -85,7 +85,7 @@ private fun correctMinHours(hours: Int, mins: Int): Pair<Int, Int> {
 }
 
 fun getCorrectDayTime(stringTime: String, initTime: Int): CorrectedTimePair {
-    var logMinutes: Int
+    val logMinutes: Int
     var logHours = 0
     var logTime = initTime
     return when {
@@ -137,7 +137,8 @@ fun getCorrectDayTime(stringTime: String, initTime: Int): CorrectedTimePair {
     }
 }
 
-fun getCorrectLocalDiffDayTime(stringTime: String, initTime: Int): CorrectedTimePair {
+fun getCorrectLocalDiffDayTime(inputTime: String, initTime: Int): CorrectedTimePair {
+    var stringTime = inputTime
     val logMinutes: Int
     val logHours: Int
     var logTime = initTime
@@ -156,19 +157,13 @@ fun getCorrectLocalDiffDayTime(stringTime: String, initTime: Int): CorrectedTime
             )
         }
         stringTime.length == 2 -> {
-            when {
-                stringTime.contains("-") -> { //-9->-00:09
-                    sign = if (stringTime.getOrNull(0) == '-') -1 else 1
-                    logMinutes =
-                        stringTime.substring(stringTime.length - 2, stringTime.length).parseInt(0)
-                    logHours = stringTime.substring(1, stringTime.length - 2).parseInt(0)
-                }
-                else -> {
-                    logMinutes =
-                        stringTime.substring(stringTime.length - 2, stringTime.length).parseInt(0)
-                    logHours = stringTime.substring(0, stringTime.length - 2).parseInt(0)
-                }
+            if (stringTime.contains("-")) {
+                sign = if (stringTime.getOrNull(0) == '-') -1 else 1
+                stringTime = stringTime.replace("-", "")
             }
+            logTime = stringTime.toIntOrNull() ?: 0
+            logMinutes = logTime % 60
+            logHours = logTime / 60
             val (hours, minutes) = correctMinHours(logHours, logMinutes)
             CorrectedTimePair(
                 intTime = logTime,
@@ -181,27 +176,31 @@ fun getCorrectLocalDiffDayTime(stringTime: String, initTime: Int): CorrectedTime
             )
         }
         stringTime.length > 2 -> {
+            if (stringTime.contains("-")) {
+                sign = if (stringTime.getOrNull(0) == '-') -1 else 1
+                stringTime = stringTime.replace("-", "")
+            }
             when {
                 stringTime == "00:00" -> {
                     logMinutes = 0
                     logHours = 0
                 }
                 stringTime.contains(":") -> {
-                    logMinutes =
-                        stringTime.substring(stringTime.length - 2, stringTime.length).parseInt(0)
-                    logHours = stringTime.substring(0, stringTime.length - 3).parseInt(0)
+                    logHours = stringTime.substringBefore(":").toIntOrNull() ?: 0
+                    logMinutes = stringTime.substringAfter(":").toIntOrNull() ?: 0
                 }
                 else -> {
-                    logMinutes =
-                        stringTime.substring(stringTime.length - 2, stringTime.length).parseInt(0)
-                    logHours = stringTime.substring(0, stringTime.length - 2).parseInt(0)
+                    val minutes = stringTime.toIntOrNull() ?: 0
+                    logMinutes = minutes % 60
+                    logHours = minutes / 60
                 }
             }
             val (hours, minutes) = correctMinHours(logHours, logMinutes)
             logTime = DateTimeUtils.logTimeMinutes(hours, minutes)
             CorrectedTimePair(
                 intTime = logTime,
-                strTime = DateTimeUtils.strLogTime(logTime)
+                strTime = DateTimeUtils.strLogTime(logTime),
+                sign = sign
             )
         }
         else -> CorrectedTimePair(
