@@ -1,5 +1,7 @@
 package com.arny.flightlogbook.presentation.flights.addedit.presenter
 
+import android.os.Handler
+import android.os.Looper
 import com.arny.core.CONSTS
 import com.arny.core.CONSTS.STRINGS.PARAM_COLOR
 import com.arny.core.utils.*
@@ -21,6 +23,7 @@ import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import com.arny.flightlogbook.presentation.flights.addedit.models.getCorrectTime
 import com.arny.flightlogbook.presentation.flights.addedit.view.AddEditView
 import io.reactivex.Observable
+import io.reactivex.Single
 import moxy.InjectViewState
 import org.joda.time.DateTime
 import javax.inject.Inject
@@ -53,10 +56,16 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     var intNightTime: Int = 0
 
     @Volatile
-    var intDepTime: Int = 0
+    var depLocalTime: Int = 0
 
     @Volatile
-    var intArrivalTime: Int = 0
+    var depUtcDiff: Int = 0
+
+    @Volatile
+    var arrivalLocalTime: Int = 0
+
+    @Volatile
+    var arrivalUtcDiff: Int = 0
 
     @Volatile
     var intGroundTime: Int = 0
@@ -71,6 +80,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     private var mMotoFinish: Float = 0.toFloat()
     private var mMotoResult: Float = 0.toFloat()
     private val customFieldEnabled = CONSTS.COMMON.ENABLE_CUSTOM_FIELDS
+    private val handler = Handler(Looper.getMainLooper())
 
     init {
         FlightApp.appComponent.inject(this)
@@ -86,7 +96,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                 val value = optionalNull.value
                 if (value != null) {
                     flight = value
-                    initUI(flight!!)
+                    initUI(value)
                 } else {
                     viewState.toastError(getString(R.string.record_not_found))
                     initEmptyUI()
@@ -138,13 +148,21 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     }
 
     private fun loadDepArrivalTime(flight: Flight) {
-        flight.departureUtcTime?.let {
-            intDepTime = it
-            viewState.setEdtDepTime(it)
+        flight.departureLocalTime?.let {
+            depLocalTime = it
+            viewState.setEdtDepUtcTime(it)
         }
-        flight.arrivalUtcTime?.let {
-            intArrivalTime = it
-            viewState.setEdtArrTimeText(strLogTime(it))
+        flight.departureUtcDiff.takeIf { it != 0 }?.let {
+            depUtcDiff = it
+            viewState.setEdtDepUtcDiff(it)
+        }
+        flight.arrivalLocalTime?.let {
+            arrivalLocalTime = it
+            viewState.setEdtArrUtcTimeText(it)
+        }
+        flight.arrivalUtcDiff.takeIf { it != 0 }?.let {
+            arrivalUtcDiff = it
+            viewState.setEdtArrUtcDiff(it)
         }
     }
 
@@ -182,7 +200,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                 .subscribeFromPresenter({
                     customFieldsValues = it.toMutableList()
                     viewState.setFieldsList(customFieldsValues, true)
-                    timeSumChanged()
+                    updateTimes()
                 }, {
                     it.printStackTrace()
                 })
@@ -262,28 +280,42 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         updateTimes()
     }
 
+    private val runnable = Runnable {
+        updateUITimes()
+    }
+
     private fun timeSumChanged() {
         if (intNightTime > intFlightTime) {
             intFlightTime = intNightTime
         }
+        intTotalTime = intFlightTime + intGroundTime + getCustomTimes()
+        handler.removeCallbacks(runnable)
+        handler.postDelayed(runnable, 16)
+    }
+
+    private fun getCustomTimes(): Int = if (customFieldEnabled)
+        flightsInteractor.getAddTimeSum(customFieldsValues) else 0
+
+    private fun updateUITimes() {
         fromCallable { strLogTime(intFlightTime) }
             .subscribeFromPresenter({ viewState.setEdtFlightTimeText(it) })
-        val customTimes =
-            if (customFieldEnabled) flightsInteractor.getAddTimeSum(customFieldsValues) else 0
-        intTotalTime = intFlightTime + intGroundTime + customTimes
         fromCallable { strLogTime(intTotalTime) }
             .subscribeFromPresenter({ viewState.setTotalTime(it) })
     }
 
-    fun setDepartureTime(time: Int) {
-        intDepTime = time
-        flight?.departureUtcTime = intDepTime
+    fun setDepartureTime(localTime: Int, utcDiff: Int) {
+        depLocalTime = localTime
+        depUtcDiff = utcDiff
+        flight?.departureLocalTime = depLocalTime
+        flight?.departureUtcDiff = depUtcDiff
         updateTimes()
     }
 
-    fun setArrivalTime(time: Int) {
-        intArrivalTime = time
-        flight?.arrivalUtcTime = intArrivalTime
+    fun setArrivalTime(localTime: Int, utcDiff: Int) {
+        arrivalLocalTime = localTime
+        arrivalUtcDiff = utcDiff
+        flight?.arrivalLocalTime = arrivalLocalTime
+        flight?.arrivalUtcDiff = arrivalUtcDiff
         updateTimes()
     }
 
@@ -299,23 +331,23 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         updateTimes()
     }
 
-    fun updateTimes(){
+    private fun updateTimes() {
         correctFlightTimeByDepArr()
         timeSumChanged()
     }
 
     private fun correctFlightTimeByDepArr() {
-        intFlightTime = if (intArrivalTime >= intDepTime) {
-            intArrivalTime - intDepTime
+        val arrivalUtcTime = arrivalLocalTime - arrivalUtcDiff
+        val depUtcTime = depLocalTime - depUtcDiff
+        intFlightTime = if (arrivalUtcTime >= depUtcTime) {
+            arrivalUtcTime - depUtcTime
         } else {
-            (24 * 60 - intDepTime) + intArrivalTime
+            (24 * 60 - depUtcTime) + arrivalUtcTime
         }
     }
 
-
     private fun correctTimeObs(stringTime: String, initTime: Int) =
         fromCallable { getCorrectTime(stringTime, initTime) }
-
 
     fun onMotoTimeChange(startTime: String, finishTime: String) {
         if (startTime.isNotBlank() && finishTime.isNotBlank()) {
@@ -417,14 +449,13 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     }
 
     fun saveFlight(description: String) {
-        Observable.just(1)
-            .map {
-                timeSumChanged()
-                if (mDateTime == 0L) {
-                    mDateTime = System.currentTimeMillis()
-                }
-                true
+        Single.fromCallable {
+            updateTimes()
+            if (mDateTime == 0L) {
+                mDateTime = System.currentTimeMillis()
             }
+            true
+        }
             .subscribeFromPresenter({
                 val flt = flight
                 if (flt != null) {
@@ -573,7 +604,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                     customFieldsValues.find { it.fieldId == item.fieldId }?.let {
                         it.value = item.value
                     }
-                    timeSumChanged()
+                    updateTimes()
                 })
         } else {
             item.value = value
@@ -621,7 +652,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         customFieldsValues.getOrNull(position)?.let {
             customFieldsValues.removeAt(position)
             viewState.removeItemFromAdapter(position)
-            timeSumChanged()
+            updateTimes()
         }
     }
 }

@@ -115,13 +115,11 @@ fun getCorrectDayTime(stringTime: String, initTime: Int): CorrectedTimePair {
         }
         stringTime.length > 2 -> {
             if (stringTime.contains(":")) {
-                logMinutes =
-                    stringTime.substring(stringTime.length - 2, stringTime.length).parseInt(0)
-                logHours = stringTime.substring(0, stringTime.length - 3).parseInt(0)
+                logHours = stringTime.substringBefore(":").toIntOrNull() ?: 0
+                logMinutes = stringTime.substringAfter(":").toIntOrNull() ?: 0
             } else {
-                logMinutes =
-                    stringTime.substring(stringTime.length - 2, stringTime.length).parseInt(0)
-                logHours = stringTime.substring(0, stringTime.length - 2).parseInt(0)
+                logMinutes = stringTime.toIntOrNull() ?: 0
+                logHours = 0
             }
             val (hours, minutes) = correctMinHours(logHours, logMinutes)
             logTime = DateTimeUtils.logTimeMinutes(hours, minutes)

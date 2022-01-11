@@ -164,8 +164,8 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
             edtDepartureTime.setTimeIconClickListener {
                 openTimeDialog(edtDepartureTime.edtTime)
             }
-            edtDepartureTime.setDateChangedListener {
-                presenter.setDepartureTime(it)
+            edtDepartureTime.setDateChangedListener { localTime, utcDiff ->
+                presenter.setDepartureTime(localTime, utcDiff)
             }
             edtDepartureTime.setOnEditorActionListener { actionId ->
                 when (actionId) {
@@ -182,8 +182,8 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
             edtArrivalTime.setTimeIconClickListener {
                 openTimeDialog(edtArrivalTime.edtTime)
             }
-            edtArrivalTime.setDateChangedListener {
-                presenter.setArrivalTime(it)
+            edtArrivalTime.setDateChangedListener {utc, diff ->
+                presenter.setArrivalTime(utc, diff)
             }
             edtArrivalTime.setOnEditorActionListener { actionId ->
                 when (actionId) {
@@ -550,11 +550,19 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
             getString(R.string.string_format_two_strings, arrival?.iata, "(${arrival?.icao})")
     }
 
-    override fun setEdtDepTime(depTime: Int) {
+    override fun setEdtDepUtcTime(depTime: Int) {
         binding.edtDepartureTime.setTime(depTime)
     }
 
-    override fun setEdtArrTimeText(arrTime: String) {
-        binding.edtArrivalTime.setText(arrTime)
+    override fun setEdtArrUtcTimeText(arrTime: Int) {
+        binding.edtArrivalTime.setTime(arrTime)
+    }
+
+    override fun setEdtDepUtcDiff(diff: Int) {
+        binding.edtDepartureTime.setUtcDiff(diff)
+    }
+
+    override fun setEdtArrUtcDiff(diff: Int) {
+        binding.edtArrivalTime.setUtcDiff(diff)
     }
 }

@@ -8,6 +8,7 @@
 
         <activity
             android:name="com.dropbox.core.android.AuthActivity"
+            android:exported="true"
             android:configChanges="orientation|keyboard"
             android:launchMode="singleTask">
             <intent-filter>

@@ -36,7 +36,6 @@ dependencies {
     implementation libs.support
     implementation libs.preference
     implementation libs.ktxCore
-    implementation libs.ktxCore
     //mvp
     api libs.moxy
     api libs.moxyAndroidX

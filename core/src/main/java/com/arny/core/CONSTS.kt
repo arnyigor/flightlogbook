@@ -18,7 +18,6 @@ object CONSTS {
 
     object DB {
         const val DB_NAME = "PilotDB"
-        const val DB_VERSION = 14//13
         const val COLUMN_ID = "_id"
         const val COLUMN_DATETIME = "datetime"
         const val COLUMN_LOG_TIME = "log_time"

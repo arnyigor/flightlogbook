@@ -1,17 +1,17 @@
 ext.versions = [
         'minSdk'           : 21,
-        'targetSdk'        : 30,
-        'compileSdk'       : 30,
+        'targetSdk'        : 31,
+        'compileSdk'       : 31,
         'buildTools'       : '30.0.2',
         'supportLibrary'   : '28.0.0',
         'constraint'       : '2.0.2',
-        'kotlin'           : '1.5.31',
+        'kotlin'           : '1.6.10',
         'coroutines'       : '1.3.2',
-        'ktx'              : '1.3.2',
+        'ktx'              : '1.7.0',
         'gms'              : '4.3.3',
         'appcompatx'       : '1.1.0',
         'material'         : '1.0.0',
-        'roomx'            : '2.2.5',
+        'roomx'            : '2.4.0',
         'room'             : '1.1.1',
         'lifecycle'        : '1.1.1',
         'realm'            : '5.8.0',
@@ -49,25 +49,25 @@ ext.libs = [
         'localBrodcast'       : "androidx.localbroadcastmanager:localbroadcastmanager:1.0.0",
         'multidex'            : "androidx.multidex:multidex:2.0.1",
         'ktxCore'             : "androidx.core:core-ktx:${versions.ktx}",
-        'fragmentKtx'         : "androidx.fragment:fragment-ktx:1.3.3",
-        'activityKtx'         : "androidx.activity:activity-ktx:1.2.2",
-        'lifecycleExt'        : 'androidx.lifecycle:lifecycle-extensions:2.0.0',
-        'lifecycleCommon'     : 'androidx.lifecycle:lifecycle-common-java8:2.0.0',
+        'fragmentKtx'         : "androidx.fragment:fragment-ktx:1.4.0",
+        'activityKtx'         : "androidx.activity:activity-ktx:1.4.0",
+        'lifecycleExt'        : 'androidx.lifecycle:lifecycle-extensions:2.2.0',
+        'lifecycleCommon'     : 'androidx.lifecycle:lifecycle-common-java8:2.2.0',
         //room
         'roomRuntime'         : "androidx.room:room-runtime:${versions.roomx}",
         'roomCompiler'        : "androidx.room:room-compiler:${versions.roomx}",
         'roomRx'              : "androidx.room:room-rxjava2:${versions.roomx}",
 
         //support
-        'appCompat'           : 'androidx.appcompat:appcompat:1.2.0',
-        'recyclerView'        : 'androidx.recyclerview:recyclerview:1.1.0',
+        'appCompat'           : 'androidx.appcompat:appcompat:1.4.0',
+        'recyclerView'        : 'androidx.recyclerview:recyclerview:1.2.1',
         'cardView'            : 'androidx.cardview:cardview:1.0.0',
-        'preference'          : 'androidx.preference:preference:1.1.0',
-        'drawerlayout'        : 'androidx.drawerlayout:drawerlayout:1.1.0',
+        'preference'          : 'androidx.preference:preference:1.1.1',
+        'drawerlayout'        : 'androidx.drawerlayout:drawerlayout:1.1.1',
         'support'             : 'androidx.legacy:legacy-support-v4:1.0.0',
-        'design'              : 'com.google.android.material:material:1.1.0',
+        'design'              : 'com.google.android.material:material:1.4.0',
         'vector'              : 'androidx.vectordrawable:vectordrawable:1.0.0',
-        'constraint'          : 'androidx.constraintlayout:constraintlayout:1.1.3',
+        'constraint'          : 'androidx.constraintlayout:constraintlayout:2.1.2',
 
         //kotlin
         'kotlinStdlib'        : "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin}",
@@ -91,8 +91,8 @@ ext.libs = [
         'moxyKtx'             : "com.github.moxy-community:moxy-ktx:${versions.moxy}",
 
         //di
-        'dagger'              : "com.google.dagger:dagger:2.38.1",
-        'daggerCompiler'      : "com.google.dagger:dagger-compiler:2.38.1",
+        'dagger'              : "com.google.dagger:dagger:2.40.5",
+        'daggerCompiler'      : "com.google.dagger:dagger-compiler:2.40.5",
 
         'cicerone'            : "com.github.terrakok:cicerone:6.1",
 
@@ -145,7 +145,7 @@ ext.libs = [
         'mockitoKotlin'       : "com.nhaarman:mockito-kotlin:${versions.mockitoKotlin}",
         'robolectric'         : "org.robolectric:robolectric:${versions.robolectric}",
         'mockWebServer'       : "com.squareup.okhttp3:mockwebserver:${versions.okhttp}",
-        'roomxTesting'        : 'androidx.room:room-testing:2.0.0',
+        'roomxTesting'        : "androidx.room:room-testing:${versions.roomx}",
         'roomTesting'         : "android.arch.persistence.room:testing:${versions.room}",
         'livedataTesting'     : 'androidx.arch.core:core-testing:2.0.0',
 

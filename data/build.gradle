@@ -43,6 +43,7 @@ dependencies {
     implementation project(path: ':domain')
     implementation project(path: ':customfields')
     implementation libs.kotlinStdlib
+    implementation libs.ktxCore
     /*tests*/
     implementation libs.junit
     androidTestImplementation libs.extJunit
@@ -59,7 +60,7 @@ dependencies {
     implementation libs.roomRuntime
     kapt libs.roomCompiler
     implementation libs.roomRx
-    implementation libs.roomTesting
+    implementation libs.roomxTesting
     //network
     implementation libs.poi
     //interсept

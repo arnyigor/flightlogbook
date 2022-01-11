@@ -9,44 +9,48 @@ import com.arny.domain.models.Params
 
 @Entity(tableName = "main_table")
 data class FlightEntity constructor(
-        @PrimaryKey(autoGenerate = true)
-        @ColumnInfo(name = "_id")
-        var id: Long? = null,
-        var date: String? = null,
-        var datetime: Long? = null,
-        @ColumnInfo(name = "log_time")
-        var logtime: Int? = null,
-        @ColumnInfo(name = "ground_time")
-        var groundTime: Int? = null,
-        @ColumnInfo(name = "night_time")
-        var nightTime: Int? = null,
-        @ColumnInfo(name = "reg_no")
-        var regNo: String? = null,
-        @ColumnInfo(name = "airplane_type")
-        var planeId: Long? = null,
-        @ColumnInfo(name = "day_night")
-        var daynight: Int? = null,
-        @ColumnInfo(name = "ifr_vfr")
-        var ifrvfr: Int? = null,
-        @ColumnInfo(name = "flight_type")
-        var flighttype: Int? = null,
-        var description: String? = null,
-        var params: String? = null,
-        @ColumnInfo(name = "departure_id")
-        var departureId: Long? = null,
-        @ColumnInfo(name = "arrival_id")
-        var arrivalId: Long? = null,
-        @ColumnInfo(name = "departure_utc_time")
-        var departureUtcTime: String? = null,
-        @ColumnInfo(name = "arrival_utc_time")
-        var arrivalUtcTime: String? = null,
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "_id")
+    var id: Long? = null,
+    var date: String? = null,
+    var datetime: Long? = null,
+    @ColumnInfo(name = "log_time")
+    var logtime: Int? = null,
+    @ColumnInfo(name = "ground_time")
+    var groundTime: Int? = null,
+    @ColumnInfo(name = "night_time")
+    var nightTime: Int? = null,
+    @ColumnInfo(name = "reg_no")
+    var regNo: String? = null,
+    @ColumnInfo(name = "airplane_type")
+    var planeId: Long? = null,
+    @ColumnInfo(name = "day_night")
+    var daynight: Int? = null,
+    @ColumnInfo(name = "ifr_vfr")
+    var ifrvfr: Int? = null,
+    @ColumnInfo(name = "flight_type")
+    var flighttype: Int? = null,
+    var description: String? = null,
+    var params: String? = null,
+    @ColumnInfo(name = "departure_id")
+    var departureId: Long? = null,
+    @ColumnInfo(name = "arrival_id")
+    var arrivalId: Long? = null,
+    @ColumnInfo(name = "departure_local_time")
+    var departureLocalTime: String? = null,
+    @ColumnInfo(name = "arrival_local_time")
+    var arrivalLocalTime: String? = null,
+    @ColumnInfo(name = "departure_utc_diff", defaultValue = "0")
+    var departureUtcDiff: Int = 0,
+    @ColumnInfo(name = "arrival_utc_diff", defaultValue = "0")
+    var arrivalUtcDiff: Int = 0
 ) {
 
     fun toFlight(): Flight {
         val flight = Flight(id)
         flight.datetime = datetime
         flight.datetimeFormatted =
-                this.datetime?.let { DateTimeUtils.getDateTime(it, "dd MMM yyyy") }
+            this.datetime?.let { DateTimeUtils.getDateTime(it, "dd MMM yyyy") }
         flight.flightTime = logtime ?: 0
         flight.logtimeFormatted = logtime?.let { DateTimeUtils.strLogTime(it) }
         flight.regNo = regNo
@@ -61,30 +65,33 @@ data class FlightEntity constructor(
         flight.params = Params(params)
         flight.departureId = departureId
         flight.arrivalId = arrivalId
-        flight.departureUtcTime = DateTimeUtils.convertStringToTime(departureUtcTime)
-        flight.arrivalUtcTime = DateTimeUtils.convertStringToTime(arrivalUtcTime)
+        flight.departureLocalTime = DateTimeUtils.convertStringToTime(departureLocalTime)
+        flight.arrivalLocalTime = DateTimeUtils.convertStringToTime(arrivalLocalTime)
+        flight.departureUtcDiff = departureUtcDiff
+        flight.arrivalUtcDiff = arrivalUtcDiff
         return flight
     }
 }
 
-fun Flight.toFlightEntity(): FlightEntity {
-    return FlightEntity(
-            id,
-            null,
-            datetime,
-            flightTime,
-            groundTime,
-            nightTime,
-            regNo,
-            planeId,
-            daynight,
-            ifrvfr,
-            flightTypeId,
-            description,
-            params?.stringParams,
-            departureId,
-            arrivalId,
-            DateTimeUtils.strLogTime(departureUtcTime ?: 0),
-            DateTimeUtils.strLogTime(arrivalUtcTime ?: 0),
+fun Flight.toFlightEntity(): FlightEntity =
+    FlightEntity(
+        id = id,
+        date = null,
+        datetime = datetime,
+        logtime = flightTime,
+        groundTime = groundTime,
+        nightTime = nightTime,
+        regNo = regNo,
+        planeId = planeId,
+        daynight = daynight,
+        ifrvfr = ifrvfr,
+        flighttype = flightTypeId,
+        description = description,
+        params = params?.stringParams,
+        departureId = departureId,
+        arrivalId = arrivalId,
+        departureLocalTime = DateTimeUtils.strLogTime(departureLocalTime ?: 0),
+        arrivalLocalTime = DateTimeUtils.strLogTime(arrivalLocalTime ?: 0),
+        departureUtcDiff = departureUtcDiff,
+        arrivalUtcDiff = arrivalUtcDiff,
     )
-}

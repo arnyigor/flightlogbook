@@ -68,6 +68,7 @@
         android:focusableInTouchMode="true"
         android:gravity="center_horizontal"
         android:hint="@string/str_time_zero"
+        android:imeOptions="actionDone"
         android:digits="0123456789-:"
         android:importantForAutofill="no"
         android:inputType="time"

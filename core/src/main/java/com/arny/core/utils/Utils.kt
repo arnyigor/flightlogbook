@@ -736,7 +736,7 @@ fun BottomNavigationView?.disableShiftMode() {
 
                 item.setShifting(false)
                 // set once again checked value, so view will be updated
-                item.setChecked(item.itemData.isChecked)
+                item.setChecked(item.itemData?.isChecked==true)
             }
         } catch (e: NoSuchFieldException) {
             e.printStackTrace()

@@ -14,6 +14,7 @@ import com.arny.flightlogbook.databinding.InputTimeWithLocalComponentBinding
 import com.arny.flightlogbook.presentation.flights.addedit.models.CorrectedTimePair
 import com.arny.flightlogbook.presentation.flights.addedit.models.getCorrectDayTime
 import com.arny.flightlogbook.presentation.flights.addedit.models.getCorrectLocalDiffDayTime
+import kotlin.math.abs
 
 class InputTimeWithLocalComponent @JvmOverloads constructor(
     context: Context,
@@ -22,9 +23,9 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
 
     private var correctedTime: CorrectedTimePair? = null
-    private var correctedTimeDiff: CorrectedTimePair? = null
-    private var timeInMin = 0
-    private var timeDiffInMin = 0
+    private var correctedUtcDiff: CorrectedTimePair? = null
+    private var localTimeMin = 0
+    private var utcDiffMin = 0
     private var utcTime = true
 
     private val binding =
@@ -36,7 +37,7 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
     private val mainTimeUpdateListener = binding.edtTime.doAfterTextChanged { updateTime() }
     private val timeDiffUpdateListener = binding.edtTimeDiff.doAfterTextChanged { updateTime() }
     private var editorActionListener: ((actionId: Int) -> Unit)? = null
-    private var textChangedListener: ((Int) -> Unit)? = null
+    private var textChangedListener: ((localTime: Int, utcDiff: Int) -> Unit)? = null
     private var onFocusChangeListener: ((Int) -> Unit)? = null
     private var timeClickListener: (() -> Unit)? = null
 
@@ -61,7 +62,7 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
                 if (!hasFocus) {
                     edtTime.setSelectAllOnFocus(false)
                     edtTime.setText(correctedTime?.strTime)
-                    onFocusChangeListener?.invoke(timeInMin)
+                    onFocusChangeListener?.invoke(localTimeMin)
                 }
                 val depTime = edtTime.text.toString()
                 if (depTime.isBlank()) {
@@ -82,21 +83,28 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
             }
             ivTimeIcon.setOnClickListener { timeClickListener?.invoke() }
             ivTimeRemove.setOnClickListener {
-                timeInMin = 0
+                localTimeMin = 0
                 edtTime.setText("")
+                updateTime()
             }
             ivTimeDiffRemove.setOnClickListener {
-                timeDiffInMin = 0
+                utcDiffMin = 0
                 edtTimeDiff.setText("")
+                updateTime()
             }
             tvCaption.setOnClickListener {
-                this@InputTimeWithLocalComponent.utcTime = !this@InputTimeWithLocalComponent.utcTime
+                utcTime = !utcTime
                 changeUtcLocal()
             }
             edtTimeDiff.setOnFocusChangeListener { _, hasFocus ->
                 if (!hasFocus) {
                     edtTimeDiff.setSelectAllOnFocus(false)
-                    edtTimeDiff.setText(getStrTimeDiff())
+                    edtTimeDiff.setText(
+                        getSignStrTime(
+                            signMinus = correctedUtcDiff?.sign != 1,
+                            time = correctedUtcDiff?.strTime
+                        )
+                    )
                     updateTime()
                 }
                 val depTime = edtTimeDiff.text.toString()
@@ -118,28 +126,33 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
                 editorActionListener?.invoke(actionId)
                 true
             }
+            edtTimeDiff.setOnEditorActionListener { _, _, _ ->
+                edtTime.requestFocus()
+                true
+            }
         }
     }
 
-    private fun getStrTimeDiff(): String {
+    private fun getSignStrTime(signMinus: Boolean, time: String?): String {
         var result = ""
-        if (correctedTimeDiff?.sign != 1) {
+        if (signMinus) {
             result += "-"
         }
-        result += correctedTimeDiff?.strTime
+        result += time
         return result
     }
 
     private fun updateTime() {
-        correctedTimeDiff =
-            getCorrectLocalDiffDayTime(binding.edtTimeDiff.text.toString(), timeDiffInMin)
-        timeDiffInMin = correctedTimeDiff?.intTime ?: 0
-        timeInMin = correctedTime?.intTime ?: 0
-        correctedTime = getCorrectDayTime(binding.edtTime.text.toString(), timeInMin)
-        timeInMin = correctedTime?.intTime ?: 0
-        val sign = correctedTimeDiff?.sign ?: 1
-        val timeDifferent = timeInMin - (timeDiffInMin * sign)
-        textChangedListener?.invoke(timeDifferent)
+        correctedUtcDiff =
+            getCorrectLocalDiffDayTime(binding.edtTimeDiff.text.toString(), utcDiffMin)
+        utcDiffMin = correctedUtcDiff?.intTime ?: 0
+        localTimeMin = correctedTime?.intTime ?: 0
+        correctedTime = getCorrectDayTime(binding.edtTime.text.toString(), localTimeMin)
+        localTimeMin = correctedTime?.intTime ?: 0
+        val sign = correctedUtcDiff?.sign ?: 1
+        val utcDiff = utcDiffMin * sign
+        val localTime = localTimeMin
+        textChangedListener?.invoke(localTime, utcDiff)
         refreshRemoveIconVisible()
         refreshRemoveTimeDiffIconVisible()
     }
@@ -151,7 +164,7 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
             EditorInfo.IME_ACTION_NEXT
     }
 
-    fun setDateChangedListener(listener: (Int) -> Unit) {
+    fun setDateChangedListener(listener: (localTime: Int, timeDiff: Int) -> Unit) {
         textChangedListener = listener
     }
 
@@ -196,14 +209,40 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
                 removeTextChangedListener(mainTimeUpdateListener)
                 setText(text)
                 addTextChangedListener(mainTimeUpdateListener)
+                refreshRemoveIconVisible()
+                refreshRemoveTimeDiffIconVisible()
             }
         }
-        refreshRemoveIconVisible()
-        refreshRemoveTimeDiffIconVisible()
+    }
+
+    fun setUtcText(text: CharSequence?) {
+        with(binding.edtTimeDiff) {
+            if (this.text != text) {
+                removeTextChangedListener(timeDiffUpdateListener)
+                setText(text)
+                addTextChangedListener(timeDiffUpdateListener)
+                refreshRemoveIconVisible()
+                refreshRemoveTimeDiffIconVisible()
+            }
+        }
     }
 
     fun setTime(time: Int) {
-        timeInMin = time
+        localTimeMin = time
         setText(DateTimeUtils.strLogTime(time))
+    }
+
+    fun setUtcDiff(diff: Int) {
+        utcTime = diff != 0
+        if (utcTime) {
+            utcDiffMin = diff
+            setUtcText(
+                getSignStrTime(
+                    signMinus = diff < 0,
+                    time = DateTimeUtils.strLogTime(abs(diff))
+                )
+            )
+        }
+        changeUtcLocal()
     }
 }
