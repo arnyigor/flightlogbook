@@ -25,7 +25,6 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
     private var correctedUtcTime: CorrectedTimePair? = null
     private var correctedUtcDiff: CorrectedTimePair? = null
     private var utcTime = 0
-    private var localTime = 0
     private var utcDiff = 0
     private var isUtcState = true
 
@@ -152,11 +151,6 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
         utcTime = correctedUtcTime?.intTime ?: 0
         val sign = correctedUtcDiff?.sign ?: 1
         val utcDiff = utcDiff * sign
-        if (isUtcState) {
-            localTime = utcTime
-        } else {
-            localTime = utcTime - utcDiff
-        } // TODO смена локального и UTC времени
         textChangedListener?.invoke(utcTime, utcDiff)
         refreshRemoveIconVisible()
         refreshRemoveTimeDiffIconVisible()
@@ -164,11 +158,11 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
 
     private fun recalculateUtcTime() {
         if (isUtcState) {
+            utcTime = 0 // TODO смена локального и UTC времени
+        } else {
             val sign = correctedUtcDiff?.sign ?: 1
             val utcDiffSigned = utcDiff * sign
-            utcTime = localTime - utcDiffSigned
-        } else {
-            utcTime = localTime
+            utcTime = utcTime - utcDiffSigned
         }
         updateTime()
         setText(DateTimeUtils.strLogTime(utcTime))
