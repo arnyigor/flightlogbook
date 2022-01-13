@@ -36,10 +36,10 @@ data class FlightEntity constructor(
     var departureId: Long? = null,
     @ColumnInfo(name = "arrival_id")
     var arrivalId: Long? = null,
-    @ColumnInfo(name = "departure_local_time")
-    var departureLocalTime: String? = null,
-    @ColumnInfo(name = "arrival_local_time")
-    var arrivalLocalTime: String? = null,
+    @ColumnInfo(name = "departure_utc_time")
+    var departureUtcTime: String? = null,
+    @ColumnInfo(name = "arrival_utc_time")
+    var arrivalUtcTime: String? = null,
     @ColumnInfo(name = "departure_utc_diff", defaultValue = "0")
     var departureUtcDiff: Int = 0,
     @ColumnInfo(name = "arrival_utc_diff", defaultValue = "0")
@@ -65,8 +65,8 @@ data class FlightEntity constructor(
         flight.params = Params(params)
         flight.departureId = departureId
         flight.arrivalId = arrivalId
-        flight.departureLocalTime = DateTimeUtils.convertStringToTime(departureLocalTime)
-        flight.arrivalLocalTime = DateTimeUtils.convertStringToTime(arrivalLocalTime)
+        flight.departureUtcTime = DateTimeUtils.convertStringToTime(departureUtcTime)
+        flight.arrivalUtcTime = DateTimeUtils.convertStringToTime(arrivalUtcTime)
         flight.departureUtcDiff = departureUtcDiff
         flight.arrivalUtcDiff = arrivalUtcDiff
         return flight
@@ -90,8 +90,8 @@ fun Flight.toFlightEntity(): FlightEntity =
         params = params?.stringParams,
         departureId = departureId,
         arrivalId = arrivalId,
-        departureLocalTime = DateTimeUtils.strLogTime(departureLocalTime ?: 0),
-        arrivalLocalTime = DateTimeUtils.strLogTime(arrivalLocalTime ?: 0),
+        departureUtcTime = DateTimeUtils.strLogTime(departureUtcTime ?: 0),
+        arrivalUtcTime = DateTimeUtils.strLogTime(arrivalUtcTime ?: 0),
         departureUtcDiff = departureUtcDiff,
         arrivalUtcDiff = arrivalUtcDiff,
     )

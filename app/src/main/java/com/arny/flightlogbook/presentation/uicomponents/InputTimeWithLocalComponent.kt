@@ -22,11 +22,12 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
     defStyleAttr: Int = 0,
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
 
-    private var correctedTime: CorrectedTimePair? = null
+    private var correctedUtcTime: CorrectedTimePair? = null
     private var correctedUtcDiff: CorrectedTimePair? = null
-    private var localTimeMin = 0
-    private var utcDiffMin = 0
-    private var utcTime = true
+    private var utcTime = 0
+    private var localTime = 0
+    private var utcDiff = 0
+    private var isUtcState = true
 
     private val binding =
         InputTimeWithLocalComponentBinding.inflate(LayoutInflater.from(context), this)
@@ -52,17 +53,14 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
             )
         )
         att.recycle()
-        changeUtcLocal()
         val utcTimeString = context.getString(R.string.utc_time)
         val timeZero = context.getString(R.string.str_time_zero)
         with(binding) {
-            edtTime.addTextChangedListener(mainTimeUpdateListener)
-            edtTimeDiff.addTextChangedListener(timeDiffUpdateListener)
             edtTime.setOnFocusChangeListener { _, hasFocus ->
                 if (!hasFocus) {
                     edtTime.setSelectAllOnFocus(false)
-                    edtTime.setText(correctedTime?.strTime)
-                    onFocusChangeListener?.invoke(localTimeMin)
+                    edtTime.setText(correctedUtcTime?.strTime)
+                    onFocusChangeListener?.invoke(utcTime)
                 }
                 val depTime = edtTime.text.toString()
                 if (depTime.isBlank()) {
@@ -83,18 +81,18 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
             }
             ivTimeIcon.setOnClickListener { timeClickListener?.invoke() }
             ivTimeRemove.setOnClickListener {
-                localTimeMin = 0
+                utcTime = 0
                 edtTime.setText("")
                 updateTime()
             }
             ivTimeDiffRemove.setOnClickListener {
-                utcDiffMin = 0
+                utcDiff = 0
                 edtTimeDiff.setText("")
                 updateTime()
             }
             tvCaption.setOnClickListener {
-                utcTime = !utcTime
-                changeUtcLocal()
+                isUtcState = !isUtcState
+                toggleUtcDiffVisible(isUtcState)
             }
             edtTimeDiff.setOnFocusChangeListener { _, hasFocus ->
                 if (!hasFocus) {
@@ -130,6 +128,9 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
                 edtTime.requestFocus()
                 true
             }
+            edtTime.addTextChangedListener(mainTimeUpdateListener)
+            edtTimeDiff.addTextChangedListener(timeDiffUpdateListener)
+            toggleUtcDiffVisible(isUtcState)
         }
     }
 
@@ -144,17 +145,33 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
 
     private fun updateTime() {
         correctedUtcDiff =
-            getCorrectLocalDiffDayTime(binding.edtTimeDiff.text.toString(), utcDiffMin)
-        utcDiffMin = correctedUtcDiff?.intTime ?: 0
-        localTimeMin = correctedTime?.intTime ?: 0
-        correctedTime = getCorrectDayTime(binding.edtTime.text.toString(), localTimeMin)
-        localTimeMin = correctedTime?.intTime ?: 0
+            getCorrectLocalDiffDayTime(binding.edtTimeDiff.text.toString(), utcDiff)
+        utcDiff = correctedUtcDiff?.intTime ?: 0
+        utcTime = correctedUtcTime?.intTime ?: 0
+        correctedUtcTime = getCorrectDayTime(binding.edtTime.text.toString(), utcTime)
+        utcTime = correctedUtcTime?.intTime ?: 0
         val sign = correctedUtcDiff?.sign ?: 1
-        val utcDiff = utcDiffMin * sign
-        val localTime = localTimeMin
-        textChangedListener?.invoke(localTime, utcDiff)
+        val utcDiff = utcDiff * sign
+        if (isUtcState) {
+            localTime = utcTime
+        } else {
+            localTime = utcTime - utcDiff
+        } // TODO смена локального и UTC времени
+        textChangedListener?.invoke(utcTime, utcDiff)
         refreshRemoveIconVisible()
         refreshRemoveTimeDiffIconVisible()
+    }
+
+    private fun recalculateUtcTime() {
+        if (isUtcState) {
+            val sign = correctedUtcDiff?.sign ?: 1
+            val utcDiffSigned = utcDiff * sign
+            utcTime = localTime - utcDiffSigned
+        } else {
+            utcTime = localTime
+        }
+        updateTime()
+        setText(DateTimeUtils.strLogTime(utcTime))
     }
 
     private fun setImeOptions(useDone: Boolean = false) {
@@ -180,18 +197,19 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
         timeClickListener = listener
     }
 
-    private fun changeUtcLocal() {
+    private fun toggleUtcDiffVisible(visible: Boolean) {
         binding.tvCaption.text =
             context.getString(
-                if (utcTime) {
+                if (visible) {
                     R.string.utc_time
                 } else {
                     R.string.local_time
                 }
             )
-        binding.tvLocalTimeDiff.isVisible = !utcTime
-        binding.ivTimeDiffRemove.isVisible = !utcTime
-        binding.edtTimeDiff.isVisible = !utcTime
+        binding.tvLocalTimeDiff.isVisible = !visible
+        binding.ivTimeDiffRemove.isVisible = !visible
+        binding.edtTimeDiff.isVisible = !visible
+        recalculateUtcTime()
     }
 
     fun refreshRemoveIconVisible() {
@@ -228,14 +246,14 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
     }
 
     fun setTime(time: Int) {
-        localTimeMin = time
+        utcTime = time
         setText(DateTimeUtils.strLogTime(time))
     }
 
     fun setUtcDiff(diff: Int) {
-        utcTime = diff != 0
-        if (utcTime) {
-            utcDiffMin = diff
+        isUtcState = diff != 0
+        if (isUtcState) {
+            utcDiff = diff
             setUtcText(
                 getSignStrTime(
                     signMinus = diff < 0,
@@ -243,6 +261,6 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
                 )
             )
         }
-        changeUtcLocal()
+        toggleUtcDiffVisible(diff == 0)
     }
 }
