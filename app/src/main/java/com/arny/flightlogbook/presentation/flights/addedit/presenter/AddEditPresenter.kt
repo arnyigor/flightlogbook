@@ -30,7 +30,6 @@ import javax.inject.Inject
 
 @InjectViewState
 class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
-
     private var customFieldsValues = mutableListOf<CustomFieldValue>()
 
     @Inject
@@ -59,13 +58,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     var departureUtcTime: Int = 0
 
     @Volatile
-    var depUtcDiff: Int = 0
-
-    @Volatile
     var arrivalUtcTime: Int = 0
-
-    @Volatile
-    var arrivalUtcDiff: Int = 0
 
     @Volatile
     var intGroundTime: Int = 0
@@ -133,7 +126,6 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         }
     }
 
-
     private fun initUI(flight: Flight) {
         viewState.setDescription(flight.description ?: "")
         loadColor(flight)
@@ -152,17 +144,9 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
             departureUtcTime = it
             viewState.setEdtDepUtcTime(it)
         }
-        flight.departureUtcDiff.takeIf { it != 0 }?.let {
-            depUtcDiff = it
-            viewState.setEdtDepUtcDiff(it)
-        }
         flight.arrivalUtcTime?.let {
             arrivalUtcTime = it
             viewState.setEdtArrUtcTimeText(it)
-        }
-        flight.arrivalUtcDiff.takeIf { it != 0 }?.let {
-            arrivalUtcDiff = it
-            viewState.setEdtArrUtcDiff(it)
         }
     }
 
@@ -303,16 +287,21 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
             .subscribeFromPresenter({ viewState.setTotalTime(it) })
     }
 
-    fun setDepartureTime(localTime: Int, utcDiff: Int) {
-        departureUtcTime = localTime
-        depUtcDiff = utcDiff
+    fun setDepartureTime(utcTime: Int) {
+        departureUtcTime = utcTime
         updateTimes()
     }
 
-    fun setArrivalTime(localTime: Int, utcDiff: Int) {
-        arrivalUtcTime = localTime
-        arrivalUtcDiff = utcDiff
+    fun setArrivalTime(utcTime: Int) {
+        arrivalUtcTime = utcTime
         updateTimes()
+    }
+
+    fun setFlightTime(utcTime: Int) {
+        if (intFlightTime != utcTime) {
+            departureUtcTime = 0
+            updateTimes()
+        }
     }
 
     fun setNightTime(time: Int) {
@@ -333,8 +322,8 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     }
 
     private fun correctFlightTimeByDepArr() {
-        val arrUtcTime = arrivalUtcTime - arrivalUtcDiff
-        val depUtcTime = departureUtcTime - depUtcDiff
+        val arrUtcTime = arrivalUtcTime
+        val depUtcTime = departureUtcTime
         intFlightTime = if (arrUtcTime >= depUtcTime) {
             arrUtcTime - depUtcTime
         } else {
@@ -463,9 +452,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                     flt.totalTime = intTotalTime
                     flt.description = description
                     flt.departureUtcTime = departureUtcTime
-                    flt.departureUtcDiff = depUtcDiff
                     flt.arrivalUtcTime = arrivalUtcTime
-                    flt.arrivalUtcDiff = arrivalUtcDiff
                     val id = flt.id
                     if (id != null) {
                         updateFieldsExternalId(id)

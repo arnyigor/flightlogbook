@@ -40,7 +40,6 @@ import moxy.ktx.moxyPresenter
 class AddEditFragment : BaseMvpFragment(), AddEditView,
     CalendarDatePickerDialogFragment.OnDateSetListener,
     View.OnClickListener, TimePickerDialog.OnTimeSetListener {
-
     companion object {
         fun getInstance(bundle: Bundle? = null) = AddEditFragment().apply {
             bundle?.let { arguments = it }
@@ -56,7 +55,6 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     private var currentTitle = R.string.str_add_flight
     private var tvMotoResult: TextView? = null
     private var appRouter: AppRouter? = null
-
     private val presenter by moxyPresenter { AddEditPresenter() }
 
     override fun getTitle(): String = getString(currentTitle)
@@ -154,6 +152,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         onDateTimeChanges()
         onDepartureTimeChanges()
         onArrivalTimeChanges()
+        onFlightTimeChanges()
         onNightTimeChanges()
         onGroundTimeChanges()
         onCustomViewsInit()
@@ -164,8 +163,8 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
             edtDepartureTime.setTimeIconClickListener {
                 openTimeDialog(edtDepartureTime.edtTime)
             }
-            edtDepartureTime.setDateChangedListener { localTime, utcDiff ->
-                presenter.setDepartureTime(localTime, utcDiff)
+            edtDepartureTime.setDateChangedListener { localTime ->
+                presenter.setDepartureTime(localTime)
             }
             edtDepartureTime.setOnEditorActionListener { actionId ->
                 when (actionId) {
@@ -182,10 +181,28 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
             edtArrivalTime.setTimeIconClickListener {
                 openTimeDialog(edtArrivalTime.edtTime)
             }
-            edtArrivalTime.setDateChangedListener {utc, diff ->
-                presenter.setArrivalTime(utc, diff)
+            edtArrivalTime.setDateChangedListener { utc ->
+                presenter.setArrivalTime(utc)
             }
             edtArrivalTime.setOnEditorActionListener { actionId ->
+                when (actionId) {
+                    EditorInfo.IME_ACTION_NEXT -> {
+                        edtNightTime.requestFocus()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun onFlightTimeChanges() {
+        with(binding) {
+            edtFlightTime.setTimeIconClickListener {
+                openTimeDialog(edtFlightTime.edtTime)
+            }
+            edtFlightTime.setDateChangedListener { utc ->
+                presenter.setFlightTime(utc)
+            }
+            edtFlightTime.setOnEditorActionListener { actionId ->
                 when (actionId) {
                     EditorInfo.IME_ACTION_NEXT -> {
                         edtNightTime.requestFocus()
@@ -558,11 +575,4 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         binding.edtArrivalTime.setTime(arrTime)
     }
 
-    override fun setEdtDepUtcDiff(diff: Int) {
-        binding.edtDepartureTime.setUtcDiff(diff)
-    }
-
-    override fun setEdtArrUtcDiff(diff: Int) {
-        binding.edtArrivalTime.setUtcDiff(diff)
-    }
 }

@@ -43,8 +43,6 @@ interface AddEditView : MvpView {
     fun setDeparture(departure: Airport?)
     fun setArrival(arrival: Airport?)
     fun setEdtDepUtcTime(depTime: Int)
-    fun setEdtDepUtcDiff(diff: Int)
     fun setEdtArrUtcTimeText(arrTime: Int)
-    fun setEdtArrUtcDiff(diff: Int)
     fun removeItemFromAdapter(position: Int)
 }

@@ -2,6 +2,9 @@
     <declare-styleable name="InputTimeComponent">
         <attr name="captionVisible" format="boolean" />
         <attr name="imeDone" format="boolean" />
+        <attr name="changeOnEdit" format="boolean" />
+        <attr name="changeOnClick" format="boolean" />
+        <attr name="changeOnEnter" format="boolean" />
         <attr name="editable" format="boolean" />
     </declare-styleable>
 
