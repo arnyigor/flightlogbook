@@ -27,6 +27,7 @@ interface AddEditView : MvpView {
     fun setResultOK()
     fun setEdtNightTimeText(nightTimeText: String)
     fun setEdtGroundTimeText(groundTimeText: String)
+    @OneExecution
     fun onColorSelect(colors: IntArray)
     fun setViewColor(color: Int)
     fun setRemoveColorVisible(visible: Boolean)
