@@ -44,6 +44,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.mikepenz.google_material_typeface_library.GoogleMaterial
 import com.mikepenz.iconics.IconicsDrawable
+import com.mikepenz.iconics.utils.colorInt
+import com.mikepenz.iconics.utils.sizeDp
 import java.lang.reflect.Type
 import java.util.*
 import kotlin.math.roundToInt
@@ -606,11 +608,13 @@ fun getGMDIcon(
     gmd_icon: GoogleMaterial.Icon,
     size: Int,
     color: Int? = null
-): IconicsDrawable? {
-    val icon = IconicsDrawable(context).icon(gmd_icon)
-    icon.sizeDp(size)
+): IconicsDrawable {
+    val icon = IconicsDrawable(context).apply {
+        icon = gmd_icon
+    }
+    icon.sizeDp = size
     if (color != null) {
-        icon.color(color)
+        icon.colorInt = color
     }
     return icon
 }
@@ -736,7 +740,7 @@ fun BottomNavigationView?.disableShiftMode() {
 
                 item.setShifting(false)
                 // set once again checked value, so view will be updated
-                item.setChecked(item.itemData?.isChecked==true)
+                item.setChecked(item.itemData?.isChecked == true)
             }
         } catch (e: NoSuchFieldException) {
             e.printStackTrace()
@@ -752,10 +756,11 @@ fun getIconDrawable(
     icon: GoogleMaterial.Icon,
     sizeDp: Int
 ): Drawable {
-    return IconicsDrawable(context)
-        .icon(icon)
-        .color(color)
-        .sizeDp(sizeDp)
+    return IconicsDrawable(context).apply {
+        this.icon = icon
+        this.colorInt = color
+        this.sizeDp = sizeDp
+    }
 }
 
 fun getTextDrawable(text: String, color: Int): TextDrawable {
@@ -1020,7 +1025,7 @@ fun transliterate(message: String, toUpper: Boolean = false): String {
     }
     var res = builder.toString()
     if (toUpper) {
-        res = res.toUpperCase()
+        res = res.uppercase()
     }
     return res.trim()
 }

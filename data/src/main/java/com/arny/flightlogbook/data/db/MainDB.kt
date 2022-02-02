@@ -1,6 +1,5 @@
 package com.arny.flightlogbook.data.db
 
-import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.arny.flightlogbook.data.db.daos.*
@@ -20,10 +19,10 @@ import com.arny.flightlogbook.data.models.planes.PlaneTypeEntity
         CustomFieldValueEntity::class,
         AirportEntity::class,
     ],
-    autoMigrations = [
-        AutoMigration(from = 14, to = 15),
-    ],
-    version = 15,
+//    autoMigrations = [
+//        AutoMigration(from = 14, to = 15),
+//    ],
+    version = 14,
     exportSchema = true
 )
 abstract class MainDB : RoomDatabase() {

@@ -16,7 +16,7 @@ import io.reactivex.Observable
 import org.apache.poi.hssf.usermodel.HSSFCell
 import org.apache.poi.hssf.usermodel.HSSFRow
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
-import org.apache.poi.ss.usermodel.Cell
+import org.apache.poi.ss.usermodel.CellType
 import java.io.File
 import java.io.FileInputStream
 import java.util.*
@@ -96,7 +96,7 @@ class FilesInteractorImpl @Inject constructor(
                             var timeStr: String
                             var time = 0
                             try {
-                                timeStr = if (myCell.cellType == Cell.CELL_TYPE_NUMERIC) {
+                                timeStr = if (myCell.cellType == CellType.NUMERIC) {
                                     Utility.match(
                                             myCell.dateCellValue.toString(),
                                             "(\\d{2}:\\d{2})", 1
@@ -195,7 +195,7 @@ class FilesInteractorImpl @Inject constructor(
                             var timeStr: String
                             var time = 0
                             try {
-                                timeStr = if (myCell.cellType == Cell.CELL_TYPE_NUMERIC) {
+                                timeStr = if (myCell.cellType == CellType.NUMERIC) {
                                     Utility.match(
                                             myCell.dateCellValue.toString(),
                                             "(\\d{2}:\\d{2})", 1
@@ -218,7 +218,7 @@ class FilesInteractorImpl @Inject constructor(
                             var timeStr: String
                             var time = 0
                             try {
-                                timeStr = if (myCell.cellType == Cell.CELL_TYPE_NUMERIC) {
+                                timeStr = if (myCell.cellType == CellType.NUMERIC) {
                                     Utility.match(
                                             myCell.dateCellValue.toString(),
                                             "(\\d{2}:\\d{2})", 1
