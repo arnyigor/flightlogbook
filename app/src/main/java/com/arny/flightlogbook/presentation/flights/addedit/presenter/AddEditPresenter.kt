@@ -24,6 +24,7 @@ import com.arny.flightlogbook.presentation.flights.addedit.models.getCorrectTime
 import com.arny.flightlogbook.presentation.flights.addedit.view.AddEditView
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.rxkotlin.zipWith
 import moxy.InjectViewState
 import org.joda.time.DateTime
 import javax.inject.Inject
@@ -146,7 +147,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         }
         flight.arrivalUtcTime?.let {
             arrivalUtcTime = it
-            viewState.setEdtArrUtcTimeText(it)
+            viewState.setEdtArrUtcTime(it)
         }
     }
 
@@ -281,10 +282,12 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         flightsInteractor.getAddTimeSum(customFieldsValues) else 0
 
     private fun updateUITimes() {
-        fromCallable { strLogTime(intFlightTime) }
-            .subscribeFromPresenter({ viewState.setEdtFlightTimeText(it) })
-        fromCallable { strLogTime(intTotalTime) }
-            .subscribeFromPresenter({ viewState.setTotalTime(it) })
+        Single.fromCallable { strLogTime(intFlightTime) }
+            .zipWith(Single.fromCallable { strLogTime(intFlightTime) })
+            .subscribeFromPresenter({ (flight, total) ->
+                viewState.setEdtFlightTimeText(flight)
+                viewState.setTotalTime(total)
+            })
     }
 
     fun setDepartureTime(utcTime: Int) {
@@ -298,10 +301,8 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     }
 
     fun setFlightTime(utcTime: Int) {
-        if (intFlightTime != utcTime) {
-            departureUtcTime = 0
-            updateTimes()
-        }
+        departureUtcTime = arrivalUtcTime - utcTime
+        viewState.setEdtDepUtcTime(departureUtcTime)
     }
 
     fun setNightTime(time: Int) {

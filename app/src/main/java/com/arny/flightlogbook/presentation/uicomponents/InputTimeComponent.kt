@@ -20,16 +20,15 @@ class InputTimeComponent @JvmOverloads constructor(
     defStyleAttr: Int = 0,
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
     private val binding = InputTimeComponentBinding.inflate(LayoutInflater.from(context), this)
-    private val watcher = binding.edtTime.doAfterTextChanged { updateTime() }
-    private var textChangedListener: ((Int) -> Unit)? = null
+    private val watcher = binding.edtTime.doAfterTextChanged {
+//            updateTime()
+    }
+    private var onDateChangeListener: ((Int) -> Unit)? = null
     private var timeClickListener: (() -> Unit)? = null
     private var editorActionListener: ((actionId: Int) -> Unit)? = null
     val edtTime: EditText
         get() = binding.edtTime
     private var edited: Boolean = true
-    private var changeOnEdit: Boolean = true
-    private var changeOnClick: Boolean = true
-    private var changeOnEnter: Boolean = false
     private var correctedTime: CorrectedTimePair? = null
     private var timeInMin = 0
 
@@ -41,9 +40,6 @@ class InputTimeComponent @JvmOverloads constructor(
         )
         setCaptionVisible(att.getBoolean(R.styleable.InputTimeComponent_captionVisible, true))
         setEditable(att.getBoolean(R.styleable.InputTimeComponent_editable, true))
-        changeOnEdit = (att.getBoolean(R.styleable.InputTimeComponent_changeOnEdit, true))
-        changeOnClick = (att.getBoolean(R.styleable.InputTimeComponent_changeOnClick, true))
-        changeOnEnter = (att.getBoolean(R.styleable.InputTimeComponent_changeOnEnter, false))
         setImeOptions(
             att.getBoolean(
                 R.styleable.InputTimeComponent_imeDone,
@@ -52,12 +48,10 @@ class InputTimeComponent @JvmOverloads constructor(
         )
         att.recycle()
         with(binding) {
-            if (changeOnEdit) {
-                edtTime.addTextChangedListener(watcher)
-            }
+            edtTime.addTextChangedListener(watcher)
             edtTime.setOnFocusChangeListener { _, hasFocus ->
                 if (!hasFocus) {
-                    edtTime.setSelectAllOnFocus(false)
+                    updateTime()
                     edtTime.setText(correctedTime?.strTime)
                 }
                 val depTime = edtTime.text.toString()
@@ -83,24 +77,22 @@ class InputTimeComponent @JvmOverloads constructor(
             ivTimeRemove.setOnClickListener {
                 timeInMin = 0
                 edtTime.setText("")
-                if (changeOnClick) {
-                    updateTime()
-                }
+                updateTime()
             }
             edtTime.setOnEditorActionListener { _, actionId, _ ->
                 editorActionListener?.invoke(actionId)
-                if (changeOnEnter) {
-                    updateTime()
-                }
+                updateTime()
                 true
             }
         }
     }
 
-    private fun updateTime() {
+    private fun updateTime(triggerListener: Boolean = true) {
         correctedTime = getCorrectDayTime(binding.edtTime.text.toString(), timeInMin)
         timeInMin = correctedTime?.intTime ?: 0
-        textChangedListener?.invoke(timeInMin)
+        if (triggerListener) {
+            onDateChangeListener?.invoke(timeInMin)
+        }
         refreshRemoveIconVisible()
     }
 
@@ -116,7 +108,7 @@ class InputTimeComponent @JvmOverloads constructor(
     }
 
     fun setDateChangedListener(listener: (Int) -> Unit) {
-        textChangedListener = listener
+        onDateChangeListener = listener
     }
 
     fun setTimeIconClickListener(listener: () -> Unit) {

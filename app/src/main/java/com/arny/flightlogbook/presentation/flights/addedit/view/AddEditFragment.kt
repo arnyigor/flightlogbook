@@ -571,7 +571,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         binding.edtDepartureTime.setTime(depTime)
     }
 
-    override fun setEdtArrUtcTimeText(arrTime: Int) {
+    override fun setEdtArrUtcTime(arrTime: Int) {
         binding.edtArrivalTime.setTime(arrTime)
     }
 
