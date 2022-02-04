@@ -657,9 +657,10 @@ fun Context.getResDrawable(@DrawableRes res: Int): Drawable? {
 fun ImageView?.setSrcTintColor(@DrawableRes src: Int, @ColorInt color: Int) {
     val drawable = this?.context?.let { ContextCompat.getDrawable(it, src) }
     if (drawable != null) {
+        this?.setImageDrawable(drawable)
         val wrapped = DrawableCompat.wrap(drawable)
         DrawableCompat.setTint(wrapped, color)
-        this?.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+        this?.setColorFilter(color, PorterDuff.Mode.SRC_IN);
     }
 }
 

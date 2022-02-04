@@ -19,7 +19,6 @@ interface AddEditView : MvpView {
     fun toastError(msg: String?)
     fun setPlaneTypeTitle(title: String?)
     fun setTotalTime(total: String)
-    fun setTotalFlightTime(flightTime: String)
     fun setFligtTypeTitle(title: String)
     fun toastSuccess(msg: String?)
 

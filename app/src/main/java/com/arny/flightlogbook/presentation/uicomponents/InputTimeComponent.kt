@@ -7,7 +7,6 @@ import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
-import androidx.core.widget.doAfterTextChanged
 import com.arny.core.utils.DateTimeUtils
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.databinding.InputTimeComponentBinding
@@ -20,17 +19,15 @@ class InputTimeComponent @JvmOverloads constructor(
     defStyleAttr: Int = 0,
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
     private val binding = InputTimeComponentBinding.inflate(LayoutInflater.from(context), this)
-    private val watcher = binding.edtTime.doAfterTextChanged {
-//            updateTime()
-    }
     private var onDateChangeListener: ((Int) -> Unit)? = null
     private var timeClickListener: (() -> Unit)? = null
     private var editorActionListener: ((actionId: Int) -> Unit)? = null
-    val edtTime: EditText
-        get() = binding.edtTime
     private var edited: Boolean = true
+    private var showZero: Boolean = false
     private var correctedTime: CorrectedTimePair? = null
     private var timeInMin = 0
+    val edtTime: EditText
+        get() = binding.edtTime
 
     init {
         val utcTime = context.getString(R.string.utc_time)
@@ -40,6 +37,7 @@ class InputTimeComponent @JvmOverloads constructor(
         )
         setCaptionVisible(att.getBoolean(R.styleable.InputTimeComponent_captionVisible, true))
         setEditable(att.getBoolean(R.styleable.InputTimeComponent_editable, true))
+        showZero = att.getBoolean(R.styleable.InputTimeComponent_showzero, false)
         setImeOptions(
             att.getBoolean(
                 R.styleable.InputTimeComponent_imeDone,
@@ -48,7 +46,6 @@ class InputTimeComponent @JvmOverloads constructor(
         )
         att.recycle()
         with(binding) {
-            edtTime.addTextChangedListener(watcher)
             edtTime.setOnFocusChangeListener { _, hasFocus ->
                 if (!hasFocus) {
                     updateTime()
@@ -139,9 +136,7 @@ class InputTimeComponent @JvmOverloads constructor(
     fun setText(text: CharSequence?) {
         with(binding.edtTime) {
             if (this.text != text) {
-                removeTextChangedListener(watcher)
                 setText(text)
-                addTextChangedListener(watcher)
             }
         }
         refreshRemoveIconVisible()
@@ -149,7 +144,12 @@ class InputTimeComponent @JvmOverloads constructor(
 
     fun setTime(time: Int) {
         timeInMin = time
-        binding.edtTime.setText(DateTimeUtils.strLogTime(time))
+        val s = if (time == 0) {
+            ""
+        } else {
+            DateTimeUtils.strLogTime(time)
+        }
+        binding.edtTime.setText(s)
         refreshRemoveIconVisible()
     }
 

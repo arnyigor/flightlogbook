@@ -100,20 +100,7 @@ fun getCorrectDayTime(stringTime: String, initTime: Int): CorrectedTimePair {
                 if (logTime != 0) String.format("00:0%d", logTime) else ""
             )
         }
-        stringTime.length == 2 -> {
-            logMinutes = stringTime.parseInt(0)
-            logTime = stringTime.parseInt(0)
-            val (hours, minutes) = correctMinHours(logHours, logMinutes)
-            CorrectedTimePair(
-                intTime = logTime,
-                strTime = String.format(
-                    "%s:%s",
-                    DateTimeUtils.pad(hours),
-                    DateTimeUtils.pad(minutes)
-                )
-            )
-        }
-        stringTime.length > 2 -> {
+        stringTime.length >= 2 -> {
             if (stringTime.contains(":")) {
                 logHours = stringTime.substringBefore(":").toIntOrNull() ?: 0
                 logMinutes = stringTime.substringAfter(":").toIntOrNull() ?: 0

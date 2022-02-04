@@ -594,6 +594,14 @@ public class DateTimeUtils {
         return mins + (hours * 60);
     }
 
+    public static String strLogTimeZero(int logtime) {
+        if (logtime == 0) {
+            return "";
+        }
+        int h = logtime / 60;
+        int m = logtime % 60;
+        return pad(h) + TIME_SEPARATOR_TWICE_DOT + pad(m);
+    }
 
     public static String strLogTime(int logtime) {
         int h = logtime / 60;

@@ -3,6 +3,7 @@
         <attr name="captionVisible" format="boolean" />
         <attr name="imeDone" format="boolean" />
         <attr name="editable" format="boolean" />
+        <attr name="showzero" format="boolean" />
     </declare-styleable>
 
     <declare-styleable name="InputTimeWithLocalComponent">

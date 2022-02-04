@@ -22,7 +22,6 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.color.colorChooser
 import com.arny.core.CONSTS
 import com.arny.core.utils.*
-import com.arny.core.utils.MathUtils.pad
 import com.arny.domain.models.Airport
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.customfields.models.CustomFieldValue
@@ -31,6 +30,7 @@ import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.flights.addedit.presenter.AddEditPresenter
 import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.flightlogbook.presentation.main.NavigateItems
+import com.arny.flightlogbook.presentation.uicomponents.InputTimeComponent
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment
 import com.redmadrobot.inputmask.MaskedTextChangedListener
 import com.tbruyelle.rxpermissions2.RxPermissions
@@ -47,8 +47,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     }
 
     private lateinit var binding: FAddeditBinding
-    private var fromDialog: Boolean = false
-    private var timeSetView: EditText? = null
+    private var timeInput: InputTimeComponent? = null
     private val compositeDisposable = CompositeDisposable()
     private var customFieldValuesAdapter: CustomFieldValuesAdapter? = null
     private lateinit var rxPermissions: RxPermissions
@@ -107,19 +106,15 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         return true
     }
 
-    @SuppressLint("SetTextI18n")
     override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
-        fromDialog = true
-        timeSetView?.setText(String.format("%s:%s", pad(hourOfDay), pad(minute)))
+        timeInput?.setTime((hourOfDay * 60) + minute)
+        timeInput?.requestFocus()
+        timeInput?.rootView?.requestFocus()
     }
 
-    private fun openTimeDialog(receiveView: EditText) {
-        this.timeSetView = receiveView
+    private fun openTimeDialog(input: InputTimeComponent) {
+        this.timeInput = input
         TimePickerDialog(requireContext(), this, 0, 0, true).show()
-    }
-
-    override fun setTotalFlightTime(flightTime: String) {
-        binding.tvTotalTime.text = flightTime
     }
 
     override fun toastError(msg: String?) {
@@ -161,7 +156,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     private fun onDepartureTimeChanges() {
         with(binding) {
             edtDepartureTime.setTimeIconClickListener {
-                openTimeDialog(edtDepartureTime.edtTime)
+                openTimeDialog(edtDepartureTime)
             }
             edtDepartureTime.setDateChangedListener { localTime ->
                 presenter.setDepartureTime(localTime)
@@ -179,7 +174,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     private fun onArrivalTimeChanges() {
         with(binding) {
             edtArrivalTime.setTimeIconClickListener {
-                openTimeDialog(edtArrivalTime.edtTime)
+                openTimeDialog(edtArrivalTime)
             }
             edtArrivalTime.setDateChangedListener { utc ->
                 presenter.setArrivalTime(utc)
@@ -197,7 +192,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     private fun onFlightTimeChanges() {
         with(binding) {
             edtFlightTime.setTimeIconClickListener {
-                openTimeDialog(edtFlightTime.edtTime)
+                openTimeDialog(edtFlightTime)
             }
             edtFlightTime.setDateChangedListener { utc ->
                 presenter.setFlightTime(utc)
@@ -232,7 +227,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     private fun onNightTimeChanges() {
         with(binding) {
             edtNightTime.setTimeIconClickListener {
-                openTimeDialog(edtNightTime.edtTime)
+                openTimeDialog(edtNightTime)
             }
             edtNightTime.setDateChangedListener {
                 presenter.setNightTime(it)
@@ -250,7 +245,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     private fun onGroundTimeChanges() {
         with(binding) {
             edtGroundTime.setTimeIconClickListener {
-                openTimeDialog(edtGroundTime.edtTime)
+                openTimeDialog(edtGroundTime)
             }
             edtGroundTime.setDateChangedListener {
                 presenter.setGroundTime(it)
@@ -471,10 +466,10 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         requireContext().createCustomLayoutDialog(
             layout = R.layout.moto,
             title = getString(R.string.str_moto),
-            positivePair = Pair(R.string.str_ok, { dialog ->
+            positivePair = Pair(R.string.str_ok) { dialog ->
                 dialog.dismiss()
                 presenter.setMotoResult()
-            }),
+            },
             negativePair = Pair(R.string.str_cancel, { dialog -> dialog.cancel() }),
         ) {
             val edtMotoStart = findViewById<EditText>(R.id.edtStartMoto)

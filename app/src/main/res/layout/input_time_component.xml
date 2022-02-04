@@ -2,10 +2,10 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/inputContainer"
     tools:layout_height="wrap_content"
     tools:layout_width="match_parent"
     tools:orientation="vertical"
-    android:id="@+id/inputContainer"
     tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
     <TextView
@@ -29,31 +29,39 @@
         android:hint="@string/str_time_zero"
         android:importantForAutofill="no"
         android:inputType="time"
+        android:minHeight="48dp"
         android:paddingHorizontal="24dp"
+        android:textColorHint="#546E7A"
         android:textSize="@dimen/font_size_medium"
-        app:layout_constraintEnd_toStartOf="@+id/ivTimeIcon"
-        app:layout_constraintStart_toEndOf="@+id/ivTimeRemove"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvCaption" />
 
     <ImageView
         android:id="@+id/ivTimeRemove"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="@null"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/edtTime"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/edtTime"
         app:layout_constraintTop_toBottomOf="@+id/tvCaption"
         app:srcCompat="@drawable/ic_close"
-        app:tint="@color/gray_400" />
+        app:tint="@color/gray_400"
+        tools:visibility="visible" />
 
     <ImageView
         android:id="@+id/ivTimeIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:contentDescription="@null"
         app:layout_constraintBottom_toBottomOf="@+id/edtTime"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/edtTime"
         app:layout_constraintTop_toBottomOf="@+id/tvCaption"
         app:srcCompat="@drawable/ic_time"
-        app:tint="@color/gray_400" />
+        app:tint="@color/gray_400"
+        tools:ignore="ImageContrastCheck" />
 
 </merge>
