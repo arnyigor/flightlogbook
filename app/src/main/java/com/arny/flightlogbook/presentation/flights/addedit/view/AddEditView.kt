@@ -33,10 +33,7 @@ interface AddEditView : MvpView {
     fun setIfrSelected(selected: Boolean)
     fun requestStorageAndSave()
     fun saveFlight()
-    fun setFieldsList(
-        list: List<CustomFieldValue>,
-        requestLayout: Boolean = false,
-    )
+    fun setFieldsList(list: List<CustomFieldValue>)
 
     fun setCustomFieldsVisible(visible: Boolean)
     fun setDeparture(departure: Airport?)

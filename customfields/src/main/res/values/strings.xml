@@ -11,8 +11,8 @@
     <string name="field_type">Тип поля</string>
     <string name="no_custom_fields">Нет дополнительных полей</string>
     <string name="field_text_descr">Текстовое значение поля.</string>
-    <string name="field_num_descr">Числовое значение.Например количество посадок или заходов</string>
-    <string name="field_bool_descr">Булевое значение. Например подвеска для вертолета</string>
+    <string name="field_num_descr">Например количество посадок или заходов</string>
+    <string name="field_bool_descr">Например подвеска для вертолета</string>
     <string name="field_time_descr">Например любое дополнительное время</string>
     <string name="field_text_no_descr">Нет описания</string>
     <string name="fields_save_error">Ошибка сохранения дополнительных полей</string>

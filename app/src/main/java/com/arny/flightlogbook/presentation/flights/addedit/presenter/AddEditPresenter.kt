@@ -192,7 +192,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                 }
                 .subscribeFromPresenter({
                     customFieldsValues = it.toMutableList()
-                    viewState.setFieldsList(customFieldsValues, true)
+                    viewState.setFieldsList(customFieldsValues)
                     updateTimes()
                 }, {
                     it.printStackTrace()
@@ -640,7 +640,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                                     fieldId = id
                                 )
                             )
-                            viewState.setFieldsList(customFieldsValues, true)
+                            viewState.setFieldsList(customFieldsValues)
                         }
                     }, {
                         viewState.toastError(it.message)

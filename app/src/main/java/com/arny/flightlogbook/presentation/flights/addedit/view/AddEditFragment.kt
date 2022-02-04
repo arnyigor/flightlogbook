@@ -504,14 +504,9 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         binding.radioGroupIfrVfr.check(if (selected) R.id.rbIfr else R.id.rbVfr)
     }
 
-    override fun setFieldsList(
-        list: List<CustomFieldValue>,
-        requestLayout: Boolean
-    ) {
+    override fun setFieldsList(list: List<CustomFieldValue>) {
         customFieldValuesAdapter?.submitList(list)
-        if (requestLayout) {
-            binding.root.requestLayout()
-        }
+        binding.rvCustomFields.requestLayout()
     }
 
     override fun removeItemFromAdapter(position: Int) {
