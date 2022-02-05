@@ -27,7 +27,6 @@ android {
         kapt {
             arguments {
                 arg("room.schemaLocation", "$projectDir/schemas")
-                arg("dagger.gradle.incremental", "true")
             }
         }
     }
