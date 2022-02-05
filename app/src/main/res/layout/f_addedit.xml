@@ -11,30 +11,29 @@
         android:orientation="vertical"
         android:padding="8dp">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilDescription"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/str_desc"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvTotalTime">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/edtDesc"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:inputType="textMultiLine"
-                android:maxLines="5" />
-        </com.google.android.material.textfield.TextInputLayout>
-
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp">
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/str_desc"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtDesc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:inputType="textMultiLine"
+                    android:maxLines="5" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <ImageView
                 android:id="@+id/ivDate"
@@ -50,13 +49,11 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
                 app:layout_constraintEnd_toStartOf="@+id/btnMoto"
                 app:layout_constraintStart_toEndOf="@+id/ivDate"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tilDescription"
                 tools:visibility="visible">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -77,7 +74,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
                 android:background="@drawable/btn_bg_primary"
                 android:minHeight="30sp"
                 android:paddingStart="4dp"
@@ -88,13 +84,7 @@
                 app:layout_constraintBottom_toBottomOf="@+id/tilDate"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/tilDate" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/clTimes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp">
 
             <TextView
                 android:id="@+id/tvDeparture"
@@ -115,9 +105,10 @@
                 android:id="@+id/edtDepartureTime"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:layout_marginTop="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/guideline_times"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/tilDate" />
 
             <TextView
                 android:id="@+id/tvArrival"
@@ -241,14 +232,39 @@
                 app:layout_constraintStart_toStartOf="@+id/guideline_times"
                 app:layout_constraintTop_toBottomOf="@+id/edtGroundTime" />
 
+            <Button
+                android:id="@+id/btnAddField"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_ripple"
+                android:minHeight="30sp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:text="@string/add_custom_field"
+                android:textAllCaps="false"
+                android:textColor="@color/colorTextWhite"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvTotalTime" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvCustomFields"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/btnAddField"
+                tools:itemCount="3"
+                tools:listitem="@layout/custom_field_value_list_item" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
+
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp">
+            android:layout_marginEnd="8dp">
 
             <TextView
                 android:id="@+id/tvAirplaneType"
@@ -386,29 +402,6 @@
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-        <Button
-            android:id="@+id/btnAddField"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/bg_ripple"
-            android:minHeight="30sp"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:text="@string/add_custom_field"
-            android:textAllCaps="false"
-            android:textColor="@color/colorTextWhite" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvCustomFields"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:itemCount="10"
-            tools:listitem="@layout/custom_field_value_list_item" />
 
     </LinearLayout>
 </ScrollView>
