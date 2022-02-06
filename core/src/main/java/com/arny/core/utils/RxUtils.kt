@@ -5,26 +5,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers.io
-import java.util.concurrent.TimeUnit
-
-/**
- * Subscribe on function value
- * @param T function value(MUST NOT BE NULL)
- */
-fun <T> subscribeOnFunctionValue(onLoadFunc: () -> T): Observable<T> {
-    return Observable.create<T> { subscriber ->
-        Observable.fromCallable { onLoadFunc() }
-                .subscribe({ response ->
-                    subscriber.onNext(response)
-                }, { error ->
-                    subscriber.onError(error)
-                })
-    }.retryWhen { errors ->
-        errors.flatMap { _ ->
-            return@flatMap Observable.timer(1, TimeUnit.MILLISECONDS)
-        }
-    }
-}
 
 fun Disposable.addTo(compositeDisposable: CompositeDisposable) {
     compositeDisposable.add(this)

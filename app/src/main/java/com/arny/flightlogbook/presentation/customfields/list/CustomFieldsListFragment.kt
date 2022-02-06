@@ -9,9 +9,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
+import androidx.fragment.app.setFragmentResult
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.arny.core.CONSTS
 import com.arny.core.CONSTS.EXTRAS.EXTRA_CUSTOM_FIELD_ID
+import com.arny.core.CONSTS.REQUESTS.REQUEST_CUSTOM_FIELD
 import com.arny.core.CONSTS.REQUESTS.REQUEST_EDIT_CUSTOM_FIELD
 import com.arny.core.utils.ToastMaker
 import com.arny.flightlogbook.R
@@ -77,11 +79,11 @@ class CustomFieldsListFragment : BaseMvpFragment(), CustomFieldsListView {
             SimpleAbstractAdapter.OnViewHolderListener<CustomField> {
             override fun onItemClick(position: Int, item: CustomField) {
                 if (isRequestField) {
-                    appRouter?.setResultToTargetFragment(
-                        this@CustomFieldsListFragment,
-                        Intent().apply {
-                            putExtra(EXTRA_CUSTOM_FIELD_ID, item.id)
-                        })
+                    setFragmentResult(
+                        REQUEST_CUSTOM_FIELD,
+                        bundleOf(EXTRA_CUSTOM_FIELD_ID to item.id)
+                    )
+                    requireActivity().onBackPressed()
                 } else {
                     presenter.onItemClick(item)
                 }

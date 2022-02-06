@@ -1,15 +1,17 @@
 package com.arny.flightlogbook.presentation.flighttypes.list
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
+import androidx.fragment.app.setFragmentResult
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.arny.core.CONSTS
+import com.arny.core.CONSTS.REQUESTS.REQUEST_FLIGHT_TYPE
 import com.arny.core.utils.ToastMaker
 import com.arny.core.utils.alertDialog
 import com.arny.core.utils.inputDialog
@@ -82,11 +84,11 @@ class FlightTypesFragment : BaseMvpFragment(), FlightTypesView {
 
                 override fun onItemClick(position: Int, item: FlightType) {
                     if (isRequestField) {
-                        appRouter?.setResultToTargetFragment(
-                            this@FlightTypesFragment,
-                            Intent().apply {
-                                putExtra(CONSTS.EXTRAS.EXTRA_FLIGHT_TYPE, item.id)
-                            })
+                        setFragmentResult(
+                            REQUEST_FLIGHT_TYPE,
+                            bundleOf(CONSTS.EXTRAS.EXTRA_FLIGHT_TYPE to item.id)
+                        )
+                        requireActivity().onBackPressed()
                     }
                 }
             })

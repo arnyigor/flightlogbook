@@ -10,13 +10,15 @@ import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
+import androidx.fragment.app.setFragmentResult
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.arny.core.CONSTS
 import com.arny.core.CONSTS.EXTRAS.EXTRA_AIRPORT_ID
-import com.arny.core.utils.getSystemLocale
-import com.arny.core.utils.launchActivity
-import com.arny.core.utils.setDrawableRightClick
-import com.arny.core.utils.toastError
+import com.arny.core.CONSTS.REQUESTS.REQUEST_AIRPORT
+import com.arny.core.CONSTS.REQUESTS.REQUEST_AIRPORT_ARRIVAL
+import com.arny.core.CONSTS.REQUESTS.REQUEST_AIRPORT_DEPARTURE
+import com.arny.core.CONSTS.REQUESTS.REQUEST_SELECT_AIRPORT_DEPARTURE
+import com.arny.core.utils.*
 import com.arny.domain.models.Airport
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.databinding.FAirportsBinding
@@ -84,11 +86,16 @@ class AirportsFragment : BaseMvpFragment(), AirportsView {
         airportsAdapter =
             AirportsAdapter(requireContext().getSystemLocale()?.language == "ru") { _, item ->
                 if (isRequest) {
-                    appRouter?.setResultToTargetFragment(
-                        this@AirportsFragment,
-                        Intent().apply {
-                            putExtra(CONSTS.EXTRAS.EXTRA_AIRPORT, item)
-                        })
+                    val requestKey = if (arguments.getExtra<Int>(REQUEST_AIRPORT) == REQUEST_SELECT_AIRPORT_DEPARTURE) {
+                        REQUEST_AIRPORT_DEPARTURE
+                    } else {
+                        REQUEST_AIRPORT_ARRIVAL
+                    }
+                    setFragmentResult(
+                        requestKey,
+                        bundleOf(CONSTS.EXTRAS.EXTRA_AIRPORT to item)
+                    )
+                    requireActivity().onBackPressed()
                 } else {
                     appRouter?.navigateTo(
                         NavigateItems.EDIT_AIRPORT,

@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.TimePickerDialog
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
@@ -14,9 +13,11 @@ import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.TimePicker
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
+import androidx.fragment.app.setFragmentResultListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.color.colorChooser
@@ -33,8 +34,6 @@ import com.arny.flightlogbook.presentation.main.NavigateItems
 import com.arny.flightlogbook.presentation.uicomponents.InputTimeComponent
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment
 import com.redmadrobot.inputmask.MaskedTextChangedListener
-import com.tbruyelle.rxpermissions2.RxPermissions
-import io.reactivex.disposables.CompositeDisposable
 import moxy.ktx.moxyPresenter
 
 class AddEditFragment : BaseMvpFragment(), AddEditView,
@@ -48,13 +47,18 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
 
     private lateinit var binding: FAddeditBinding
     private var timeInput: InputTimeComponent? = null
-    private val compositeDisposable = CompositeDisposable()
     private var customFieldValuesAdapter: CustomFieldValuesAdapter? = null
-    private lateinit var rxPermissions: RxPermissions
     private var currentTitle = R.string.str_add_flight
     private var tvMotoResult: TextView? = null
     private var appRouter: AppRouter? = null
     private val presenter by moxyPresenter { AddEditPresenter() }
+
+    private val requestPermissionSaveData =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) {
+                saveDataFlight()
+            }
+        }
 
     override fun getTitle(): String = getString(currentTitle)
 
@@ -82,8 +86,8 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        rxPermissions = RxPermissions(this)
         initUI()
+        initResultListeners()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -317,6 +321,24 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         )
     }
 
+    private fun initResultListeners() {
+        setFragmentResultListener(CONSTS.REQUESTS.REQUEST_PLANE_TYPE) { _, data ->
+            presenter.setFlightPlaneType(data.getExtra(CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID))
+        }
+        setFragmentResultListener(CONSTS.REQUESTS.REQUEST_FLIGHT_TYPE) { _, data ->
+            presenter.setFlightType(data.getExtra(CONSTS.EXTRAS.EXTRA_FLIGHT_TYPE))
+        }
+        setFragmentResultListener(CONSTS.REQUESTS.REQUEST_CUSTOM_FIELD) { _, data ->
+            presenter.addCustomField(data.getExtra(CONSTS.EXTRAS.EXTRA_CUSTOM_FIELD_ID))
+        }
+        setFragmentResultListener(CONSTS.REQUESTS.REQUEST_AIRPORT_DEPARTURE) { _, data ->
+            presenter.setDeparture(data.getParcelable(CONSTS.EXTRAS.EXTRA_AIRPORT))
+        }
+        setFragmentResultListener(CONSTS.REQUESTS.REQUEST_AIRPORT_ARRIVAL) { _, data ->
+            presenter.setArrival(data.getParcelable(CONSTS.EXTRAS.EXTRA_AIRPORT))
+        }
+    }
+
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.ivDate -> {
@@ -359,8 +381,10 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
                 appRouter?.navigateTo(
                     NavigateItems.AIRPORT_SELECT,
                     true,
-                    bundleOf(CONSTS.REQUESTS.REQUEST to true),
-                    requestCode = CONSTS.REQUESTS.REQUEST_SELECT_AIRPORT_DEPARTURE,
+                    bundleOf(
+                        CONSTS.REQUESTS.REQUEST to true,
+                        CONSTS.REQUESTS.REQUEST_AIRPORT to CONSTS.REQUESTS.REQUEST_SELECT_AIRPORT_DEPARTURE
+                    ),
                     targetFragment = this@AddEditFragment
                 )
             }
@@ -368,42 +392,12 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
                 appRouter?.navigateTo(
                     NavigateItems.AIRPORT_SELECT,
                     true,
-                    bundleOf(CONSTS.REQUESTS.REQUEST to true),
+                    bundleOf(
+                        CONSTS.REQUESTS.REQUEST to true,
+                        CONSTS.REQUESTS.REQUEST_AIRPORT to CONSTS.REQUESTS.REQUEST_SELECT_AIRPORT_ARRIVAL
+                    ),
                     requestCode = CONSTS.REQUESTS.REQUEST_SELECT_AIRPORT_ARRIVAL,
                     targetFragment = this@AddEditFragment
-                )
-            }
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK) {
-            when (requestCode) {
-                CONSTS.REQUESTS.REQUEST_SELECT_PLANE_TYPE -> presenter.setFlightPlaneType(
-                    data.getExtra<Long>(
-                        CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID
-                    )
-                )
-                CONSTS.REQUESTS.REQUEST_SELECT_FLIGHT_TYPE -> presenter.setFlightType(
-                    data.getExtra<Long>(
-                        CONSTS.EXTRAS.EXTRA_FLIGHT_TYPE
-                    )
-                )
-                CONSTS.REQUESTS.REQUEST_SELECT_CUSTOM_FIELD -> presenter.addCustomField(
-                    data.getExtra<Long>(
-                        CONSTS.EXTRAS.EXTRA_CUSTOM_FIELD_ID
-                    )
-                )
-                CONSTS.REQUESTS.REQUEST_SELECT_AIRPORT_DEPARTURE -> presenter.setDeparture(
-                    data?.getParcelableExtra(
-                        CONSTS.EXTRAS.EXTRA_AIRPORT
-                    )
-                )
-                CONSTS.REQUESTS.REQUEST_SELECT_AIRPORT_ARRIVAL -> presenter.setArrival(
-                    data?.getParcelableExtra(
-                        CONSTS.EXTRAS.EXTRA_AIRPORT
-                    )
                 )
             }
         }
@@ -439,15 +433,12 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     }
 
     override fun requestStorageAndSave() {
-        rxPermissions.request(
+        requestPermission(
+            requestPermissionSaveData,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            ::saveDataFlight
         )
-            ?.subscribe { granted ->
-                if (granted) {
-                    saveDataFlight()
-                }
-            }?.addTo(compositeDisposable)
     }
 
     private fun saveDataFlight() {

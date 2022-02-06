@@ -10,23 +10,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
 import com.arny.core.CONSTS
-import com.arny.core.utils.Utility
-import com.arny.core.utils.alertDialog
-import com.arny.core.utils.launchIntent
-import com.arny.core.utils.shareFileWithType
+import com.arny.core.utils.*
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.databinding.SettingsFragmentBinding
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.settings.presenter.SettingsPresenter
-import com.tbruyelle.rxpermissions2.RxPermissions
 import moxy.ktx.moxyPresenter
 
 class SettingsFragment : BaseMvpFragment(), SettingsView {
     private lateinit var binding: SettingsFragmentBinding
     private var pDialog: ProgressDialog? = null
-    private var rxPermissions: RxPermissions? = null
 
     companion object {
         fun getInstance(): SettingsFragment = SettingsFragment()
@@ -35,6 +31,20 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
     private val presenter by moxyPresenter { SettingsPresenter() }
 
     override fun getTitle(): String = getString(R.string.str_settings)
+
+    private val requestPermissionImport =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) {
+                showAlertImport()
+            }
+        }
+
+    private val requestPermissionExport =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) {
+                presenter.exportToFile()
+            }
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,28 +60,22 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
         pDialog = ProgressDialog(context)
         pDialog?.setCancelable(false)
         pDialog?.setCanceledOnTouchOutside(false)
-        rxPermissions = RxPermissions(this)
         binding.btnLoadFromFile.setOnClickListener {
-            rxPermissions?.request(
+            requestPermission(
+                requestPermissionImport,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-                ?.subscribe { granted ->
-                    if (granted) {
-                        showAlertImport()
-                    }
-                }
+            ) {
+                presenter.exportToFile()
+            }
         }
         binding.btnExportToFile.setOnClickListener {
-            rxPermissions?.request(
+            requestPermission(
+                requestPermissionExport,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                ::showAlertImport
             )
-                ?.subscribe { granted ->
-                    if (granted) {
-                        presenter.exportToFile()
-                    }
-                }
         }
         binding.chbAutoExport.setOnCheckedChangeListener { _, isChecked ->
             presenter.onAutoExportChanged(isChecked)

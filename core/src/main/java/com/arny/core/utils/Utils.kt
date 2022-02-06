@@ -7,7 +7,6 @@ import android.annotation.SuppressLint
 import android.app.*
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
@@ -437,13 +436,6 @@ fun AppCompatActivity.popBackStack(immadiate: Boolean = true) {
     } else {
         supportFragmentManager.popBackStack()
     }
-}
-
-fun checkPremission(context: Context, permission: String): Boolean {
-    return ContextCompat.checkSelfPermission(
-        context,
-        permission
-    ) == PackageManager.PERMISSION_GRANTED
 }
 
 fun AppCompatActivity.getFragment(position: Int): Fragment? {

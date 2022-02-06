@@ -1,11 +1,11 @@
 package com.arny.flightlogbook.presentation.planetypes.list
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
+import androidx.fragment.app.setFragmentResult
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.arny.core.CONSTS
@@ -85,11 +85,11 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView, View.OnClickListen
 
                 override fun onItemClick(position: Int, item: PlaneType) {
                     if (isRequestField) {
-                        appRouter?.setResultToTargetFragment(
-                            this@PlaneTypesFragment,
-                            Intent().apply {
-                                putExtra(CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID, item.typeId)
-                            })
+                        setFragmentResult(
+                            CONSTS.REQUESTS.REQUEST_PLANE_TYPE,
+                            bundleOf(CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID to item.typeId)
+                        )
+                        requireActivity().onBackPressed()
                     }
                 }
             })
