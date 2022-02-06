@@ -257,8 +257,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
             edtGroundTime.setOnEditorActionListener { actionId ->
                 when (actionId) {
                     EditorInfo.IME_ACTION_DONE -> {
-                        edtGroundTime.clearFocus()
-                        requireContext().showSoftKeyboard(false)
+                        edtGroundTime.edtTime.hideSoftKeyboard()
                     }
                 }
             }

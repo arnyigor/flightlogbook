@@ -19,6 +19,7 @@ import android.os.StrictMode
 import android.text.Spanned
 import android.view.*
 import android.view.inputmethod.InputMethodManager
+import android.view.inputmethod.InputMethodManager.SHOW_FORCED
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.*
@@ -493,22 +494,20 @@ fun View.showSnackBar(message: String?, duration: Int = Snackbar.LENGTH_SHORT) {
     }
 }
 
-fun Context?.showSoftKeyboard(show: Boolean) {
+fun Context?.showSoftKeyboard(textView: TextView, show: Boolean) {
     (this?.getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager)?.let { im ->
         if (show) {
-            im.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0)
+            im.showSoftInput(textView, SHOW_FORCED)
         } else {
-            im.toggleSoftInput(0, InputMethodManager.HIDE_IMPLICIT_ONLY)
+            im.hideSoftInputFromWindow(textView.windowToken, 0)
         }
     }
 }
 
-fun View.showSoftKeyboard() {
-    this.context.showSoftKeyboard(true)
-}
-
-fun View.hideSoftKeyboard() {
-    this.context.showSoftKeyboard(false)
+fun TextView?.hideSoftKeyboard() {
+    (this?.context?.getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager)?.let { im ->
+        im.hideSoftInputFromWindow(this.windowToken, 0)
+    }
 }
 
 @SuppressLint("ClickableViewAccessibility")
