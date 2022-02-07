@@ -10,14 +10,14 @@ fun <T> Fragment.requestPermission(
     resultLauncher: ActivityResultLauncher<T>,
     permission: String,
     input: T,
-    checkPermissionOk: () -> Unit = {}
+    checkPermissionOk: (input: T) -> Unit = {}
 ) {
     when {
         ContextCompat.checkSelfPermission(
             requireContext(),
             permission
         ) == PackageManager.PERMISSION_GRANTED -> {
-            checkPermissionOk()
+            checkPermissionOk(input)
         }
         shouldShowRequestPermissionRationale(permission) -> {
             resultLauncher.launch(input)

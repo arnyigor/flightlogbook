@@ -1,8 +1,6 @@
 package com.arny.flightlogbook.presentation.customfields.list
 
-import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -27,7 +25,6 @@ import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 
 class CustomFieldsListFragment : BaseMvpFragment(), CustomFieldsListView {
-
     companion object {
         fun getInstance(bundle: Bundle? = null) = CustomFieldsListFragment().apply {
             bundle?.let { arguments = it }
@@ -35,7 +32,6 @@ class CustomFieldsListFragment : BaseMvpFragment(), CustomFieldsListView {
     }
 
     private lateinit var binding: FragmentCustomFieldsListBinding
-    private var reload: Boolean = false
     private var title: Int = R.string.custom_fields
     private lateinit var customFieldsAdapter: CustomFieldsAdapter
 
@@ -96,25 +92,11 @@ class CustomFieldsListFragment : BaseMvpFragment(), CustomFieldsListView {
 
     override fun onResume() {
         super.onResume()
-        if (reload) {
-            presenter.loadCustomFields()
-            reload = false
-        }
+        presenter.loadCustomFields()
     }
 
     override fun showProgress(show: Boolean) {
         binding.pbLoader.isVisible = show
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK) {
-            when (requestCode) {
-                REQUEST_EDIT_CUSTOM_FIELD -> {
-                    reload = true
-                }
-            }
-        }
     }
 
     override fun navigateToFieldEdit(id: Long?) {

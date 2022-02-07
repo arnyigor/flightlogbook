@@ -52,7 +52,6 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     private var tvMotoResult: TextView? = null
     private var appRouter: AppRouter? = null
     private val presenter by moxyPresenter { AddEditPresenter() }
-
     private val requestPermissionSaveData =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) {
@@ -435,9 +434,10 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         requestPermission(
             requestPermissionSaveData,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            ::saveDataFlight
-        )
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        ) {
+            saveDataFlight()
+        }
     }
 
     private fun saveDataFlight() {
@@ -497,10 +497,6 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     override fun setFieldsList(list: List<CustomFieldValue>) {
         customFieldValuesAdapter?.submitList(list)
         binding.rvCustomFields.requestLayout()
-    }
-
-    override fun removeItemFromAdapter(position: Int) {
-        customFieldValuesAdapter?.notifyItemRemoved(position)
     }
 
     override fun setViewColor(color: Int) {

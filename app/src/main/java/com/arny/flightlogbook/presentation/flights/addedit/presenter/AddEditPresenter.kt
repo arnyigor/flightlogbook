@@ -662,7 +662,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     fun onCustomFieldValueDelete(position: Int) {
         customFieldsValues.getOrNull(position)?.let {
             customFieldsValues.removeAt(position)
-            viewState.removeItemFromAdapter(position)
+            viewState.setFieldsList(customFieldsValues)
             updateTimes()
         }
     }

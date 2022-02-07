@@ -1,11 +1,11 @@
 package com.arny.flightlogbook.presentation.airports.edit
 
-import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.*
+import androidx.core.os.bundleOf
 import androidx.core.widget.doAfterTextChanged
+import androidx.fragment.app.setFragmentResult
 import com.arny.core.CONSTS
 import com.arny.core.utils.getExtra
 import com.arny.core.utils.toastError
@@ -17,7 +17,6 @@ import com.arny.flightlogbook.presentation.main.AppRouter
 import moxy.ktx.moxyPresenter
 
 class AirportEditFragment : BaseMvpFragment(), AirportEditView {
-
     companion object {
         fun getInstance(bundle: Bundle? = null) = AirportEditFragment().apply {
             bundle?.let { arguments = it }
@@ -26,7 +25,6 @@ class AirportEditFragment : BaseMvpFragment(), AirportEditView {
 
     private lateinit var binding: FAirportEditBinding
     private val presenter by moxyPresenter { AirportEditPresenter() }
-
     private var appRouter: AppRouter? = null
 
     override fun getTitle(): String = getString(R.string.edit_airport)
@@ -121,6 +119,10 @@ class AirportEditFragment : BaseMvpFragment(), AirportEditView {
     }
 
     override fun setSuccessOk() {
-        appRouter?.onReturnResult(Intent(), Activity.RESULT_OK)
+        setFragmentResult(
+            CONSTS.REQUESTS.REQUEST_AIRPORT_EDIT,
+            bundleOf(CONSTS.EXTRAS.EXTRA_ACTION_EDIT_AIRPORT to true)
+        )
+        requireActivity().onBackPressed()
     }
 }

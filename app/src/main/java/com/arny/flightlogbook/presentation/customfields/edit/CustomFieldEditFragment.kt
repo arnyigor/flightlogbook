@@ -5,8 +5,10 @@ import android.os.Bundle
 import android.view.*
 import android.widget.AdapterView
 import androidx.annotation.StringRes
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
+import androidx.fragment.app.setFragmentResult
 import com.arny.core.CONSTS
 import com.arny.core.utils.KeyboardHelper.hideKeyboard
 import com.arny.core.utils.ToastMaker
@@ -33,7 +35,6 @@ class CustomFieldEditFragment : BaseMvpFragment(), CustomFieldsEditView {
     }
 
     private lateinit var types: Array<String>
-
     private val presenter by moxyPresenter { CustomFieldsEditPresenter() }
 
     override fun onAttach(context: Context) {
@@ -126,7 +127,11 @@ class CustomFieldEditFragment : BaseMvpFragment(), CustomFieldsEditView {
     }
 
     override fun onResultOk() {
-        appRouter?.setResultToTargetFragment(this@CustomFieldEditFragment)
+        setFragmentResult(
+            CONSTS.REQUESTS.REQUEST_CUSTOM_FIELD_EDIT,
+            bundleOf(CONSTS.EXTRAS.EXTRA_ACTION_EDIT_CUSTOM_FIELD to true)
+        )
+        requireActivity().onBackPressed()
     }
 
     override fun showError(@StringRes strRes: Int) {

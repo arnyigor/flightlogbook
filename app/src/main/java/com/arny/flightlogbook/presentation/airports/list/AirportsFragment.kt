@@ -1,8 +1,6 @@
 package com.arny.flightlogbook.presentation.airports.list
 
-import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +9,7 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.arny.core.CONSTS
 import com.arny.core.CONSTS.EXTRAS.EXTRA_AIRPORT_ID
@@ -80,17 +79,23 @@ class AirportsFragment : BaseMvpFragment(), AirportsView {
         binding.edtAirport.setDrawableRightClick {
             binding.edtAirport.setText("")
         }
+        setFragmentResultListener(CONSTS.REQUESTS.REQUEST_AIRPORT_EDIT) { _, data ->
+            if (data.getExtra<Boolean>(CONSTS.EXTRAS.EXTRA_ACTION_EDIT_AIRPORT) == true) {
+                presenter.onEditResultOk()
+            }
+        }
     }
 
     private fun initAdapter(isRequest: Boolean) {
         airportsAdapter =
             AirportsAdapter(requireContext().getSystemLocale()?.language == "ru") { _, item ->
                 if (isRequest) {
-                    val requestKey = if (arguments.getExtra<Int>(REQUEST_AIRPORT) == REQUEST_SELECT_AIRPORT_DEPARTURE) {
-                        REQUEST_AIRPORT_DEPARTURE
-                    } else {
-                        REQUEST_AIRPORT_ARRIVAL
-                    }
+                    val requestKey =
+                        if (arguments.getExtra<Int>(REQUEST_AIRPORT) == REQUEST_SELECT_AIRPORT_DEPARTURE) {
+                            REQUEST_AIRPORT_DEPARTURE
+                        } else {
+                            REQUEST_AIRPORT_ARRIVAL
+                        }
                     setFragmentResult(
                         requestKey,
                         bundleOf(CONSTS.EXTRAS.EXTRA_AIRPORT to item)
@@ -112,15 +117,6 @@ class AirportsFragment : BaseMvpFragment(), AirportsView {
         with(binding.rvAirports) {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = airportsAdapter
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK) {
-            when (requestCode) {
-                CONSTS.REQUESTS.REQUEST_EDIT_AIRPORT -> presenter.onEditResultOk()
-            }
         }
     }
 

@@ -12,7 +12,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
-import com.arny.core.CONSTS
 import com.arny.core.utils.*
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.databinding.SettingsFragmentBinding
@@ -38,7 +37,6 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
                 showAlertImport()
             }
         }
-
     private val requestPermissionExport =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) {
@@ -64,7 +62,7 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
             requestPermission(
                 requestPermissionImport,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
+                Manifest.permission.READ_EXTERNAL_STORAGE
             ) {
                 presenter.exportToFile()
             }
@@ -73,9 +71,10 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
             requestPermission(
                 requestPermissionExport,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                ::showAlertImport
-            )
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) {
+                showAlertImport()
+            }
         }
         binding.chbAutoExport.setOnCheckedChangeListener { _, isChecked ->
             presenter.onAutoExportChanged(isChecked)
@@ -114,7 +113,7 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
     }
 
     private fun requestFile() {
-        launchIntent(CONSTS.REQUESTS.REQUEST_OPEN_FILE) {
+        val intent = newIntent().apply {
             action = Intent.ACTION_GET_CONTENT
             addCategory(Intent.CATEGORY_OPENABLE)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -123,18 +122,15 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             type = "*/*"
         }
+        requestPermissionOpenFile.launch(intent)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK) {
-            when (requestCode) {
-                CONSTS.REQUESTS.REQUEST_OPEN_FILE -> {
-                    presenter.onFileImport(data?.data)
-                }
+    private val requestPermissionOpenFile =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                presenter.onFileImport(result.data?.data)
             }
         }
-    }
 
     override fun shareFile(uri: Uri, fileType: String) {
         requireActivity().shareFileWithType(uri, fileType)

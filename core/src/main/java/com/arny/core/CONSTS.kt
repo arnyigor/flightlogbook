@@ -40,11 +40,13 @@ object CONSTS {
         const val REQUEST = "request"
         const val REQUEST_PLANE_TYPE = "request_plane_type"
         const val REQUEST_FLIGHT_TYPE = "request_flight_type"
+        const val REQUEST_FLIGHT_EDIT = "request_flight_edit"
+        const val REQUEST_CUSTOM_FIELD_EDIT = "request_custom_field_edit"
         const val REQUEST_CUSTOM_FIELD = "request_custom_field"
         const val REQUEST_AIRPORT = "request_airport"
+        const val REQUEST_AIRPORT_EDIT = "request_airport_edit"
         const val REQUEST_AIRPORT_DEPARTURE = "request_airport_departure"
         const val REQUEST_AIRPORT_ARRIVAL = "request_airport_arrival"
-        const val REQUEST_OPEN_FILE = 101
         const val REQUEST_ADD_EDIT_FLIGHT = 103
         const val REQUEST_SELECT_PLANE_TYPE = 105
         const val REQUEST_SELECT_FLIGHT_TYPE = 106
