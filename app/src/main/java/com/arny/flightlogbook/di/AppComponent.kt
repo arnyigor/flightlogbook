@@ -11,7 +11,7 @@ import com.arny.flightlogbook.presentation.flighttypes.list.FlightTypesPresenter
 import com.arny.flightlogbook.presentation.main.MainActivity
 import com.arny.flightlogbook.presentation.planetypes.edit.PlaneTypeEditPresenter
 import com.arny.flightlogbook.presentation.planetypes.list.PlaneTypesPresenter
-import com.arny.flightlogbook.presentation.settings.presenter.SettingsPresenter
+import com.arny.flightlogbook.presentation.settings.SettingsPresenter
 import com.arny.flightlogbook.presentation.statistic.presenter.StatisticsPresenter
 import dagger.Component
 import javax.inject.Singleton

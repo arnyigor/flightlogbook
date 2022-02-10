@@ -1,8 +1,7 @@
-package com.arny.flightlogbook.presentation.settings.view
+package com.arny.flightlogbook.presentation.settings
 
 import android.Manifest
 import android.app.Activity
-import android.app.ProgressDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -12,16 +11,20 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
-import com.arny.core.utils.*
+import com.arny.core.utils.alertDialog
+import com.arny.core.utils.newIntent
+import com.arny.core.utils.requestPermission
+import com.arny.core.utils.shareFileWithType
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.databinding.SettingsFragmentBinding
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
-import com.arny.flightlogbook.presentation.settings.presenter.SettingsPresenter
+import com.flightlogbook.uicore.hideProgressDialog
+import com.flightlogbook.uicore.showProgressDialog
+import com.obsez.android.lib.filechooser.ChooserDialog
 import moxy.ktx.moxyPresenter
 
 class SettingsFragment : BaseMvpFragment(), SettingsView {
     private lateinit var binding: SettingsFragmentBinding
-    private var pDialog: ProgressDialog? = null
 
     companion object {
         fun getInstance(): SettingsFragment = SettingsFragment()
@@ -31,6 +34,12 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
 
     override fun getTitle(): String = getString(R.string.str_settings)
 
+    private val requestPermissionPathChoose =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) {
+                choosePath()
+            }
+        }
     private val requestPermissionImport =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) {
@@ -55,36 +64,54 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        pDialog = ProgressDialog(context)
-        pDialog?.setCancelable(false)
-        pDialog?.setCanceledOnTouchOutside(false)
-        binding.btnLoadFromFile.setOnClickListener {
-            requestPermission(
-                requestPermissionImport,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ) {
-                presenter.exportToFile()
+        with(binding) {
+            btnLoadFromFile.setOnClickListener {
+                requestPermission(
+                    requestPermissionImport,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ) {
+                    presenter.exportToFile()
+                }
+            }
+            btnExportToFile.setOnClickListener {
+                requestPermission(
+                    requestPermissionExport,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ) {
+                    showAlertImport()
+                }
+            }
+            chbAutoExport.setOnCheckedChangeListener { _, isChecked ->
+                presenter.onAutoExportChanged(isChecked)
+            }
+            chbSaveLastFlightData.setOnCheckedChangeListener { _, isChecked ->
+                presenter.onSaveLastDataChanged(isChecked)
+            }
+            ivShareFile.setOnClickListener {
+                presenter.onShareFileClick()
+            }
+            tvExportFilePath.setOnClickListener {
+                requestPermission(
+                    requestPermissionPathChoose,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ) {
+                    choosePath()
+                }
             }
         }
-        binding.btnExportToFile.setOnClickListener {
-            requestPermission(
-                requestPermissionExport,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ) {
-                showAlertImport()
+    }
+
+    private fun choosePath() {
+        ChooserDialog(requireActivity())
+            .withFilter(true, false)
+            .withChosenListener { dir, _ ->
+                binding.tvExportFilePath.text = dir
             }
-        }
-        binding.chbAutoExport.setOnCheckedChangeListener { _, isChecked ->
-            presenter.onAutoExportChanged(isChecked)
-        }
-        binding.chbSaveLastFlightData.setOnCheckedChangeListener { _, isChecked ->
-            presenter.onSaveLastDataChanged(isChecked)
-        }
-        binding.ivShareFile.setOnClickListener {
-            presenter.onShareFileClick()
-        }
+            .build()
+            .show()
     }
 
     private fun showAlertImport() {
@@ -165,11 +192,11 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
     }
 
     override fun showProgress(msg: Int) {
-        Utility.showProgress(pDialog, getString(msg))
+        showProgressDialog()
     }
 
     override fun hideProgress() {
-        Utility.hideProgress(pDialog)
+        hideProgressDialog()
     }
 
     override fun setSaveLastFlightData(checked: Boolean) {

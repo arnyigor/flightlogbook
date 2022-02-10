@@ -70,7 +70,8 @@ ext.versions = [
         'androidxtest'         : '1.4.0',
         'textdrawable'         : '1.0.1',
         'iconicscore'          : '5.3.3',
-        'rxbinding'            : '4.0.0'
+        'rxbinding'            : '4.0.0',
+        'filechooser'          : 'v1.2.0-final'
 ]
 
 ext.gradle = [
@@ -185,4 +186,5 @@ ext.libs = [
 
         'poi'                 : "org.apache.poi:poi:${versions.poi}",
         'dropboxCoreSdk'      : "com.dropbox.core:dropbox-core-sdk:${versions.dropboxsdk}",
+        'filechooser'         : "com.github.hedzr:android-file-chooser:${versions.filechooser}",
 ]

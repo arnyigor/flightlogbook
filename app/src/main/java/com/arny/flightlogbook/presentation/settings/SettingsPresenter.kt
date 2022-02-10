@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.presentation.settings.presenter
+package com.arny.flightlogbook.presentation.settings
 
 import android.net.Uri
 import android.os.Handler
@@ -11,7 +11,6 @@ import com.arny.domain.models.Result
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
-import com.arny.flightlogbook.presentation.settings.view.SettingsView
 import moxy.InjectViewState
 import java.io.File
 import javax.inject.Inject
@@ -47,13 +46,13 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
     private fun showFileData() {
         viewState.setShareFileVisible(false)
         fromNullable { filesInteractor.getFileData() }
-                .subscribeFromPresenter({
-                    val value = it.value
-                    viewState.setShareFileVisible(value != null)
-                    if (value != null) {
-                        viewState.showResults(value)
-                    }
-                })
+            .subscribeFromPresenter({
+                val value = it.value
+                viewState.setShareFileVisible(value != null)
+                if (value != null) {
+                    viewState.showResults(value)
+                }
+            })
     }
 
     fun onFileImport(uri: Uri?) {
@@ -92,29 +91,29 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
         viewState.showProgress(R.string.exporting_file)
         viewState.setShareFileVisible(false)
         filesInteractor.exportFile()
-                .subscribeFromPresenter({
-                    viewState.hideProgress()
-                    when (it) {
-                        is Result.Success -> {
-                            val path = it.data
-                            if (!path.isBlank()) {
-                                viewState.showResults(R.string.export_file_success, path)
-                                handler.removeCallbacksAndMessages(null)
-                                handler.postDelayed({
-                                    showFileData()
-                                }, 1500)
-                            } else {
-                                viewState.showError(R.string.error_export_file, null)
-                            }
-                        }
-                        is Result.Error -> {
-                            viewState.showError(R.string.error_export_file, it.exception?.message)
+            .subscribeFromPresenter({
+                viewState.hideProgress()
+                when (it) {
+                    is Result.Success -> {
+                        val path = it.data
+                        if (path.isNotBlank()) {
+                            viewState.showResults(R.string.export_file_success, path)
+                            handler.removeCallbacksAndMessages(null)
+                            handler.postDelayed({
+                                showFileData()
+                            }, 1500)
+                        } else {
+                            viewState.showError(R.string.error_export_file, null)
                         }
                     }
-                }, {
-                    viewState.showError(R.string.error_export_file, it.message)
-                    viewState.hideProgress()
-                })
+                    is Result.Error -> {
+                        viewState.showError(R.string.error_export_file, it.exception?.message)
+                    }
+                }
+            }, {
+                viewState.showError(R.string.error_export_file, it.message)
+                viewState.hideProgress()
+            })
     }
 
     fun onAutoExportChanged(checked: Boolean) {
@@ -146,18 +145,18 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
 
     fun onShareFileClick() {
         fromNullable { filesInteractor.getDefaultFileUri() }
-                .subscribeFromPresenter({
-                    val value = it.value
-                    if (value != null) {
-                        viewState.shareFile(value, "application/xls")
-                    } else {
-                        viewState.showError(R.string.error_share_file)
-                        viewState.setShareFileVisible(false)
-                    }
-                }, {
-                    viewState.showError(R.string.error_share_file, it.message)
+            .subscribeFromPresenter({
+                val value = it.value
+                if (value != null) {
+                    viewState.shareFile(value, "application/xls")
+                } else {
+                    viewState.showError(R.string.error_share_file)
                     viewState.setShareFileVisible(false)
-                })
+                }
+            }, {
+                viewState.showError(R.string.error_share_file, it.message)
+                viewState.setShareFileVisible(false)
+            })
     }
 
     fun openDefauilFileWith() {

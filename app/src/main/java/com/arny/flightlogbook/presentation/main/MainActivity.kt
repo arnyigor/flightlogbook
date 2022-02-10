@@ -23,7 +23,7 @@ import com.arny.flightlogbook.presentation.customfields.list.CustomFieldsListFra
 import com.arny.flightlogbook.presentation.flights.viewflights.view.FlightListFragment
 import com.arny.flightlogbook.presentation.flighttypes.list.FlightTypesFragment
 import com.arny.flightlogbook.presentation.planetypes.list.PlaneTypesFragment
-import com.arny.flightlogbook.presentation.settings.view.SettingsFragment
+import com.arny.flightlogbook.presentation.settings.SettingsFragment
 import com.arny.flightlogbook.presentation.statistic.view.StatisticFragment
 
 class MainActivity : AppCompatActivity(), AppRouter {

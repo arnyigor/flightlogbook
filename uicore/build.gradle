@@ -24,36 +24,16 @@ android {
 
     kotlinOptions {
     }
+
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 dependencies {
     implementation libs.kotlinStdlib
-    /*support*/
     implementation libs.appCompat
     implementation libs.design
     implementation libs.support
-    implementation libs.preference
     implementation libs.ktxCore
-    //mvp
-    api libs.moxy
-    api libs.moxyAndroidX
-    api libs.moxyKtx
-    kapt libs.moxyCompiler
-    //rx2
-    implementation libs.rxJava
-    implementation libs.rxAndroid
-    implementation libs.rxKotlin
-    //room
-    implementation libs.roomRx
-    //custom
-    implementation libs.jodaTime
-    implementation libs.gson
-    implementation libs.okhttp
-    implementation libs.toasty
-    implementation libs.materialTypeface
-    implementation libs.materialDialogsCore
-    implementation libs.materialDialogsInput
-    implementation libs.iconicsCore
-    implementation libs.iconicsTypeface
-    implementation libs.textDrawable
 }

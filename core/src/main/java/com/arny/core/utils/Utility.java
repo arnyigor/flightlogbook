@@ -2,7 +2,6 @@ package com.arny.core.utils;
 
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -416,31 +415,6 @@ public class Utility {
         }
         builder.append(") \n");
         return builder.toString();
-    }
-
-    public static void hideProgress(ProgressDialog pDialog) {
-        try {
-            if (pDialog != null) {
-                if (pDialog.isShowing()) {
-                    pDialog.dismiss();
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void showProgress(ProgressDialog pDialog, String notif) {
-        try {
-            if (pDialog != null) {
-                pDialog.setMessage(notif);
-                if (!pDialog.isShowing()) {
-                    pDialog.show();
-                }
-            }
-        } catch (Exception e) {
-           e.printStackTrace();
-        }
     }
 
     /**

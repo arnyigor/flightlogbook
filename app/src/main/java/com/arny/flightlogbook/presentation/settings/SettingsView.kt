@@ -1,4 +1,4 @@
-package com.arny.flightlogbook.presentation.settings.view
+package com.arny.flightlogbook.presentation.settings
 
 import android.net.Uri
 import moxy.MvpView
