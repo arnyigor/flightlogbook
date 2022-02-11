@@ -6,26 +6,28 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
-import com.arny.core.strings.IWrappedString
 import com.arny.core.utils.alertDialog
 import com.arny.core.utils.newIntent
 import com.arny.core.utils.requestPermission
 import com.arny.core.utils.shareFileWithType
+import com.arny.domain.models.ExportFileType
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.databinding.SettingsFragmentBinding
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.flightlogbook.uicore.hideProgressDialog
 import com.flightlogbook.uicore.showProgressDialog
-import com.obsez.android.lib.filechooser.ChooserDialog
 import moxy.ktx.moxyPresenter
 
 class SettingsFragment : BaseMvpFragment(), SettingsView {
     private lateinit var binding: SettingsFragmentBinding
+    private val handler = Handler(Looper.getMainLooper())
 
     companion object {
         fun getInstance(): SettingsFragment = SettingsFragment()
@@ -35,12 +37,6 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
 
     override fun getTitle(): String = getString(R.string.str_settings)
 
-    private val requestPermissionPathChoose =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (granted) {
-                choosePath()
-            }
-        }
     private val requestPermissionImport =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) {
@@ -50,7 +46,7 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
     private val requestPermissionExport =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) {
-                presenter.exportToFile()
+                chooseExportFile()
             }
         }
 
@@ -72,7 +68,7 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
                     Manifest.permission.READ_EXTERNAL_STORAGE
                 ) {
-                    presenter.exportToFile()
+                    showAlertImport()
                 }
             }
             btnExportToFile.setOnClickListener {
@@ -81,7 +77,7 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
                     Manifest.permission.READ_EXTERNAL_STORAGE
                 ) {
-                    showAlertImport()
+                    chooseExportFile()
                 }
             }
             chbAutoExport.setOnCheckedChangeListener { _, isChecked ->
@@ -93,26 +89,27 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
             ivShareFile.setOnClickListener {
                 presenter.onShareFileClick()
             }
-            tvExportFilePath.setOnClickListener {
-                requestPermission(
-                    requestPermissionPathChoose,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-                ) {
-                    choosePath()
-                }
-            }
         }
     }
 
-    private fun choosePath() {
-        ChooserDialog(requireActivity())
-            .withFilter(true, false)
-            .withChosenListener { dir, _ ->
-                presenter.onExportPathSelected(dir)
-            }
-            .build()
-            .show()
+    override fun resultSuccess() {
+        handler.removeCallbacksAndMessages(null)
+        handler.postDelayed({
+            presenter.showFileData()
+        }, 1500)
+    }
+
+    private fun chooseExportFile() {
+        alertDialog(
+            context = context,
+            title = getString(R.string.str_export_attention),
+            content = getString(R.string.str_export_confirm_description),
+            btnOkText = getString(R.string.str_export_confirm_xls),
+            btnCancelText = getString(R.string.str_export_confirm_json),
+            cancelable = true,
+            onConfirm = { presenter.exportToFile(ExportFileType.XLS) },
+            onCancel = { presenter.exportToFile(ExportFileType.JSON) }
+        )
     }
 
     private fun showAlertImport() {
@@ -138,10 +135,6 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
                 presenter.loadDefaultFile()
             }, onCancel = (::requestFile)
         )
-    }
-
-    override fun setSavedExportPath(path: IWrappedString) {
-        binding.tvExportFilePath.text = path.toString(requireContext())
     }
 
     private fun requestFile() {
@@ -218,6 +211,6 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
 
     // TODO: 28.06.2020 использовать позже
     private fun openFileWith() {
-        presenter.openDefauilFileWith()
+        presenter.openDefaultFileWith()
     }
 }

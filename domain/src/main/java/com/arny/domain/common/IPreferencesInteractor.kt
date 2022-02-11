@@ -10,8 +10,6 @@ interface IPreferencesInteractor {
     fun getSavedFlightTypeId(): Int?
     fun setSavedAircraftId(aircraftId: Long?)
     fun getSavedAircraftId(): Long?
-    fun getSavedExportPath(): String?
-    fun setExportFilePath(dir: String?)
     fun getFlightsOrderType(): Int
     fun setOrderType(orderType: Int)
 }

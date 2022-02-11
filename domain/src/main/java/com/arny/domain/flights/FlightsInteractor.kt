@@ -124,7 +124,7 @@ class FlightsInteractor @Inject constructor(
             .doOnNext {
                 if (checkAutoExport && prefsInteractor.isAutoImportEnabled()) {
                     if (it is Result.Success) {
-                        filesRepository.saveExcelFile(it.data, prefsInteractor.getSavedExportPath())
+                        filesRepository.saveDataToFile(it.data)
                     }
                 }
             }

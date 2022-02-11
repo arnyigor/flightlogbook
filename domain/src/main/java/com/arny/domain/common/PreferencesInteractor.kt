@@ -73,11 +73,4 @@ class PreferencesInteractor @Inject constructor(private val provider: Preference
             return null
         }
     }
-
-    override fun getSavedExportPath(): String? =
-        provider.getPrefString(CONSTS.PREFS.PREF_EXPORT_FILE_PATH, "")
-
-    override fun setExportFilePath(dir: String?) {
-        provider.setPrefString(CONSTS.PREFS.PREF_EXPORT_FILE_PATH, dir)
-    }
 }

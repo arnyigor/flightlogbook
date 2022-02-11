@@ -79,6 +79,9 @@
     <string name="str_import_local_file">Стандартный файл</string>
     <string name="str_import_file_from_disk">Выбрать</string>
     <string name="str_export_attention">Экспорт в файл?</string>
+    <string name="str_export_confirm_description">Можно экспортировать XLS файл или json.При экспорте json будут полные данные.</string>
+    <string name="str_export_confirm_xls">XLS</string>
+    <string name="str_export_confirm_json">JSON</string>
     <string name="str_settings">Настройки</string>
     <string name="str_moto">Cчетчик моточасов</string>
     <string name="str_moto_btn">Моточасы</string>

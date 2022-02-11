@@ -1,14 +1,12 @@
 package com.arny.flightlogbook.presentation.settings
 
 import android.net.Uri
-import android.os.Handler
-import android.os.Looper
 import android.webkit.MimeTypeMap
-import com.arny.core.strings.ParameterizedString
 import com.arny.core.utils.fromNullable
 import com.arny.domain.common.IPreferencesInteractor
 import com.arny.domain.files.FilesInteractor
 import com.arny.domain.flights.FlightsInteractor
+import com.arny.domain.models.ExportFileType
 import com.arny.domain.models.Result
 import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
@@ -19,8 +17,6 @@ import javax.inject.Inject
 
 @InjectViewState
 class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
-    private val handler = Handler(Looper.getMainLooper())
-
     @Inject
     lateinit var filesInteractor: FilesInteractor
 
@@ -43,18 +39,11 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
         viewState.setAutoExportChecked(prefsInteractor.isAutoExportXLS())
         viewState.setSaveLastFlightData(prefsInteractor.isSaveLastData())
         showFileData()
-        showSavedExportPath()
     }
 
-    private fun showSavedExportPath() {
-        viewState.setSavedExportPath(
-            ParameterizedString(R.string.path_prefill, prefsInteractor.getSavedExportPath())
-        )
-    }
-
-    private fun showFileData() {
+    fun showFileData() {
         viewState.setShareFileVisible(false)
-        fromNullable { filesInteractor.getFileData() }
+        fromNullable { filesInteractor.getAllBackups() }
             .subscribeFromPresenter({
                 val value = it.value
                 viewState.setShareFileVisible(value != null)
@@ -82,10 +71,7 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
             val path = it.value
             if (path != null) {
                 viewState.showResults(R.string.import_file_success, path)
-                handler.removeCallbacksAndMessages(null)
-                handler.postDelayed({
-                    showFileData()
-                }, 1500)
+                viewState.resultSuccess()
             } else {
                 viewState.showError(R.string.error_import_file)
             }
@@ -95,11 +81,11 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
         })
     }
 
-    fun exportToFile() {
+    fun exportToFile(type: ExportFileType = ExportFileType.XLS) {
         viewState.hideResults()
         viewState.showProgress(R.string.exporting_file)
         viewState.setShareFileVisible(false)
-        filesInteractor.exportFile(prefsInteractor.getSavedExportPath())
+        filesInteractor.exportFile(type)
             .subscribeFromPresenter({
                 viewState.hideProgress()
                 when (it) {
@@ -107,10 +93,7 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
                         val path = it.data
                         if (path.isNotBlank()) {
                             viewState.showResults(R.string.export_file_success, path)
-                            handler.removeCallbacksAndMessages(null)
-                            handler.postDelayed({
-                                showFileData()
-                            }, 1500)
+                            viewState.resultSuccess()
                         } else {
                             viewState.showError(R.string.error_export_file, null)
                         }
@@ -139,10 +122,7 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
             val path = it.value
             if (path != null) {
                 viewState.showResults(R.string.import_file_success, path)
-                handler.removeCallbacksAndMessages(null)
-                handler.postDelayed({
-                    showFileData()
-                }, 1500)
+                viewState.resultSuccess()
             } else {
                 viewState.showError(R.string.error_import_file)
             }
@@ -168,7 +148,7 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
             })
     }
 
-    fun openDefauilFileWith() {
+    fun openDefaultFileWith() {
         val fromFile = Uri.fromFile(File(filesInteractor.getDefaultFilePath()))
         val extension = MimeTypeMap.getFileExtensionFromUrl(fromFile.toString())
         val mimetype = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
@@ -177,10 +157,5 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
 
     fun onSaveLastDataChanged(checked: Boolean) {
         prefsInteractor.setSaveLastData(checked)
-    }
-
-    fun onExportPathSelected(dir: String?) {
-        prefsInteractor.setExportFilePath(dir)
-        showSavedExportPath()
     }
 }

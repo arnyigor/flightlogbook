@@ -24,7 +24,8 @@ object CONSTS {
     }
 
     object FILES {
-        const val EXEL_FILE_NAME = "PilotLogBook.xls"
+        const val FILE_NAME_XLS = "PilotLogBook.xls"
+        const val FILE_NAME_JSON = "PilotLogBook.json"
     }
 
     object PREFS {
@@ -34,7 +35,6 @@ object CONSTS {
         const val PREF_SAVE_LAST_FLIGHT_DATA = "PREF_SAVE_LAST_FLIGHT_DATA"
         const val PREF_LAST_FLIGHT_DATA_AIRPLANE_ID = "PREF_LAST_FLIGHT_DATA_AIRPLANE_ID"
         const val PREF_LAST_FLIGHT_DATA_FLIGHT_TYPE_ID = "PREF_LAST_FLIGHT_DATA_FLIGHT_TYPE_ID"
-        const val PREF_EXPORT_FILE_PATH = "PREF_EXPORT_FILE_PATH"
     }
 
     object REQUESTS {
