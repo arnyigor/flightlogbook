@@ -91,4 +91,5 @@
     <string name="save_last_flight_data">Сохранять последние данные полета</string>
     <string name="local_time">Локальное</string>
     <string name="utc">UTC</string>
+    <string name="path_prefill">Путь экспорта файла: %s</string>
 </resources>

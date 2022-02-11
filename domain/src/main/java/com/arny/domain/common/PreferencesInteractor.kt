@@ -5,34 +5,48 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class PreferencesInteractor @Inject constructor(private val provider: PreferencesProvider) {
-    fun isAutoImportEnabled(): Boolean {
+class PreferencesInteractor @Inject constructor(private val provider: PreferencesProvider) :
+    IPreferencesInteractor {
+    override fun isAutoImportEnabled(): Boolean {
         return provider.getPrefBoolean(CONSTS.PREFS.PREF_DROPBOX_AUTOIMPORT_TO_DB, false)
     }
 
-    fun isAutoExportXLS(): Boolean {
+    override fun getFlightsOrderType(): Int {
+        return provider.getPrefInt(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS)
+    }
+
+    override fun setOrderType(orderType: Int) {
+        provider.setPrefInt(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS, orderType)
+    }
+
+    override fun isAutoExportXLS(): Boolean {
         return provider.getPrefBoolean(CONSTS.PREFS.AUTO_EXPORT_XLS, false)
     }
 
-    fun setAutoExportXLS(checked: Boolean) {
+    override fun setAutoExportXLS(checked: Boolean) {
         provider.setPref(CONSTS.PREFS.AUTO_EXPORT_XLS, checked)
     }
 
-    fun isSaveLastData(): Boolean {
+    override fun isSaveLastData(): Boolean {
         return provider.getPrefBoolean(CONSTS.PREFS.PREF_SAVE_LAST_FLIGHT_DATA, false)
     }
 
-    fun setSaveLastData(checked: Boolean) {
+    override fun setSaveLastData(checked: Boolean) {
         provider.setPref(CONSTS.PREFS.PREF_SAVE_LAST_FLIGHT_DATA, checked)
     }
 
-    fun setSavedFlightTypeId(flightTypeId: Int?) {
+    override fun setSavedFlightTypeId(flightTypeId: Int?) {
         if (isSaveLastData()) {
-            flightTypeId?.let { provider.setPref(CONSTS.PREFS.PREF_LAST_FLIGHT_DATA_FLIGHT_TYPE_ID, it) }
+            flightTypeId?.let {
+                provider.setPref(
+                    CONSTS.PREFS.PREF_LAST_FLIGHT_DATA_FLIGHT_TYPE_ID,
+                    it
+                )
+            }
         }
     }
 
-    fun getSavedFlightTypeId(): Int? {
+    override fun getSavedFlightTypeId(): Int? {
         if (isSaveLastData()) {
             with(provider.getPrefInt(CONSTS.PREFS.PREF_LAST_FLIGHT_DATA_FLIGHT_TYPE_ID)) {
                 if (this == 0) return null
@@ -43,13 +57,13 @@ class PreferencesInteractor @Inject constructor(private val provider: Preference
         }
     }
 
-    fun setSavedAircraftId(aircraftId: Long?) {
+    override fun setSavedAircraftId(aircraftId: Long?) {
         if (isSaveLastData()) {
             aircraftId?.let { provider.setPref(CONSTS.PREFS.PREF_LAST_FLIGHT_DATA_AIRPLANE_ID, it) }
         }
     }
 
-    fun getSavedAircraftId(): Long? {
+    override fun getSavedAircraftId(): Long? {
         if (isSaveLastData()) {
             with(provider.getPrefLong(CONSTS.PREFS.PREF_LAST_FLIGHT_DATA_AIRPLANE_ID)) {
                 if (this == 0L) return null
@@ -58,5 +72,12 @@ class PreferencesInteractor @Inject constructor(private val provider: Preference
         } else {
             return null
         }
+    }
+
+    override fun getSavedExportPath(): String? =
+        provider.getPrefString(CONSTS.PREFS.PREF_EXPORT_FILE_PATH, "")
+
+    override fun setExportFilePath(dir: String?) {
+        provider.setPrefString(CONSTS.PREFS.PREF_EXPORT_FILE_PATH, dir)
     }
 }

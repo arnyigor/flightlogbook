@@ -1,12 +1,16 @@
 package com.arny.domain;
 
-import com.arny.domain.common.PreferencesProvider;
-import com.arny.domain.common.ResourcesProvider;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.arny.domain.common.IPreferencesInteractor;
+import com.arny.domain.common.IResourceProvider;
+import com.arny.domain.files.FilesRepository;
 import com.arny.domain.flights.FlightsInteractor;
 import com.arny.domain.flights.FlightsRepository;
 import com.arny.domain.flighttypes.FlightTypesRepository;
 import com.arny.domain.models.Flight;
 import com.arny.domain.planetypes.AircraftTypesRepository;
+import com.arny.flightlogbook.customfields.repository.ICustomFieldsRepository;
 
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -22,8 +26,6 @@ import org.mockito.junit.MockitoRule;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 @RunWith(MockitoJUnitRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class FlightUseCaseTests {
@@ -33,14 +35,20 @@ public class FlightUseCaseTests {
     @Mock
     private FlightsRepository flightsRepository;
     @Mock
-    private ResourcesProvider resourcesProvider;
+    private IResourceProvider resourcesProvider;
     @Mock
     private AircraftTypesRepository aircraftTypesRepository;
     @Mock
-    private PreferencesProvider preferencesProvider;
+    private IPreferencesInteractor prefsInteractor;
+    @Mock
+    private ICustomFieldsRepository customFieldsRepository;
+    @Mock
+    private FilesRepository filesRepository;
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
-    @Rule public ExpectedException expectedException = ExpectedException.none();
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
     @Before
     public void setUp() {
         flightsInteractor = new FlightsInteractor(
@@ -48,7 +56,9 @@ public class FlightUseCaseTests {
                 flightsRepository,
                 resourcesProvider,
                 aircraftTypesRepository,
-                preferencesProvider
+                customFieldsRepository,
+                prefsInteractor,
+                filesRepository
         );
     }
 

@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
+import com.arny.core.strings.IWrappedString
 import com.arny.core.utils.alertDialog
 import com.arny.core.utils.newIntent
 import com.arny.core.utils.requestPermission
@@ -108,7 +109,7 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
         ChooserDialog(requireActivity())
             .withFilter(true, false)
             .withChosenListener { dir, _ ->
-                binding.tvExportFilePath.text = dir
+                presenter.onExportPathSelected(dir)
             }
             .build()
             .show()
@@ -137,6 +138,10 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
                 presenter.loadDefaultFile()
             }, onCancel = (::requestFile)
         )
+    }
+
+    override fun setSavedExportPath(path: IWrappedString) {
+        binding.tvExportFilePath.text = path.toString(requireContext())
     }
 
     private fun requestFile() {

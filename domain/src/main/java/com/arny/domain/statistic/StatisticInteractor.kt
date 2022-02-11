@@ -6,7 +6,7 @@ import com.arny.core.utils.fromCallable
 import com.arny.core.utils.toHexColor
 import com.arny.core.utils.toIntColorsArray
 import com.arny.domain.R
-import com.arny.domain.common.ResourcesProvider
+import com.arny.domain.common.IResourceProvider
 import com.arny.domain.flights.FlightsRepository
 import com.arny.domain.flighttypes.FlightTypesRepository
 import com.arny.domain.models.Flight
@@ -24,7 +24,7 @@ class StatisticInteractor @Inject constructor(
         private val flightsRepository: FlightsRepository,
         private val aircraftTypesRepository: AircraftTypesRepository,
         private val flightTypesRepository: FlightTypesRepository,
-        private val resourcesProvider: ResourcesProvider
+        private val resourcesProvider: IResourceProvider
 ) {
     fun loadDBFlights(
             startDate: Long,

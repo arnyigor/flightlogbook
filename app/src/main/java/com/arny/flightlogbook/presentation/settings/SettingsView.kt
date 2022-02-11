@@ -1,6 +1,7 @@
 package com.arny.flightlogbook.presentation.settings
 
 import android.net.Uri
+import com.arny.core.strings.IWrappedString
 import moxy.MvpView
 import moxy.viewstate.strategy.alias.AddToEndSingle
 import moxy.viewstate.strategy.alias.OneExecution
@@ -24,4 +25,5 @@ interface SettingsView : MvpView {
 
     @OneExecution
     fun openWith(pair: Pair<Uri, String?>)
+    fun setSavedExportPath(path: IWrappedString)
 }

@@ -6,7 +6,7 @@ import io.reactivex.Observable
 
 interface FilesInteractor {
     fun readExcelFile(uri: Uri?, fromSystem: Boolean): String?
-    fun exportFile(): Observable<Result<String>>
+    fun exportFile(exportfilePath: String? = null): Observable<Result<String>>
     fun getDefaultFileUri(): Uri?
     fun getFileData(): String?
     fun getDefaultFilePath(): String

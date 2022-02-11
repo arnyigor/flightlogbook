@@ -1,14 +1,15 @@
 package com.arny.flightlogbook.data.repositories
 
+import android.content.ContentResolver
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import androidx.annotation.ArrayRes
 import androidx.core.content.ContextCompat
-import com.arny.domain.common.ResourcesProvider
+import com.arny.domain.common.IResourceProvider
 import javax.inject.Inject
 
-class ResourcesProviderImpl @Inject constructor(private val context: Context) : ResourcesProvider {
+class ResourcesProviderImpl @Inject constructor(private val context: Context) : IResourceProvider {
     override fun getString(res: Int?): String {
         if (res == null) return ""
         return try {
@@ -35,7 +36,9 @@ class ResourcesProviderImpl @Inject constructor(private val context: Context) : 
         return ContextCompat.getDrawable(context, id)
     }
 
-    override fun provideContext(): Context {
-        return context
+    override fun provideContext(): Context = context
+
+    override fun getContentResolver(): ContentResolver {
+        return context.applicationContext.contentResolver
     }
 }

@@ -8,8 +8,8 @@ import javax.inject.Singleton
 
 @Singleton
 class ResourcesInteractor @Inject constructor(
-        private val resourcesProvider: ResourcesProvider,
-        private val context: Context
+    private val resourcesProvider: IResourceProvider,
+    private val context: Context
 ) {
 
     fun getString(res: Int?): String = resourcesProvider.getString(res)

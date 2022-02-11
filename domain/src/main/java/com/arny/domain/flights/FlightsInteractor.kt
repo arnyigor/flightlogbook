@@ -1,12 +1,11 @@
 package com.arny.domain.flights
 
 import android.graphics.Color
-import com.arny.core.CONSTS
 import com.arny.core.CONSTS.STRINGS.PARAM_COLOR
 import com.arny.core.utils.*
 import com.arny.domain.R
-import com.arny.domain.common.PreferencesProvider
-import com.arny.domain.common.ResourcesProvider
+import com.arny.domain.common.IPreferencesInteractor
+import com.arny.domain.common.IResourceProvider
 import com.arny.domain.files.FilesRepository
 import com.arny.domain.flighttypes.FlightTypesRepository
 import com.arny.domain.models.*
@@ -22,26 +21,25 @@ import javax.inject.Singleton
 
 @Singleton
 class FlightsInteractor @Inject constructor(
-        private val flightTypesRepository: FlightTypesRepository,
-        private val flightsRepository: FlightsRepository,
-        private val resourcesProvider: ResourcesProvider,
-        private val aircraftTypesRepository: AircraftTypesRepository,
-        private val customFieldsRepository: ICustomFieldsRepository,
-        private val preferencesProvider: PreferencesProvider,
-        private val filesRepository: FilesRepository
+    private val flightTypesRepository: FlightTypesRepository,
+    private val flightsRepository: FlightsRepository,
+    private val resourcesProvider: IResourceProvider,
+    private val aircraftTypesRepository: AircraftTypesRepository,
+    private val customFieldsRepository: ICustomFieldsRepository,
+    private val prefsInteractor: IPreferencesInteractor,
+    private val filesRepository: FilesRepository
 ) {
-
     fun updateFlight(flight: Flight): Boolean = flightsRepository.updateFlight(flight)
 
     fun insertFlightAndGet(flight: Flight): Long = flightsRepository.insertFlightAndGet(flight)
 
     fun getFlight(id: Long?): Flight? {
         return flightsRepository.getFlight(id)
-                ?.apply {
-                    colorInt = params?.getParam(PARAM_COLOR, "")?.toIntColor()
-                    planeType = aircraftTypesRepository.loadAircraftType(planeId)
-                    flightType = flightTypesRepository.loadDBFlightType(flightTypeId?.toLong())
-                }
+            ?.apply {
+                colorInt = params?.getParam(PARAM_COLOR, "")?.toIntColor()
+                planeType = aircraftTypesRepository.loadAircraftType(planeId)
+                flightType = flightTypesRepository.loadDBFlightType(flightTypeId?.toLong())
+            }
     }
 
     fun loadPlaneType(id: Long?): PlaneType? {
@@ -83,88 +81,90 @@ class FlightsInteractor @Inject constructor(
     }
 
     private fun formattedInfo(
-            flightsTime: Int,
-            nightTime: Int,
-            groundTime: Int,
-            sumlogTime: Int,
-            flightsCount: Int
+        flightsTime: Int,
+        nightTime: Int,
+        groundTime: Int,
+        sumlogTime: Int,
+        flightsCount: Int
     ): Result<String> {
-        return String.format("%s %s\n%s %s\n%s %s\n%s %s\n%s %d",
-                resourcesProvider.getString(R.string.str_total_flight_time),
-                DateTimeUtils.strLogTime(flightsTime),
-                resourcesProvider.getString(R.string.stat_total_night_time),
-                DateTimeUtils.strLogTime(nightTime),
-                resourcesProvider.getString(R.string.cell_ground_time) + ":",
-                DateTimeUtils.strLogTime(groundTime),
-                resourcesProvider.getString(R.string.str_total_time),
-                DateTimeUtils.strLogTime(sumlogTime),
-                resourcesProvider.getString(R.string.total_records),
-                flightsCount).toResult()
+        return String.format(
+            "%s %s\n%s %s\n%s %s\n%s %s\n%s %d",
+            resourcesProvider.getString(R.string.str_total_flight_time),
+            DateTimeUtils.strLogTime(flightsTime),
+            resourcesProvider.getString(R.string.stat_total_night_time),
+            DateTimeUtils.strLogTime(nightTime),
+            resourcesProvider.getString(R.string.cell_ground_time) + ":",
+            DateTimeUtils.strLogTime(groundTime),
+            resourcesProvider.getString(R.string.str_total_time),
+            DateTimeUtils.strLogTime(sumlogTime),
+            resourcesProvider.getString(R.string.total_records),
+            flightsCount
+        ).toResult()
     }
 
     fun getTotalflightsTimeInfo(): Result<String> = getFormattedFlightTimes()
 
     fun setFlightsOrder(orderType: Int) {
-        preferencesProvider.setPrefInt(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS, orderType)
+        prefsInteractor.setOrderType(orderType)
     }
 
     fun loadDBFlights(): List<Flight> {
         return flightsRepository.getDbFlights()
-                .map { flight ->
-                    flight.planeType = aircraftTypesRepository.loadAircraftType(flight.planeId)
-                    flight.flightType =
-                            flightTypesRepository.loadDBFlightType(flight.flightTypeId?.toLong())
-                    flight.totalTime = flight.flightTime + flight.groundTime
-                    flight
-                }
+            .map { flight ->
+                flight.planeType = aircraftTypesRepository.loadAircraftType(flight.planeId)
+                flight.flightType =
+                    flightTypesRepository.loadDBFlightType(flight.flightTypeId?.toLong())
+                flight.totalTime = flight.flightTime + flight.groundTime
+                flight
+            }
     }
 
     private fun getDbFlightsObs(checkAutoExport: Boolean = false): Observable<Result<List<Flight>>> {
         return flightsRepository.getDbFlightsOrdered()
-                .doOnNext {
-                    if (checkAutoExport && preferencesProvider.getPrefBoolean(CONSTS.PREFS.AUTO_EXPORT_XLS, false)) {
-                        if (it is Result.Success) {
-                            filesRepository.saveExcelFile(it.data)
-                        }
+            .doOnNext {
+                if (checkAutoExport && prefsInteractor.isAutoImportEnabled()) {
+                    if (it is Result.Success) {
+                        filesRepository.saveExcelFile(it.data, prefsInteractor.getSavedExportPath())
                     }
                 }
+            }
     }
 
     fun getFilterFlightsObs(checkAutoExport: Boolean = false): Observable<Result<List<Flight>>> {
-        val orderType = preferencesProvider.getPrefInt(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS)
+        val orderType = prefsInteractor.getFlightsOrderType()
         return getDbFlightsObs(checkAutoExport)
-                .flatMap { flightsResult ->
-                    fromCallable {
-                        val flightTypes = flightTypesRepository.loadDBFlightTypes()
-                        val planeTypes = aircraftTypesRepository.loadAircraftTypes()
-                        val allAdditionalTime = customFieldsRepository.getAllAdditionalTime()
-                        when (flightsResult) {
-                            is Result.Success -> getFlight(
-                                    flightsResult.data,
-                                    planeTypes,
-                                    flightTypes,
-                                    allAdditionalTime
-                            )
-                            is Result.Error -> throw BusinessException(flightsResult.exception)
-                        }
+            .flatMap { flightsResult ->
+                fromCallable {
+                    val flightTypes = flightTypesRepository.loadDBFlightTypes()
+                    val planeTypes = aircraftTypesRepository.loadAircraftTypes()
+                    val allAdditionalTime = customFieldsRepository.getAllAdditionalTime()
+                    when (flightsResult) {
+                        is Result.Success -> getFlight(
+                            flightsResult.data,
+                            planeTypes,
+                            flightTypes,
+                            allAdditionalTime
+                        )
+                        is Result.Error -> throw BusinessException(flightsResult.exception)
                     }
                 }
-                .map { flights ->
-                    when (orderType) {
-                        0 -> flights.sortedBy { it.datetime }
-                        1 -> flights.sortedByDescending { it.datetime }
-                        2 -> flights.sortedBy { it.flightTime }
-                        3 -> flights.sortedByDescending { it.flightTime }
-                        else -> flights
-                    }.toResult()
-                }
+            }
+            .map { flights ->
+                when (orderType) {
+                    0 -> flights.sortedBy { it.datetime }
+                    1 -> flights.sortedByDescending { it.datetime }
+                    2 -> flights.sortedBy { it.flightTime }
+                    3 -> flights.sortedByDescending { it.flightTime }
+                    else -> flights
+                }.toResult()
+            }
     }
 
     private fun getFlight(
-            list: List<Flight>,
-            planeTypes: List<PlaneType>,
-            flightTypes: List<FlightType>,
-            allAdditionalTime: List<CustomFieldValue>
+        list: List<Flight>,
+        planeTypes: List<PlaneType>,
+        flightTypes: List<FlightType>,
+        allAdditionalTime: List<CustomFieldValue>
     ): List<Flight> {
         return list.map { flight ->
             flight.colorInt = flight.params?.getParam(PARAM_COLOR, "")?.toIntColor()
@@ -172,14 +172,14 @@ class FlightsInteractor @Inject constructor(
             flight.colorText = if (masked) Color.WHITE else null
             flight.planeType = flight.planeId?.let { plId ->
                 planeTypes.find { it.typeId == plId }
-                        ?: flight.regNo?.let { regNo ->
-                            planeTypes.find { it.regNo?.trimIndent() == regNo.trimIndent() }
-                        }
+                    ?: flight.regNo?.let { regNo ->
+                        planeTypes.find { it.regNo?.trimIndent() == regNo.trimIndent() }
+                    }
             }
             flight.flightType = flightTypes.find { it.id == flight.flightTypeId?.toLong() }
             val flightAddTime = allAdditionalTime.firstOrNull { it.externalId == flight.id }
-                    ?.value?.toString()
-                    ?.toInt() ?: 0
+                ?.value?.toString()
+                ?.toInt() ?: 0
             flight.flightTime += flightAddTime
             flight.totalTime = flight.flightTime + flight.groundTime
             flight
@@ -192,6 +192,6 @@ class FlightsInteractor @Inject constructor(
 
     fun removeFlights(selectedIds: List<Long>): Single<Boolean> {
         return fromSingle { flightsRepository.removeFlights(selectedIds) }
-                .subscribeOn(Schedulers.io())
+            .subscribeOn(Schedulers.io())
     }
 }

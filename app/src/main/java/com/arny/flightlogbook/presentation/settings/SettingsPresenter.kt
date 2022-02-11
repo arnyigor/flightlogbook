@@ -2,9 +2,11 @@ package com.arny.flightlogbook.presentation.settings
 
 import android.net.Uri
 import android.os.Handler
+import android.os.Looper
 import android.webkit.MimeTypeMap
+import com.arny.core.strings.ParameterizedString
 import com.arny.core.utils.fromNullable
-import com.arny.domain.common.PreferencesInteractor
+import com.arny.domain.common.IPreferencesInteractor
 import com.arny.domain.files.FilesInteractor
 import com.arny.domain.flights.FlightsInteractor
 import com.arny.domain.models.Result
@@ -17,7 +19,7 @@ import javax.inject.Inject
 
 @InjectViewState
 class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
-    private val handler = Handler()
+    private val handler = Handler(Looper.getMainLooper())
 
     @Inject
     lateinit var filesInteractor: FilesInteractor
@@ -26,7 +28,7 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
     lateinit var interactor: FlightsInteractor
 
     @Inject
-    lateinit var prefs: PreferencesInteractor
+    lateinit var prefsInteractor: IPreferencesInteractor
 
     init {
         FlightApp.appComponent.inject(this)
@@ -38,9 +40,16 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
     }
 
     private fun initState() {
-        viewState.setAutoExportChecked(prefs.isAutoExportXLS())
-        viewState.setSaveLastFlightData(prefs.isSaveLastData())
+        viewState.setAutoExportChecked(prefsInteractor.isAutoExportXLS())
+        viewState.setSaveLastFlightData(prefsInteractor.isSaveLastData())
         showFileData()
+        showSavedExportPath()
+    }
+
+    private fun showSavedExportPath() {
+        viewState.setSavedExportPath(
+            ParameterizedString(R.string.path_prefill, prefsInteractor.getSavedExportPath())
+        )
     }
 
     private fun showFileData() {
@@ -90,7 +99,7 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
         viewState.hideResults()
         viewState.showProgress(R.string.exporting_file)
         viewState.setShareFileVisible(false)
-        filesInteractor.exportFile()
+        filesInteractor.exportFile(prefsInteractor.getSavedExportPath())
             .subscribeFromPresenter({
                 viewState.hideProgress()
                 when (it) {
@@ -117,7 +126,7 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
     }
 
     fun onAutoExportChanged(checked: Boolean) {
-        prefs.setAutoExportXLS(checked)
+        prefsInteractor.setAutoExportXLS(checked)
     }
 
     fun loadDefaultFile() {
@@ -167,6 +176,11 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
     }
 
     fun onSaveLastDataChanged(checked: Boolean) {
-        prefs.setSaveLastData(checked)
+        prefsInteractor.setSaveLastData(checked)
+    }
+
+    fun onExportPathSelected(dir: String?) {
+        prefsInteractor.setExportFilePath(dir)
+        showSavedExportPath()
     }
 }
