@@ -8,7 +8,8 @@ import io.reactivex.Observable
 interface FilesInteractor {
     fun readExcelFile(uri: Uri?, fromSystem: Boolean): String?
     fun exportFile(type: ExportFileType): Observable<Result<String>>
-    fun getDefaultFileUri(): Uri?
+    fun getFileUri(filename: String? = null): Uri?
     fun getAllBackups(): String?
+    fun getAllBackupFileNames(): List<String>
     fun getDefaultFilePath(): String
 }

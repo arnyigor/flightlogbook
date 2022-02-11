@@ -133,7 +133,17 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
     }
 
     fun onShareFileClick() {
-        fromNullable { filesInteractor.getDefaultFileUri() }
+        fromNullable { filesInteractor.getAllBackupFileNames() }
+            .subscribeFromPresenter({
+                viewState.showFilesToShare()
+            }, {
+                viewState.showError(R.string.error_share_file, it.message)
+                viewState.setShareFileVisible(false)
+            })
+    }
+
+    fun shareSelectedFile(selectedName: String) {
+        fromNullable { filesInteractor.getFileUri(selectedName) }
             .subscribeFromPresenter({
                 val value = it.value
                 if (value != null) {

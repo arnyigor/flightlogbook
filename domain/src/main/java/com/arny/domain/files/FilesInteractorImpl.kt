@@ -1,6 +1,7 @@
 package com.arny.domain.files
 
 import android.net.Uri
+import com.arny.core.CONSTS
 import com.arny.core.utils.DateTimeUtils
 import com.arny.core.utils.FileUtils
 import com.arny.domain.R
@@ -59,9 +60,13 @@ class FilesInteractorImpl @Inject constructor(
             }
     }
 
-    override fun getDefaultFileUri(): Uri? = filesRepository.getDefaultFileUri()
+    override fun getFileUri(filename: String?): Uri? = filesRepository.getFileUri(filename)
 
-    override fun getDefaultFilePath() = filesRepository.getDefaultFileName()
+    override fun getDefaultFilePath() = filesRepository.getDefaultFileName(CONSTS.FILES.FILE_NAME_XLS)
+
+    override fun getAllBackupFileNames(): List<String> =
+        File(filesRepository.getBackupsPath()).list()
+            ?.filter { it.endsWith(".json") || it.endsWith(".xls") } ?: emptyList()
 
     override fun getAllBackups(): String? {
         return File(filesRepository.getBackupsPath()).listFiles()
