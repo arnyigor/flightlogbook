@@ -25,4 +25,5 @@ interface SettingsView : MvpView {
     @OneExecution
     fun openWith(pair: Pair<Uri, String?>)
     fun resultSuccess()
+    fun showFilesToShare(filenames: List<String>)
 }

@@ -31,11 +31,7 @@ class FilePathUtils {
 
         fun getPath(uri: Uri?, context: Context): String? {
             if (uri == null) return null
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                getPathForKitKatAndAbove(uri, context)
-            } else {
-                getPathBelowKitKat(uri, context)
-            }
+            return getPathForKitKatAndAbove(uri, context)
         }
 
         @SuppressLint("NewApi")
@@ -62,7 +58,7 @@ class FilePathUtils {
             var contentUri: Uri? = null
             try {
                 contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"), id.toLong()
+                    Uri.parse("content://downloads/public_downloads"), id.toLong()
                 )
             } catch (e: NumberFormatException) {
                 e.printStackTrace()
@@ -76,11 +72,11 @@ class FilePathUtils {
             var cursor: Cursor? = null
             try {
                 cursor = context.contentResolver
-                        .query(uri, arrayOf(MediaStore.MediaColumns.DISPLAY_NAME), null, null, null)
+                    .query(uri, arrayOf(MediaStore.MediaColumns.DISPLAY_NAME), null, null, null)
                 if (cursor != null && cursor.moveToFirst()) {
                     val fileName = cursor.getString(0)
                     val path: String =
-                            Environment.getExternalStorageDirectory().toString() + "/Download/" + fileName
+                        Environment.getExternalStorageDirectory().toString() + "/Download/" + fileName
                     if (path.isNotEmpty()) {
                         return path
                     }
@@ -94,20 +90,20 @@ class FilePathUtils {
                     return id.replaceFirst("raw:".toRegex(), "")
                 }
                 val contentUriPrefixesToTry = arrayOf(
-                        "content://downloads/public_downloads",
-                        "content://downloads/my_downloads"
+                    "content://downloads/public_downloads",
+                    "content://downloads/my_downloads"
                 )
                 for (contentUriPrefix in contentUriPrefixesToTry) {
                     return try {
                         val contentUri = ContentUris.withAppendedId(
-                                Uri.parse(contentUriPrefix),
-                                id.toLong()
+                            Uri.parse(contentUriPrefix),
+                            id.toLong()
                         )
                         getDataColumn(contentUri, context)
                     } catch (e: NumberFormatException) {
                         //In Android 8 and Android P the id is not a number
                         uri.path.orEmpty().replaceFirst("^/document/raw:".toRegex(), "")
-                                .replaceFirst("^raw:".toRegex(), "")
+                            .replaceFirst("^raw:".toRegex(), "")
                     }
                 }
             }
@@ -169,7 +165,7 @@ class FilePathUtils {
                 var cursor: Cursor? = null
                 try {
                     cursor = context.contentResolver
-                            .query(uri, projection, selection, selectionArgs, null)
+                        .query(uri, projection, selection, selectionArgs, null)
                     val columnIndex = cursor!!.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
                     if (cursor.moveToFirst()) {
                         return cursor.getString(columnIndex)
@@ -219,7 +215,7 @@ class FilePathUtils {
 
         private fun getDriveFilePath(uri: Uri, context: Context): String? {
             context.contentResolver.query(
-                    uri, null, null, null, null
+                uri, null, null, null, null
             )?.use { cursor ->
                 /*
                  * Get the column indexes of the data in the Cursor,
@@ -261,7 +257,7 @@ class FilePathUtils {
          */
         private fun copyFileToInternalStorage(uri: Uri, newDirName: String, context: Context): String? {
             context.contentResolver.query(
-                    uri, arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE), null, null, null
+                uri, arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE), null, null, null
             )?.use { cursor ->
                 /*
                  * Get the column indexes of the data in the Cursor,
@@ -310,8 +306,8 @@ class FilePathUtils {
             val projection = arrayOf(column)
             try {
                 cursor = context.contentResolver.query(
-                        uri, projection,
-                        selection, selectionArgs, null
+                    uri, projection,
+                    selection, selectionArgs, null
                 )
                 if (cursor != null && cursor.moveToFirst()) {
                     val index = cursor.getColumnIndexOrThrow(column)
@@ -323,28 +319,17 @@ class FilePathUtils {
             return null
         }
 
-        private fun isExternalStorageDocument(uri: Uri): Boolean {
-            return EXTERNAL_STORAGE_CONTENT == uri.authority
-        }
+        private fun isExternalStorageDocument(uri: Uri): Boolean = EXTERNAL_STORAGE_CONTENT == uri.authority
 
-        private fun isDownloadsDocument(uri: Uri): Boolean {
-            return DOWNLOAD_DOCUMENT_CONTENT == uri.authority
-        }
+        private fun isDownloadsDocument(uri: Uri): Boolean = DOWNLOAD_DOCUMENT_CONTENT == uri.authority
 
-        private fun isMediaDocument(uri: Uri): Boolean {
-            return MEDIA_DOCUMENT_CONTENT == uri.authority
-        }
+        private fun isMediaDocument(uri: Uri): Boolean = MEDIA_DOCUMENT_CONTENT == uri.authority
 
-        private fun isGooglePhotosUri(uri: Uri): Boolean {
-            return GOOGLE_PHOTOS_CONTENT == uri.authority
-        }
+        private fun isGooglePhotosUri(uri: Uri): Boolean = GOOGLE_PHOTOS_CONTENT == uri.authority
 
-        private fun isWhatsAppFile(uri: Uri): Boolean {
-            return WHATS_APP_CONTENT == uri.authority
-        }
+        private fun isWhatsAppFile(uri: Uri): Boolean = WHATS_APP_CONTENT == uri.authority
 
-        private fun isGoogleDriveUri(uri: Uri): Boolean {
-            return GOOGLE_DRIVE_CONTENT == uri.authority || "com.google.android.apps.docs.storage.legacy" == uri.authority
-        }
+        private fun isGoogleDriveUri(uri: Uri): Boolean =
+            GOOGLE_DRIVE_CONTENT == uri.authority || "com.google.android.apps.docs.storage.legacy" == uri.authority
     }
 }

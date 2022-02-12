@@ -285,7 +285,6 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
             .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ (flight, night, ground, total) ->
-                println("!!!!!!updateUI!!!")
                 viewState.setEdtFlightTimeText(flight)
                 viewState.setEdtGroundTimeText(ground)
                 viewState.setEdtNightTimeText(night)

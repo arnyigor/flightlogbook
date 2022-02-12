@@ -4,6 +4,7 @@ import android.graphics.Color
 import com.arny.core.CONSTS.STRINGS.PARAM_COLOR
 import com.arny.core.utils.*
 import com.arny.domain.R
+import com.arny.domain.airports.IAirportsRepository
 import com.arny.domain.common.IPreferencesInteractor
 import com.arny.domain.common.IResourceProvider
 import com.arny.domain.files.FilesRepository
@@ -27,7 +28,8 @@ class FlightsInteractor @Inject constructor(
     private val aircraftTypesRepository: AircraftTypesRepository,
     private val customFieldsRepository: ICustomFieldsRepository,
     private val prefsInteractor: IPreferencesInteractor,
-    private val filesRepository: FilesRepository
+    private val filesRepository: FilesRepository,
+    private val airportsRepository: IAirportsRepository
 ) {
     fun updateFlight(flight: Flight): Boolean = flightsRepository.updateFlight(flight)
 
@@ -165,25 +167,25 @@ class FlightsInteractor @Inject constructor(
         planeTypes: List<PlaneType>,
         flightTypes: List<FlightType>,
         allAdditionalTime: List<CustomFieldValue>
-    ): List<Flight> {
-        return list.map { flight ->
-            flight.colorInt = flight.params?.getParam(PARAM_COLOR, "")?.toIntColor()
-            val masked = flight.colorInt?.let { colorWillBeMasked(it) } ?: false
-            flight.colorText = if (masked) Color.WHITE else null
-            flight.planeType = flight.planeId?.let { plId ->
-                planeTypes.find { it.typeId == plId }
-                    ?: flight.regNo?.let { regNo ->
-                        planeTypes.find { it.regNo?.trimIndent() == regNo.trimIndent() }
-                    }
-            }
-            flight.flightType = flightTypes.find { it.id == flight.flightTypeId?.toLong() }
-            val flightAddTime = allAdditionalTime.firstOrNull { it.externalId == flight.id }
-                ?.value?.toString()
-                ?.toInt() ?: 0
-            flight.flightTime += flightAddTime
-            flight.totalTime = flight.flightTime + flight.groundTime
-            flight
+    ): List<Flight> = list.map { flight ->
+        flight.colorInt = flight.params?.getParam(PARAM_COLOR, "")?.toIntColor()
+        val masked = flight.colorInt?.let { colorWillBeMasked(it) } ?: false
+        flight.colorText = if (masked) Color.WHITE else null
+        flight.planeType = flight.planeId?.let { plId ->
+            planeTypes.find { it.typeId == plId }
+                ?: flight.regNo?.let { regNo ->
+                    planeTypes.find { it.regNo?.trimIndent() == regNo.trimIndent() }
+                }
         }
+        flight.flightType = flightTypes.find { it.id == flight.flightTypeId?.toLong() }
+        val flightAddTime = allAdditionalTime.firstOrNull { it.externalId == flight.id }
+            ?.value?.toString()
+            ?.toInt() ?: 0
+        flight.flightTime += flightAddTime
+        flight.totalTime = flight.flightTime + flight.groundTime
+        flight.departure = airportsRepository.getAirport(flight.departureId)
+        flight.arrival = airportsRepository.getAirport(flight.arrivalId)
+        flight
     }
 
     fun removeFlight(id: Long?): Single<Boolean> {

@@ -13,10 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
-import com.arny.core.utils.alertDialog
-import com.arny.core.utils.newIntent
-import com.arny.core.utils.requestPermission
-import com.arny.core.utils.shareFileWithType
+import com.arny.core.utils.*
 import com.arny.domain.models.ExportFileType
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.databinding.SettingsFragmentBinding
@@ -24,6 +21,7 @@ import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.flightlogbook.uicore.hideProgressDialog
 import com.flightlogbook.uicore.showProgressDialog
 import moxy.ktx.moxyPresenter
+
 
 class SettingsFragment : BaseMvpFragment(), SettingsView {
     private lateinit var binding: SettingsFragmentBinding
@@ -121,6 +119,18 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
             btnCancelText = getString(R.string.str_cancel),
             cancelable = true,
             onConfirm = (::chooseFile)
+        )
+    }
+
+    override fun showFilesToShare(filenames: List<String>) {
+        listDialog(
+            context = requireContext(),
+            title = getString(R.string.str_share_confirm_title),
+            items = filenames,
+            cancelable = true,
+            onSelect = { _, text ->
+                presenter.shareSelectedFile(text)
+            }
         )
     }
 

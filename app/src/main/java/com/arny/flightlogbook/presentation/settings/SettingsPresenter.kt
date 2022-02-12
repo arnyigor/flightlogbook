@@ -3,6 +3,7 @@ package com.arny.flightlogbook.presentation.settings
 import android.net.Uri
 import android.webkit.MimeTypeMap
 import com.arny.core.utils.fromNullable
+import com.arny.core.utils.fromSingle
 import com.arny.domain.common.IPreferencesInteractor
 import com.arny.domain.files.FilesInteractor
 import com.arny.domain.flights.FlightsInteractor
@@ -133,9 +134,9 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
     }
 
     fun onShareFileClick() {
-        fromNullable { filesInteractor.getAllBackupFileNames() }
-            .subscribeFromPresenter({
-                viewState.showFilesToShare()
+        fromSingle { filesInteractor.getAllBackupFileNames() }
+            .subscribeFromPresenter({ filenames ->
+                viewState.showFilesToShare(filenames)
             }, {
                 viewState.showError(R.string.error_share_file, it.message)
                 viewState.setShareFileVisible(false)

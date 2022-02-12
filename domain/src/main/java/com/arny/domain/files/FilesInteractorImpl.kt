@@ -6,6 +6,7 @@ import com.arny.core.utils.DateTimeUtils
 import com.arny.core.utils.FileUtils
 import com.arny.domain.R
 import com.arny.domain.common.IResourceProvider
+import com.arny.domain.flights.FlightsInteractor
 import com.arny.domain.flights.FlightsRepository
 import com.arny.domain.models.BusinessException
 import com.arny.domain.models.ExportFileType
@@ -20,6 +21,7 @@ import javax.inject.Inject
 
 class FilesInteractorImpl @Inject constructor(
     private val resourcesProvider: IResourceProvider,
+    private val flightsInteractor: FlightsInteractor,
     private val flightsRepository: FlightsRepository,
     private val filesRepository: FilesRepository,
 ) : FilesInteractor {
@@ -48,7 +50,7 @@ class FilesInteractorImpl @Inject constructor(
     }
 
     override fun exportFile(type: ExportFileType): Observable<Result<String>> {
-        return flightsRepository.getDbFlightsOrdered()
+        return flightsInteractor.getFilterFlightsObs()
             .map { result ->
                 var resultPath = ""
                 if (result is Result.Success) {
@@ -88,6 +90,7 @@ class FilesInteractorImpl @Inject constructor(
                                     "dd.MM.yyyy HH:mm:ss"
                                 )
                             )
+                            append("\n")
                         }
                     }.toString()
             }

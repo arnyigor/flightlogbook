@@ -6,7 +6,7 @@ import com.arny.domain.models.Airport
 import javax.inject.Inject
 
 class AirportsInteractor @Inject constructor(
-        private val airportsRepository: IAirportsRepository
+    private val airportsRepository: IAirportsRepository
 ) : IAirportsInteractor {
     override fun getAirports(): List<Airport> = airportsRepository.getAirports()
     override fun queryAirports(query: String): List<Airport> {
@@ -17,9 +17,9 @@ class AirportsInteractor @Inject constructor(
         }
     }
 
-    override fun getAirport(airportId: Long?): OptionalNull<Airport?> {
-        return airportsRepository.getAirport(airportId).toOptionalNull()
-    }
+    override fun getAirport(airportId: Long?): OptionalNull<Airport?> =
+        airportsRepository.getAirport(airportId).toOptionalNull()
+
 
     override fun saveAirport(airport: Airport): Boolean {
         return if (airport.id == null) {

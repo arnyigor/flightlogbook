@@ -26,4 +26,6 @@ data class Flight(
     var arrivalId: Long? = null,
     var departureUtcTime: Int? = null,
     var arrivalUtcTime: Int? = null,
+    var departure: Airport? = null,
+    var arrival: Airport? = null,
 )

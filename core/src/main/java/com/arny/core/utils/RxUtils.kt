@@ -14,17 +14,11 @@ fun <T> T.toObservable(): Observable<T> {
     return Observable.just(this)
 }
 
-fun <T> fromCallable(callable: () -> T): Observable<T> {
-    return Observable.fromCallable(callable)
-}
+fun <T> fromCallable(callable: () -> T): Observable<T> = Observable.fromCallable(callable)
 
-fun <T> fromSingle(callable: () -> T): Single<T> {
-    return Single.fromCallable(callable)
-}
+fun <T> fromSingle(callable: () -> T): Single<T> = Single.fromCallable(callable)
 
-fun fromCompletable(action: (() -> Unit)): Completable {
-    return Completable.fromAction(action)
-}
+fun fromCompletable(action: (() -> Unit)): Completable = Completable.fromAction(action)
 
 fun <T> fromNullable(callable: () -> T?): Observable<OptionalNull<T?>> {
     return Observable.fromCallable { callable.invoke().toOptionalNull() }
