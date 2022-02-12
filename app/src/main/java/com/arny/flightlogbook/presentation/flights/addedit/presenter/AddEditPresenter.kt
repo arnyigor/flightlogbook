@@ -1,7 +1,5 @@
 package com.arny.flightlogbook.presentation.flights.addedit.presenter
 
-import android.os.Handler
-import android.os.Looper
 import com.arny.core.CONSTS
 import com.arny.core.CONSTS.STRINGS.PARAM_COLOR
 import com.arny.core.utils.*
@@ -25,8 +23,12 @@ import com.arny.flightlogbook.presentation.flights.addedit.models.getCorrectTime
 import com.arny.flightlogbook.presentation.flights.addedit.view.AddEditView
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import moxy.InjectViewState
 import org.joda.time.DateTime
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @InjectViewState
@@ -47,6 +49,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
 
     @Inject
     lateinit var prefsInteractor: PreferencesInteractor
+    private var updateDisposable: Disposable? = null
     internal var flightId: Long? = null
 
     @Volatile
@@ -74,8 +77,6 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     private var mMotoFinish: Float = 0.toFloat()
     private var mMotoResult: Float = 0.toFloat()
     private val customFieldEnabled = CONSTS.COMMON.ENABLE_CUSTOM_FIELDS
-    private val handler = Handler(Looper.getMainLooper())
-    private val runnable = Runnable { updateUITimes() }
 
     private data class TimesResult(
         val intFlightTime: String,
@@ -268,15 +269,11 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
     }
 
     private fun updateUI() {
-        handler.removeCallbacks(runnable)
-        handler.postDelayed(runnable, 16)
-    }
-
-    private fun getCustomTimes(): Int = if (customFieldEnabled)
-        flightsInteractor.getAddTimeSum(customFieldsValues) else 0
-
-    private fun updateUITimes() {
-        Single.fromCallable {
+        val disposable = updateDisposable
+        if (disposable != null && !disposable.isDisposed) {
+            disposable.dispose()
+        }
+        updateDisposable = Single.fromCallable {
             TimesResult(
                 strLogTimeZero(intFlightTime),
                 strLogTimeZero(intNightTime),
@@ -284,13 +281,22 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
                 strLogTime(intTotalTime)
             )
         }
-            .subscribeFromPresenter({ (flight, night, ground, total) ->
+            .delay(100, TimeUnit.MILLISECONDS)
+            .subscribeOn(Schedulers.computation())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ (flight, night, ground, total) ->
+                println("!!!!!!updateUI!!!")
                 viewState.setEdtFlightTimeText(flight)
                 viewState.setEdtGroundTimeText(ground)
                 viewState.setEdtNightTimeText(night)
                 viewState.setTotalTime(total)
+            }, {
+                it.printStackTrace()
             })
     }
+
+    private fun getCustomTimes(): Int = if (customFieldEnabled)
+        flightsInteractor.getAddTimeSum(customFieldsValues) else 0
 
     fun setDepartureTime(utcTime: Int) {
         intDepartureUtcTime = utcTime
@@ -319,7 +325,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
             intDepartureUtcTime = 0
             viewState.setEdtArrUtcTime(intArrivalUtcTime)
             viewState.setEdtDepUtcTime(intDepartureUtcTime)
-        }else{
+        } else {
             viewState.setEdtArrUtcTime(intArrivalUtcTime)
         }
     }
