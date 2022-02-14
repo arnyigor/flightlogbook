@@ -26,6 +26,8 @@ object CONSTS {
     object FILES {
         const val FILE_NAME_XLS = "PilotLogBook.xls"
         const val FILE_NAME_JSON = "PilotLogBook.json"
+        const val FILE_EXTENTION_XLS = ".xls"
+        const val FILE_EXTENTION_JSON = ".json"
     }
 
     object PREFS {

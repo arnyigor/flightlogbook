@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-parcelize'
 apply plugin: 'kotlin-kapt'
-apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion versions.compileSdk
@@ -34,9 +34,6 @@ android {
     kotlinOptions {
     }
 
-    androidExtensions {
-        experimental = true
-    }
 }
 
 dependencies {
@@ -60,6 +57,7 @@ dependencies {
     kapt libs.daggerCompiler
     implementation libs.poi
 
+    implementation libs.gson
     implementation libs.okhttp
     implementation libs.dropboxCoreSdk
     implementation libs.localBrodcast

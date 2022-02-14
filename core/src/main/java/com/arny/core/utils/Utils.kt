@@ -42,6 +42,9 @@ import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonDeserializer
+import com.google.gson.JsonElement
 import com.mikepenz.google_material_typeface_library.GoogleMaterial
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.utils.colorInt
@@ -763,265 +766,6 @@ fun <T> find(list: List<T>, c: T, comp: Comparator<T>): T? {
     return list.firstOrNull { comp.compare(c, it) == 0 }
 }
 
-@JvmOverloads
-fun transliterate(message: String, toUpper: Boolean = false): String {
-    val abcCyr = charArrayOf(
-        ' ',
-        'а',
-        'б',
-        'в',
-        'г',
-        'д',
-        'е',
-        'ё',
-        'ж',
-        'з',
-        'и',
-        'й',
-        'к',
-        'л',
-        'м',
-        'н',
-        'о',
-        'п',
-        'р',
-        'с',
-        'т',
-        'у',
-        'ф',
-        'х',
-        'ц',
-        'ч',
-        'ш',
-        'щ',
-        'ъ',
-        'ы',
-        'ь',
-        'э',
-        'ю',
-        'я',
-        'А',
-        'Б',
-        'В',
-        'Г',
-        'Д',
-        'Е',
-        'Ё',
-        'Ж',
-        'З',
-        'И',
-        'Й',
-        'К',
-        'Л',
-        'М',
-        'Н',
-        'О',
-        'П',
-        'Р',
-        'С',
-        'Т',
-        'У',
-        'Ф',
-        'Х',
-        'Ц',
-        'Ч',
-        'Ш',
-        'Щ',
-        'Ъ',
-        'Ы',
-        'Ь',
-        'Э',
-        'Ю',
-        'Я',
-        'a',
-        'b',
-        'c',
-        'd',
-        'e',
-        'f',
-        'g',
-        'h',
-        'i',
-        'j',
-        'k',
-        'l',
-        'm',
-        'n',
-        'o',
-        'p',
-        'q',
-        'r',
-        's',
-        't',
-        'u',
-        'v',
-        'w',
-        'x',
-        'y',
-        'z',
-        'A',
-        'B',
-        'C',
-        'D',
-        'E',
-        'F',
-        'G',
-        'H',
-        'I',
-        'J',
-        'K',
-        'L',
-        'M',
-        'N',
-        'O',
-        'P',
-        'Q',
-        'R',
-        'S',
-        'T',
-        'U',
-        'V',
-        'W',
-        'X',
-        'Y',
-        'Z'
-    )
-    val abcLat = arrayOf(
-        " ",
-        "a",
-        "b",
-        "v",
-        "g",
-        "d",
-        "e",
-        "e",
-        "zh",
-        "z",
-        "i",
-        "y",
-        "k",
-        "l",
-        "m",
-        "n",
-        "o",
-        "p",
-        "r",
-        "s",
-        "t",
-        "u",
-        "f",
-        "h",
-        "ts",
-        "ch",
-        "sh",
-        "sch",
-        "",
-        "i",
-        "",
-        "e",
-        "ju",
-        "ja",
-        "A",
-        "B",
-        "V",
-        "G",
-        "D",
-        "E",
-        "E",
-        "Zh",
-        "Z",
-        "I",
-        "Y",
-        "K",
-        "L",
-        "M",
-        "N",
-        "O",
-        "P",
-        "R",
-        "S",
-        "T",
-        "U",
-        "F",
-        "H",
-        "Ts",
-        "Ch",
-        "Sh",
-        "Sch",
-        "",
-        "I",
-        "",
-        "E",
-        "Ju",
-        "Ja",
-        "a",
-        "b",
-        "c",
-        "d",
-        "e",
-        "f",
-        "g",
-        "h",
-        "i",
-        "j",
-        "k",
-        "l",
-        "m",
-        "n",
-        "o",
-        "p",
-        "q",
-        "r",
-        "s",
-        "t",
-        "u",
-        "v",
-        "w",
-        "x",
-        "y",
-        "z",
-        "A",
-        "B",
-        "C",
-        "D",
-        "E",
-        "F",
-        "G",
-        "H",
-        "I",
-        "J",
-        "K",
-        "L",
-        "M",
-        "N",
-        "O",
-        "P",
-        "Q",
-        "R",
-        "S",
-        "T",
-        "U",
-        "V",
-        "W",
-        "X",
-        "Y",
-        "Z"
-    )
-    val builder = StringBuilder()
-    for (i in 0 until message.length) {
-        for (x in abcCyr.indices) {
-            if (message[i] == abcCyr[x]) {
-                builder.append(abcLat[x])
-            }
-        }
-    }
-    var res = builder.toString()
-    if (toUpper) {
-        res = res.uppercase()
-    }
-    return res.trim()
-}
-
 fun <T> findPosition(list: List<T>, item: T): Int {
     return list.indexOf(item)
 }
@@ -1208,12 +952,25 @@ fun <T> Collection<T>.copy(): ArrayList<T> {
     return newList
 }
 
-fun Any?.toJson(): String? {
-    return if (this != null) Gson().toJson(this) else null
-}
+fun Any?.toJson(): String? = if (this != null) Gson().toJson(this) else null
 
-fun <T> Any?.fromJson(cls: Class<T>): T? {
-    return Gson().fromJson(this.toString(), cls)
+fun <T> Any?.fromJson(cls: Class<T>): T? =
+    GsonBuilder()
+        .setLenient()
+        .create()
+        .fromJson(this.toString(), cls)
+
+fun <T> Any?.fromJson(gson: Gson, cls: Class<T>): T? =
+    gson.fromJson(this.toString(), cls)
+
+fun <T> String?.fromJson(clazz: Class<*>, deserialize: (JsonElement) -> T): T {
+    return GsonBuilder()
+        .setLenient()
+        .registerTypeAdapter(
+            clazz,
+            JsonDeserializer { json, _, _ -> deserialize.invoke(json) }
+        )
+        .create().fromJson<T>(this, clazz)
 }
 
 fun <T> Any?.fromJson(type: Type?): T? {

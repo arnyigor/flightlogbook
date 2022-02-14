@@ -37,6 +37,8 @@ allprojects {
     }
 }
 
+configurations.all{ exclude group: 'com.google.code.gson', module: 'gson' }
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }

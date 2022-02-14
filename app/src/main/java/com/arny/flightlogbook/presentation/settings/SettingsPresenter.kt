@@ -66,7 +66,7 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
         viewState.hideResults()
         viewState.showProgress(R.string.import_data)
         fromNullable {
-            filesInteractor.readExcelFile(uri, false)
+            filesInteractor.readFile(uri, false)
         }.subscribeFromPresenter({
             viewState.hideProgress()
             val path = it.value
@@ -119,7 +119,7 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
         viewState.hideResults()
         viewState.showProgress(R.string.import_data)
         fromNullable {
-            filesInteractor.readExcelFile(null, true)
+            filesInteractor.readFile(null, true)
         }.subscribeFromPresenter({
             viewState.hideProgress()
             val path = it.value

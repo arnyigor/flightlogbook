@@ -163,26 +163,6 @@ class FilePathUtils {
             }
         }
 
-        private fun getPathBelowKitKat(uri: Uri, context: Context): String? {
-            if ("content".equals(uri.scheme, ignoreCase = true)) {
-                val projection = arrayOf(MediaStore.Images.Media.DATA)
-                var cursor: Cursor? = null
-                try {
-                    cursor = context.contentResolver
-                        .query(uri, projection, selection, selectionArgs, null)
-                    val columnIndex = cursor!!.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-                    if (cursor.moveToFirst()) {
-                        return cursor.getString(columnIndex)
-                    }
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                } finally {
-                    cursor?.close()
-                }
-            }
-            return null
-        }
-
         private fun fileExists(filePath: String): Boolean = File(filePath).exists()
 
         private fun getPathFromExtSD(pathData: Array<String>): String {

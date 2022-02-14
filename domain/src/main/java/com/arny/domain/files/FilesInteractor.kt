@@ -6,7 +6,7 @@ import com.arny.domain.models.Result
 import io.reactivex.Observable
 
 interface FilesInteractor {
-    fun readExcelFile(uri: Uri?, fromSystem: Boolean): String?
+    fun readFile(uri: Uri?, fromSystem: Boolean): String?
     fun exportFile(type: ExportFileType): Observable<Result<String>>
     fun getFileUri(filename: String? = null): Uri?
     fun getAllBackups(): String?

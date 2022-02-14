@@ -8,10 +8,9 @@ import com.arny.domain.R
 import com.arny.domain.common.IResourceProvider
 import com.arny.domain.flights.FlightsInteractor
 import com.arny.domain.flights.FlightsRepository
-import com.arny.domain.models.BusinessException
-import com.arny.domain.models.ExportFileType
-import com.arny.domain.models.Result
-import com.arny.domain.models.toResult
+import com.arny.domain.models.*
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import io.reactivex.Observable
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import java.io.File
@@ -25,13 +24,11 @@ class FilesInteractorImpl @Inject constructor(
     private val flightsRepository: FlightsRepository,
     private val filesRepository: FilesRepository,
 ) : FilesInteractor {
-    override fun readExcelFile(uri: Uri?, fromSystem: Boolean): String? {
-        if (!FileUtils.isExternalStorageAvailable() || FileUtils.isExternalStorageReadOnly()) {
-            return null
-        }
+    private val gson: Gson = GsonBuilder().setLenient().create()
+    override fun readFile(uri: Uri?, fromSystem: Boolean): String? {
         val filename: String = filesRepository.getFileName(fromSystem, uri)
-        val xlsfile = File(filename)
-        if (!xlsfile.isFile || !xlsfile.exists()) {
+        val file = File(filename)
+        if (!file.isFile || !file.exists()) {
             throw BusinessException(
                 String.format(
                     Locale.getDefault(),
@@ -40,13 +37,24 @@ class FilesInteractorImpl @Inject constructor(
                 )
             )
         }
-        val fileInputStream = FileInputStream(xlsfile)
-        val myWorkBook = HSSFWorkbook(fileInputStream)
-        val mySheet = myWorkBook.getSheetAt(0)
-        val rowIter = mySheet.rowIterator()
-        flightsRepository.removeAllFlights()
-        flightsRepository.resetTableFlights()
-        return if (flightsRepository.insertFlights(filesRepository.getFlightsFromExcel(rowIter))) filename else null
+        var flights: List<Flight> = emptyList()
+        when {
+            file.absolutePath.endsWith(CONSTS.FILES.FILE_EXTENTION_XLS) -> {
+                flights = filesRepository.getFlightsFromExcel(
+                    HSSFWorkbook(FileInputStream(file)).getSheetAt(0).rowIterator()
+                )
+            }
+            file.absolutePath.endsWith(CONSTS.FILES.FILE_EXTENTION_JSON) -> {
+                flights = filesRepository.readJsonFile(file)
+            }
+        }
+        var result = false
+        if (flights.isNotEmpty()) {
+            flightsRepository.removeAllFlights()
+            flightsRepository.resetTableFlights()
+            result = flightsRepository.insertFlights(flights)
+        }
+        return if (result) filename else null
     }
 
     override fun exportFile(type: ExportFileType): Observable<Result<String>> {
@@ -64,7 +72,8 @@ class FilesInteractorImpl @Inject constructor(
 
     override fun getFileUri(filename: String?): Uri? = filesRepository.getFileUri(filename)
 
-    override fun getDefaultFilePath() = filesRepository.getDefaultFileName(CONSTS.FILES.FILE_NAME_XLS)
+    override fun getDefaultFilePath() =
+        filesRepository.getDefaultFileName(CONSTS.FILES.FILE_NAME_XLS)
 
     override fun getAllBackupFileNames(): List<String> =
         File(filesRepository.getBackupsPath()).list()

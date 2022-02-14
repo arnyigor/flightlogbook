@@ -325,14 +325,37 @@ class FilesRepositoryImpl @Inject constructor(
 
         return try {
             file.bufferedWriter().use { out ->
-                for (flight in exportData) {
-                    out.write(flight.toJson())
+                val lastIndex = exportData.lastIndex
+                for ((index, data) in exportData.withIndex()) {
+                    out.write(data.toJson() + (if (index != lastIndex) "," else ""))
                 }
             }
             true
         } catch (e: Exception) {
             false
         }
+    }
+
+    override fun readJsonFile(file: File): List<Flight> {
+        val apply = arrayListOf<Flight>().apply {
+            val lines = file.readLines()
+            for (line in lines) {
+                line.fromJson(Flight::class.java)?.let { flight ->
+                    println(flight)
+                }
+            }
+//                    file.bufferedReader().use {
+//                        val text = it.readText()
+//                        val readLine = it.readLine()
+//                        if (readLine.isNotBlank()) {
+//                            readLine.fromJson(gson, Flight::class.java)?.let { flight ->
+//                                println(flight)
+//                                add(flight)
+//                            }
+//                        }
+//                    }
+        }
+        return apply
     }
 
     private fun exportToXLS(
