@@ -290,7 +290,8 @@ class FilesRepositoryImpl @Inject constructor(
         if (fromSystem) {
             getDefaultFileName(CONSTS.FILES.FILE_NAME_XLS)
         } else {
-            FilePathUtils.getPath(uri, resourcesProvider.provideContext()).toString()
+            FilePathUtils.getPath(uri, resourcesProvider.provideContext().applicationContext)
+                .toString()
         }
 
     override fun saveDataToFile(dbFlights: List<Flight>, type: ExportFileType): String? {

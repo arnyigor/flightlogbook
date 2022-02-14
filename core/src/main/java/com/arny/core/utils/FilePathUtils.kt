@@ -15,9 +15,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 
 class FilePathUtils {
-
     companion object {
-
         private var selection: String? = null
         private var selectionArgs: Array<String>? = null
         private const val BUFFER_SIZE = 1024
@@ -31,7 +29,7 @@ class FilePathUtils {
 
         fun getPath(uri: Uri?, context: Context): String? {
             if (uri == null) return null
-            return getPathForKitKatAndAbove(uri, context)
+            return handlePaths(uri, context)
         }
 
         @SuppressLint("NewApi")
@@ -39,7 +37,7 @@ class FilePathUtils {
             val docId = DocumentsContract.getDocumentId(uri)
             val split = docId.split(":".toRegex()).toTypedArray()
             val fullPath = getPathFromExtSD(split)
-            return if (fullPath !== "") fullPath else null
+            return fullPath.ifBlank { null }
         }
 
         @SuppressLint("NewApi")
@@ -69,21 +67,31 @@ class FilePathUtils {
 
         @SuppressLint("NewApi")
         private fun handleDownloads23ApiAndAbove(uri: Uri, context: Context): String? {
-            var cursor: Cursor? = null
-            try {
-                cursor = context.contentResolver
-                    .query(uri, arrayOf(MediaStore.MediaColumns.DISPLAY_NAME), null, null, null)
-                if (cursor != null && cursor.moveToFirst()) {
-                    val fileName = cursor.getString(0)
-                    val path: String =
-                        Environment.getExternalStorageDirectory().toString() + "/Download/" + fileName
-                    if (path.isNotEmpty()) {
-                        return path
-                    }
-                }
-            } finally {
-                cursor?.close()
+            var path: String? = null
+            val cursor = context.contentResolver
+                .query(
+                    uri,
+                    arrayOf(MediaStore.MediaColumns.DISPLAY_NAME),
+                    null,
+                    null,
+                    null
+                )
+            cursor?.use {
+                it.moveToFirst()
+                path =
+                    "${Environment.getExternalStorageDirectory()}/Download/${cursor.getString(0)}"
             }
+            return if (!path.isNullOrBlank()) {
+                path
+            } else {
+                handleDocumentId(uri, context)
+            }
+        }
+
+        private fun handleDocumentId(
+            uri: Uri,
+            context: Context
+        ): String? {
             val id: String = DocumentsContract.getDocumentId(uri)
             if (id.isNotEmpty()) {
                 if (id.startsWith("raw:")) {
@@ -135,15 +143,14 @@ class FilePathUtils {
             }
         }
 
-        @SuppressLint("NewApi")
-        private fun getPathForKitKatAndAbove(uri: Uri, context: Context): String? {
+        private fun handlePaths(uri: Uri, context: Context): String? {
             return when {
                 // ExternalStorageProvider
                 isExternalStorageDocument(uri) -> handleExternalStorage(uri)
                 // DownloadsProvider
                 isDownloadsDocument(uri) -> handleDownloads(uri, context)
                 // MediaProvider
-                isMediaDocument(uri) -> handleMedia(uri, context)
+                isMediaDocument(uri) -> handleMedia(uri, context) ?: handleDownloads(uri, context)
                 //GoogleDriveProvider
                 isGoogleDriveUri(uri) -> getDriveFilePath(uri, context)
                 //WhatsAppProvider
@@ -157,9 +164,6 @@ class FilePathUtils {
         }
 
         private fun getPathBelowKitKat(uri: Uri, context: Context): String? {
-            if (isWhatsAppFile(uri)) {
-                return getFilePathForWhatsApp(uri, context)
-            }
             if ("content".equals(uri.scheme, ignoreCase = true)) {
                 val projection = arrayOf(MediaStore.Images.Media.DATA)
                 var cursor: Cursor? = null
@@ -185,7 +189,6 @@ class FilePathUtils {
             val type = pathData[0]
             val relativePath = "/" + pathData[1]
             var fullPath: String
-
             // on my Sony devices (4.4.4 & 5.1.1), `type` is a dynamic string
             // something like "71F8-2C0A", some kind of unique id per storage
             // don't know any API that can get the root path of that storage based on its id.
@@ -197,7 +200,6 @@ class FilePathUtils {
                     return fullPath
                 }
             }
-
             // Environment.isExternalStorageRemovable() is `true` for external and internal storage
             // so we cannot relay on it.
             //
@@ -230,7 +232,6 @@ class FilePathUtils {
                     val inputStream = context.contentResolver.openInputStream(uri)!!
                     val outputStream = FileOutputStream(file)
                     val bytesAvailable = inputStream.available()
-
                     val bufferSize = bytesAvailable.coerceAtMost(MAX_BUFFER_SIZE)
                     val buffers = ByteArray(bufferSize)
                     var read: Int
@@ -255,7 +256,11 @@ class FilePathUtils {
          * @param newDirName if you want to create a directory, you can set this variable
          * @return
          */
-        private fun copyFileToInternalStorage(uri: Uri, newDirName: String, context: Context): String? {
+        private fun copyFileToInternalStorage(
+            uri: Uri,
+            newDirName: String,
+            context: Context
+        ): String? {
             context.contentResolver.query(
                 uri, arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE), null, null, null
             )?.use { cursor ->
@@ -301,27 +306,25 @@ class FilePathUtils {
         }
 
         private fun getDataColumn(uri: Uri, context: Context): String? {
-            var cursor: Cursor? = null
+            val cursor: Cursor?
             val column = "_data"
             val projection = arrayOf(column)
-            try {
-                cursor = context.contentResolver.query(
-                    uri, projection,
-                    selection, selectionArgs, null
-                )
-                if (cursor != null && cursor.moveToFirst()) {
-                    val index = cursor.getColumnIndexOrThrow(column)
-                    return cursor.getString(index)
-                }
-            } finally {
-                cursor?.close()
+            cursor = context.contentResolver.query(
+                uri, projection,
+                selection, selectionArgs, null
+            )
+            var path: String? = null
+            cursor?.use {
+                path = cursor.getString(cursor.getColumnIndexOrThrow(column))
             }
-            return null
+            return path
         }
 
-        private fun isExternalStorageDocument(uri: Uri): Boolean = EXTERNAL_STORAGE_CONTENT == uri.authority
+        private fun isExternalStorageDocument(uri: Uri): Boolean =
+            EXTERNAL_STORAGE_CONTENT == uri.authority
 
-        private fun isDownloadsDocument(uri: Uri): Boolean = DOWNLOAD_DOCUMENT_CONTENT == uri.authority
+        private fun isDownloadsDocument(uri: Uri): Boolean =
+            DOWNLOAD_DOCUMENT_CONTENT == uri.authority
 
         private fun isMediaDocument(uri: Uri): Boolean = MEDIA_DOCUMENT_CONTENT == uri.authority
 

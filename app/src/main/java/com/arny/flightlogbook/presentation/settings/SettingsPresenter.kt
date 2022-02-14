@@ -73,10 +73,12 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
             if (path != null) {
                 viewState.showResults(R.string.import_file_success, path)
                 viewState.resultSuccess()
+                openDefaultFileWith(path)
             } else {
                 viewState.showError(R.string.error_import_file)
             }
         }, {
+            it.printStackTrace()
             viewState.hideProgress()
             viewState.showError(R.string.error_import_file, it.message)
         })
@@ -159,11 +161,12 @@ class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
             })
     }
 
-    fun openDefaultFileWith() {
-        val fromFile = Uri.fromFile(File(filesInteractor.getDefaultFilePath()))
+    fun openDefaultFileWith(path: String) {
+        val fromFile = Uri.fromFile(File(path))
         val extension = MimeTypeMap.getFileExtensionFromUrl(fromFile.toString())
         val mimetype = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
-        viewState.openWith(Pair(fromFile, mimetype))
+        println(mimetype)
+//        viewState.openWith(Pair(fromFile, mimetype))
     }
 
     fun onSaveLastDataChanged(checked: Boolean) {

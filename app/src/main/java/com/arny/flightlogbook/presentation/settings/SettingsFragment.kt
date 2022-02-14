@@ -2,16 +2,18 @@ package com.arny.flightlogbook.presentation.settings
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.os.*
+import android.os.Build.VERSION.SDK_INT
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.core.view.isVisible
 import com.arny.core.utils.*
 import com.arny.domain.models.ExportFileType
@@ -22,10 +24,10 @@ import com.flightlogbook.uicore.hideProgressDialog
 import com.flightlogbook.uicore.showProgressDialog
 import moxy.ktx.moxyPresenter
 
-
 class SettingsFragment : BaseMvpFragment(), SettingsView {
     private lateinit var binding: SettingsFragmentBinding
     private val handler = Handler(Looper.getMainLooper())
+    private var requestFilesApi30Success: Boolean = false
 
     companion object {
         fun getInstance(): SettingsFragment = SettingsFragment()
@@ -90,6 +92,14 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (requestFilesApi30Success) {
+            requestFilesApi30Success = false
+            requestFile()
+        }
+    }
+
     override fun resultSuccess() {
         handler.removeCallbacksAndMessages(null)
         handler.postDelayed({
@@ -147,13 +157,33 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
         )
     }
 
+    private fun requestPermission() {
+        if (SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
+            requestAccessAndroidR()
+        } else {
+            requestOpenFile()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    private fun requestAccessAndroidR() {
+        requestFilesApi30Success = true
+        requestPermissionAndroidR.launch("")
+    }
+
     private fun requestFile() {
+        requestPermission()
+    }
+
+    private fun requestOpenFile() {
         val intent = newIntent().apply {
             action = Intent.ACTION_GET_CONTENT
             addCategory(Intent.CATEGORY_OPENABLE)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (SDK_INT >= Build.VERSION_CODES.Q) {
                 addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
             }
+            val extraMimeTypes = arrayOf("application/vnd.ms-excel", "application/json")
+            putExtra(Intent.EXTRA_MIME_TYPES, extraMimeTypes)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             type = "*/*"
         }
@@ -164,6 +194,30 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 presenter.onFileImport(result.data?.data)
+            }
+        }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    private class AccessFilesPermissionR : ActivityResultContract<String, Boolean?>() {
+        override fun createIntent(context: Context, input: String?): Intent = newIntent().apply {
+            action = Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
+            addCategory(Intent.CATEGORY_DEFAULT)
+            data = Uri.parse(String.format("package:%s", context.applicationContext.packageName))
+        }
+
+        override fun parseResult(resultCode: Int, intent: Intent?): Boolean {
+            // FIXME не возвращается результат, проверяем отдельно
+            return Environment.isExternalStorageManager()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    private val requestPermissionAndroidR =
+        registerForActivityResult(AccessFilesPermissionR()) { granted ->
+            if (granted == true) {
+                requestOpenFile()
+            } else {
+                requestFilesApi30Success = false
             }
         }
 
@@ -221,6 +275,6 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
 
     // TODO: 28.06.2020 использовать позже
     private fun openFileWith() {
-        presenter.openDefaultFileWith()
+        presenter.openDefaultFileWith("")
     }
 }
