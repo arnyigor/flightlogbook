@@ -12,6 +12,8 @@ import com.arny.domain.models.Flight
 import com.arny.domain.models.FlightType
 import com.arny.domain.models.PlaneType
 import com.arny.domain.planetypes.AircraftTypesRepository
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import org.apache.poi.hssf.usermodel.HSSFCell
 import org.apache.poi.hssf.usermodel.HSSFRow
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
@@ -28,6 +30,8 @@ class FilesRepositoryImpl @Inject constructor(
     private val flightTypesRepository: FlightTypesRepository,
     private val aircraftTypesRepository: AircraftTypesRepository,
 ) : FilesRepository {
+    private val gson: Gson = GsonBuilder().setLenient().create()
+
     companion object {
         private const val LOG_SHEET_MAIN = "Timelog"
     }
@@ -338,9 +342,8 @@ class FilesRepositoryImpl @Inject constructor(
 
     override fun readJsonFile(file: File): List<Flight> {
         val apply = arrayListOf<Flight>().apply {
-            val lines = file.readLines()
-            for (line in lines) {
-                line.fromJson(Flight::class.java)?.let { flight ->
+            for (line in file.readLines()) {
+                line.fromJson(gson, Flight::class.java)?.let { flight ->
                     println(flight)
                 }
             }

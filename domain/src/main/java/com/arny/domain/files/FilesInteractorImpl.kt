@@ -9,8 +9,6 @@ import com.arny.domain.common.IResourceProvider
 import com.arny.domain.flights.FlightsInteractor
 import com.arny.domain.flights.FlightsRepository
 import com.arny.domain.models.*
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import io.reactivex.Observable
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import java.io.File
@@ -24,7 +22,6 @@ class FilesInteractorImpl @Inject constructor(
     private val flightsRepository: FlightsRepository,
     private val filesRepository: FilesRepository,
 ) : FilesInteractor {
-    private val gson: Gson = GsonBuilder().setLenient().create()
     override fun readFile(uri: Uri?, fromSystem: Boolean): String? {
         val filename: String = filesRepository.getFileName(fromSystem, uri)
         val file = File(filename)
