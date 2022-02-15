@@ -35,7 +35,7 @@ class PreferencesInteractor @Inject constructor(private val provider: Preference
         provider.setPref(CONSTS.PREFS.PREF_SAVE_LAST_FLIGHT_DATA, checked)
     }
 
-    override fun setSavedFlightTypeId(flightTypeId: Int?) {
+    override fun setSavedFlightTypeId(flightTypeId: Long?) {
         if (isSaveLastData()) {
             flightTypeId?.let {
                 provider.setPref(
@@ -46,10 +46,10 @@ class PreferencesInteractor @Inject constructor(private val provider: Preference
         }
     }
 
-    override fun getSavedFlightTypeId(): Int? {
+    override fun getSavedFlightTypeId(): Long? {
         if (isSaveLastData()) {
-            with(provider.getPrefInt(CONSTS.PREFS.PREF_LAST_FLIGHT_DATA_FLIGHT_TYPE_ID)) {
-                if (this == 0) return null
+            with(provider.getPrefLong(CONSTS.PREFS.PREF_LAST_FLIGHT_DATA_FLIGHT_TYPE_ID)) {
+                if (this == 0L) return null
                 return this
             }
         } else {

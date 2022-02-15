@@ -242,9 +242,9 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         }
     }
 
-    private fun loadFlightType(typeId: Int?) {
+    private fun loadFlightType(typeId: Long?) {
         typeId?.let {
-            fromNullable { flightsInteractor.loadFlightType(it.toLong()) }
+            fromNullable { flightsInteractor.loadFlightType(it) }
                 .subscribeFromPresenter({
                     val title =
                         "${getString(R.string.str_flight_type_title)}:${it.value?.typeTitle ?: "-"}"
@@ -456,7 +456,7 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         fromNullable { flightsInteractor.loadFlightType(fightTypeId) }
             .subscribeFromPresenter({
                 val flightType = it.value
-                this.flight?.flightTypeId = flightType?.id?.toInt()
+                this.flight?.flightTypeId = flightType?.id
                 viewState.setFligtTypeTitle("${getString(R.string.str_flight_type_title)}:${flightType?.typeTitle}")
             }, {
                 viewState.toastError(getString(R.string.err_flight_type_not_found))

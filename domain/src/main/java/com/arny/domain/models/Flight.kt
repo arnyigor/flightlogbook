@@ -13,7 +13,7 @@ data class Flight(
     var planeType: PlaneType? = null,
     var daynight: Int? = null,
     var ifrvfr: Int? = null,
-    var flightTypeId: Int? = null,
+    var flightTypeId: Long? = null,
     var flightType: FlightType? = null,
     var description: String? = null,
     var datetimeFormatted: String? = null,

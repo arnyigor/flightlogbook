@@ -6,8 +6,8 @@ interface IPreferencesInteractor {
     fun setAutoExportXLS(checked: Boolean)
     fun isSaveLastData(): Boolean
     fun setSaveLastData(checked: Boolean)
-    fun setSavedFlightTypeId(flightTypeId: Int?)
-    fun getSavedFlightTypeId(): Int?
+    fun setSavedFlightTypeId(flightTypeId: Long?)
+    fun getSavedFlightTypeId(): Long?
     fun setSavedAircraftId(aircraftId: Long?)
     fun getSavedAircraftId(): Long?
     fun getFlightsOrderType(): Int

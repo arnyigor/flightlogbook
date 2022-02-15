@@ -8,7 +8,9 @@ import com.arny.domain.R
 import com.arny.domain.common.IResourceProvider
 import com.arny.domain.flights.FlightsInteractor
 import com.arny.domain.flights.FlightsRepository
+import com.arny.domain.flighttypes.FlightTypesRepository
 import com.arny.domain.models.*
+import com.arny.domain.planetypes.AircraftTypesRepository
 import io.reactivex.Observable
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import java.io.File
@@ -21,6 +23,8 @@ class FilesInteractorImpl @Inject constructor(
     private val flightsInteractor: FlightsInteractor,
     private val flightsRepository: FlightsRepository,
     private val filesRepository: FilesRepository,
+    private val aircraftTypesRepository: AircraftTypesRepository,
+    private val flightTypesRepository: FlightTypesRepository,
 ) : FilesInteractor {
     override fun readFile(uri: Uri?, fromSystem: Boolean): String? {
         val filename: String = filesRepository.getFileName(fromSystem, uri)

@@ -29,7 +29,7 @@ data class FlightEntity constructor(
     @ColumnInfo(name = "ifr_vfr")
     var ifrvfr: Int? = null,
     @ColumnInfo(name = "flight_type")
-    var flighttype: Int? = null,
+    var flighttype: Long? = null,
     var description: String? = null,
     var params: String? = null,
     @ColumnInfo(name = "departure_id")

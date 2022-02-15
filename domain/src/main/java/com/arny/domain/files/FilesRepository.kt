@@ -7,7 +7,7 @@ import java.io.File
 
 interface FilesRepository {
     fun saveDataToFile(dbFlights: List<Flight>, type: ExportFileType = ExportFileType.XLS): String?
-    fun getFlightsFromExcel(rowIter: Iterator<*>): List<Flight>
+    fun getFlightsFromExcel(rowIter: Iterator<*>, ): List<Flight>
     fun getDefaultFileName(fileName: String): String
     fun getFileUri(fileName: String? = null): Uri?
     fun getFileName(fromSystem: Boolean, uri: Uri?): String

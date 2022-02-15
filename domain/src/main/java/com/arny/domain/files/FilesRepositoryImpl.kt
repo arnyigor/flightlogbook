@@ -20,6 +20,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.ss.usermodel.Row
+import org.json.JSONObject
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileOutputStream
@@ -63,7 +64,7 @@ class FilesRepositoryImpl @Inject constructor(
         var rowCnt = 0
         var strDate: String? = null
         var strDesc: String
-        var airplaneTypeId: Long = 0
+        var airplaneTypeId: Long
         var mDateTime: Long = 0
         var planeType: PlaneType? = null
         var planeTypes = aircraftTypesRepository.loadAircraftTypes()
@@ -188,7 +189,7 @@ class FilesRepositoryImpl @Inject constructor(
                                     }
                                 }
                             }
-                            flight.flightTypeId = flightTypeId.toInt()
+                            flight.flightTypeId = flightTypeId
                         }
                         8 -> {
                             try {
@@ -323,7 +324,7 @@ class FilesRepositoryImpl @Inject constructor(
             .map { flight ->
                 flight.planeType = aircraftTypesRepository.loadAircraftType(flight.planeId)
                 flight.flightType =
-                    flightTypesRepository.loadDBFlightType(flight.flightTypeId?.toLong())
+                    flightTypesRepository.loadDBFlightType(flight.flightTypeId)
                 flight
             }
 
@@ -331,7 +332,7 @@ class FilesRepositoryImpl @Inject constructor(
             file.bufferedWriter().use { out ->
                 val lastIndex = exportData.lastIndex
                 for ((index, data) in exportData.withIndex()) {
-                    out.write(data.toJson() + (if (index != lastIndex) "," else ""))
+                    out.write(data.toJson() + (if (index != lastIndex) ",\n" else ""))
                 }
             }
             true
@@ -340,25 +341,57 @@ class FilesRepositoryImpl @Inject constructor(
         }
     }
 
+    inline fun <reified T> JSONObject?.getValue(extraName: String): T? = this?.get(extraName) as? T
+    private fun Long?.toDDMMMYYYY(): String? =
+        this?.let { DateTimeUtils.getDateTime(it, "dd MMM yyyy") }
+
     override fun readJsonFile(file: File): List<Flight> {
-        val apply = arrayListOf<Flight>().apply {
+        return arrayListOf<Flight>().apply {
             for (line in file.readLines()) {
-                line.fromJson(gson, Flight::class.java)?.let { flight ->
-                    println(flight)
+                if (line.isNotBlank()) {
+                    val flightObject = JSONObject(line)
+                    val apply = Flight().apply {
+                        arrivalUtcTime = flightObject.getValue("arrivalUtcTime")
+                        datetime = flightObject.getValue("datetime")
+                        datetimeFormatted = this.datetime?.toDDMMMYYYY()
+                        departureUtcTime = flightObject.getValue("departureUtcTime")
+                        description = flightObject.getValue("description")
+                        flightTime = flightObject.getValue("flightTime") ?: 0
+                        val flightTypeTmp = (flightObject.getString("flightType")).fromJson(
+                            gson,
+                            FlightType::class.java
+                        )// TODO записать типы отдельно и передать в модель flight
+                        flightType = flightTypeTmp
+                        flightTypeId = flightTypeTmp?.id
+                    }
+                    println(apply)
+//                    {"arrivalUtcTime":0,
+//                        "datetime":1447621200000,
+//                        "datetimeFormatted":"16 нояб. 2015",
+//                        "departureUtcTime":0,
+//                        "description":"налет после обучения",
+//                        "flightTime":2298,
+//                        "flightType":{"id":0,"typeTitle":"Круги"},
+//                        "flightTypeId":0,
+//                        "groundTime":0,
+//                        "id":1,
+//                        "ifrTime":0,
+//                        "logtimeFormatted":"38:18",
+//                        "nightTime":0,
+//                        "params":{"params":{"nameValuePairs":{}}},
+//                        "planeId":2,
+//                        "planeType":{"mainType":"AIRPLANE","regNo":"01785","typeId":2,"typeName":"P2002"},
+//                        "regNo":"01785",
+//                        "selected":false,
+//                        "totalTime":2298
+//                    }
+                    line.fromJson(gson, Flight::class.java)?.let { flight ->
+                        println(flight)
+                        add(flight)
+                    }
                 }
             }
-//                    file.bufferedReader().use {
-//                        val text = it.readText()
-//                        val readLine = it.readLine()
-//                        if (readLine.isNotBlank()) {
-//                            readLine.fromJson(gson, Flight::class.java)?.let { flight ->
-//                                println(flight)
-//                                add(flight)
-//                            }
-//                        }
-//                    }
         }
-        return apply
     }
 
     private fun exportToXLS(
@@ -394,7 +427,7 @@ class FilesRepositoryImpl @Inject constructor(
             .map { flight ->
                 flight.planeType = aircraftTypesRepository.loadAircraftType(flight.planeId)
                 flight.flightType =
-                    flightTypesRepository.loadDBFlightType(flight.flightTypeId?.toLong())
+                    flightTypesRepository.loadDBFlightType(flight.flightTypeId)
                 flight
             }
         var rows = 1
