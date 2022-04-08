@@ -31,6 +31,7 @@ android {
 }
 
 dependencies {
+    implementation project(path: ':core')
     implementation libs.kotlinStdlib
     implementation libs.appCompat
     implementation libs.design

@@ -254,11 +254,11 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
     }
 
     override fun showProgress(msg: Int) {
-        showProgressDialog()
+        childFragmentManager.showProgressDialog(getString(msg))
     }
 
     override fun hideProgress() {
-        hideProgressDialog()
+        childFragmentManager.hideProgressDialog()
     }
 
     override fun setSaveLastFlightData(checked: Boolean) {

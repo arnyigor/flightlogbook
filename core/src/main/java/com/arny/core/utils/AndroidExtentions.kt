@@ -1,10 +1,13 @@
 package com.arny.core.utils
 
 import android.app.Activity
+import android.content.Context
 import android.content.pm.PackageManager
+import android.util.DisplayMetrics
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import kotlin.math.roundToInt
 
 fun <T> Fragment.requestPermission(
     resultLauncher: ActivityResultLauncher<T>,
@@ -27,6 +30,9 @@ fun <T> Fragment.requestPermission(
         }
     }
 }
+
+fun Int.toPx(context: Context): Int =
+    (this * (context.resources.displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT)).roundToInt()
 
 fun <T> Activity.requestPermission(
     resultLauncher: ActivityResultLauncher<T>,
