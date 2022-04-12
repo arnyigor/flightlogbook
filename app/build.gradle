@@ -91,7 +91,6 @@ android {
     buildFeatures {
         viewBinding true
     }
-
 }
 
 dependencies {
@@ -145,6 +144,7 @@ dependencies {
     implementation libs.daggerAndroid
     implementation libs.daggerAndroidSupport
     kapt libs.daggerCompiler
+    kapt libs.daggerAndroidProcessor
     //custom
     implementation libs.betterpickers
     implementation libs.toasty

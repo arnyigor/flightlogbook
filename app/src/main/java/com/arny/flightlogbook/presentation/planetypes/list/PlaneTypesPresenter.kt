@@ -7,9 +7,10 @@ import com.arny.flightlogbook.domain.models.PlaneType
 import com.arny.flightlogbook.domain.planetypes.PlaneTypesInteractor
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import moxy.InjectViewState
+import javax.inject.Inject
 
 @InjectViewState
-class PlaneTypesPresenter(
+class PlaneTypesPresenter @Inject constructor(
     private val planeTypesInteractor: PlaneTypesInteractor,
     private val resourcesInteractor: ResourcesInteractor
 ) : BaseMvpPresenter<PlaneTypesView>() {

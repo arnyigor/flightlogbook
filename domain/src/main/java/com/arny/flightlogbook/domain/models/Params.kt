@@ -32,17 +32,15 @@ class Params {
     }
 
     fun getParam(path: String, defaultVal: String?): String? {
-        val result: String?
         resetParams()
         nodeObject = params
-        result = try {
+        return try {
             parseJsonPath(path)
             nodeString
         } catch (e: JSONException) {
             e.printStackTrace()
             defaultVal
         }
-        return result
     }
 
     fun getParam(path: String): String? {

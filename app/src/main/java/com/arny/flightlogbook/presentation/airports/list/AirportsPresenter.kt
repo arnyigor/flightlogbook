@@ -7,9 +7,10 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import moxy.InjectViewState
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 @InjectViewState
-class AirportsPresenter(
+class AirportsPresenter @Inject constructor(
     private val airportsInteractor: IAirportsInteractor
 ) : BaseMvpPresenter<AirportsView>() {
 

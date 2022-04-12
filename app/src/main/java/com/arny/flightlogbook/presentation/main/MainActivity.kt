@@ -25,20 +25,29 @@ import com.arny.flightlogbook.presentation.flighttypes.list.FlightTypesFragment
 import com.arny.flightlogbook.presentation.planetypes.list.PlaneTypesFragment
 import com.arny.flightlogbook.presentation.settings.SettingsFragment
 import com.arny.flightlogbook.presentation.statistic.view.StatisticFragment
+import dagger.android.AndroidInjection
+import dagger.android.AndroidInjector
+import dagger.android.DispatchingAndroidInjector
+import dagger.android.HasAndroidInjector
+import javax.inject.Inject
 
-class MainActivity : AppCompatActivity(), AppRouter {
-    companion object {
-        private const val DRAWER_SELECTION = "drawer_selection"
-        private const val TIME_DELAY = 2000
+class MainActivity : AppCompatActivity(), AppRouter, HasAndroidInjector {
+    private companion object {
+        const val DRAWER_SELECTION = "drawer_selection"
+        const val TIME_DELAY = 2000
     }
 
+    @Inject
+    lateinit var androidInjector: DispatchingAndroidInjector<Any>
     private lateinit var binding: ActivityHomeBinding
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
     private lateinit var toolbar: Toolbar
     private var backPressedTime: Long = 0
 
+    override fun androidInjector(): AndroidInjector<Any> = androidInjector
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater);
         setContentView(binding.root);
@@ -94,14 +103,14 @@ class MainActivity : AppCompatActivity(), AppRouter {
     }
 
     override fun setResultToTargetFragment(
-            currentFragment: Fragment,
-            intent: Intent?,
-            resultCode: Int
+        currentFragment: Fragment,
+        intent: Intent?,
+        resultCode: Int
     ) {
         currentFragment.targetFragment?.onActivityResult(
-                currentFragment.targetRequestCode,
-                resultCode,
-                intent
+            currentFragment.targetRequestCode,
+            resultCode,
+            intent
         )
     }
 
@@ -140,16 +149,34 @@ class MainActivity : AppCompatActivity(), AppRouter {
         }
     }
 
-    override fun navigateTo(item: NavigateItems, addToBackStack: Boolean, bundle: Bundle?, targetFragment: Fragment?, requestCode: Int?) {
+    override fun navigateTo(
+        item: NavigateItems,
+        addToBackStack: Boolean,
+        bundle: Bundle?,
+        targetFragment: Fragment?,
+        requestCode: Int?
+    ) {
         selectItem(item.index, addToBackStack, bundle, targetFragment, requestCode)
     }
 
     private fun getFragmentContainer(position: Long, bundle: Bundle?): FragmentContainer? {
         return when (position) {
-            NavigateItems.MENU_FLIGHTS.index -> FragmentContainer(FlightListFragment.getInstance(), "FlightListFragment")
-            NavigateItems.MENU_PLANE_TYPES.index -> FragmentContainer(PlaneTypesFragment.getInstance(), "PlaneTypesFragment")
-            NavigateItems.MENU_FLIGHT_TYPES.index -> FragmentContainer(FlightTypesFragment.getInstance(), "FlightTypesFragment")
-            NavigateItems.MENU_CUSTOM_FIELDS.index -> FragmentContainer(CustomFieldsListFragment.getInstance(), "CustomFieldsListFragment")
+            NavigateItems.MENU_FLIGHTS.index -> FragmentContainer(
+                FlightListFragment.getInstance(),
+                "FlightListFragment"
+            )
+            NavigateItems.MENU_PLANE_TYPES.index -> FragmentContainer(
+                PlaneTypesFragment.getInstance(),
+                "PlaneTypesFragment"
+            )
+            NavigateItems.MENU_FLIGHT_TYPES.index -> FragmentContainer(
+                FlightTypesFragment.getInstance(),
+                "FlightTypesFragment"
+            )
+            NavigateItems.MENU_CUSTOM_FIELDS.index -> FragmentContainer(
+                CustomFieldsListFragment.getInstance(),
+                "CustomFieldsListFragment"
+            )
             NavigateItems.MENU_STATS.index -> FragmentContainer(StatisticFragment.getInstance(), "StatisticFragment")
             NavigateItems.MENU_SETTINGS.index -> FragmentContainer(SettingsFragment.getInstance(), "SettingsFragment")
             NavigateItems.MENU_AIRPORTS.index -> FragmentContainer(AirportsFragment.getInstance(), "AirportsFragment")
@@ -179,11 +206,11 @@ class MainActivity : AppCompatActivity(), AppRouter {
     }
 
     private fun selectItem(
-            position: Long,
-            addToBackStack: Boolean = false,
-            bundle: Bundle? = null,
-            targetFragment: Fragment? = null,
-            requestCode: Int? = null
+        position: Long,
+        addToBackStack: Boolean = false,
+        bundle: Bundle? = null,
+        targetFragment: Fragment? = null,
+        requestCode: Int? = null
     ) {
         val fragmentContainer = getFragmentContainer(position, bundle)
         var fragment = getFragmentByTag(fragmentContainer?.tag)
@@ -195,10 +222,10 @@ class MainActivity : AppCompatActivity(), AppRouter {
                 fragment.setTargetFragment(targetFragment, requestCode ?: 0)
             }
             replaceFragment(
-                    fragment,
-                    R.id.container,
-                    addToBackStack,
-                    fragmentContainer?.tag
+                fragment,
+                R.id.container,
+                addToBackStack,
+                fragmentContainer?.tag
             )
         }
         binding.dlMain.closeDrawer(binding.navViewMain)

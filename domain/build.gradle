@@ -44,17 +44,10 @@ dependencies {
     implementation libs.rxJava
     implementation libs.rxAndroid
     implementation libs.rxKotlin
-    /*tests*/
-    implementation libs.junit
-    androidTestImplementation libs.extJunit
-    androidTestImplementation libs.rules
-    implementation libs.assertjCore
-    androidTestImplementation libs.assertjAndroid
-    implementation libs.mockitoCore
-    androidTestImplementation libs.mockitoAndroid
     //di
     implementation libs.dagger
     kapt libs.daggerCompiler
+
     implementation libs.poi
 
     implementation libs.gson

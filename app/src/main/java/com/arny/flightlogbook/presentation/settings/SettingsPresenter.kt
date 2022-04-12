@@ -12,9 +12,10 @@ import com.arny.flightlogbook.domain.models.Result
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import moxy.InjectViewState
 import java.io.File
+import javax.inject.Inject
 
 @InjectViewState
-class SettingsPresenter(
+class SettingsPresenter @Inject constructor(
     private val filesInteractor: FilesInteractor,
     private val prefsInteractor: IPreferencesInteractor,
 ) : BaseMvpPresenter<SettingsView>() {

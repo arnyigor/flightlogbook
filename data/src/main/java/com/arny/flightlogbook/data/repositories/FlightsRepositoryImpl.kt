@@ -17,9 +17,7 @@ import com.arny.flightlogbook.domain.models.toResult
 import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
 class FlightsRepositoryImpl @Inject constructor(
         private val flightDAO: FlightDAO,
         private val mainDB: MainDB,

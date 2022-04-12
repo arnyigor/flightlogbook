@@ -28,9 +28,10 @@ import io.reactivex.schedulers.Schedulers
 import moxy.InjectViewState
 import org.joda.time.DateTime
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 @InjectViewState
-class AddEditPresenter(
+class AddEditPresenter @Inject constructor(
     private val flightsInteractor: FlightsInteractor,
     private val airportsInteractor: IAirportsInteractor,
     private val customFieldInteractor: CustomFieldInteractor,

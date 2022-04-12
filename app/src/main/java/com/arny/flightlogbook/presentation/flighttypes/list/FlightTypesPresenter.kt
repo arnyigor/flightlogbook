@@ -7,9 +7,10 @@ import com.arny.flightlogbook.domain.models.FlightType
 import io.reactivex.disposables.CompositeDisposable
 import moxy.InjectViewState
 import moxy.MvpPresenter
+import javax.inject.Inject
 
 @InjectViewState
-class FlightTypesPresenter(
+class FlightTypesPresenter @Inject constructor(
     private val flightTypesInteractor: FlightTypesInteractor
 ) : MvpPresenter<FlightTypesView>() {
     private val compositeDisposable = CompositeDisposable()

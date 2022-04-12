@@ -5,9 +5,10 @@ import com.arny.flightlogbook.customfields.domain.ICustomFieldInteractor
 import com.arny.flightlogbook.customfields.models.CustomField
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import moxy.InjectViewState
+import javax.inject.Inject
 
 @InjectViewState
-class CustomFieldsListPresenter(
+class CustomFieldsListPresenter @Inject constructor(
    private val customFieldInteractor: ICustomFieldInteractor
 ) : BaseMvpPresenter<CustomFieldsListView>() {
 

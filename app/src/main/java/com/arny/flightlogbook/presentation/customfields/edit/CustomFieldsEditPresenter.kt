@@ -9,7 +9,7 @@ import moxy.InjectViewState
 import javax.inject.Inject
 
 @InjectViewState
-class CustomFieldsEditPresenter : BaseMvpPresenter<CustomFieldsEditView>() {
+class CustomFieldsEditPresenter @Inject constructor() : BaseMvpPresenter<CustomFieldsEditView>() {
 
     private var addTime: Boolean = false
     private var name: String? = null
@@ -29,21 +29,21 @@ class CustomFieldsEditPresenter : BaseMvpPresenter<CustomFieldsEditView>() {
     override fun onFirstViewAttach() {
         if (fieldId != null && fieldId != 0L) {
             fromSingle { customFieldInteractor.getCustomField(fieldId!!) }
-                    .subscribeFromPresenter({
-                        val customField = it.value
-                        if (customField != null) {
-                            name = customField.name
-                            viewState.setTitle(name)
-                            type = customField.type
-                            viewState.setType(type)
-                            showByDefault = customField.showByDefault
-                            viewState.setDefaultChecked(showByDefault)
-                            addTime = customField.addTime
-                            viewState.setAddTimeChecked(addTime)
-                        }
-                    }, {
-                        it.printStackTrace()
-                    })
+                .subscribeFromPresenter({
+                    val customField = it.value
+                    if (customField != null) {
+                        name = customField.name
+                        viewState.setTitle(name)
+                        type = customField.type
+                        viewState.setType(type)
+                        showByDefault = customField.showByDefault
+                        viewState.setDefaultChecked(showByDefault)
+                        addTime = customField.addTime
+                        viewState.setAddTimeChecked(addTime)
+                    }
+                }, {
+                    it.printStackTrace()
+                })
         }
     }
 
@@ -55,14 +55,14 @@ class CustomFieldsEditPresenter : BaseMvpPresenter<CustomFieldsEditView>() {
         }
         viewState.showProgress(false)
         fromSingle { customFieldInteractor.save(fieldId, name!!, type, showByDefault, addTime) }
-                .subscribeFromPresenter({
-                    viewState.showProgress(false)
-                    viewState.showResult(R.string.save_custom_field_success)
-                    viewState.onResultOk()
-                }, {
-                    viewState.showProgress(false)
-                    viewState.showError(R.string.error_custom_field_not_saved)
-                })
+            .subscribeFromPresenter({
+                viewState.showProgress(false)
+                viewState.showResult(R.string.save_custom_field_success)
+                viewState.onResultOk()
+            }, {
+                viewState.showProgress(false)
+                viewState.showError(R.string.error_custom_field_not_saved)
+            })
     }
 
     fun setFieldName(name: String) {
@@ -85,16 +85,16 @@ class CustomFieldsEditPresenter : BaseMvpPresenter<CustomFieldsEditView>() {
     fun onDelete() {
         fieldId?.let {
             fromSingle { customFieldInteractor.removeField(it) }
-                    .subscribeFromPresenter({
-                        if (it) {
-                            viewState.showResult(R.string.custom_field_removed)
-                            viewState.onResultOk()
-                        } else {
-                            viewState.showError(R.string.error_custom_field_not_removed)
-                        }
-                    }, {
+                .subscribeFromPresenter({
+                    if (it) {
+                        viewState.showResult(R.string.custom_field_removed)
+                        viewState.onResultOk()
+                    } else {
                         viewState.showError(R.string.error_custom_field_not_removed)
-                    })
+                    }
+                }, {
+                    viewState.showError(R.string.error_custom_field_not_removed)
+                })
         }
     }
 }

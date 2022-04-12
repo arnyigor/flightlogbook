@@ -3,8 +3,9 @@ package com.arny.flightlogbook.domain.airports
 import com.arny.core.utils.OptionalNull
 import com.arny.core.utils.toOptionalNull
 import com.arny.flightlogbook.domain.models.Airport
+import javax.inject.Inject
 
-class AirportsInteractor(
+class AirportsInteractor @Inject constructor(
     private val airportsRepository: IAirportsRepository
 ) : IAirportsInteractor {
     override fun getAirports(): List<Airport> = airportsRepository.getAirports()

@@ -7,9 +7,7 @@ import com.arny.flightlogbook.domain.models.PlaneType
 import com.arny.flightlogbook.domain.planetypes.AircraftType
 import com.arny.flightlogbook.domain.planetypes.AircraftTypesRepository
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
 class AircraftTypesRepositoryImpl @Inject constructor(private val aircraftTypeDAO: AircraftTypeDAO) : AircraftTypesRepository {
     override fun loadAircraftTypes(): List<PlaneType> {
         return aircraftTypeDAO.queryAircraftTypes()

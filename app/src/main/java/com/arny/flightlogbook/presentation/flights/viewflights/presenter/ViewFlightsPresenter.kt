@@ -9,9 +9,10 @@ import com.arny.flightlogbook.domain.models.Result
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import com.arny.flightlogbook.presentation.flights.viewflights.view.ViewFlightsView
 import moxy.InjectViewState
+import javax.inject.Inject
 
 @InjectViewState
-class ViewFlightsPresenter(
+class ViewFlightsPresenter @Inject constructor(
     private val flightsInteractor: FlightsInteractor,
     private val resourcesInteractor: ResourcesInteractor
 ) : BaseMvpPresenter<ViewFlightsView>() {

@@ -4,14 +4,21 @@ import com.arny.flightlogbook.data.db.daos.AirportsDAO
 import com.arny.flightlogbook.data.models.airports.toAirportEntity
 import com.arny.flightlogbook.domain.airports.IAirportsRepository
 import com.arny.flightlogbook.domain.models.Airport
+import javax.inject.Inject
 
-class AirportsRepository (
+class AirportsRepository @Inject constructor(
     private val airportsDAO: AirportsDAO
 ) : IAirportsRepository {
     override fun getAirports(): List<Airport> = airportsDAO.getDbAirports().map { it.toAirport() }
 
     override fun getAirportsLike(query: String): List<Airport> =
-        airportsDAO.getDbAirportsLike("$query%", "$query%", "$query%", "$query%", "$query%").map { it.toAirport() }
+        airportsDAO.getDbAirportsLike(
+            icao = "$query%",
+            iata = "$query%",
+            name = "$query%",
+            city = "$query%",
+            country = "$query%"
+        ).map { it.toAirport() }
 
     override fun getAirport(airportId: Long?): Airport? = airportsDAO.getDbAirport(airportId)?.toAirport()
 

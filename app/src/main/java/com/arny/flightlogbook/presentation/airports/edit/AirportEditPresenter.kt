@@ -6,9 +6,10 @@ import com.arny.flightlogbook.domain.airports.IAirportsInteractor
 import com.arny.flightlogbook.domain.models.Airport
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import moxy.InjectViewState
+import javax.inject.Inject
 
 @InjectViewState
-class AirportEditPresenter(
+class AirportEditPresenter @Inject constructor(
     private val airportsInteractor: IAirportsInteractor
 ) : BaseMvpPresenter<AirportEditView>() {
 

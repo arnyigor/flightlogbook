@@ -15,9 +15,10 @@ import moxy.InjectViewState
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import java.util.*
+import javax.inject.Inject
 
 @InjectViewState
-class StatisticsPresenter(
+class StatisticsPresenter @Inject constructor(
     private val statisticInteractor: StatisticInteractor,
     private val resourcesInteractor: ResourcesInteractor
 ) : BaseMvpPresenter<StatisticsView>() {

@@ -27,19 +27,30 @@ import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.flightlogbook.presentation.main.NavigateItems
 import com.arny.flightlogbook.presentation.planetypes.edit.PlaneTypeEditFragment
 import com.arny.flightlogbook.presentation.planetypes.list.PlaneTypesFragment
+import dagger.android.AndroidInjection
+import dagger.android.AndroidInjector
+import dagger.android.DispatchingAndroidInjector
+import dagger.android.HasAndroidInjector
+import javax.inject.Inject
 
-class FragmentContainerActivity : AppCompatActivity(), AppRouter {
+class FragmentContainerActivity : AppCompatActivity(), AppRouter, HasAndroidInjector {
 
     private lateinit var binding: ActivityFragmentContainerBinding
 
+    @Inject
+    lateinit var androidInjector: DispatchingAndroidInjector<Any>
+
+    override fun androidInjector(): AndroidInjector<Any> = androidInjector
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         binding = ActivityFragmentContainerBinding.inflate(layoutInflater);
         setContentView(binding.root);
         setSupportActionBar(binding.incMainToolbar.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         getFragmentContainer(intent.action, intent.extras)
-                ?.let { replaceFragmentInActivity(it.fragment, R.id.fragment_container, it.tag) }
+            ?.let { replaceFragmentInActivity(it.fragment, R.id.fragment_container, it.tag) }
     }
 
 
@@ -57,52 +68,52 @@ class FragmentContainerActivity : AppCompatActivity(), AppRouter {
     }
 
     private fun getFragmentContainer(
-            action: String?,
-            bundle: Bundle?
+        action: String?,
+        bundle: Bundle?
     ): FragmentContainer? {
         return when (action) {
             EXTRA_ACTION_EDIT_FLIGHT -> FragmentContainer(
-                    AddEditFragment.getInstance(bundle),
-                    "AddEditFragment"
+                AddEditFragment.getInstance(bundle),
+                "AddEditFragment"
             )
             EXTRA_ACTION_EDIT_CUSTOM_FIELD -> FragmentContainer(
-                    CustomFieldEditFragment.getInstance(bundle),
-                    "CustomFieldEditFragment"
+                CustomFieldEditFragment.getInstance(bundle),
+                "CustomFieldEditFragment"
             )
             EXTRA_ACTION_SELECT_CUSTOM_FIELD -> FragmentContainer(
-                    CustomFieldsListFragment.getInstance(bundle),
-                    "CustomFieldsListFragment"
+                CustomFieldsListFragment.getInstance(bundle),
+                "CustomFieldsListFragment"
             )
             EXTRA_ACTION_SELECT_PLANE_TYPE -> FragmentContainer(
-                    PlaneTypesFragment.getInstance(bundle),
-                    "PlaneTypesFragment"
+                PlaneTypesFragment.getInstance(bundle),
+                "PlaneTypesFragment"
             )
             EXTRA_ACTION_SELECT_FLIGHT_TYPE -> FragmentContainer(
-                    FlightTypesFragment.getInstance(bundle),
-                    "FlightTypesFragment"
+                FlightTypesFragment.getInstance(bundle),
+                "FlightTypesFragment"
             )
             EXTRA_ACTION_EDIT_PLANE_TYPE -> FragmentContainer(
-                    PlaneTypeEditFragment.getInstance(bundle),
-                    "PlaneTypeEditFragment"
+                PlaneTypeEditFragment.getInstance(bundle),
+                "PlaneTypeEditFragment"
             )
             EXTRA_ACTION_SELECT_AIRPORT -> FragmentContainer(
-                    AirportsFragment.getInstance(bundle),
-                    "AirportsFragment"
+                AirportsFragment.getInstance(bundle),
+                "AirportsFragment"
             )
             EXTRA_ACTION_EDIT_AIRPORT -> FragmentContainer(
-                    AirportEditFragment.getInstance(bundle),
-                    "AirportEditFragment"
+                AirportEditFragment.getInstance(bundle),
+                "AirportEditFragment"
             )
             else -> null
         }
     }
 
     override fun navigateTo(
-            item: NavigateItems,
-            addToBackStack: Boolean,
-            bundle: Bundle?,
-            targetFragment: Fragment?,
-            requestCode: Int?
+        item: NavigateItems,
+        addToBackStack: Boolean,
+        bundle: Bundle?,
+        targetFragment: Fragment?,
+        requestCode: Int?
     ) {
         val fragmentContainer = getFragmentContainer(getAction(item), bundle)
         fragmentContainer?.fragment?.let { fragment ->
@@ -110,10 +121,10 @@ class FragmentContainerActivity : AppCompatActivity(), AppRouter {
                 fragment.setTargetFragment(it, requestCode ?: 0)
             }
             replaceFragment(
-                    fragment,
-                    R.id.fragment_container,
-                    addToBackStack,
-                    fragmentContainer.tag
+                fragment,
+                R.id.fragment_container,
+                addToBackStack,
+                fragmentContainer.tag
             )
         }
     }
@@ -124,15 +135,15 @@ class FragmentContainerActivity : AppCompatActivity(), AppRouter {
     }
 
     override fun setResultToTargetFragment(
-            currentFragment: Fragment,
-            intent: Intent?,
-            resultCode: Int
+        currentFragment: Fragment,
+        intent: Intent?,
+        resultCode: Int
     ) {
         if (currentFragment.targetFragment != null) {
             currentFragment.targetFragment?.onActivityResult(
-                    currentFragment.targetRequestCode,
-                    resultCode,
-                    intent
+                currentFragment.targetRequestCode,
+                resultCode,
+                intent
             )
         } else {
             setResult(resultCode, intent)
