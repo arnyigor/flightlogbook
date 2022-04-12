@@ -40,6 +40,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     CalendarDatePickerDialogFragment.OnDateSetListener,
     View.OnClickListener, TimePickerDialog.OnTimeSetListener {
     companion object {
+        private const val PERMISSION = Manifest.permission.WRITE_EXTERNAL_STORAGE
         fun getInstance(bundle: Bundle? = null) = AddEditFragment().apply {
             bundle?.let { arguments = it }
         }
@@ -53,10 +54,11 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     private var appRouter: AppRouter? = null
     private val presenter by moxyPresenter { AddEditPresenter() }
     private val requestPermissionSaveData =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (granted) {
-                saveDataFlight()
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+            if (!shouldShowRequestPermissionRationale(PERMISSION)) {
+                presenter.revokeSafeFile()
             }
+            saveDataFlight()
         }
 
     override fun getTitle(): String = getString(currentTitle)
@@ -431,13 +433,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     }
 
     override fun requestStorageAndSave() {
-        requestPermission(
-            requestPermissionSaveData,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        ) {
-            saveDataFlight()
-        }
+        requestPermissionSaveData.launch(PERMISSION)
     }
 
     private fun saveDataFlight() {
