@@ -671,4 +671,8 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
             updateTimes()
         }
     }
+
+    fun revokeSafeFile() {
+        prefsInteractor.setAutoExportXLS(false)
+    }
 }
