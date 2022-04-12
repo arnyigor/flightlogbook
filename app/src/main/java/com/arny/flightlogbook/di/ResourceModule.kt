@@ -1,11 +1,11 @@
 package com.arny.flightlogbook.di
 
-import com.arny.domain.common.IPreferencesInteractor
-import com.arny.domain.common.IResourceProvider
-import com.arny.domain.common.PreferencesInteractor
-import com.arny.domain.common.PreferencesProvider
 import com.arny.flightlogbook.data.repositories.PreferencesProviderImpl
 import com.arny.flightlogbook.data.repositories.ResourcesProviderImpl
+import com.arny.flightlogbook.domain.common.IPreferencesInteractor
+import com.arny.flightlogbook.domain.common.IResourceProvider
+import com.arny.flightlogbook.domain.common.PreferencesInteractor
+import com.arny.flightlogbook.domain.common.PreferencesProvider
 import dagger.Binds
 import dagger.Module
 import javax.inject.Singleton

@@ -3,7 +3,7 @@ package com.arny.flightlogbook.data.models.flights
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.arny.domain.models.FlightType
+import com.arny.flightlogbook.domain.models.FlightType
 
 @Entity(tableName = "flight_type")
 data class FlightTypeEntity(

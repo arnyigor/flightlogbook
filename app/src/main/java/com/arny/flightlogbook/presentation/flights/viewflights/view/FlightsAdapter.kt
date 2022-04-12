@@ -9,9 +9,9 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.arny.core.utils.DateTimeUtils
 import com.arny.core.utils.getIntColor
-import com.arny.domain.models.Flight
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.databinding.FlightListItemBinding
+import com.arny.flightlogbook.domain.models.Flight
 
 class FlightsAdapter(private val onFlightsListListener: OnFlightsListListener? = null) :
     ListAdapter<Flight, FlightsAdapter.AdapterViewholder>(

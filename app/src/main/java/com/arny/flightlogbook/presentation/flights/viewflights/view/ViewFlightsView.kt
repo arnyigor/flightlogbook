@@ -1,6 +1,6 @@
 package com.arny.flightlogbook.presentation.flights.viewflights.view
 
-import com.arny.domain.models.Flight
+import com.arny.flightlogbook.domain.models.Flight
 import moxy.MvpView
 import moxy.viewstate.strategy.AddToEndSingleStrategy
 import moxy.viewstate.strategy.OneExecutionStateStrategy

@@ -4,33 +4,20 @@ import android.net.Uri
 import android.webkit.MimeTypeMap
 import com.arny.core.utils.fromNullable
 import com.arny.core.utils.fromSingle
-import com.arny.domain.common.IPreferencesInteractor
-import com.arny.domain.files.FilesInteractor
-import com.arny.domain.flights.FlightsInteractor
-import com.arny.domain.models.ExportFileType
-import com.arny.domain.models.Result
-import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.domain.common.IPreferencesInteractor
+import com.arny.flightlogbook.domain.files.FilesInteractor
+import com.arny.flightlogbook.domain.models.ExportFileType
+import com.arny.flightlogbook.domain.models.Result
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import moxy.InjectViewState
 import java.io.File
-import javax.inject.Inject
 
 @InjectViewState
-class SettingsPresenter : BaseMvpPresenter<SettingsView>() {
-    @Inject
-    lateinit var filesInteractor: FilesInteractor
-
-    @Inject
-    lateinit var interactor: FlightsInteractor
-
-    @Inject
-    lateinit var prefsInteractor: IPreferencesInteractor
-
-    init {
-        FlightApp.appComponent.inject(this)
-    }
-
+class SettingsPresenter(
+    private val filesInteractor: FilesInteractor,
+    private val prefsInteractor: IPreferencesInteractor,
+) : BaseMvpPresenter<SettingsView>() {
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
         initState()

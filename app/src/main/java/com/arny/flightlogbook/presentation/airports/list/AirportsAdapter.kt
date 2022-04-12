@@ -6,9 +6,9 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.arny.core.utils.diffUtilCallback
 import com.arny.core.utils.ifNull
-import com.arny.domain.models.Airport
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.databinding.IAirportBinding
+import com.arny.flightlogbook.domain.models.Airport
 
 class AirportsAdapter(
     private val isRus: Boolean,

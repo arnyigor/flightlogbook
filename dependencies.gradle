@@ -8,7 +8,7 @@ ext.versions = [
         'constraint'           : '2.0.2',
         'vectordrawable'       : '1.1.0',
         'drawerlayout'         : '1.1.1',
-        'dagger'               : '2.40.5',
+        'dagger'               : '2.41',
         'recyclerview'         : '1.2.1',
         'cardview'             : '1.0.0',
         'constraintlayout'     : '2.1.3',
@@ -127,6 +127,8 @@ ext.libs = [
 
         //di
         'dagger'              : "com.google.dagger:dagger:${versions.dagger}",
+        'daggerAndroid'       : "com.google.dagger:dagger-android:${versions.dagger}",
+        'daggerAndroidSupport': "com.google.dagger:dagger-android-support:${versions.dagger}",
         'daggerCompiler'      : "com.google.dagger:dagger-compiler:${versions.dagger}",
 
         'cicerone'            : "com.github.terrakok:cicerone:${versions.cicerone}",

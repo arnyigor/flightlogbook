@@ -1,7 +1,6 @@
 package com.arny.flightlogbook.presentation.customfields.edit
 
 import com.arny.core.utils.fromSingle
-import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.customfields.domain.ICustomFieldInteractor
 import com.arny.flightlogbook.customfields.models.CustomFieldType
@@ -11,10 +10,6 @@ import javax.inject.Inject
 
 @InjectViewState
 class CustomFieldsEditPresenter : BaseMvpPresenter<CustomFieldsEditView>() {
-
-    init {
-        FlightApp.appComponent.inject(this)
-    }
 
     private var addTime: Boolean = false
     private var name: String? = null

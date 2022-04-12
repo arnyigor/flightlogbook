@@ -11,14 +11,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.arny.core.CONSTS
 import com.arny.core.utils.ToastMaker
 import com.arny.core.utils.alertDialog
-import com.arny.domain.models.PlaneType
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.databinding.PlaneTypesLayoutBinding
+import com.arny.flightlogbook.domain.models.PlaneType
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.flightlogbook.presentation.main.NavigateItems
-import moxy.presenter.InjectPresenter
-import moxy.presenter.ProvidePresenter
+import dagger.android.support.AndroidSupportInjection
+import moxy.ktx.moxyPresenter
+import javax.inject.Inject
+import javax.inject.Provider
 
 class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView, View.OnClickListener {
     companion object {
@@ -30,15 +32,15 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView, View.OnClickListen
     private lateinit var binding: PlaneTypesLayoutBinding
     private var adapter: PlaneTypesAdapter? = null
 
-    @InjectPresenter
-    lateinit var typeListPresenter: PlaneTypesPresenter
+    @Inject
+    lateinit var presenterProvider: Provider<PlaneTypesPresenter>
 
-    @ProvidePresenter
-    fun provideTypeListPresenter() = PlaneTypesPresenter()
+    private val presenter by moxyPresenter { presenterProvider.get() }
 
     private var appRouter: AppRouter? = null
 
     override fun onAttach(context: Context) {
+        AndroidSupportInjection.inject(this)
         super.onAttach(context)
         if (context is AppRouter) {
             appRouter = context
@@ -99,7 +101,7 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView, View.OnClickListen
 
     override fun onResume() {
         super.onResume()
-        typeListPresenter.loadTypes()
+        presenter.loadTypes()
     }
 
     override fun toastError(msg: String?) {
@@ -137,7 +139,7 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView, View.OnClickListen
             btnCancelText = getString(R.string.str_cancel),
             cancelable = false,
             onConfirm = {
-                typeListPresenter.removeType(item)
+                presenter.removeType(item)
             }
         )
     }

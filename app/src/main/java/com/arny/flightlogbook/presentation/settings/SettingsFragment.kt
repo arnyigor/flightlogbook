@@ -16,13 +16,16 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.view.isVisible
 import com.arny.core.utils.*
-import com.arny.domain.models.ExportFileType
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.databinding.SettingsFragmentBinding
+import com.arny.flightlogbook.domain.models.ExportFileType
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.flightlogbook.uicore.hideProgressDialog
 import com.flightlogbook.uicore.showProgressDialog
+import dagger.android.support.AndroidSupportInjection
 import moxy.ktx.moxyPresenter
+import javax.inject.Inject
+import javax.inject.Provider
 
 class SettingsFragment : BaseMvpFragment(), SettingsView {
     private lateinit var binding: SettingsFragmentBinding
@@ -33,7 +36,10 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
         fun getInstance(): SettingsFragment = SettingsFragment()
     }
 
-    private val presenter by moxyPresenter { SettingsPresenter() }
+    @Inject
+    lateinit var presenterProvider: Provider<SettingsPresenter>
+
+    private val presenter by moxyPresenter { presenterProvider.get() }
 
     override fun getTitle(): String = getString(R.string.str_settings)
 
@@ -49,6 +55,11 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
                 chooseExportFile()
             }
         }
+
+    override fun onAttach(context: Context) {
+        AndroidSupportInjection.inject(this)
+        super.onAttach(context)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,

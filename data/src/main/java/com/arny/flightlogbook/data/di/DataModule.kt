@@ -3,7 +3,6 @@ package com.arny.flightlogbook.data.di
 import android.content.Context
 import androidx.room.Room
 import com.arny.core.CONSTS
-import com.arny.domain.di.DomainModule
 import com.arny.flightlogbook.data.db.DatabaseMigrations
 import com.arny.flightlogbook.data.db.MainDB
 import dagger.Module
@@ -12,7 +11,6 @@ import javax.inject.Singleton
 
 @Module(includes = [
     FlightsModule::class,
-    DomainModule::class,
     AirportsModule::class,
     CustomFieldsModule::class
 ])

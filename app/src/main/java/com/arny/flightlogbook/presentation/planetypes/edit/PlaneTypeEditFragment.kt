@@ -13,7 +13,10 @@ import com.arny.flightlogbook.R
 import com.arny.flightlogbook.databinding.FPlaneTypeEditBinding
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.main.AppRouter
+import dagger.android.support.AndroidSupportInjection
 import moxy.ktx.moxyPresenter
+import javax.inject.Inject
+import javax.inject.Provider
 
 class PlaneTypeEditFragment : BaseMvpFragment(), PlaneTypeEditView {
     companion object {
@@ -25,11 +28,14 @@ class PlaneTypeEditFragment : BaseMvpFragment(), PlaneTypeEditView {
     private lateinit var binding: FPlaneTypeEditBinding
     private var appRouter: AppRouter? = null
 
-    private val presenter by moxyPresenter { PlaneTypeEditPresenter() }
+    @Inject
+    lateinit var presenterProvider: Provider<PlaneTypeEditPresenter>
+    private val presenter by moxyPresenter { presenterProvider.get() }
 
     override fun getTitle(): String = getString(R.string.edit_plane_type)
 
     override fun onAttach(context: Context) {
+        AndroidSupportInjection.inject(this)
         super.onAttach(context)
         if (context is AppRouter) {
             appRouter = context

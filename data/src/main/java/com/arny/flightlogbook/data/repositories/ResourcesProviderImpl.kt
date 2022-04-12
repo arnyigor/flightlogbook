@@ -6,7 +6,7 @@ import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import androidx.annotation.ArrayRes
 import androidx.core.content.ContextCompat
-import com.arny.domain.common.IResourceProvider
+import com.arny.flightlogbook.domain.common.IResourceProvider
 import javax.inject.Inject
 
 class ResourcesProviderImpl @Inject constructor(private val context: Context) : IResourceProvider {

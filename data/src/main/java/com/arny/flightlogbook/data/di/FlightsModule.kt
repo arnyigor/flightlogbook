@@ -1,11 +1,11 @@
 package com.arny.flightlogbook.data.di
 
-import com.arny.domain.flights.FlightsRepository
-import com.arny.domain.flighttypes.FlightTypesRepository
-import com.arny.domain.planetypes.AircraftTypesRepository
 import com.arny.flightlogbook.data.repositories.AircraftTypesRepositoryImpl
 import com.arny.flightlogbook.data.repositories.FlightTypesRepositoryImpl
 import com.arny.flightlogbook.data.repositories.FlightsRepositoryImpl
+import com.arny.flightlogbook.domain.flights.FlightsRepository
+import com.arny.flightlogbook.domain.flighttypes.FlightTypesRepository
+import com.arny.flightlogbook.domain.planetypes.AircraftTypesRepository
 import dagger.Binds
 import dagger.Module
 import javax.inject.Singleton

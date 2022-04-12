@@ -3,10 +3,10 @@ package com.arny.flightlogbook.presentation.planetypes.list
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isVisible
-import com.arny.domain.models.PlaneType
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.flightlogbook.databinding.PlaneTypeListItemLayoutBinding
+import com.arny.flightlogbook.domain.models.PlaneType
 
 class PlaneTypesAdapter(
     private val hideEdit: Boolean = false,

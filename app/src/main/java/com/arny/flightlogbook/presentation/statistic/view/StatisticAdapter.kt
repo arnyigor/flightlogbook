@@ -3,10 +3,10 @@ package com.arny.flightlogbook.presentation.statistic.view
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.arny.core.utils.fromHtml
-import com.arny.domain.models.Statistic
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.flightlogbook.databinding.StatisticItemLayoutBinding
+import com.arny.flightlogbook.domain.models.Statistic
 
 class StatisticAdapter : SimpleAbstractAdapter<Statistic>() {
     private lateinit var binding: StatisticItemLayoutBinding

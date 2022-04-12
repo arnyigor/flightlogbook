@@ -15,12 +15,15 @@ import com.arny.core.CONSTS.REQUESTS.REQUEST_FLIGHT_TYPE
 import com.arny.core.utils.ToastMaker
 import com.arny.core.utils.alertDialog
 import com.arny.core.utils.inputDialog
-import com.arny.domain.models.FlightType
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.databinding.FlightTypesListLayoutBinding
+import com.arny.flightlogbook.domain.models.FlightType
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.main.AppRouter
+import dagger.android.support.AndroidSupportInjection
 import moxy.ktx.moxyPresenter
+import javax.inject.Inject
+import javax.inject.Provider
 
 class FlightTypesFragment : BaseMvpFragment(), FlightTypesView {
     companion object {
@@ -33,9 +36,12 @@ class FlightTypesFragment : BaseMvpFragment(), FlightTypesView {
     private var typesAdapter: FlightTypesAdapter? = null
     private var appRouter: AppRouter? = null
 
-    private val presenter by moxyPresenter { FlightTypesPresenter() }
+    @Inject
+    lateinit var presenterProvider: Provider<FlightTypesPresenter>
+    private val presenter by moxyPresenter { presenterProvider.get() }
 
     override fun onAttach(context: Context) {
+        AndroidSupportInjection.inject(this)
         super.onAttach(context)
         if (context is AppRouter) {
             appRouter = context

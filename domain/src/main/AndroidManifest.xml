@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.arny.domain">
+    package="com.arny.flightlogbook.domain">
 
     <application
         android:allowBackup="true"

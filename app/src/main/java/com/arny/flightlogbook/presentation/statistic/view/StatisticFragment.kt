@@ -1,5 +1,6 @@
 package com.arny.flightlogbook.presentation.statistic.view
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.*
@@ -10,15 +11,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.color.colorChooser
 import com.arny.core.utils.ToastMaker
-import com.arny.domain.models.Statistic
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.MultiSelectionSpinner
 import com.arny.flightlogbook.databinding.StatisticFragmentBinding
+import com.arny.flightlogbook.domain.models.Statistic
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.statistic.presenter.StatisticsPresenter
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment
+import dagger.android.support.AndroidSupportInjection
 import moxy.ktx.moxyPresenter
-import java.util.*
+import javax.inject.Inject
+import javax.inject.Provider
 
 class StatisticFragment : BaseMvpFragment(), StatisticsView, View.OnClickListener {
     companion object {
@@ -26,11 +29,20 @@ class StatisticFragment : BaseMvpFragment(), StatisticsView, View.OnClickListene
     }
 
     private lateinit var binding: StatisticFragmentBinding
-    private val statisticsPresenter by moxyPresenter { StatisticsPresenter() }
+
+    @Inject
+    lateinit var presenterProvider: Provider<StatisticsPresenter>
+
+    private val presenter by moxyPresenter { presenterProvider.get() }
 
     private var statAdapter: StatisticAdapter? = null
 
     override fun getTitle(): String = getString(R.string.fragment_stats)
+
+    override fun onAttach(context: Context) {
+        AndroidSupportInjection.inject(this)
+        super.onAttach(context)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -68,15 +80,15 @@ class StatisticFragment : BaseMvpFragment(), StatisticsView, View.OnClickListene
                     position: Int,
                     id: Long
                 ) {
-                    statisticsPresenter.onPeriodChanged(position)
+                    presenter.onPeriodChanged(position)
                 }
             }
             chboxExtendedStat.setOnCheckedChangeListener { _, isChecked ->
-                statisticsPresenter.onExtendedStatisticChanged(isChecked)
+                presenter.onExtendedStatisticChanged(isChecked)
             }
 
             chboxFilter.setOnCheckedChangeListener { _, isChecked ->
-                statisticsPresenter.onFilterChanged(isChecked)
+                presenter.onFilterChanged(isChecked)
             }
 
             spinStatFilter.setSelection(Adapter.NO_SELECTION, true)
@@ -90,13 +102,13 @@ class StatisticFragment : BaseMvpFragment(), StatisticsView, View.OnClickListene
                     position: Int,
                     id: Long
                 ) {
-                    statisticsPresenter.onFilterSelected(position)
+                    presenter.onFilterSelected(position)
                 }
             }
             mssFilterType.setOnSelectionListener(object :
                 MultiSelectionSpinner.OnMultiSelectionChooseListener {
                 override fun onSelected(mSelection: List<Int>, items: Array<String>?) {
-                    statisticsPresenter.onFilterTypeSelected(
+                    presenter.onFilterTypeSelected(
                         spinStatFilter.selectedItemPosition,
                         mSelection
                     )
@@ -111,7 +123,7 @@ class StatisticFragment : BaseMvpFragment(), StatisticsView, View.OnClickListene
         binding.mssFilterType.isVisible = vis
         binding.vColor.isVisible = false
         if (vis) {
-            statisticsPresenter.onFilterSelected(binding.spinStatFilter.selectedItemPosition)
+            presenter.onFilterSelected(binding.spinStatFilter.selectedItemPosition)
         }
     }
 
@@ -135,12 +147,12 @@ class StatisticFragment : BaseMvpFragment(), StatisticsView, View.OnClickListene
 
     override fun onClick(v: View?) {
         when (v?.id) {
-            R.id.tvStartDate -> statisticsPresenter.initDateStart()
-            R.id.tvEndDate -> statisticsPresenter.initDateEnd()
-            R.id.tvPeriodType -> statisticsPresenter.onPeriodTypeClick()
-            R.id.ivPeriodLeft -> statisticsPresenter.decreasePeriod()
-            R.id.ivPeriodRight -> statisticsPresenter.increasePeriod()
-            R.id.vColor -> statisticsPresenter.colorClick()
+            R.id.tvStartDate -> presenter.initDateStart()
+            R.id.tvEndDate -> presenter.initDateEnd()
+            R.id.tvPeriodType -> presenter.onPeriodTypeClick()
+            R.id.ivPeriodLeft -> presenter.decreasePeriod()
+            R.id.ivPeriodRight -> presenter.increasePeriod()
+            R.id.vColor -> presenter.colorClick()
         }
     }
 
@@ -194,7 +206,7 @@ class StatisticFragment : BaseMvpFragment(), StatisticsView, View.OnClickListene
             .setPreselectedDate(year, month, day)
             .setOnDateSetListener { dialog, y, monthOfYear, dayOfMonth ->
                 dialog.dismiss()
-                statisticsPresenter.onDateStartSet(y, monthOfYear, dayOfMonth)
+                presenter.onDateStartSet(y, monthOfYear, dayOfMonth)
             }.show(childFragmentManager, "fragment_date_start_picker_name")
     }
 
@@ -207,7 +219,7 @@ class StatisticFragment : BaseMvpFragment(), StatisticsView, View.OnClickListene
             .setPreselectedDate(year, month, day)
             .setOnDateSetListener { dialog, y, monthOfYear, dayOfMonth ->
                 dialog.dismiss()
-                statisticsPresenter.onDateEndSet(y, monthOfYear, dayOfMonth)
+                presenter.onDateEndSet(y, monthOfYear, dayOfMonth)
             }.show(childFragmentManager, "fragment_date_end_picker_name")
     }
 
@@ -215,7 +227,7 @@ class StatisticFragment : BaseMvpFragment(), StatisticsView, View.OnClickListene
         MaterialDialog(requireContext()).show {
             title(R.string.select_color)
             colorChooser(colors, initialSelection = Color.BLUE) { _, color ->
-                statisticsPresenter.onColorSelected(color)
+                presenter.onColorSelected(color)
             }
             positiveButton(R.string.select)
         }

@@ -2,25 +2,18 @@ package com.arny.flightlogbook.presentation.planetypes.edit
 
 import com.arny.core.utils.fromNullable
 import com.arny.core.utils.fromSingle
-import com.arny.domain.planetypes.AircraftType
-import com.arny.domain.planetypes.PlaneTypesInteractor
-import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.domain.planetypes.AircraftType
+import com.arny.flightlogbook.domain.planetypes.PlaneTypesInteractor
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import moxy.InjectViewState
-import javax.inject.Inject
 
 @InjectViewState
-class PlaneTypeEditPresenter : BaseMvpPresenter<PlaneTypeEditView>() {
+class PlaneTypeEditPresenter(
+    private val  planeTypesInteractor: PlaneTypesInteractor
+) : BaseMvpPresenter<PlaneTypeEditView>() {
 
     var planeTypeId: Long? = null
-
-    @Inject
-    lateinit var planeTypesInteractor: PlaneTypesInteractor
-
-    init {
-        FlightApp.appComponent.inject(this)
-    }
 
     override fun onFirstViewAttach() {
         loadPlaneType()

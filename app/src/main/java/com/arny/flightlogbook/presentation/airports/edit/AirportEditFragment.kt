@@ -9,12 +9,15 @@ import androidx.fragment.app.setFragmentResult
 import com.arny.core.CONSTS
 import com.arny.core.utils.getExtra
 import com.arny.core.utils.toastError
-import com.arny.domain.models.Airport
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.databinding.FAirportEditBinding
+import com.arny.flightlogbook.domain.models.Airport
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.main.AppRouter
+import dagger.android.support.AndroidSupportInjection
 import moxy.ktx.moxyPresenter
+import javax.inject.Inject
+import javax.inject.Provider
 
 class AirportEditFragment : BaseMvpFragment(), AirportEditView {
     companion object {
@@ -24,12 +27,18 @@ class AirportEditFragment : BaseMvpFragment(), AirportEditView {
     }
 
     private lateinit var binding: FAirportEditBinding
-    private val presenter by moxyPresenter { AirportEditPresenter() }
+
+    @Inject
+    lateinit var presenterProvider: Provider<AirportEditPresenter>
+
+    private val presenter by moxyPresenter { presenterProvider.get() }
+
     private var appRouter: AppRouter? = null
 
     override fun getTitle(): String = getString(R.string.edit_airport)
 
     override fun onAttach(context: Context) {
+        AndroidSupportInjection.inject(this)
         super.onAttach(context)
         appRouter = context as? AppRouter
     }

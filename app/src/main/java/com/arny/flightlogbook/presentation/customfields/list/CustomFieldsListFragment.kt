@@ -21,8 +21,10 @@ import com.arny.flightlogbook.databinding.FragmentCustomFieldsListBinding
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.flightlogbook.presentation.main.NavigateItems
-import moxy.presenter.InjectPresenter
-import moxy.presenter.ProvidePresenter
+import dagger.android.support.AndroidSupportInjection
+import moxy.ktx.moxyPresenter
+import javax.inject.Inject
+import javax.inject.Provider
 
 class CustomFieldsListFragment : BaseMvpFragment(), CustomFieldsListView {
     companion object {
@@ -35,15 +37,13 @@ class CustomFieldsListFragment : BaseMvpFragment(), CustomFieldsListView {
     private var title: Int = R.string.custom_fields
     private lateinit var customFieldsAdapter: CustomFieldsAdapter
 
-    @InjectPresenter
-    lateinit var presenter: CustomFieldsListPresenter
-
-    @ProvidePresenter
-    fun providePresenter() = CustomFieldsListPresenter()
-
+    @Inject
+    lateinit var presenterProvider: Provider<CustomFieldsListPresenter>
+    private val presenter by moxyPresenter { presenterProvider.get() }
     private var appRouter: AppRouter? = null
 
     override fun onAttach(context: Context) {
+        AndroidSupportInjection.inject(this)
         super.onAttach(context)
         if (context is AppRouter) {
             appRouter = context

@@ -2,27 +2,17 @@ package com.arny.flightlogbook.presentation.flighttypes.list
 
 import com.arny.core.utils.addTo
 import com.arny.core.utils.observeOnMain
-import com.arny.domain.common.ResourcesInteractor
-import com.arny.domain.flighttypes.FlightTypesInteractor
-import com.arny.domain.models.FlightType
-import com.arny.flightlogbook.FlightApp
+import com.arny.flightlogbook.domain.flighttypes.FlightTypesInteractor
+import com.arny.flightlogbook.domain.models.FlightType
 import io.reactivex.disposables.CompositeDisposable
 import moxy.InjectViewState
 import moxy.MvpPresenter
-import javax.inject.Inject
-
 
 @InjectViewState
-class FlightTypesPresenter : MvpPresenter<FlightTypesView>() {
+class FlightTypesPresenter(
+    private val flightTypesInteractor: FlightTypesInteractor
+) : MvpPresenter<FlightTypesView>() {
     private val compositeDisposable = CompositeDisposable()
-    @Inject
-    lateinit var flightTypesInteractor: FlightTypesInteractor
-    @Inject
-    lateinit var resourcesInteractor: ResourcesInteractor
-
-    init {
-        FlightApp.appComponent.inject(this)
-    }
 
     override fun detachView(view: FlightTypesView?) {
         super.detachView(view)

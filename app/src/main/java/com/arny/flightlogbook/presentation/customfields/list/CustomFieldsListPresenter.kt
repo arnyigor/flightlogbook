@@ -1,22 +1,15 @@
 package com.arny.flightlogbook.presentation.customfields.list
 
 import com.arny.core.utils.fromSingle
-import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.customfields.domain.ICustomFieldInteractor
 import com.arny.flightlogbook.customfields.models.CustomField
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import moxy.InjectViewState
-import javax.inject.Inject
 
 @InjectViewState
-class CustomFieldsListPresenter : BaseMvpPresenter<CustomFieldsListView>() {
-    @Inject
-    lateinit var customFieldInteractor: ICustomFieldInteractor
-
-
-    init {
-        FlightApp.appComponent.inject(this)
-    }
+class CustomFieldsListPresenter(
+   private val customFieldInteractor: ICustomFieldInteractor
+) : BaseMvpPresenter<CustomFieldsListView>() {
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()

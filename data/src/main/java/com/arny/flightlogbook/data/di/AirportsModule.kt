@@ -1,7 +1,7 @@
 package com.arny.flightlogbook.data.di
 
-import com.arny.domain.airports.IAirportsRepository
 import com.arny.flightlogbook.data.repositories.AirportsRepository
+import com.arny.flightlogbook.domain.airports.IAirportsRepository
 import dagger.Binds
 import dagger.Module
 import javax.inject.Singleton

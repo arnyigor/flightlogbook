@@ -1,24 +1,17 @@
 package com.arny.flightlogbook.presentation.airports.list
 
-import com.arny.domain.airports.IAirportsInteractor
-import com.arny.flightlogbook.FlightApp
+import com.arny.flightlogbook.domain.airports.IAirportsInteractor
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import moxy.InjectViewState
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
 @InjectViewState
-class AirportsPresenter : BaseMvpPresenter<AirportsView>() {
-
-    init {
-        FlightApp.appComponent.inject(this)
-    }
-
-    @Inject
-    lateinit var airportsInteractor: IAirportsInteractor
+class AirportsPresenter(
+    private val airportsInteractor: IAirportsInteractor
+) : BaseMvpPresenter<AirportsView>() {
 
     override fun onFirstViewAttach() {
     }

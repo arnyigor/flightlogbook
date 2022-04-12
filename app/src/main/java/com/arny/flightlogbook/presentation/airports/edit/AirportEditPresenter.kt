@@ -1,22 +1,16 @@
 package com.arny.flightlogbook.presentation.airports.edit
 
 import com.arny.core.utils.fromCallable
-import com.arny.domain.airports.IAirportsInteractor
-import com.arny.domain.models.Airport
-import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.domain.airports.IAirportsInteractor
+import com.arny.flightlogbook.domain.models.Airport
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import moxy.InjectViewState
-import javax.inject.Inject
 
 @InjectViewState
-class AirportEditPresenter : BaseMvpPresenter<AirportEditView>() {
-    init {
-        FlightApp.appComponent.inject(this)
-    }
-
-    @Inject
-    lateinit var airportsInteractor: IAirportsInteractor
+class AirportEditPresenter(
+    private val airportsInteractor: IAirportsInteractor
+) : BaseMvpPresenter<AirportEditView>() {
 
     var airportId: Long? = null
 

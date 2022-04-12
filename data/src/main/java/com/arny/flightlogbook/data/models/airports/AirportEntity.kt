@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.arny.domain.models.Airport
+import com.arny.flightlogbook.domain.models.Airport
 
 @Entity(
         tableName = "airports",

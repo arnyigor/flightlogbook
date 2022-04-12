@@ -1,19 +1,17 @@
 package com.arny.flightlogbook
 
-import android.app.Application
 import android.content.Context
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.multidex.MultiDex
-import com.arny.flightlogbook.di.AppComponent
-import com.arny.flightlogbook.di.AppModule
 import com.arny.flightlogbook.di.DaggerAppComponent
 import com.facebook.stetho.Stetho
+import dagger.android.AndroidInjector
+import dagger.android.DaggerApplication
 
-class FlightApp : Application() {
+class FlightApp : DaggerApplication() {
 
-    companion object {
-        lateinit var appComponent: AppComponent
-    }
+    private val applicationInjector = DaggerAppComponent.builder()
+        .application(this)
+        .build()
 
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(base)
@@ -22,12 +20,9 @@ class FlightApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
-        appComponent = DaggerAppComponent
-                .builder()
-                .appModule(AppModule(this))
-                .build()
-        appComponent.inject(this)
+        applicationInjector.inject(this)
         Stetho.initializeWithDefaults(this)
     }
+
+    override fun applicationInjector(): AndroidInjector<out DaggerApplication> = applicationInjector
 }

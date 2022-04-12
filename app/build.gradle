@@ -19,9 +19,9 @@ android {
         targetSdkVersion versions.targetSdk
         applicationId 'com.arny.flightlogbook'
         versionCode vMajor * 100 + vMinor * 10 + vBuild
-        versionName "${vMajor}" + "${vMinor}" + "${vBuild}"
+        versionName "${vMajor}" + ".${vMinor}" + ".${vBuild}"
         setProperty("archivesBaseName", applicationId + "-v" + "(" + versionName + ")")
-        archivesBaseName = "$applicationId-v$versionCode($versionName)"
+        archivesBaseName = "$applicationId-v$versionName($versionCode)"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
@@ -102,7 +102,7 @@ dependencies {
     implementation project(path: ':uicore')
     implementation project(path: ':customfields')
     implementation project(path: ':data')
-    implementation "androidx.fragment:fragment-ktx:1.4.1"
+    implementation libs.fragmentKtx
     implementation libs.firebaseCrash
     implementation libs.multidex
     implementation libs.kotlinStdlib
@@ -142,6 +142,8 @@ dependencies {
     kapt libs.moxyCompiler
     //di
     implementation libs.dagger
+    implementation libs.daggerAndroid
+    implementation libs.daggerAndroidSupport
     kapt libs.daggerCompiler
     //custom
     implementation libs.betterpickers
@@ -158,15 +160,6 @@ dependencies {
     implementation libs.stetho
     implementation libs.inputmask
     implementation libs.filechooser
-}
-
-// end of file
-android.applicationVariants.all { variant ->
-    variant.outputs.all {
-        if (outputFileName.endsWith('.apk')) {
-            outputFileName = "FLB-${variant.versionName}-${buildType.name}.apk"
-        }
-    }
 }
 
 Properties props = new Properties()

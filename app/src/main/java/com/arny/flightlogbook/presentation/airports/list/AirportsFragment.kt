@@ -18,15 +18,18 @@ import com.arny.core.CONSTS.REQUESTS.REQUEST_AIRPORT_ARRIVAL
 import com.arny.core.CONSTS.REQUESTS.REQUEST_AIRPORT_DEPARTURE
 import com.arny.core.CONSTS.REQUESTS.REQUEST_SELECT_AIRPORT_DEPARTURE
 import com.arny.core.utils.*
-import com.arny.domain.models.Airport
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.databinding.FAirportsBinding
+import com.arny.flightlogbook.domain.models.Airport
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
 import com.arny.flightlogbook.presentation.main.AppRouter
 import com.arny.flightlogbook.presentation.main.NavigateItems
+import dagger.android.support.AndroidSupportInjection
 import io.reactivex.Observable
 import moxy.ktx.moxyPresenter
+import javax.inject.Inject
+import javax.inject.Provider
 
 class AirportsFragment : BaseMvpFragment(), AirportsView {
     companion object {
@@ -38,15 +41,18 @@ class AirportsFragment : BaseMvpFragment(), AirportsView {
     private lateinit var binding: FAirportsBinding
     private var appRouter: AppRouter? = null
 
+    @Inject
+    lateinit var presenterProvider: Provider<AirportsPresenter>
+    private val presenter by moxyPresenter { presenterProvider.get() }
+    private lateinit var airportsAdapter: AirportsAdapter
+
     override fun onAttach(context: Context) {
+        AndroidSupportInjection.inject(this)
         super.onAttach(context)
         if (context is AppRouter) {
             appRouter = context
         }
     }
-
-    private lateinit var airportsAdapter: AirportsAdapter
-    private val presenter by moxyPresenter { AirportsPresenter() }
 
     override fun getTitle(): String = getString(R.string.airports)
 

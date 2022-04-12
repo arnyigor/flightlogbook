@@ -5,19 +5,18 @@ import com.arny.core.CONSTS.STRINGS.PARAM_COLOR
 import com.arny.core.utils.*
 import com.arny.core.utils.DateTimeUtils.strLogTime
 import com.arny.core.utils.DateTimeUtils.strLogTimeZero
-import com.arny.domain.airports.IAirportsInteractor
-import com.arny.domain.common.PreferencesInteractor
-import com.arny.domain.common.ResourcesInteractor
-import com.arny.domain.flights.FlightsInteractor
-import com.arny.domain.models.Airport
-import com.arny.domain.models.Flight
-import com.arny.domain.models.Params
-import com.arny.domain.models.PlaneType
-import com.arny.flightlogbook.FlightApp
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.customfields.domain.CustomFieldInteractor
 import com.arny.flightlogbook.customfields.models.CustomFieldType
 import com.arny.flightlogbook.customfields.models.CustomFieldValue
+import com.arny.flightlogbook.domain.airports.IAirportsInteractor
+import com.arny.flightlogbook.domain.common.PreferencesInteractor
+import com.arny.flightlogbook.domain.common.ResourcesInteractor
+import com.arny.flightlogbook.domain.flights.FlightsInteractor
+import com.arny.flightlogbook.domain.models.Airport
+import com.arny.flightlogbook.domain.models.Flight
+import com.arny.flightlogbook.domain.models.Params
+import com.arny.flightlogbook.domain.models.PlaneType
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import com.arny.flightlogbook.presentation.flights.addedit.models.getCorrectTime
 import com.arny.flightlogbook.presentation.flights.addedit.view.AddEditView
@@ -29,26 +28,17 @@ import io.reactivex.schedulers.Schedulers
 import moxy.InjectViewState
 import org.joda.time.DateTime
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
 @InjectViewState
-class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
+class AddEditPresenter(
+    private val flightsInteractor: FlightsInteractor,
+    private val airportsInteractor: IAirportsInteractor,
+    private val customFieldInteractor: CustomFieldInteractor,
+    private val resourcesInteractor: ResourcesInteractor,
+    private val prefsInteractor: PreferencesInteractor,
+) : BaseMvpPresenter<AddEditView>() {
     private var customFieldsValues = mutableListOf<CustomFieldValue>()
 
-    @Inject
-    lateinit var flightsInteractor: FlightsInteractor
-
-    @Inject
-    lateinit var airportsInteractor: IAirportsInteractor
-
-    @Inject
-    lateinit var customFieldInteractor: CustomFieldInteractor
-
-    @Inject
-    lateinit var resourcesInteractor: ResourcesInteractor
-
-    @Inject
-    lateinit var prefsInteractor: PreferencesInteractor
     private var updateDisposable: Disposable? = null
     internal var flightId: Long? = null
 
@@ -84,10 +74,6 @@ class AddEditPresenter : BaseMvpPresenter<AddEditView>() {
         val intGroundTime: String,
         val intTotalTime: String,
     )
-
-    init {
-        FlightApp.appComponent.inject(this)
-    }
 
     override fun onFirstViewAttach() {
         initState()

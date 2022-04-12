@@ -4,8 +4,8 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.arny.core.utils.DateTimeUtils
-import com.arny.domain.models.Flight
-import com.arny.domain.models.Params
+import com.arny.flightlogbook.domain.models.Flight
+import com.arny.flightlogbook.domain.models.Params
 
 @Entity(tableName = "main_table")
 data class FlightEntity constructor(

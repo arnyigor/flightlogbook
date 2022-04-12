@@ -20,11 +20,18 @@ import com.arny.flightlogbook.customfields.models.CustomFieldType
 import com.arny.flightlogbook.databinding.FragmentEditCustomFieldLayoutBinding
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.main.AppRouter
+import dagger.android.support.AndroidSupportInjection
 import moxy.ktx.moxyPresenter
+import javax.inject.Inject
+import javax.inject.Provider
 
 class CustomFieldEditFragment : BaseMvpFragment(), CustomFieldsEditView {
     private lateinit var binding: FragmentEditCustomFieldLayoutBinding
     private var appRouter: AppRouter? = null
+
+    @Inject
+    lateinit var presenterProvider: Provider<CustomFieldsEditPresenter>
+    private val presenter by moxyPresenter { presenterProvider.get() }
 
     companion object {
         fun getInstance(bundle: Bundle? = null) = CustomFieldEditFragment().apply {
@@ -35,9 +42,9 @@ class CustomFieldEditFragment : BaseMvpFragment(), CustomFieldsEditView {
     }
 
     private lateinit var types: Array<String>
-    private val presenter by moxyPresenter { CustomFieldsEditPresenter() }
 
     override fun onAttach(context: Context) {
+        AndroidSupportInjection.inject(this)
         super.onAttach(context)
         if (context is AppRouter) {
             appRouter = context

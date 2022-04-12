@@ -23,10 +23,10 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.color.colorChooser
 import com.arny.core.CONSTS
 import com.arny.core.utils.*
-import com.arny.domain.models.Airport
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.customfields.models.CustomFieldValue
 import com.arny.flightlogbook.databinding.FAddeditBinding
+import com.arny.flightlogbook.domain.models.Airport
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.flights.addedit.presenter.AddEditPresenter
 import com.arny.flightlogbook.presentation.main.AppRouter
@@ -34,7 +34,10 @@ import com.arny.flightlogbook.presentation.main.NavigateItems
 import com.arny.flightlogbook.presentation.uicomponents.InputTimeComponent
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment
 import com.redmadrobot.inputmask.MaskedTextChangedListener
+import dagger.android.support.AndroidSupportInjection
 import moxy.ktx.moxyPresenter
+import javax.inject.Inject
+import javax.inject.Provider
 
 class AddEditFragment : BaseMvpFragment(), AddEditView,
     CalendarDatePickerDialogFragment.OnDateSetListener,
@@ -52,7 +55,11 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     private var currentTitle = R.string.str_add_flight
     private var tvMotoResult: TextView? = null
     private var appRouter: AppRouter? = null
-    private val presenter by moxyPresenter { AddEditPresenter() }
+    @Inject
+    lateinit var presenterProvider: Provider<AddEditPresenter>
+
+    private val presenter by moxyPresenter { presenterProvider.get() }
+
     private val requestPermissionSaveData =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             if (!shouldShowRequestPermissionRationale(PERMISSION)) {
@@ -64,6 +71,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     override fun getTitle(): String = getString(currentTitle)
 
     override fun onAttach(context: Context) {
+        AndroidSupportInjection.inject(this)
         super.onAttach(context)
         if (context is AppRouter) {
             appRouter = context

@@ -1,10 +1,10 @@
 package com.arny.flightlogbook.data.repositories
 
-import com.arny.domain.flighttypes.FlightTypesRepository
-import com.arny.domain.models.FlightType
 import com.arny.flightlogbook.data.db.daos.FlightTypeDAO
 import com.arny.flightlogbook.data.models.flights.FlightTypeEntity
 import com.arny.flightlogbook.data.models.flights.toFlightTypeEntity
+import com.arny.flightlogbook.domain.flighttypes.FlightTypesRepository
+import com.arny.flightlogbook.domain.models.FlightType
 import javax.inject.Inject
 import javax.inject.Singleton
 

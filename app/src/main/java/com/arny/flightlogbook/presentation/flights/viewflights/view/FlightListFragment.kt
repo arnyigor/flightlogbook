@@ -11,15 +11,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.arny.core.CONSTS
 import com.arny.core.utils.*
-import com.arny.domain.models.Flight
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.databinding.FragmentFlightListBinding
+import com.arny.flightlogbook.domain.models.Flight
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
 import com.arny.flightlogbook.presentation.flights.viewflights.presenter.ViewFlightsPresenter
 import com.arny.flightlogbook.presentation.main.MainFirstFragment
-import moxy.presenter.InjectPresenter
-import moxy.presenter.ProvidePresenter
+import dagger.android.support.AndroidSupportInjection
+import moxy.ktx.moxyPresenter
+import javax.inject.Inject
+import javax.inject.Provider
 
 class FlightListFragment : BaseMvpFragment(), ViewFlightsView, MainFirstFragment {
     companion object {
@@ -35,12 +37,13 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView, MainFirstFragment
     private var topView: Int = 0
     private var hasSelectedItems: Boolean = false
 
-    @InjectPresenter
-    lateinit var presenter: ViewFlightsPresenter
+    @Inject
+    lateinit var presenterProvider: Provider<ViewFlightsPresenter>
+    private val presenter by moxyPresenter { presenterProvider.get() }
 
-    @ProvidePresenter
-    fun provideMainPresenter(): ViewFlightsPresenter {
-        return ViewFlightsPresenter()
+    override fun onAttach(context: Context) {
+        AndroidSupportInjection.inject(this)
+        super.onAttach(context)
     }
 
     override fun toastError(msg: String?) {
