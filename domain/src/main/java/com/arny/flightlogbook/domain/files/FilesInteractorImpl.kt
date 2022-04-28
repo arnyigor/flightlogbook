@@ -63,33 +63,21 @@ class FilesInteractorImpl @Inject constructor(
     override fun getDefaultFilePath() =
         filesRepository.getDefaultFileName(CONSTS.FILES.FILE_NAME_XLS)
 
-    override fun getAllBackupFileNames(): List<String> =
-        File(filesRepository.getBackupsPath()).list()
-            ?.filter { it.endsWith(".json") || it.endsWith(".xls") } ?: emptyList()
+    override fun getAllBackupFileNames(): List<String> = filesRepository.getAllBackupsNames()
 
-    override fun getAllBackups(): String? {
-        return File(filesRepository.getBackupsPath()).listFiles()
-            ?.filter { it.absolutePath.endsWith(".json") || it.absolutePath.endsWith(".xls") }
-            ?.let { files ->
-                StringBuilder()
-                    .apply {
-                        files.forEach { file ->
-                            append(resourcesProvider.getString(R.string.file_name))
-                            append(file.path)
-                            append(",\n")
-                            append(resourcesProvider.getString(R.string.file_size))
-                            append(FileUtils.formatFileSize(file.length()))
-                            append(",\n")
-                            append(resourcesProvider.getString(R.string.file_last_modify))
-                            append(
-                                DateTimeUtils.getDateTime(
-                                    Date(file.lastModified()),
-                                    "dd.MM.yyyy HH:mm:ss"
-                                )
-                            )
-                            append("\n")
-                        }
-                    }.toString()
+    override fun getAllBackups(): String = filesRepository.getAllBackups().let { files ->
+        StringBuilder().apply {
+            files.forEach { file ->
+                append(resourcesProvider.getString(R.string.file_name))
+                append(file.path)
+                append(",\n")
+                append(resourcesProvider.getString(R.string.file_size))
+                append(FileUtils.formatFileSize(file.length()))
+                append(",\n")
+                append(resourcesProvider.getString(R.string.file_last_modify))
+                append(DateTimeUtils.getDateTime(Date(file.lastModified()), "dd.MM.yyyy HH:mm:ss"))
+                append("\n")
             }
+        }.toString()
     }
 }

@@ -12,4 +12,6 @@ interface FilesRepository {
     fun getFileName(fromSystem: Boolean, uri: Uri?): String
     fun getBackupsPath(): String
     fun readFile(file: File): List<Flight>
+    fun getAllBackupsNames(): List<String>
+    fun getAllBackups(): List<File>
 }

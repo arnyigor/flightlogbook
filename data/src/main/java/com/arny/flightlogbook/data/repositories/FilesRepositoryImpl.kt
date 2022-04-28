@@ -12,7 +12,6 @@ import com.arny.flightlogbook.domain.files.FilesRepository
 import com.arny.flightlogbook.domain.files.FlightFileReadWriter
 import com.arny.flightlogbook.domain.models.ExportFileType
 import com.arny.flightlogbook.domain.models.Flight
-import java.io.BufferedWriter
 import java.io.File
 import javax.inject.Inject
 
@@ -58,15 +57,23 @@ class FilesRepositoryImpl @Inject constructor(
     }
 
     override fun readFile(file: File): List<Flight> = when {
-          file.absolutePath.endsWith(CONSTS.FILES.FILE_EXTENTION_XLS) -> xlsReader.readFile(file)
-          file.absolutePath.endsWith(CONSTS.FILES.FILE_EXTENTION_JSON) -> jsonReader.readFile(file)
-          else -> emptyList()
-      }
-
-    fun BufferedWriter.writeLn(line: String) {
-        this.write(line)
-        this.newLine()
+        file.absolutePath.endsWith(CONSTS.FILES.FILE_EXTENTION_XLS) -> xlsReader.readFile(file)
+        file.absolutePath.endsWith(CONSTS.FILES.FILE_EXTENTION_JSON) -> jsonReader.readFile(file)
+        else -> emptyList()
     }
+
+    override fun getAllBackupsNames(): List<String> =
+        File(getBackupsPath()).list()
+            ?.filter {
+                it.endsWith(ExportFileType.JSON.fileName) || it.endsWith(ExportFileType.XLS.fileName)
+            } ?: emptyList()
+
+    override fun getAllBackups(): List<File> =
+        File(getBackupsPath()).listFiles()
+            ?.filter {
+                it.absolutePath.endsWith(ExportFileType.JSON.fileName) ||
+                        it.absolutePath.endsWith(ExportFileType.XLS.fileName)
+            } ?: emptyList()
 
     private fun getDefaultFilePath(context: Context, fileName: String): String =
         FileUtils.getWorkDir(context) + File.separator + fileName
