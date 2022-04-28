@@ -8,13 +8,12 @@ import com.arny.flightlogbook.domain.R
 import com.arny.flightlogbook.domain.common.IResourceProvider
 import com.arny.flightlogbook.domain.flights.FlightsInteractor
 import com.arny.flightlogbook.domain.flights.FlightsRepository
-import com.arny.flightlogbook.domain.flighttypes.FlightTypesRepository
-import com.arny.flightlogbook.domain.models.*
-import com.arny.flightlogbook.domain.planetypes.AircraftTypesRepository
+import com.arny.flightlogbook.domain.models.BusinessException
+import com.arny.flightlogbook.domain.models.ExportFileType
+import com.arny.flightlogbook.domain.models.Result
+import com.arny.flightlogbook.domain.models.toResult
 import io.reactivex.Observable
-import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import java.io.File
-import java.io.FileInputStream
 import java.util.*
 import javax.inject.Inject
 
@@ -23,8 +22,6 @@ class FilesInteractorImpl @Inject constructor(
     private val flightsInteractor: FlightsInteractor,
     private val flightsRepository: FlightsRepository,
     private val filesRepository: FilesRepository,
-    private val aircraftTypesRepository: AircraftTypesRepository,
-    private val flightTypesRepository: FlightTypesRepository,
 ) : FilesInteractor {
     override fun readFile(uri: Uri?, fromSystem: Boolean): String? {
         val filename: String = filesRepository.getFileName(fromSystem, uri)
@@ -38,17 +35,7 @@ class FilesInteractorImpl @Inject constructor(
                 )
             )
         }
-        var flights: List<Flight> = emptyList()
-        when {
-            file.absolutePath.endsWith(CONSTS.FILES.FILE_EXTENTION_XLS) -> {
-                flights = filesRepository.getFlightsFromExcel(
-                    HSSFWorkbook(FileInputStream(file)).getSheetAt(0).rowIterator()
-                )
-            }
-            file.absolutePath.endsWith(CONSTS.FILES.FILE_EXTENTION_JSON) -> {
-                flights = filesRepository.readJsonFile(file)
-            }
-        }
+        val flights = filesRepository.readFile(file)
         var result = false
         if (flights.isNotEmpty()) {
             flightsRepository.removeAllFlights()

@@ -6,6 +6,9 @@ import com.arny.core.CONSTS
 import com.arny.flightlogbook.data.db.DatabaseMigrations
 import com.arny.flightlogbook.data.db.MainDB
 import com.arny.flightlogbook.data.db.daos.*
+import com.arny.flightlogbook.data.repositories.FilesRepositoryImpl
+import com.arny.flightlogbook.domain.files.FilesRepository
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -14,7 +17,8 @@ import javax.inject.Singleton
     includes = [
         FlightsModule::class,
         AirportsModule::class,
-        CustomFieldsModule::class
+        CustomFieldsModule::class,
+        FileReaderModule::class
     ]
 )
 interface DataModule {
@@ -54,4 +58,8 @@ interface DataModule {
         @Singleton
         fun provideAirportsDao(db: MainDB): AirportsDAO = db.airportsDAO
     }
+
+    @Binds
+    @Singleton
+    fun bindFilesRepository(filesRepository: FilesRepositoryImpl): FilesRepository
 }

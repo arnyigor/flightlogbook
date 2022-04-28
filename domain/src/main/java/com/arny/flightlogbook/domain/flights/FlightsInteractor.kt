@@ -29,7 +29,7 @@ class FlightsInteractor @Inject constructor(
     private val customFieldsRepository: ICustomFieldsRepository,
     private val prefsInteractor: IPreferencesInteractor,
     private val filesRepository: FilesRepository,
-    private val airportsRepository: IAirportsRepository
+    private val airportsRepository: IAirportsRepository,
 ) {
     fun updateFlight(flight: Flight): Boolean = flightsRepository.updateFlight(flight)
 
@@ -104,7 +104,7 @@ class FlightsInteractor @Inject constructor(
         ).toResult()
     }
 
-    fun getTotalflightsTimeInfo(): Result<String> = getFormattedFlightTimes()
+    fun getTotalFlightsTimeInfo(): Result<String> = getFormattedFlightTimes()
 
     fun setFlightsOrder(orderType: Int) {
         prefsInteractor.setOrderType(orderType)

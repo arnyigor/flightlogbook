@@ -24,7 +24,7 @@ class ViewFlightsPresenter @Inject constructor(
     }
 
     private fun getTimeInfo() {
-        fromSingle { flightsInteractor.getTotalflightsTimeInfo() }
+        fromSingle { flightsInteractor.getTotalFlightsTimeInfo() }
             .subscribeFromPresenter({
                 if (it is Result.Success) {
                     viewState.showTotalsInfo(it.data)

@@ -1,65 +1,40 @@
-package com.arny.flightlogbook.domain.files
+package com.arny.flightlogbook.data.filereaders
 
-import android.content.Context
-import android.net.Uri
 import com.arny.core.CONSTS
-import com.arny.core.utils.*
+import com.arny.core.utils.DateTimeUtils
+import com.arny.core.utils.Utility
+import com.arny.core.utils.parseDouble
+import com.arny.core.utils.parseLong
 import com.arny.flightlogbook.domain.R
 import com.arny.flightlogbook.domain.common.IResourceProvider
+import com.arny.flightlogbook.domain.files.FlightFileReadWriter
 import com.arny.flightlogbook.domain.flighttypes.FlightTypesRepository
-import com.arny.flightlogbook.domain.models.ExportFileType
 import com.arny.flightlogbook.domain.models.Flight
 import com.arny.flightlogbook.domain.models.FlightType
 import com.arny.flightlogbook.domain.models.PlaneType
 import com.arny.flightlogbook.domain.planetypes.AircraftTypesRepository
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import org.apache.poi.hssf.usermodel.HSSFCell
 import org.apache.poi.hssf.usermodel.HSSFRow
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.ss.usermodel.Row
-import org.json.JSONObject
-import java.io.BufferedWriter
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import javax.inject.Inject
 
-class FilesRepositoryImpl @Inject constructor(
+class XlsReader @Inject constructor(
     private val resourcesProvider: IResourceProvider,
     private val flightTypesRepository: FlightTypesRepository,
     private val aircraftTypesRepository: AircraftTypesRepository,
-) : FilesRepository {
-    private val gson: Gson = GsonBuilder().setLenient().create()
-
-    companion object {
-        private const val LOG_SHEET_MAIN = "Timelog"
+) : FlightFileReadWriter {
+    private companion object {
+        const val LOG_SHEET_MAIN = "Timelog"
     }
 
-    private fun defaultCurrentTime(): String? = DateTimeUtils.getDateTime(
-        System.currentTimeMillis(),
-        "dd MMM yyyy"
-    )
-
-    private fun getFlightTypeId(fTypeStr: String): Long {
-        return if (fTypeStr.contains(".")) {
-            fTypeStr.parseDouble()?.toLong() ?: -1
-        } else {
-            fTypeStr.parseLong() ?: -1
-        }
-    }
-
-    private fun getOldFlightType(type: Long): String {
-        return when (type) {
-            CONSTS.FLIGHT.TYPE_CIRCLE -> resourcesProvider.getString(R.string.flight_type_circle)
-            CONSTS.FLIGHT.TYPE_ZONE -> resourcesProvider.getString(R.string.flight_type_zone)
-            CONSTS.FLIGHT.TYPE_RUOTE -> resourcesProvider.getString(R.string.flight_type_route)
-            else -> ""
-        }
-    }
-
-    override fun getFlightsFromExcel(rowIter: Iterator<*>): List<Flight> {
+    override fun readFile(file: File): List<Flight> {
+        val rowIter = HSSFWorkbook(FileInputStream(file)).getSheetAt(0).rowIterator()
         val flights = ArrayList<Flight>()
         var rowCnt = 0
         var strDate: String? = null
@@ -278,126 +253,7 @@ class FilesRepositoryImpl @Inject constructor(
         return flights
     }
 
-    override fun getBackupsPath(): String = FileUtils.getWorkDir(resourcesProvider.provideContext())
-
-    override fun getDefaultFileName(fileName: String): String {
-        return FileUtils.getWorkDir(resourcesProvider.provideContext()) + File.separator + fileName
-    }
-
-    override fun getFileUri(fileName: String?): Uri? {
-        return FileUtils.getFileUri(
-            resourcesProvider.provideContext(),
-            File(getDefaultFileName(fileName ?: CONSTS.FILES.FILE_NAME_XLS))
-        )
-    }
-
-    override fun getFileName(fromSystem: Boolean, uri: Uri?): String =
-        if (fromSystem) {
-            getDefaultFileName(CONSTS.FILES.FILE_NAME_XLS)
-        } else {
-            FilePathUtils.getPath(uri, resourcesProvider.provideContext().applicationContext)
-                .toString()
-        }
-
-    override fun saveDataToFile(dbFlights: List<Flight>, type: ExportFileType): String? {
-        val file = File(getDefaultFilePath(resourcesProvider.provideContext(), type.fileName))
-        val success: Boolean =
-            if (type == ExportFileType.XLS) {
-                exportToXLS(dbFlights, file)
-            } else {
-                exportToJSON(dbFlights, file)
-            }
-
-        if (success) {
-            return file.path
-        }
-        return null
-    }
-
-    fun BufferedWriter.writeLn(line: String) {
-        this.write(line)
-        this.newLine()
-    }
-
-    private fun exportToJSON(dbFlights: List<Flight>, file: File): Boolean {
-        val exportData = dbFlights
-            .map { flight ->
-                flight.planeType = aircraftTypesRepository.loadAircraftType(flight.planeId)
-                flight.flightType =
-                    flightTypesRepository.loadDBFlightType(flight.flightTypeId)
-                flight
-            }
-
-        return try {
-            file.bufferedWriter().use { out ->
-                val lastIndex = exportData.lastIndex
-                for ((index, data) in exportData.withIndex()) {
-                    out.write(data.toJson() + (if (index != lastIndex) ",\n" else ""))
-                }
-            }
-            true
-        } catch (e: Exception) {
-            false
-        }
-    }
-
-    inline fun <reified T> JSONObject?.getValue(extraName: String): T? = this?.get(extraName) as? T
-    private fun Long?.toDDMMMYYYY(): String? =
-        this?.let { DateTimeUtils.getDateTime(it, "dd MMM yyyy") }
-
-    override fun readJsonFile(file: File): List<Flight> {
-        return arrayListOf<Flight>().apply {
-            for (line in file.readLines()) {
-                if (line.isNotBlank()) {
-                    val flightObject = JSONObject(line)
-                    val apply = Flight().apply {
-                        arrivalUtcTime = flightObject.getValue("arrivalUtcTime")
-                        datetime = flightObject.getValue("datetime")
-                        datetimeFormatted = this.datetime?.toDDMMMYYYY()
-                        departureUtcTime = flightObject.getValue("departureUtcTime")
-                        description = flightObject.getValue("description")
-                        flightTime = flightObject.getValue("flightTime") ?: 0
-                        val flightTypeTmp = (flightObject.getString("flightType")).fromJson(
-                            gson,
-                            FlightType::class.java
-                        )// TODO записать типы отдельно и передать в модель flight
-                        flightType = flightTypeTmp
-                        flightTypeId = flightTypeTmp?.id
-                    }
-                    println(apply)
-//                    {"arrivalUtcTime":0,
-//                        "datetime":1447621200000,
-//                        "datetimeFormatted":"16 нояб. 2015",
-//                        "departureUtcTime":0,
-//                        "description":"налет после обучения",
-//                        "flightTime":2298,
-//                        "flightType":{"id":0,"typeTitle":"Круги"},
-//                        "flightTypeId":0,
-//                        "groundTime":0,
-//                        "id":1,
-//                        "ifrTime":0,
-//                        "logtimeFormatted":"38:18",
-//                        "nightTime":0,
-//                        "params":{"params":{"nameValuePairs":{}}},
-//                        "planeId":2,
-//                        "planeType":{"mainType":"AIRPLANE","regNo":"01785","typeId":2,"typeName":"P2002"},
-//                        "regNo":"01785",
-//                        "selected":false,
-//                        "totalTime":2298
-//                    }
-                    line.fromJson(gson, Flight::class.java)?.let { flight ->
-                        println(flight)
-                        add(flight)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun exportToXLS(
-        dbFlights: List<Flight>,
-        file: File
-    ): Boolean {
+    override fun writeFile(flights: List<Flight>, file: File): Boolean {
         var row: Row
         val wb = HSSFWorkbook()
         var c: Cell
@@ -423,7 +279,7 @@ class FilesRepositoryImpl @Inject constructor(
         c.setCellValue(resourcesProvider.getString(R.string.cell_night_time))
         c = row.createCell(9)
         c.setCellValue(resourcesProvider.getString(R.string.cell_ground_time))
-        val exportData = dbFlights
+        val exportData = flights
             .map { flight ->
                 flight.planeType = aircraftTypesRepository.loadAircraftType(flight.planeId)
                 flight.flightType =
@@ -457,7 +313,6 @@ class FilesRepositoryImpl @Inject constructor(
             c.setCellValue(flight.groundTime.toDouble())
             rows++
         }
-
         mainSheet.setColumnWidth(0, 15 * 200)
         mainSheet.setColumnWidth(1, 15 * 150)
         mainSheet.setColumnWidth(2, 15 * 150)
@@ -468,7 +323,7 @@ class FilesRepositoryImpl @Inject constructor(
         mainSheet.setColumnWidth(7, 15 * 500)
         mainSheet.setColumnWidth(8, 15 * 250)
         mainSheet.setColumnWidth(9, 15 * 300)
-        return writeXlsFile(file, wb)
+       return writeXlsFile(file, wb)
     }
 
     private fun writeXlsFile(
@@ -494,7 +349,25 @@ class FilesRepositoryImpl @Inject constructor(
         return success
     }
 
-    private fun getDefaultFilePath(context: Context, fileName: String): String {
-        return FileUtils.getWorkDir(context) + File.separator + fileName
+    private fun getOldFlightType(type: Long): String {
+        return when (type) {
+            CONSTS.FLIGHT.TYPE_CIRCLE -> resourcesProvider.getString(R.string.flight_type_circle)
+            CONSTS.FLIGHT.TYPE_ZONE -> resourcesProvider.getString(R.string.flight_type_zone)
+            CONSTS.FLIGHT.TYPE_RUOTE -> resourcesProvider.getString(R.string.flight_type_route)
+            else -> ""
+        }
     }
+
+    private fun getFlightTypeId(fTypeStr: String): Long {
+        return if (fTypeStr.contains(".")) {
+            fTypeStr.parseDouble()?.toLong() ?: -1
+        } else {
+            fTypeStr.parseLong() ?: -1
+        }
+    }
+
+    private fun defaultCurrentTime(): String? = DateTimeUtils.getDateTime(
+        System.currentTimeMillis(),
+        "dd MMM yyyy"
+    )
 }
