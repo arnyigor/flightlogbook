@@ -3,6 +3,7 @@ package com.arny.flightlogbook.presentation.planetypes.list
 import android.content.Context
 import android.os.Bundle
 import android.view.*
+import androidx.annotation.StringRes
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.setFragmentResult
@@ -32,6 +33,9 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView, View.OnClickListen
     private lateinit var binding: PlaneTypesLayoutBinding
     private var adapter: PlaneTypesAdapter? = null
 
+    @StringRes
+    private var title = R.string.str_airplane_types
+
     @Inject
     lateinit var presenterProvider: Provider<PlaneTypesPresenter>
 
@@ -52,7 +56,7 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView, View.OnClickListen
         setHasOptionsMenu(true)
     }
 
-    override fun getTitle(): String = getString(R.string.str_airplane_types)
+    override fun getTitle(): String = getString(title)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -66,6 +70,10 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView, View.OnClickListen
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val isRequestField = arguments?.getBoolean(CONSTS.REQUESTS.REQUEST) == true
+        if(isRequestField){
+            title = R.string.choose_airplne_type
+            updateTitle()
+        }
         binding.rvPlaneTypes.layoutManager = LinearLayoutManager(context)
         binding.rvPlaneTypes.itemAnimator = DefaultItemAnimator()
         adapter = PlaneTypesAdapter(

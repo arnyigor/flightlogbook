@@ -140,6 +140,9 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
 
     private fun initUI() {
         with(binding) {
+            fabSave.setOnClickListener {
+                presenter.checkAutoExportFile()
+            }
             selectPlaneType.setOnClickListener(this@AddEditFragment)
             btnSelectFlightType.setOnClickListener(this@AddEditFragment)
             btnMoto.setOnClickListener(this@AddEditFragment)

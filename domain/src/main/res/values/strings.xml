@@ -69,6 +69,7 @@
     <string name="str_edt_airplane_types">Редактировать тип ВС</string>
     <string name="str_remove_airplane_types">Удалить тип ВС</string>
     <string name="str_airplane_types">Типы ВС</string>
+    <string name="choose_airplne_type">Выбрать Тип ВС</string>
     <string name="str_import_excel">Импорт XLS</string>
     <string name="str_import_from_file">Импорт из файловой системы</string>
     <string name="str_export_excel">Экспорт XLS</string>

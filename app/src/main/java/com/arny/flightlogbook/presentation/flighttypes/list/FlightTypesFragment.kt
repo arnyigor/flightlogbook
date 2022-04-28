@@ -6,6 +6,7 @@ import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.StringRes
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.setFragmentResult
@@ -36,6 +37,9 @@ class FlightTypesFragment : BaseMvpFragment(), FlightTypesView {
     private var typesAdapter: FlightTypesAdapter? = null
     private var appRouter: AppRouter? = null
 
+    @StringRes
+    private var title = R.string.str_flight_types
+
     @Inject
     lateinit var presenterProvider: Provider<FlightTypesPresenter>
     private val presenter by moxyPresenter { presenterProvider.get() }
@@ -52,7 +56,7 @@ class FlightTypesFragment : BaseMvpFragment(), FlightTypesView {
         ToastMaker.toastError(context, msg)
     }
 
-    override fun getTitle(): String = getString(R.string.str_flight_types)
+    override fun getTitle(): String = getString(title)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -66,15 +70,16 @@ class FlightTypesFragment : BaseMvpFragment(), FlightTypesView {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val isRequestField = arguments?.getBoolean(CONSTS.REQUESTS.REQUEST) == true
+        if(isRequestField){
+            title = R.string.choose_flight_types
+            updateTitle()
+        }
         binding.fabAddFlightType.setOnClickListener {
             inputDialog(
-                requireActivity(),
-                getString(R.string.enter_type_name),
-                null,
-                null,
-                null,
-                getString(android.R.string.ok),
-                getString(android.R.string.cancel),
+                context = requireActivity(),
+                title = getString(R.string.enter_type_name),
+                btnOkText = getString(android.R.string.ok),
+                btnCancelText = getString(android.R.string.cancel),
                 dialogListener = { result -> presenter.addType(result) }
             )
         }
@@ -105,12 +110,12 @@ class FlightTypesFragment : BaseMvpFragment(), FlightTypesView {
 
     private fun showConfirmDeleteDialog(item: FlightType) {
         alertDialog(
-            requireActivity(),
-            getString(R.string.confirm_delete_flight_type),
-            null,
-            getString(android.R.string.ok),
-            getString(android.R.string.cancel),
-            true,
+            context = requireActivity(),
+            title = getString(R.string.confirm_delete_flight_type),
+            content = null,
+            btnOkText = getString(android.R.string.ok),
+            btnCancelText = getString(android.R.string.cancel),
+            cancelable = true,
             onConfirm = { presenter.removeFlightType(item) }
         )
     }

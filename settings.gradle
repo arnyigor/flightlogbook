@@ -1,2 +1,3 @@
 include ':app', ':data', ':domain', ':core', ':adapters', ':customfields'
 include ':uicore'
+include ':firestore'

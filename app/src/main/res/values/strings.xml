@@ -1,5 +1,6 @@
 <resources>
     <string name="str_flight_types">Типы полетов</string>
+    <string name="choose_flight_types">Выбрать Тип полета</string>
     <string name="no_flight_types">Нет типов полетов</string>
     <string name="str_select_flight_type">Выбрать тип полета</string>
     <string name="enter_flight_type">Введите название типа полета</string>
@@ -92,4 +93,13 @@
     <string name="local_time">Локальное</string>
     <string name="utc">UTC</string>
     <string name="path_prefill">Путь экспорта файла: %s</string>
+    <string name="title_activity_main">MainActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
 </resources>
