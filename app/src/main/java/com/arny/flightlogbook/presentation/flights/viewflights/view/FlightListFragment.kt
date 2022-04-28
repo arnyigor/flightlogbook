@@ -189,6 +189,7 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView, MainFirstFragment
         when (item.itemId) {
             R.id.action_filter -> {
                 val filters = resources.getStringArray(R.array.flights_filers)
+                // FIXME заменить
                 val filterPos = Prefs.getInstance(activity as Context)
                     .get<Int>(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS)
                     ?: 0
