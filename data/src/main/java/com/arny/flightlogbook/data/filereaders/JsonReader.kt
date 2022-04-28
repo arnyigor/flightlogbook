@@ -7,6 +7,7 @@ import com.arny.flightlogbook.domain.files.FlightFileReadWriter
 import com.arny.flightlogbook.domain.flighttypes.FlightTypesRepository
 import com.arny.flightlogbook.domain.models.Flight
 import com.arny.flightlogbook.domain.models.FlightType
+import com.arny.flightlogbook.domain.models.Params
 import com.arny.flightlogbook.domain.planetypes.AircraftTypesRepository
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -18,6 +19,7 @@ class JsonReader @Inject constructor(
     private val flightTypesRepository: FlightTypesRepository,
     private val aircraftTypesRepository: AircraftTypesRepository,
 ) : FlightFileReadWriter {
+    private var dbFlightTypes = flightTypesRepository.loadDBFlightTypes()
     private val gson: Gson = GsonBuilder().setLenient().create()
     override fun readFile(file: File): List<Flight> {
         return arrayListOf<Flight>().apply {
@@ -27,42 +29,68 @@ class JsonReader @Inject constructor(
                     val apply = Flight().apply {
                         arrivalUtcTime = flightObject.getValue("arrivalUtcTime")
                         datetime = flightObject.getValue("datetime")
-                        datetimeFormatted = this.datetime?.toDDMMMYYYY()
+                        datetimeFormatted = this.datetime?.toFullDateFormat()
                         departureUtcTime = flightObject.getValue("departureUtcTime")
                         description = flightObject.getValue("description")
                         flightTime = flightObject.getValue("flightTime") ?: 0
-                        val flightTypeTmp = (flightObject.getString("flightType")).fromJson(
-                            gson,
-                            FlightType::class.java
-                        )// TODO записать типы отдельно и передать в модель flight
-                        flightType = flightTypeTmp
-                        flightTypeId = flightTypeTmp?.id
+                        setFlightType(flightObject)
+                        groundTime = flightObject.getValue("flightTime") ?: 0
+                        ifrTime = flightObject.getValue("ifrTime") ?: 0
+                        nightTime = flightObject.getValue("nightTime") ?: 0
+                        totalTime = flightObject.getValue("totalTime") ?: 0
+                        params = Params(flightObject.getValue("params") as? JSONObject)
                     }
                     println(apply)
-//                    {"arrivalUtcTime":0,
-//                        "datetime":1447621200000,
-//                        "datetimeFormatted":"16 нояб. 2015",
-//                        "departureUtcTime":0,
-//                        "description":"налет после обучения",
-//                        "flightTime":2298,
-//                        "flightType":{"id":0,"typeTitle":"Круги"},
-//                        "flightTypeId":0,
-//                        "groundTime":0,
-//                        "id":1,
-//                        "ifrTime":0,
-//                        "logtimeFormatted":"38:18",
-//                        "nightTime":0,
-//                        "params":{"params":{"nameValuePairs":{}}},
-//                        "planeId":2,
-//                        "planeType":{"mainType":"AIRPLANE","regNo":"01785","typeId":2,"typeName":"P2002"},
-//                        "regNo":"01785",
-//                        "selected":false,
-//                        "totalTime":2298
-//                    }
+                    //                    {"arrivalUtcTime":0,
+                    //                        "datetime":1447621200000,
+                    //                        "datetimeFormatted":"16 нояб. 2015",
+                    //                        "departureUtcTime":0,
+                    //                        "description":"налет после обучения",
+                    //                        "flightTime":2298,
+                    //                        "flightType":{"id":0,"typeTitle":"Круги"},
+                    //                        "flightTypeId":0,
+                    //                        "groundTime":0,
+                    //                        "id":1,
+                    //                        "ifrTime":0,
+                    //                        "logtimeFormatted":"38:18",
+                    //                        "nightTime":0,
+                    //                        "params":{"params":{"nameValuePairs":{}}},
+                    //                        "planeId":2,
+                    //                        "planeType":{"mainType":"AIRPLANE","regNo":"01785","typeId":2,"typeName":"P2002"},
+                    //                        "regNo":"01785",
+                    //                        "selected":false,
+                    //                        "totalTime":2298
+                    //                    }
                     line.fromJson(gson, Flight::class.java)?.let { flight ->
                         println(flight)
                         add(flight)
                     }
+                }
+            }
+        }
+    }
+
+    private fun Flight.setFlightType(flightObject: JSONObject) {
+        val flightTypeTmp = (flightObject.getString("flightType"))
+            .fromJson(gson, FlightType::class.java)
+        dbFlightTypes.find {
+            it.typeTitle.equals(other = flightTypeTmp?.typeTitle, ignoreCase = true)
+        }?.let { type ->
+            flightType = type
+            flightTypeId = type.id
+        } ?: kotlin.run {
+            addFlightTypeToDb(flightTypeTmp)
+        }
+    }
+
+    private fun Flight.addFlightTypeToDb(flightTypeTmp: FlightType?) {
+        flightTypeTmp?.let {
+            val id = flightTypesRepository.addFlightTypeAndGet(flightTypeTmp)
+            if (id > 0) {
+                dbFlightTypes = flightTypesRepository.loadDBFlightTypes()
+                dbFlightTypes.find { it.id == id }?.let { type ->
+                    flightType = type
+                    flightTypeId = id
                 }
             }
         }
@@ -91,7 +119,7 @@ class JsonReader @Inject constructor(
     }
 
     inline fun <reified T> JSONObject?.getValue(extraName: String): T? = this?.get(extraName) as? T
-    private fun Long?.toDDMMMYYYY(): String? =
+    private fun Long?.toFullDateFormat(): String? =
         this?.let { DateTimeUtils.getDateTime(it, "dd MMM yyyy") }
 
 }

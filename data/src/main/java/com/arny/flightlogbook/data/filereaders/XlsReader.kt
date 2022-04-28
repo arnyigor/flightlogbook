@@ -3,8 +3,6 @@ package com.arny.flightlogbook.data.filereaders
 import com.arny.core.CONSTS
 import com.arny.core.utils.DateTimeUtils
 import com.arny.core.utils.Utility
-import com.arny.core.utils.parseDouble
-import com.arny.core.utils.parseLong
 import com.arny.flightlogbook.domain.R
 import com.arny.flightlogbook.domain.common.IResourceProvider
 import com.arny.flightlogbook.domain.files.FlightFileReadWriter
@@ -355,14 +353,6 @@ class XlsReader @Inject constructor(
             CONSTS.FLIGHT.TYPE_ZONE -> resourcesProvider.getString(R.string.flight_type_zone)
             CONSTS.FLIGHT.TYPE_RUOTE -> resourcesProvider.getString(R.string.flight_type_route)
             else -> ""
-        }
-    }
-
-    private fun getFlightTypeId(fTypeStr: String): Long {
-        return if (fTypeStr.contains(".")) {
-            fTypeStr.parseDouble()?.toLong() ?: -1
-        } else {
-            fTypeStr.parseLong() ?: -1
         }
     }
 
