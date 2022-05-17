@@ -19,14 +19,16 @@ class JsonReader @Inject constructor(
     private val flightTypesRepository: FlightTypesRepository,
     private val aircraftTypesRepository: AircraftTypesRepository,
 ) : FlightFileReadWriter {
-    private var dbFlightTypes = flightTypesRepository.loadDBFlightTypes()
+    private var dbFlightTypes: List<FlightType> = emptyList()
     private val gson: Gson = GsonBuilder().setLenient().create()
     override fun readFile(file: File): List<Flight> {
+        updateDbFlights()
         return arrayListOf<Flight>().apply {
             for (line in file.readLines()) {
                 if (line.isNotBlank()) {
                     val flightObject = JSONObject(line)
-                    val apply = Flight().apply {
+                    println(flightObject)
+                    val flight = Flight().apply {
                         arrivalUtcTime = flightObject.getValue("arrivalUtcTime")
                         datetime = flightObject.getValue("datetime")
                         datetimeFormatted = this.datetime?.toFullDateFormat()
@@ -40,7 +42,7 @@ class JsonReader @Inject constructor(
                         totalTime = flightObject.getValue("totalTime") ?: 0
                         params = Params(flightObject.getValue("params") as? JSONObject)
                     }
-                    println(apply)
+                    add(flight)
                     //                    {"arrivalUtcTime":0,
                     //                        "datetime":1447621200000,
                     //                        "datetimeFormatted":"16 нояб. 2015",
@@ -61,13 +63,13 @@ class JsonReader @Inject constructor(
                     //                        "selected":false,
                     //                        "totalTime":2298
                     //                    }
-                    line.fromJson(gson, Flight::class.java)?.let { flight ->
-                        println(flight)
-                        add(flight)
-                    }
                 }
             }
         }
+    }
+
+    private fun updateDbFlights() {
+        dbFlightTypes = flightTypesRepository.loadDBFlightTypes()
     }
 
     private fun Flight.setFlightType(flightObject: JSONObject) {
@@ -87,7 +89,7 @@ class JsonReader @Inject constructor(
         flightTypeTmp?.let {
             val id = flightTypesRepository.addFlightTypeAndGet(flightTypeTmp)
             if (id > 0) {
-                dbFlightTypes = flightTypesRepository.loadDBFlightTypes()
+                updateDbFlights()
                 dbFlightTypes.find { it.id == id }?.let { type ->
                     flightType = type
                     flightTypeId = id
