@@ -16,6 +16,7 @@ import android.widget.TimePicker
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
+import androidx.core.widget.NestedScrollView
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.setFragmentResultListener
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -159,6 +160,14 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
                 }
             }
             btnAddField.setOnClickListener(this@AddEditFragment)
+            nsvContent.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
+                val dy = scrollY - oldScrollY
+                when {
+                    dy > 0 && !fabSave.isShown -> fabSave.show()
+                    dy < 0 && fabSave.isShown -> fabSave.hide()
+                }
+            })
+            fabSave.hide()
         }
         onDateTimeChanges()
         onDepartureTimeChanges()

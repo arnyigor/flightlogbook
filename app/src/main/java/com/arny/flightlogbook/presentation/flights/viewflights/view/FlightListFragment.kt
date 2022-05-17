@@ -67,50 +67,52 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView, MainFirstFragment
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.fabAddFlight.setOnClickListener {
-            launchActivity<FragmentContainerActivity>(CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT) {
-                action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_FLIGHT
+        with(binding){
+            fabAddFlight.setOnClickListener {
+                launchActivity<FragmentContainerActivity>(CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT) {
+                    action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_FLIGHT
+                }
             }
-        }
-        mLayoutManager = LinearLayoutManager(context)
-        binding.rvflights.layoutManager = mLayoutManager
-        binding.rvflights.itemAnimator = DefaultItemAnimator()
-        adapter = FlightsAdapter(object : FlightsAdapter.OnFlightsListListener {
-            override fun onItemClick(position: Int, item: Flight) {
-                if (hasSelectedItems) {
-                    presenter.onFlightSelect(position, item)
-                } else {
-                    launchActivity<FragmentContainerActivity>(CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT) {
-                        action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_FLIGHT
-                        putExtra(CONSTS.DB.COLUMN_ID, item.id)
+            mLayoutManager = LinearLayoutManager(context)
+            rvFlights.layoutManager = mLayoutManager
+            rvFlights.itemAnimator = DefaultItemAnimator()
+            adapter = FlightsAdapter(object : FlightsAdapter.OnFlightsListListener {
+                override fun onItemClick(position: Int, item: Flight) {
+                    if (hasSelectedItems) {
+                        presenter.onFlightSelect(position, item)
+                    } else {
+                        launchActivity<FragmentContainerActivity>(CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT) {
+                            action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_FLIGHT
+                            putExtra(CONSTS.DB.COLUMN_ID, item.id)
+                        }
                     }
                 }
-            }
 
-            override fun onFlightSelect(position: Int, item: Flight) {
-                presenter.onFlightSelect(position, item)
-            }
-
-            override fun onFlightRemove(position: Int, item: Flight) {
-                alertDialog(
-                    requireContext(),
-                    getString(R.string.remove_item_question),
-                    btnCancelText = getString(R.string.str_cancel),
-                    onConfirm = {
-                        presenter.removeItem(item)
-                    })
-            }
-        })
-        binding.rvflights.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                when {
-                    dy < 0 && !binding.fabAddFlight.isShown -> binding.fabAddFlight.show()
-                    dy > 0 && binding.fabAddFlight.isShown -> binding.fabAddFlight.hide()
+                override fun onFlightSelect(position: Int, item: Flight) {
+                    presenter.onFlightSelect(position, item)
                 }
-            }
 
-        })
-        binding.rvflights.adapter = adapter
+                override fun onFlightRemove(position: Int, item: Flight) {
+                    alertDialog(
+                        requireContext(),
+                        getString(R.string.remove_item_question),
+                        btnCancelText = getString(R.string.str_cancel),
+                        onConfirm = {
+                            presenter.removeItem(item)
+                        })
+                }
+            })
+            rvFlights.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    when {
+                        dy < 0 && !fabAddFlight.isShown -> fabAddFlight.show()
+                        dy > 0 && fabAddFlight.isShown -> fabAddFlight.hide()
+                    }
+                }
+
+            })
+            rvFlights.adapter = adapter
+        }
         presenter.loadFlights()
     }
 
@@ -181,8 +183,8 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView, MainFirstFragment
 
     private fun saveListPosition() {
         positionIndex = mLayoutManager?.findFirstVisibleItemPosition() ?: 0
-        val startView = binding.rvflights.getChildAt(0)
-        topView = if (startView == null) 0 else startView.top - binding.rvflights.paddingTop
+        val startView = binding.rvFlights.getChildAt(0)
+        topView = if (startView == null) 0 else startView.top - binding.rvFlights.paddingTop
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
