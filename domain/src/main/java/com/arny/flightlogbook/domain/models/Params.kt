@@ -208,9 +208,8 @@ class Params {
     }
 
     fun getParam(path: String, defaultVal: JSONObject?): JSONObject? {
-        val result: JSONObject?
         nodeObject = params
-        result = try {
+        val result: JSONObject? = try {
             parseJsonPath(path)
             nodeObject
         } catch (e: JSONException) {
@@ -222,9 +221,8 @@ class Params {
     }
 
     fun getParam(path: String, defaultVal: JSONArray?): JSONArray? {
-        val result: JSONArray?
         nodeObject = params
-        result = try {
+        val result: JSONArray? = try {
             parseJsonPath(path)
             nodeArray
         } catch (e: JSONException) {
@@ -236,9 +234,7 @@ class Params {
     }
 
     val stringParams: String?
-        get() = if (params == null) {
-            null
-        } else params.toString()
+        get() = params?.toString()
 
     fun setParams(params: String?) {
         try {

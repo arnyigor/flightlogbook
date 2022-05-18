@@ -13,12 +13,10 @@ sealed class Result<out R> {
     }
 }
 
-fun <T> T.toResult(): Result<T> {
-    return try {
-        Result.Success(this)
-    } catch (e: Exception) {
-        Result.Error(e)
-    }
+fun <T> T.toResult(): Result<T> = try {
+    Result.Success(this)
+} catch (e: Exception) {
+    Result.Error(e)
 }
 
 fun Throwable.toResult() = Result.Error(this)

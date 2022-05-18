@@ -38,7 +38,7 @@ class FlightsInteractor @Inject constructor(
     fun getFlight(id: Long?): Flight? {
         return flightsRepository.getFlight(id)
             ?.apply {
-                colorInt = params?.getParam(PARAM_COLOR, "")?.toIntColor()
+                colorInt = customParams?.get(PARAM_COLOR).toString().toIntColor()
                 planeType = aircraftTypesRepository.loadAircraftType(planeId)
                 flightType = flightTypesRepository.loadDBFlightType(flightTypeId?.toLong())
             }
@@ -168,7 +168,7 @@ class FlightsInteractor @Inject constructor(
         flightTypes: List<FlightType>,
         allAdditionalTime: List<CustomFieldValue>
     ): List<Flight> = list.map { flight ->
-        flight.colorInt = flight.params?.getParam(PARAM_COLOR, "")?.toIntColor()
+        flight.colorInt = flight.customParams?.get(PARAM_COLOR)?.toString()?.toIntColor()
         val masked = flight.colorInt?.let { colorWillBeMasked(it) } ?: false
         flight.colorText = if (masked) Color.WHITE else null
         flight.planeType = flight.planeId?.let { plId ->

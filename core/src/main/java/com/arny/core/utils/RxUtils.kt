@@ -10,49 +10,16 @@ fun Disposable.addTo(compositeDisposable: CompositeDisposable) {
     compositeDisposable.add(this)
 }
 
-fun <T> T.toObservable(): Observable<T> {
-    return Observable.just(this)
-}
-
 fun <T> fromCallable(callable: () -> T): Observable<T> = Observable.fromCallable(callable)
 
 fun <T> fromSingle(callable: () -> T): Single<T> = Single.fromCallable(callable)
 
 fun fromCompletable(action: (() -> Unit)): Completable = Completable.fromAction(action)
 
-fun <T> fromNullable(callable: () -> T?): Observable<OptionalNull<T?>> {
-    return Observable.fromCallable { callable.invoke().toOptionalNull() }
-}
-
-fun <T> IOThreadObservable(observable: Observable<T>): Observable<T> {
-    return observable.subscribeOn(io())
-}
-
-fun <T> IOThreadObservable(scheduler: Scheduler, observable: Observable<T>): Observable<T> {
-    return observable.subscribeOn(scheduler)
-}
-
-fun <T> observeOnMainThread(observable: Observable<T>): Observable<T> {
-    return observable.observeOn(AndroidSchedulers.mainThread())
-}
+fun <T> fromNullable(callable: () -> T?): Observable<OptionalNull<T?>> =
+    Observable.fromCallable { callable.invoke().toOptionalNull() }
 
 fun <T> Observable<T>.observeOnMain(): Observable<T> {
-    return this.subscribeOn(io()).observeOn(AndroidSchedulers.mainThread())
-}
-
-fun <T : Any> Observable<T>.observeSubscribe(onNext: (T) -> Unit = {}, onError: (Throwable) -> Unit = { it.printStackTrace() }, onComplete: () -> Unit = {}, scheduler: Scheduler = io(), observeOn: Scheduler = AndroidSchedulers.mainThread()): Disposable = subscribeOn(scheduler)
-        .observeOn(observeOn)
-        .subscribe(onNext, onError, onComplete)
-
-fun <T> Observable<T>.observeOnIO(): Observable<T> {
-    return this.subscribeOn(io())
-}
-
-fun <T> Single<T>.observeOnMain(): Single<T> {
-    return this.subscribeOn(io()).observeOn(AndroidSchedulers.mainThread())
-}
-
-fun <T> Maybe<T>.observeOnMain(): Maybe<T> {
     return this.subscribeOn(io()).observeOn(AndroidSchedulers.mainThread())
 }
 

@@ -476,7 +476,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
                 dialog.dismiss()
                 presenter.setMotoResult()
             },
-            negativePair = Pair(R.string.str_cancel, { dialog -> dialog.cancel() }),
+            negativePair = Pair(R.string.str_cancel) { dialog -> dialog.cancel() },
         ) {
             val edtMotoStart = findViewById<EditText>(R.id.edtStartMoto)
             val edtMotoFinish = findViewById<EditText>(R.id.edtFinishMoto)

@@ -3,6 +3,7 @@ package com.arny.flightlogbook.data.filereaders
 import com.arny.core.utils.DateTimeUtils
 import com.arny.core.utils.fromJson
 import com.arny.core.utils.toJson
+import com.arny.flightlogbook.data.repositories.CustomFieldsRepository
 import com.arny.flightlogbook.domain.files.FlightFileReadWriter
 import com.arny.flightlogbook.domain.flighttypes.FlightTypesRepository
 import com.arny.flightlogbook.domain.models.Flight
@@ -19,6 +20,7 @@ import javax.inject.Inject
 class JsonReader @Inject constructor(
     private val flightTypesRepository: FlightTypesRepository,
     private val aircraftTypesRepository: AircraftTypesRepository,
+    private val customFieldsRepository: CustomFieldsRepository,
 ) : FlightFileReadWriter {
     private var dbFlightTypes: List<FlightType> = emptyList()
     private var dbPlaneTypes: List<PlaneType> = emptyList()
@@ -43,59 +45,79 @@ class JsonReader @Inject constructor(
                         ifrTime = flightObject.getValue("ifrTime") ?: 0
                         nightTime = flightObject.getValue("nightTime") ?: 0
                         totalTime = flightObject.getValue("totalTime") ?: 0
+                        flightTimeFormatted = DateTimeUtils.strLogTime(flightTime)
                         colorInt = flightObject.getValue("colorInt") ?: 0
                         ifrvfr = flightObject.getValue("ifrvfr") ?: 0
-                        params = Params(flightObject.getValue("params") as? JSONObject)
+                        customParams = flightObject.getValue("params")
                         setPlaneType(flightObject)
                         regNo = planeType?.regNo
                         selected = flightObject.getValue("selected") ?: false
 
                     }
                     add(flight)
-//                    {
-//                        "totalTime": 285,
-//                        "id": 1,
-//                        "planeId": 1,
-//                        "flightTypeId": 1,
-//                        "arrivalUtcTime": 225,
-//                        "description": "",
-//                        "datetimeFormatted": "18 \u043c\u0430\u044f 2022",
-//                        "planeType": {
-//                        "typeId": 1,
-//                        "mainType": "AIRPLANE",
-//                        "typeName": "\u0431737",
-//                        "regNo": "-"
-//                    },
-//                        "colorInt": -9370,
-//                        "datetime": 1652852008667,
-//                        "selected": false,
-//                        "logtimeFormatted": "02:00",
-//                        "ifrvfr": 1,
-//                        "departureUtcTime": 105,
-//                        "flightType": {
-//                        "typeTitle": "\u0420\u0435\u0439\u0441",
-//                        "id": 1
-//                    },
-//                        "flightTime": 165,
-//                        "params": {
-//                        "params": {
-//                        "nameValuePairs": {
-//                        "params": {
-//                        "nameValuePairs": {
-//                        "nameValuePairs": {
-//                        "nameValuePairs": {}
-//                    }
-//                    }
-//                    },
-//                        "color": "#FFDB66"
-//                    }
-//                    },
-//                        "nodeString": "#FFDB66"
-//                    },
-//                        "groundTime": 120,
-//                        "nightTime": 0,
-//                        "ifrTime": 0
-//                    }
+/*                    {
+                        "totalTime": 310,
+                        "id": 1,
+                        "colorText": -1,
+                        "flightTypeId": 1,
+                        "arrivalUtcTime": 225,
+                        "description": "",
+                        "datetimeFormatted": "18 \u043c\u0430\u044f 2022",
+                        "planeType": {
+                        "typeId": 2,
+                        "mainType": "AIRPLANE",
+                        "typeName": "\u0411737",
+                        "regNo": "gngfx357"
+                    },
+                        "colorInt": -16737281,
+                        "datetime": 1652852008667,
+                        "selected": false,
+                        "logtimeFormatted": "02:00",
+                        "ifrvfr": 0,
+                        "departureUtcTime": 105,
+                        "flightType": {
+                        "typeTitle": "\u0420\u0435\u0439\u0441",
+                        "id": 1
+                    },
+                        "flightTime": 145,
+                        "params": {
+                        "params": {
+                        "nameValuePairs": {
+                        "params": {
+                        "nameValuePairs": {
+                        "nameValuePairs": {
+                        "nameValuePairs": {
+                        "params": {
+                        "nameValuePairs": {
+                        "nameValuePairs": {
+                        "nameValuePairs": {
+                        "nameValuePairs": {
+                        "nameValuePairs": {
+                        "nameValuePairs": {
+                        "nameValuePairs": {}
+                    }
+                    }
+                    }
+                    }
+                    }
+                    }
+                    },
+                        "color": "#FFDB66"
+                    }
+                    }
+                    }
+                    },
+                        "nodeString": "#FFDB66",
+                        "color": "#009BFF"
+                    }
+                    },
+                        "nodeString": "#009BFF"
+                    },
+                        "groundTime": 165,
+                        "nightTime": 0,
+                        "planeId": 2,
+                        "ifrTime": 0
+                    }*/
                 }
             }
         }
@@ -178,7 +200,9 @@ class JsonReader @Inject constructor(
             file.bufferedWriter().use { out ->
                 val lastIndex = exportData.lastIndex
                 for ((index, data) in exportData.withIndex()) {
-                    out.write(data.toJson() + (if (index != lastIndex) ",\n" else ""))
+                    val jsonData = data.toJson()
+                    println(jsonData)
+                    out.write(jsonData + (if (index != lastIndex) ",\n" else ""))
                 }
             }
             true

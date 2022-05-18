@@ -50,10 +50,6 @@ fun colorWillBeMasked(color: Int): Boolean {
     ).toInt() <= 144
 }
 
-fun Int.toHexColor(): String {
-    return String.format("#%06X", (0xFFFFFF and this))
-}
+fun Int.toHexColor(): String = String.format("#%06X", (0xFFFFFF and this))
 
-fun String.toIntColor(): Int {
-    return Color.parseColor(this)
-}
+fun String.toIntColor(): Int = Color.parseColor(this)

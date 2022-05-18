@@ -5,7 +5,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.arny.core.utils.DateTimeUtils
 import com.arny.flightlogbook.domain.models.Flight
-import com.arny.flightlogbook.domain.models.Params
 
 @Entity(tableName = "main_table")
 data class FlightEntity constructor(
@@ -48,7 +47,7 @@ data class FlightEntity constructor(
         flight.datetimeFormatted =
             this.datetime?.let { DateTimeUtils.getDateTime(it, "dd MMM yyyy") }
         flight.flightTime = logtime ?: 0
-        flight.logtimeFormatted = logtime?.let { DateTimeUtils.strLogTime(it) }
+        flight.flightTimeFormatted = logtime?.let { DateTimeUtils.strLogTime(it) }
         flight.regNo = regNo
         flight.totalTime = (logtime ?: 0) + (this.groundTime ?: 0)
         flight.nightTime = nightTime ?: 0
@@ -58,12 +57,39 @@ data class FlightEntity constructor(
         flight.ifrvfr = ifrvfr
         flight.flightTypeId = flighttype
         flight.description = description
-        flight.params = Params(params)
+        flight.customParams = params?.toParams()
         flight.departureId = departureId
         flight.arrivalId = arrivalId
         flight.departureUtcTime = DateTimeUtils.convertStringToTime(departureUtcTime)
         flight.arrivalUtcTime = DateTimeUtils.convertStringToTime(arrivalUtcTime)
         return flight
+    }
+}
+
+fun Map<String, Any?>?.fromParams(): String? = this?.let {
+    val mapAsString = StringBuilder("{")
+    val size = this.keys.size
+    for ((ind, key) in this.keys.withIndex()) {
+        mapAsString.append("$key=${this[key]}")
+        if (size > 1 && ind <= size - 1) {
+            mapAsString.append(",")
+        }
+    }
+    return mapAsString.append("}").toString()
+}
+
+fun String?.toParams(): HashMap<String, Any?>? {
+    val array = this?.trimStart('{')
+        ?.trimEnd('}')
+        ?.split(",")
+        ?.toTypedArray()
+    return array?.let {
+        hashMapOf<String, Any?>().apply {
+            for (s in array.iterator()) {
+                val (key, value) = s.split("=")
+                set(key, value)
+            }
+        }
     }
 }
 
@@ -81,7 +107,7 @@ fun Flight.toFlightEntity(): FlightEntity =
         ifrvfr = ifrvfr,
         flighttype = flightTypeId,
         description = description,
-        params = params?.stringParams,
+        params = customParams?.fromParams(),
         departureId = departureId,
         arrivalId = arrivalId,
         departureUtcTime = DateTimeUtils.strLogTime(departureUtcTime ?: 0),

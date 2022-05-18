@@ -56,7 +56,7 @@ class FlightsAdapter(private val onFlightsListListener: OnFlightsListListener? =
                 if (datetime > 0) {
                     tvDate.text = item.datetimeFormatted
                 }
-                tvLogTimeFlight.text = item.logtimeFormatted
+                tvLogTimeFlight.text = item.flightTimeFormatted
                 tvLogTimeFlightTotal.text = DateTimeUtils.strLogTime(item.totalTime)
                 tvFlightType.text = item.flightType?.typeTitle
                 tvPlaneRegNo.text = item.regNo

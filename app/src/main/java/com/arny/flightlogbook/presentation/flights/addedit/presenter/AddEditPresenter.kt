@@ -15,7 +15,6 @@ import com.arny.flightlogbook.domain.common.ResourcesInteractor
 import com.arny.flightlogbook.domain.flights.FlightsInteractor
 import com.arny.flightlogbook.domain.models.Airport
 import com.arny.flightlogbook.domain.models.Flight
-import com.arny.flightlogbook.domain.models.Params
 import com.arny.flightlogbook.domain.models.PlaneType
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import com.arny.flightlogbook.presentation.flights.addedit.models.getCorrectTime
@@ -99,7 +98,7 @@ class AddEditPresenter @Inject constructor(
         viewState.setDate("")
         viewState.setToolbarTitle(R.string.str_add_flight)
         flight = Flight()
-        flight?.params = Params()
+        flight?.customParams = hashMapOf()
         loadCustomFields()
         loadLastSavedData()
     }
@@ -202,10 +201,10 @@ class AddEditPresenter @Inject constructor(
     }
 
     private fun loadColorParam(flight: Flight) {
-        fromNullable { flight.params?.getParam(PARAM_COLOR, "") }
+        fromNullable { flight.customParams?.get(PARAM_COLOR) }
             .map {
-                val hexColor = it.value
-                if (!hexColor.isNullOrBlank()) {
+                val hexColor = it.value.toString()
+                if (hexColor.isNotBlank()) {
                     hexColor.toIntColor()
                 } else {
                     -1
@@ -572,13 +571,13 @@ class AddEditPresenter @Inject constructor(
     }
 
     fun onColorSelected(color: Int) {
-        flight?.params?.setParam(PARAM_COLOR, color.toHexColor())
+        flight?.customParams?.set(PARAM_COLOR, color.toHexColor())
         viewState.setViewColor(color)
         viewState.setRemoveColorVisible(true)
     }
 
     fun removeColor() {
-        flight?.params?.removeParam(PARAM_COLOR)
+        flight?.customParams?.remove(PARAM_COLOR)
         viewState.setViewColor(android.R.color.transparent)
         viewState.setRemoveColorVisible(false)
     }
