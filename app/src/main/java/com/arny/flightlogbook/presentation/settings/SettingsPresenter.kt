@@ -35,7 +35,7 @@ class SettingsPresenter @Inject constructor(
         fromNullable { filesInteractor.getAllBackups() }
             .subscribeFromPresenter({
                 val value = it.value
-                viewState.setShareFileVisible(value != null)
+                viewState.setShareFileVisible(!value.isNullOrBlank())
                 if (value != null) {
                     viewState.showResults(value)
                 }

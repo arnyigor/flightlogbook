@@ -13,7 +13,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.arny.core.utils.*
 import com.arny.flightlogbook.R
@@ -73,7 +75,7 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         with(binding) {
-            btnLoadFromFile.setOnClickListener {
+            tvLoadFromFile.setOnClickListener {
                 requestPermission(
                     requestPermissionImport,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -82,7 +84,7 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
                     showAlertImport()
                 }
             }
-            btnExportToFile.setOnClickListener {
+            tvExportToFile.setOnClickListener {
                 requestPermission(
                     requestPermissionExport,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -97,7 +99,7 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
             chbSaveLastFlightData.setOnCheckedChangeListener { _, isChecked ->
                 presenter.onSaveLastDataChanged(isChecked)
             }
-            ivShareFile.setOnClickListener {
+            tvResultInfo.setOnClickListener {
                 presenter.onShareFileClick()
             }
         }
@@ -249,7 +251,7 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
     }
 
     override fun setShareFileVisible(visible: Boolean) {
-        binding.ivShareFile.isVisible = visible
+        binding.tvResultInfo.isVisible = visible
     }
 
     override fun showResults(intRes: Int, path: String) {

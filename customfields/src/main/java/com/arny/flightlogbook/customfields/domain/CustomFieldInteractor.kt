@@ -33,7 +33,11 @@ class CustomFieldInteractor @Inject constructor(
         type: CustomFieldType,
         showByDefault: Boolean,
         addTime: Boolean
-    ): Boolean = repository.addCustomField(CustomField(id, name, type, showByDefault, addTime))
+    ): Boolean = if (id != null) {
+        repository.updateCustomField(CustomField(id, name, type, showByDefault, addTime))
+    } else {
+        repository.addCustomField(CustomField(id, name, type, showByDefault, addTime))
+    }
 
     override fun getCustomFieldsWithValues(externalId: Long?): List<CustomFieldValue> =
         repository.getCustomFieldWithValues(externalId)

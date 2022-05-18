@@ -9,4 +9,25 @@
         <item name="materialDrawerHeaderStyle">@style/Widget.MaterialDrawerHeaderStyle</item>
     </style>
 
+    <style name="Caption" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="android:textSize">@dimen/font_size_medium</item>
+        <item name="android:padding">8dp</item>
+    </style>
+
+    <style name="Description" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="android:textSize">@dimen/font_size_default</item>
+        <item name="android:padding">8dp</item>
+    </style>
+
+    <style name="Clickable" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">@dimen/font_size_default</item>
+        <item name="android:textColor">@color/light_blue_600</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:foreground">?android:attr/selectableItemBackgroundBorderless</item>
+    </style>
+
 </resources>

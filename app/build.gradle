@@ -108,10 +108,7 @@ dependencies {
     implementation libs.kotlinStdlib
     implementation libs.ktxCore
     implementation libs.lifecycleExt
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.4.2'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.4.2'
     /*tests*/
-    debugImplementation libs.dbDebug
     implementation libs.junit
     androidTestImplementation libs.assertjCore
     androidTestImplementation libs.assertjAndroid

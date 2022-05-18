@@ -81,7 +81,7 @@ class CustomFieldEditFragment : BaseMvpFragment(), CustomFieldsEditView {
         return true
     }
 
-    override fun getTitle(): String = getString(R.string.edit)
+    override fun getTitle(): String = getString(R.string.edit_custom_field)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -100,11 +100,11 @@ class CustomFieldEditFragment : BaseMvpFragment(), CustomFieldsEditView {
                 presenter.setFieldName(it.toString())
             }
         }
-        val map = CustomFieldType.values().map { getString(it.nameRes) }.toTypedArray()
+        val listValues = CustomFieldType.values().map { getString(it.nameRes) }.toTypedArray()
         val abstractArrayAdapter = object : AbstractArrayAdapter<String>(
             context,
             android.R.layout.simple_list_item_1,
-            map
+            listValues
         ) {
             override fun getItemTitle(item: String?) = item
         }

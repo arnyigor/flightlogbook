@@ -73,15 +73,17 @@ class JsonReader @Inject constructor(
     }
 
     private fun Flight.setFlightType(flightObject: JSONObject) {
-        val flightTypeTmp = (flightObject.getString("flightType"))
-            .fromJson(gson, FlightType::class.java)
-        dbFlightTypes.find {
-            it.typeTitle.equals(other = flightTypeTmp?.typeTitle, ignoreCase = true)
-        }?.let { type ->
-            flightType = type
-            flightTypeId = type.id
-        } ?: kotlin.run {
-            addFlightTypeToDb(flightTypeTmp)
+        if (flightObject.has("flightType")) {
+            val flightTypeTmp = (flightObject.getString("flightType"))
+                .fromJson(gson, FlightType::class.java)
+            dbFlightTypes.find {
+                it.typeTitle.equals(other = flightTypeTmp?.typeTitle, ignoreCase = true)
+            }?.let { type ->
+                flightType = type
+                flightTypeId = type.id
+            } ?: kotlin.run {
+                addFlightTypeToDb(flightTypeTmp)
+            }
         }
     }
 

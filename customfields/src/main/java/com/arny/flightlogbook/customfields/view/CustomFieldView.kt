@@ -50,7 +50,7 @@ class CustomFieldView : LinearLayout {
             is CustomFieldType.Bool -> {
                 switch = SwitchCompat(context)
                 switch?.text = name
-                switch?.layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
+                switch?.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
                 addView(switch, 0)
             }
             is CustomFieldType.Number -> {
@@ -97,14 +97,11 @@ class CustomFieldView : LinearLayout {
         }
     }
 
-    private fun returnValue(): Any? {
-        return when (type.toCustomFieldType()) {
-            is CustomFieldType.Text -> editText?.text.toString()
-            is CustomFieldType.Number -> editText?.text.toString()
-            is CustomFieldType.Time -> editText?.text.toString()
-            is CustomFieldType.Bool -> switch?.isChecked
-            is CustomFieldType.None -> null
-        }
+    private fun returnValue(): Any? = when (type.toCustomFieldType()) {
+        is CustomFieldType.Text -> editText?.text.toString()
+        is CustomFieldType.Number -> editText?.text.toString()
+        is CustomFieldType.Time -> editText?.text.toString()
+        is CustomFieldType.Bool -> switch?.isChecked
+        is CustomFieldType.None -> null
     }
-
 }

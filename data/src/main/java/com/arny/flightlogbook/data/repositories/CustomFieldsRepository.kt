@@ -23,6 +23,9 @@ class CustomFieldsRepository @Inject constructor(
     override fun addCustomField(customField: CustomField): Boolean =
             customFieldDAO.insertReplace(customField.toDBValue()) != 0L
 
+    override fun updateCustomField(customField: CustomField): Boolean =
+        customFieldDAO.updateReplace(customField.toDBValue()) != 0
+
     private fun CustomField.toDBValue() = CustomFieldEntity(id, name, type.toString(), showByDefault, addTime)
 
     override fun addCustomFieldValue(customFieldValue: CustomFieldValue): Boolean =
