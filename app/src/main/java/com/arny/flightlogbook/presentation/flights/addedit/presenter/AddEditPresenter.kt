@@ -601,7 +601,11 @@ class AddEditPresenter @Inject constructor(
         value: String
     ) {
         if (item.type is CustomFieldType.Time) {
-            correctTimeObs(value, DateTimeUtils.convertStringToTime(item.value.toString()))
+            var timeValue = value
+            if (timeValue.isBlank()) {
+                timeValue = "0"
+            }
+            correctTimeObs(timeValue, DateTimeUtils.convertStringToTime(item.value.toString()))
                 .subscribeFromPresenter({ pair ->
                     item.value = strLogTime(pair.intTime)
                     customFieldsValues.find { it.fieldId == item.fieldId }?.let {
