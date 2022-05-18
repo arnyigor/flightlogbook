@@ -8,6 +8,7 @@ import com.arny.flightlogbook.domain.flighttypes.FlightTypesRepository
 import com.arny.flightlogbook.domain.models.Flight
 import com.arny.flightlogbook.domain.models.FlightType
 import com.arny.flightlogbook.domain.models.Params
+import com.arny.flightlogbook.domain.models.PlaneType
 import com.arny.flightlogbook.domain.planetypes.AircraftTypesRepository
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -20,9 +21,11 @@ class JsonReader @Inject constructor(
     private val aircraftTypesRepository: AircraftTypesRepository,
 ) : FlightFileReadWriter {
     private var dbFlightTypes: List<FlightType> = emptyList()
+    private var dbPlaneTypes: List<PlaneType> = emptyList()
     private val gson: Gson = GsonBuilder().setLenient().create()
     override fun readFile(file: File): List<Flight> {
         updateDbFlights()
+        updateDbPlanes()
         return arrayListOf<Flight>().apply {
             for (line in file.readLines()) {
                 if (line.isNotBlank()) {
@@ -40,36 +43,85 @@ class JsonReader @Inject constructor(
                         ifrTime = flightObject.getValue("ifrTime") ?: 0
                         nightTime = flightObject.getValue("nightTime") ?: 0
                         totalTime = flightObject.getValue("totalTime") ?: 0
+                        colorInt = flightObject.getValue("colorInt") ?: 0
+                        ifrvfr = flightObject.getValue("ifrvfr") ?: 0
                         params = Params(flightObject.getValue("params") as? JSONObject)
+                        setPlaneType(flightObject)
+                        regNo = planeType?.regNo
+                        selected = flightObject.getValue("selected") ?: false
+
                     }
                     add(flight)
-                    //                    {"arrivalUtcTime":0,
-                    //                        "datetime":1447621200000,
-                    //                        "datetimeFormatted":"16 нояб. 2015",
-                    //                        "departureUtcTime":0,
-                    //                        "description":"налет после обучения",
-                    //                        "flightTime":2298,
-                    //                        "flightType":{"id":0,"typeTitle":"Круги"},
-                    //                        "flightTypeId":0,
-                    //                        "groundTime":0,
-                    //                        "id":1,
-                    //                        "ifrTime":0,
-                    //                        "logtimeFormatted":"38:18",
-                    //                        "nightTime":0,
-                    //                        "params":{"params":{"nameValuePairs":{}}},
-                    //                        "planeId":2,
-                    //                        "planeType":{"mainType":"AIRPLANE","regNo":"01785","typeId":2,"typeName":"P2002"},
-                    //                        "regNo":"01785",
-                    //                        "selected":false,
-                    //                        "totalTime":2298
-                    //                    }
+//                    {
+//                        "totalTime": 285,
+//                        "id": 1,
+//                        "planeId": 1,
+//                        "flightTypeId": 1,
+//                        "arrivalUtcTime": 225,
+//                        "description": "",
+//                        "datetimeFormatted": "18 \u043c\u0430\u044f 2022",
+//                        "planeType": {
+//                        "typeId": 1,
+//                        "mainType": "AIRPLANE",
+//                        "typeName": "\u0431737",
+//                        "regNo": "-"
+//                    },
+//                        "colorInt": -9370,
+//                        "datetime": 1652852008667,
+//                        "selected": false,
+//                        "logtimeFormatted": "02:00",
+//                        "ifrvfr": 1,
+//                        "departureUtcTime": 105,
+//                        "flightType": {
+//                        "typeTitle": "\u0420\u0435\u0439\u0441",
+//                        "id": 1
+//                    },
+//                        "flightTime": 165,
+//                        "params": {
+//                        "params": {
+//                        "nameValuePairs": {
+//                        "params": {
+//                        "nameValuePairs": {
+//                        "nameValuePairs": {
+//                        "nameValuePairs": {}
+//                    }
+//                    }
+//                    },
+//                        "color": "#FFDB66"
+//                    }
+//                    },
+//                        "nodeString": "#FFDB66"
+//                    },
+//                        "groundTime": 120,
+//                        "nightTime": 0,
+//                        "ifrTime": 0
+//                    }
                 }
             }
         }
     }
 
+    private fun Flight.setPlaneType(flightObject: JSONObject) {
+        if(flightObject.has("planeType")){
+                val planeTypeTmp = (flightObject.getString("planeType"))
+                    .fromJson(gson, PlaneType::class.java)
+                dbPlaneTypes.find {
+                    it.typeName.equals(other = planeTypeTmp?.typeName, ignoreCase = true)
+                }?.let { type ->
+                    planeType = type
+                    planeId = type.typeId
+                } ?: kotlin.run {
+                    addPlaneTypeToDb(planeTypeTmp)
+                }
+        }
+    }
+
     private fun updateDbFlights() {
         dbFlightTypes = flightTypesRepository.loadDBFlightTypes()
+    }
+
+    private fun updateDbPlanes() {
+        dbPlaneTypes = aircraftTypesRepository.loadAircraftTypes()
     }
 
     private fun Flight.setFlightType(flightObject: JSONObject) {
@@ -95,6 +147,19 @@ class JsonReader @Inject constructor(
                 dbFlightTypes.find { it.id == id }?.let { type ->
                     flightType = type
                     flightTypeId = id
+                }
+            }
+        }
+    }
+
+    private fun Flight.addPlaneTypeToDb(planeTypeTmp: PlaneType?) {
+        planeTypeTmp?.let {
+            val id = aircraftTypesRepository.addType(planeTypeTmp)
+            if (id > 0) {
+                updateDbPlanes()
+                dbPlaneTypes.find { it.typeId == id }?.let { type ->
+                    planeType = type
+                    planeId = id
                 }
             }
         }
