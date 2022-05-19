@@ -12,8 +12,6 @@ enum class AircraftType(@StringRes val nameRes: Int, val mainType: Int) {
     AIRSHIP(R.string.plane_main_type_airship, 5);
 
     companion object {
-        fun getType(index: Int): AircraftType {
-            return values().find { it.mainType == index } ?: AIRPLANE
-        }
+        fun getType(index: Int): AircraftType = values().find { it.mainType == index } ?: AIRPLANE
     }
 }
