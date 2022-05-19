@@ -1,6 +1,7 @@
 package com.arny.flightlogbook.presentation.settings
 
 import android.net.Uri
+import androidx.annotation.StringRes
 import moxy.MvpView
 import moxy.viewstate.strategy.alias.AddToEndSingle
 import moxy.viewstate.strategy.alias.OneExecution
@@ -11,7 +12,10 @@ interface SettingsView : MvpView {
     fun hideProgress()
 
     @OneExecution
-    fun showError(msg: Int, error: String? = null)
+    fun showError(@StringRes msgRes: Int, error: String? = null)
+
+    @OneExecution
+    fun showSuccess(@StringRes msgRes: Int, msg: String? = null)
     fun showResults(intRes: Int, path: String)
     fun showResults(results: String)
     fun hideResults()
@@ -24,6 +28,6 @@ interface SettingsView : MvpView {
 
     @OneExecution
     fun openWith(pair: Pair<Uri, String?>)
-    fun resultSuccess()
+    fun showFileData()
     fun showFilesToShare(filenames: List<String>)
 }

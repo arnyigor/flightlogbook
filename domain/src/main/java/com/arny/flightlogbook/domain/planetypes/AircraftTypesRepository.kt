@@ -9,7 +9,7 @@ interface AircraftTypesRepository {
     fun addType(planeType: PlaneType): Long
     fun removeType(type: PlaneType?): Boolean
     fun removeTypes(): Boolean
-    fun updateType(type: PlaneType?): Boolean
+    fun updateType(type: PlaneType): Boolean
     fun updatePlaneTypeTitle(id: Long?, title: String?): Boolean
     fun getAircraftTypesCount(): Int
 }

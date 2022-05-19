@@ -23,20 +23,22 @@ class FilesRepositoryImpl @Inject constructor(
 
     override fun getBackupsPath(): String = FileUtils.getWorkDir(resourcesProvider.provideContext())
 
-    override fun getDefaultFileName(fileName: String): String {
-        return FileUtils.getWorkDir(resourcesProvider.provideContext()) + File.separator + fileName
-    }
+    override fun getDefaultFileName(fileName: String): String =
+        FileUtils.getWorkDir(resourcesProvider.provideContext()) + File.separator + fileName
 
-    override fun getFileUri(fileName: String?): Uri? {
-        return FileUtils.getFileUri(
-            resourcesProvider.provideContext(),
-            File(getDefaultFileName(fileName ?: CONSTS.FILES.FILE_NAME_XLS))
-        )
-    }
+    override fun getFileUri(fileName: String?): Uri? = FileUtils.getFileUri(
+        resourcesProvider.provideContext(),
+        File(getDefaultFileName(fileName ?: CONSTS.FILES.FILE_NAME_XLS))
+    )
 
     override fun getFileName(fromSystem: Boolean, uri: Uri?): String =
         if (fromSystem) {
-            getDefaultFileName(CONSTS.FILES.FILE_NAME_JSON)
+            var fileName = getDefaultFileName(CONSTS.FILES.FILE_NAME_XLS)
+            val file = File(fileName)
+            if (!file.isFile || !file.exists()) {
+                fileName = getDefaultFileName(CONSTS.FILES.FILE_NAME_JSON)
+            }
+            fileName
         } else {
             FilePathUtils.getPath(uri, resourcesProvider.provideContext().applicationContext)
                 .toString()

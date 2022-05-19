@@ -8,10 +8,11 @@ import com.arny.flightlogbook.domain.planetypes.AircraftType
 import com.arny.flightlogbook.domain.planetypes.AircraftTypesRepository
 import javax.inject.Inject
 
-class AircraftTypesRepositoryImpl @Inject constructor(private val aircraftTypeDAO: AircraftTypeDAO) : AircraftTypesRepository {
+class AircraftTypesRepositoryImpl @Inject constructor(private val aircraftTypeDAO: AircraftTypeDAO) :
+    AircraftTypesRepository {
     override fun loadAircraftTypes(): List<PlaneType> {
         return aircraftTypeDAO.queryAircraftTypes()
-                .map { it.toPlaneType() }
+            .map { it.toPlaneType() }
     }
 
     override fun loadAircraftType(id: Long?): PlaneType? {
@@ -30,7 +31,7 @@ class AircraftTypesRepositoryImpl @Inject constructor(private val aircraftTypeDA
     }
 
     private fun PlaneTypeEntity.toPlaneType() =
-            PlaneType(typeId, typeName, getType(mainType), regNo)
+        PlaneType(typeId, typeName, getType(mainType), regNo)
 
     private fun getDBMainType(type: AircraftType?) = when (type) {
         AircraftType.AIRPLANE -> type.toString()
@@ -52,24 +53,17 @@ class AircraftTypesRepositoryImpl @Inject constructor(private val aircraftTypeDA
         else -> AircraftType.AIRPLANE
     }
 
-    override fun addType(planeType: PlaneType): Long {
-        return aircraftTypeDAO.insertReplace(planeType.toPlaneTypeEntity())
-    }
+    override fun addType(planeType: PlaneType): Long =
+        aircraftTypeDAO.insertReplace(planeType.toPlaneTypeEntity())
 
     override fun removeType(type: PlaneType?): Boolean {
         return aircraftTypeDAO.delete(type?.typeId) > 0
     }
 
-    override fun removeTypes(): Boolean {
-        return aircraftTypeDAO.delete() > 0
-    }
+    override fun removeTypes(): Boolean = aircraftTypeDAO.delete() > 0
 
-    override fun updateType(type: PlaneType?): Boolean {
-        return type?.let {
-            val typeEntity = type.toPlaneTypeEntity()
-            aircraftTypeDAO.updateReplace(typeEntity) > 0
-        } ?: false
-    }
+    override fun updateType(type: PlaneType): Boolean =
+        aircraftTypeDAO.updateReplace(type.toPlaneTypeEntity())>0
 
     override fun updatePlaneTypeTitle(id: Long?, title: String?): Boolean {
         return aircraftTypeDAO.setTitle(id, title) > 0

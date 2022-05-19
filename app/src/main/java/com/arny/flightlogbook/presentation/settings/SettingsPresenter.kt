@@ -59,14 +59,12 @@ class SettingsPresenter @Inject constructor(
             viewState.hideProgress()
             val path = it.value
             if (path != null) {
-                viewState.showResults(R.string.import_file_success, path)
-                viewState.resultSuccess()
-                openDefaultFileWith(path)
+                viewState.showSuccess(R.string.import_file_success, path)
+                viewState.showFileData()
             } else {
                 viewState.showError(R.string.error_import_file)
             }
         }, {
-            it.printStackTrace()
             viewState.hideProgress()
             viewState.showError(R.string.error_import_file, it.message)
         })
@@ -84,7 +82,7 @@ class SettingsPresenter @Inject constructor(
                         val path = it.data
                         if (path.isNotBlank()) {
                             viewState.showResults(R.string.export_file_success, path)
-                            viewState.resultSuccess()
+                            viewState.showFileData()
                         } else {
                             viewState.showError(R.string.error_export_file, null)
                         }
@@ -112,8 +110,8 @@ class SettingsPresenter @Inject constructor(
             viewState.hideProgress()
             val path = it.value
             if (path != null) {
-                viewState.showResults(R.string.import_file_success, path)
-                viewState.resultSuccess()
+                viewState.showSuccess(R.string.import_file_success, path)
+                viewState.showFileData()
             } else {
                 viewState.showError(R.string.error_import_file)
             }
@@ -154,7 +152,6 @@ class SettingsPresenter @Inject constructor(
         val extension = MimeTypeMap.getFileExtensionFromUrl(fromFile.toString())
         val mimetype = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
         println(mimetype)
-//        viewState.openWith(Pair(fromFile, mimetype))
     }
 
     fun onSaveLastDataChanged(checked: Boolean) {

@@ -13,9 +13,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat
+import androidx.annotation.StringRes
 import androidx.core.view.isVisible
 import com.arny.core.utils.*
 import com.arny.flightlogbook.R
@@ -113,7 +112,7 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
         }
     }
 
-    override fun resultSuccess() {
+    override fun showFileData() {
         handler.removeCallbacksAndMessages(null)
         handler.postDelayed({
             presenter.showFileData()
@@ -238,12 +237,16 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
         requireActivity().shareFileWithType(uri, fileType)
     }
 
-    override fun showError(msg: Int, error: String?) {
+    override fun showError(@StringRes msgRes: Int, error: String?) {
         if (error.isNullOrBlank()) {
-            binding.tvResultInfo.text = getString(msg)
+            binding.tvResultInfo.text = getString(msgRes)
         } else {
-            binding.tvResultInfo.text = getString(msg, error)
+            binding.tvResultInfo.text = getString(msgRes, error)
         }
+    }
+
+    override fun showSuccess(@StringRes msgRes: Int, msg: String?) {
+        ToastMaker.toastSuccess(requireContext(), getString(msgRes, msg))
     }
 
     override fun setAutoExportChecked(checked: Boolean) {
@@ -284,10 +287,5 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
             setDataAndType(fromFile, mimetype)
             startActivity(this)
         }
-    }
-
-    // TODO: 28.06.2020 использовать позже
-    private fun openFileWith() {
-        presenter.openDefaultFileWith("")
     }
 }

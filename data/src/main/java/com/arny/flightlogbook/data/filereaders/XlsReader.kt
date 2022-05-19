@@ -31,6 +31,9 @@ class XlsReader @Inject constructor(
         const val LOG_SHEET_MAIN = "Timelog"
     }
 
+    private var planeTypes: List<PlaneType> = emptyList()
+    private var dbFlightTypes: List<FlightType> = emptyList()
+
     override fun readFile(file: File): List<Flight> {
         val rowIter = HSSFWorkbook(FileInputStream(file)).getSheetAt(0).rowIterator()
         val flights = ArrayList<Flight>()
@@ -40,8 +43,8 @@ class XlsReader @Inject constructor(
         var airplaneTypeId: Long
         var mDateTime: Long = 0
         var planeType: PlaneType? = null
-        var planeTypes = aircraftTypesRepository.loadAircraftTypes()
-        var dbFlightTypes = flightTypesRepository.loadDBFlightTypes()
+        updatePlaneTypes()
+        dbFlightTypes = flightTypesRepository.loadDBFlightTypes()
         var id = 1L
         while (rowIter.hasNext()) {
             val myRow = rowIter.next() as HSSFRow
@@ -73,8 +76,7 @@ class XlsReader @Inject constructor(
                             try {
                                 timeStr = if (myCell.cellType == CellType.NUMERIC) {
                                     Utility.match(
-                                        myCell.dateCellValue.toString(),
-                                        "(\\d{2}:\\d{2})", 1
+                                        myCell.dateCellValue.toString(), "(\\d{2}:\\d{2})", 1
                                     )
                                 } else {
                                     myCell.toString()
@@ -91,48 +93,38 @@ class XlsReader @Inject constructor(
                             flight.flightTime = time
                         }
                         3 -> {
-                            val airplaneTypeName = myCell.toString()
-                            val type =
-                                planeTypes.find { it.typeName.equals(airplaneTypeName, true) }
-                            if (type?.typeId == null && airplaneTypeName.isNotBlank()) {
-                                planeType = PlaneType().apply {
-                                    typeName = airplaneTypeName
-                                }
-                            } else {
+                            val airplaneTypeName = myCell.toString().trim()
+                            val type = getPlaneByName(planeTypes, airplaneTypeName)
+                            if (type != null) {
                                 planeType = type
                             }
                         }
                         4 -> {
-                            val regNo: String = myCell.toString()
-                            if (planeType?.typeId != null && !planeType.regNo.isNullOrBlank() && regNo == planeType.regNo) {
+                            // TODO обновить plane если уже есть RegNo и появился TypeName
+                            val regNo: String = myCell.toString().trim()
+                            if (planeType != null && isPlaneRegNoEquals(planeType, regNo)) {
                                 flight.planeId = planeType.typeId
                                 flight.regNo = planeType.regNo
                             } else {
-                                val type = planeTypes.find { it.regNo == regNo }
+                                val type = getPlaneByRegNo(planeTypes, regNo)
                                 if (type?.typeId != null) {
                                     planeType = type
                                 } else {
                                     if (planeType != null) {
-                                        val typeName = planeType.typeName
-                                        planeType = PlaneType().apply {
-                                            this.typeName = typeName
-                                            this.regNo = regNo
+                                        planeType = planeType.copy(regNo = regNo)
+                                        if (aircraftTypesRepository.updateType(planeType)) {
+                                            updatePlaneTypes()
                                         }
-                                        airplaneTypeId = aircraftTypesRepository.addType(planeType)
-                                        planeType.typeId = airplaneTypeId
-                                        planeTypes = aircraftTypesRepository.loadAircraftTypes()
                                     } else {
                                         planeType = PlaneType().apply {
                                             this.regNo = regNo
                                         }
                                         airplaneTypeId = aircraftTypesRepository.addType(planeType)
+                                        updatePlaneTypes()
                                         planeType.typeId = airplaneTypeId
-                                        planeTypes = aircraftTypesRepository.loadAircraftTypes()
                                     }
                                 }
-                                if (planeType.typeId != null && !planeType.regNo.isNullOrBlank() && regNo ==
-                                    planeType.regNo
-                                ) {
+                                if (isValidPlaneType(planeType)) {
                                     flight.planeId = planeType.typeId
                                     flight.regNo = planeType.regNo
                                 }
@@ -154,8 +146,7 @@ class XlsReader @Inject constructor(
                                     } else {
                                         flightTypeId = flightTypesRepository.addFlightTypeAndGet(
                                             FlightType(
-                                                flightTypeId,
-                                                oldTypeName
+                                                flightTypeId, oldTypeName
                                             )
                                         )
                                         dbFlightTypes = flightTypesRepository.loadDBFlightTypes()
@@ -180,8 +171,7 @@ class XlsReader @Inject constructor(
                             try {
                                 timeStr = if (myCell.cellType == CellType.NUMERIC) {
                                     Utility.match(
-                                        myCell.dateCellValue.toString(),
-                                        "(\\d{2}:\\d{2})", 1
+                                        myCell.dateCellValue.toString(), "(\\d{2}:\\d{2})", 1
                                     )
                                 } else {
                                     myCell.toString()
@@ -203,8 +193,7 @@ class XlsReader @Inject constructor(
                             try {
                                 timeStr = if (myCell.cellType == CellType.NUMERIC) {
                                     Utility.match(
-                                        myCell.dateCellValue.toString(),
-                                        "(\\d{2}:\\d{2})", 1
+                                        myCell.dateCellValue.toString(), "(\\d{2}:\\d{2})", 1
                                     )
                                 } else {
                                     myCell.toString()
@@ -251,6 +240,31 @@ class XlsReader @Inject constructor(
         return flights
     }
 
+    private fun isValidPlaneType(planeType: PlaneType) =
+        planeType.typeId != null && !planeType.regNo.isNullOrBlank()
+
+    private fun updatePlaneTypes() {
+        planeTypes = aircraftTypesRepository.loadAircraftTypes()
+    }
+
+    private fun getPlaneByRegNo(
+        planeTypes: List<PlaneType>, regNo: String
+    ) = planeTypes.find { regNo.isNotBlank() && it.regNo.equals(regNo, ignoreCase = true) }
+
+    private fun getPlaneByName(
+        planeTypes: List<PlaneType>, airplaneTypeName: String
+    ) = planeTypes.find {
+        airplaneTypeName.isNotBlank() && it.typeName.equals(airplaneTypeName, true)
+    }
+
+    private fun isPlaneRegNoEquals(
+        planeType: PlaneType?, regNo: String
+    ) =
+        planeType?.typeId != null && !planeType.regNo.isNullOrBlank() && regNo.isNotBlank() && regNo.equals(
+            planeType.regNo,
+            ignoreCase = true
+        )
+
     override fun writeFile(flights: List<Flight>, file: File): Boolean {
         var row: Row
         val wb = HSSFWorkbook()
@@ -277,13 +291,11 @@ class XlsReader @Inject constructor(
         c.setCellValue(resourcesProvider.getString(R.string.cell_night_time))
         c = row.createCell(9)
         c.setCellValue(resourcesProvider.getString(R.string.cell_ground_time))
-        val exportData = flights
-            .map { flight ->
-                flight.planeType = aircraftTypesRepository.loadAircraftType(flight.planeId)
-                flight.flightType =
-                    flightTypesRepository.loadDBFlightType(flight.flightTypeId)
-                flight
-            }
+        val exportData = flights.map { flight ->
+            flight.planeType = aircraftTypesRepository.loadAircraftType(flight.planeId)
+            flight.flightType = flightTypesRepository.loadDBFlightType(flight.flightTypeId)
+            flight
+        }
         var rows = 1
         for (flight in exportData) {
             val planeType = flight.planeType
@@ -321,12 +333,11 @@ class XlsReader @Inject constructor(
         mainSheet.setColumnWidth(7, 15 * 500)
         mainSheet.setColumnWidth(8, 15 * 250)
         mainSheet.setColumnWidth(9, 15 * 300)
-       return writeXlsFile(file, wb)
+        return writeXlsFile(file, wb)
     }
 
     private fun writeXlsFile(
-        file: File,
-        wb: HSSFWorkbook
+        file: File, wb: HSSFWorkbook
     ): Boolean {
         var os: FileOutputStream? = null
         val success: Boolean
@@ -357,7 +368,6 @@ class XlsReader @Inject constructor(
     }
 
     private fun defaultCurrentTime(): String? = DateTimeUtils.getDateTime(
-        System.currentTimeMillis(),
-        "dd MMM yyyy"
+        System.currentTimeMillis(), "dd MMM yyyy"
     )
 }
