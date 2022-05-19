@@ -42,7 +42,7 @@ class XlsReader @Inject constructor(
         var strDesc: String
         var airplaneTypeId: Long
         var mDateTime: Long = 0
-        var planeType: PlaneType? = null
+        var tmpPlane: PlaneType? = null
         updatePlaneTypes()
         dbFlightTypes = flightTypesRepository.loadDBFlightTypes()
         var id = 1L
@@ -94,39 +94,36 @@ class XlsReader @Inject constructor(
                         }
                         3 -> {
                             val airplaneTypeName = myCell.toString().trim()
-                            val type = getPlaneByName(planeTypes, airplaneTypeName)
-                            if (type != null) {
-                                planeType = type
-                            }
+                            tmpPlane = getPlaneByName(planeTypes, airplaneTypeName)
                         }
                         4 -> {
                             // TODO обновить plane если уже есть RegNo и появился TypeName
                             val regNo: String = myCell.toString().trim()
-                            if (planeType != null && isPlaneRegNoEquals(planeType, regNo)) {
-                                flight.planeId = planeType.typeId
-                                flight.regNo = planeType.regNo
+                            if (tmpPlane != null && isPlaneRegNoEquals(tmpPlane, regNo)) {
+                                flight.planeId = tmpPlane.typeId
+                                flight.regNo = tmpPlane.regNo
                             } else {
                                 val type = getPlaneByRegNo(planeTypes, regNo)
                                 if (type?.typeId != null) {
-                                    planeType = type
+                                    tmpPlane = type
                                 } else {
-                                    if (planeType != null) {
-                                        planeType = planeType.copy(regNo = regNo)
-                                        if (aircraftTypesRepository.updateType(planeType)) {
+                                    if (tmpPlane != null) {
+                                        tmpPlane = tmpPlane.copy(regNo = regNo)
+                                        if (aircraftTypesRepository.updateType(tmpPlane)) {
                                             updatePlaneTypes()
                                         }
                                     } else {
-                                        planeType = PlaneType().apply {
+                                        tmpPlane = PlaneType().apply {
                                             this.regNo = regNo
                                         }
-                                        airplaneTypeId = aircraftTypesRepository.addType(planeType)
+                                        airplaneTypeId = aircraftTypesRepository.addType(tmpPlane)
                                         updatePlaneTypes()
-                                        planeType.typeId = airplaneTypeId
+                                        tmpPlane.typeId = airplaneTypeId
                                     }
                                 }
-                                if (isValidPlaneType(planeType)) {
-                                    flight.planeId = planeType.typeId
-                                    flight.regNo = planeType.regNo
+                                if (isValidPlaneType(tmpPlane)) {
+                                    flight.planeId = tmpPlane.typeId
+                                    flight.regNo = tmpPlane.regNo
                                 }
                             }
                         }
