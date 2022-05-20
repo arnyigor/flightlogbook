@@ -3,61 +3,55 @@ package com.arny.flightlogbook.presentation.flighttypes.list
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isVisible
-import com.arny.flightlogbook.R
-import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
+import com.arny.flightlogbook.adapters.diffUtilCallback
 import com.arny.flightlogbook.databinding.TypeListItemLayoutBinding
 import com.arny.flightlogbook.domain.models.FlightType
 
 class FlightTypesAdapter(
     private val hideEdit: Boolean = false,
-    private val typesListener: FlightTypesListener? = null
-) : SimpleAbstractAdapter<FlightType>() {
+    val onEditType: (item: FlightType) -> Unit,
+    val onDeleteType: (item: FlightType) -> Unit,
+    val onItemClick: (item: FlightType) -> Unit,
+) : ListAdapter<FlightType, FlightTypesAdapter.FlightTypesViewHolder>(diffUtilCallback<FlightType>(
+    areItemsTheSame = { old, new -> old.id == new.id },
+    contentsTheSame = { old, new -> old == new }
+)) {
     private lateinit var binding: TypeListItemLayoutBinding
 
-    override fun getLayout(viewType: Int): Int {
-        return R.layout.type_list_item_layout
+    override fun onCreateViewHolder(parent: ViewGroup, position: Int): FlightTypesViewHolder =
+        FlightTypesViewHolder(
+            TypeListItemLayoutBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
+        )
+
+    override fun onBindViewHolder(holder: FlightTypesViewHolder, position: Int) {
+        holder.bind(getItem(position))
     }
 
-    interface FlightTypesListener : OnViewHolderListener<FlightType> {
-        fun onEditType(position: Int, item: FlightType)
-        fun onDeleteType(item: FlightType)
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val inflater = LayoutInflater.from(parent.context)
-        binding = TypeListItemLayoutBinding.inflate(inflater, parent, false)
-        return VH(binding.root)
-    }
-
-    override fun bindView(item: FlightType, viewHolder: VH) {
-        viewHolder.itemView.apply {
-            val position = viewHolder.adapterPosition
+    inner class FlightTypesViewHolder constructor(
+        private val viewBinding: TypeListItemLayoutBinding
+    ) : RecyclerView.ViewHolder(viewBinding.root) {
+        fun bind(item: FlightType) {
             with(binding) {
                 tvTypeTitle.text = item.typeTitle
                 ivTypeEdit.isVisible = !hideEdit
                 ivTypeDelete.isVisible = !hideEdit
                 ivTypeEdit.setOnClickListener {
-                    typesListener?.onEditType(position, item)
+                    onEditType(item)
                 }
                 ivTypeDelete.setOnClickListener {
-                    typesListener?.onDeleteType(item)
+                    onDeleteType(item)
                 }
             }
-            setOnClickListener {
-                typesListener?.onItemClick(position, item)
+            viewBinding.root.setOnClickListener {
+                onItemClick(item)
             }
         }
-    }
 
-    override fun getDiffCallback(): DiffCallback<FlightType>? {
-        return object : DiffCallback<FlightType>() {
-            override fun areItemsTheSame(oldItem: FlightType, newItem: FlightType): Boolean {
-                return oldItem == newItem
-            }
-
-            override fun areContentsTheSame(oldItem: FlightType, newItem: FlightType): Boolean {
-                return oldItem == newItem
-            }
-        }
     }
 }

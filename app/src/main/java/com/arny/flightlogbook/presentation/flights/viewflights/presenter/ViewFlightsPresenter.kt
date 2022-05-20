@@ -34,7 +34,7 @@ class ViewFlightsPresenter @Inject constructor(
             })
     }
 
-    fun loadFlights(checkAutoExport: Boolean = false) {
+    fun loadFlights(checkAutoExport: Boolean = false, restoreScroll: Boolean) {
         viewState.viewLoadProgress(true)
         flightsInteractor.getFilterFlightsObs(checkAutoExport)
             .subscribeFromPresenter({ result ->
@@ -43,7 +43,7 @@ class ViewFlightsPresenter @Inject constructor(
                     is Result.Success -> {
                         flights = result.data
                         flights.forEach { it.selected = false }
-                        viewState.updateAdapter(flights)
+                        viewState.updateAdapter(flights, restoreScroll)
                         viewState.invalidateMenuSelected(flights.any { it.selected })
                         viewState.showEmptyView(flights.isEmpty())
                         getTimeInfo()
@@ -61,14 +61,14 @@ class ViewFlightsPresenter @Inject constructor(
 
     fun changeOrder(orderType: Int) {
         flightsInteractor.setFlightsOrder(orderType)
-        loadFlights(false)
+        loadFlights(checkAutoExport = false, restoreScroll = false)
     }
 
     fun removeItem(item: Flight) {
         flightsInteractor.removeFlight(item.id)
             .subscribeFromPresenter({
                 if (it) {
-                    loadFlights(false)
+                    loadFlights(checkAutoExport = false, restoreScroll = false)
                 } else {
                     viewState.toastError(resourcesInteractor.getString(R.string.flight_not_removed))
                 }
@@ -87,7 +87,7 @@ class ViewFlightsPresenter @Inject constructor(
         flightsInteractor.removeFlights(flights.filter { it.selected }.mapNotNull { it.id })
             .subscribeFromPresenter({
                 if (it) {
-                    loadFlights(false)
+                    loadFlights(checkAutoExport = false, restoreScroll = false)
                 } else {
                     viewState.toastError(resourcesInteractor.getString(R.string.flights_not_removed))
                 }

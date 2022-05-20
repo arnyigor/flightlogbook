@@ -4,49 +4,35 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.arny.core.utils.DateTimeUtils
 import com.arny.core.utils.getIntColor
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.adapters.diffUtilCallback
 import com.arny.flightlogbook.databinding.FlightListItemBinding
 import com.arny.flightlogbook.domain.models.Flight
 
-class FlightsAdapter(private val onFlightsListListener: OnFlightsListListener? = null) :
-    ListAdapter<Flight, FlightsAdapter.AdapterViewholder>(
-        object : DiffUtil.ItemCallback<Flight>() {
-            override fun areItemsTheSame(
-                oldItem: Flight,
-                newItem: Flight
-            ): Boolean = oldItem == newItem
-
-            override fun areContentsTheSame(
-                oldItem: Flight,
-                newItem: Flight
-            ): Boolean = oldItem == newItem
-        }
-    ) {
-
-    interface OnFlightsListListener {
-        fun onItemClick(position: Int, item: Flight)
-        fun onFlightSelect(position: Int, item: Flight)
-        fun onFlightRemove(position: Int, item: Flight)
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AdapterViewholder {
-        return AdapterViewholder(
+class FlightsAdapter(
+    val onItemClick: (position: Int, item: Flight) -> Unit,
+    val onFlightSelect: (position: Int, item: Flight) -> Unit,
+    val onFlightRemove: (item: Flight) -> Unit
+) : ListAdapter<Flight, FlightsAdapter.AdapterViewHolder>(diffUtilCallback<Flight>(
+    areItemsTheSame = { old, new -> old.id == new.id },
+    contentsTheSame = { old, new -> old == new }
+)) {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AdapterViewHolder =
+        AdapterViewHolder(
             FlightListItemBinding.inflate(
                 LayoutInflater.from(parent.context), parent, false
             )
         )
+
+    override fun onBindViewHolder(holder: AdapterViewHolder, position: Int) {
+        holder.bind(getItem(position))
     }
 
-    override fun onBindViewHolder(holder: AdapterViewholder, position: Int) {
-        holder.bind(getItem(holder.adapterPosition))
-    }
-
-    inner class AdapterViewholder(private val binding: FlightListItemBinding) :
+    inner class AdapterViewHolder(private val binding: FlightListItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(item: Flight) {
             val view = binding.root
@@ -63,16 +49,10 @@ class FlightsAdapter(private val onFlightsListListener: OnFlightsListListener? =
                 tvPlaneType.text = item.planeType?.typeName
                 tvDescr.isVisible = !item.description.isNullOrBlank()
                 tvDescr.text = item.description
-                var colorText = item.colorText
-                    ?: context.getIntColor(R.color.colorTextPrimary)
+                var colorText = item.colorText ?: context.getIntColor(R.color.colorTextPrimary)
                 if (item.selected) {
                     colorText = ContextCompat.getColor(context, R.color.colorTextPrimary)
-                    clFlightsItemContainer.setBackgroundColor(
-                        ContextCompat.getColor(
-                            context,
-                            R.color.colorTextGrayBg
-                        )
-                    )
+                    clFlightsItemContainer.setBackgroundColor(context.getIntColor(R.color.colorTextGrayBg))
                 } else {
                     val colorInt = item.colorInt
                     if (colorInt == 0 || colorInt == -1 || colorInt == null) {
@@ -96,13 +76,13 @@ class FlightsAdapter(private val onFlightsListListener: OnFlightsListListener? =
                     tvFlightType.setTextColor(it)
                 }
                 view.setOnClickListener {
-                    onFlightsListListener?.onItemClick(adapterPosition, item)
+                    onItemClick(layoutPosition, item)
                 }
                 ivRemove.setOnClickListener {
-                    onFlightsListListener?.onFlightRemove(adapterPosition, item)
+                    onFlightRemove(item)
                 }
                 view.setOnLongClickListener {
-                    onFlightsListListener?.onFlightSelect(adapterPosition, item)
+                    onFlightSelect(layoutPosition, item)
                     true
                 }
             }

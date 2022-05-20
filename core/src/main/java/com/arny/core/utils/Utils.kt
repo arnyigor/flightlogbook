@@ -640,13 +640,9 @@ fun Context.getSizeDP(size: Int): Int {
 }
 
 @ColorInt
-fun Context.getIntColor(@ColorRes res: Int): Int {
-    return ContextCompat.getColor(this, res)
-}
+fun Context.getIntColor(@ColorRes res: Int): Int = ContextCompat.getColor(this, res)
 
-fun Context.getResDrawable(@DrawableRes res: Int): Drawable? {
-    return ContextCompat.getDrawable(this, res)
-}
+fun Context.getResDrawable(@DrawableRes res: Int): Drawable? = ContextCompat.getDrawable(this, res)
 
 fun ImageView?.setSrcTintColor(@DrawableRes src: Int, @ColorInt color: Int) {
     val drawable = this?.context?.let { ContextCompat.getDrawable(it, src) }

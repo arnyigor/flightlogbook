@@ -76,32 +76,15 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView, MainFirstFragment
             mLayoutManager = LinearLayoutManager(context)
             rvFlights.layoutManager = mLayoutManager
             rvFlights.itemAnimator = DefaultItemAnimator()
-            adapter = FlightsAdapter(object : FlightsAdapter.OnFlightsListListener {
-                override fun onItemClick(position: Int, item: Flight) {
-                    if (hasSelectedItems) {
-                        presenter.onFlightSelect(position, item)
-                    } else {
-                        launchActivity<FragmentContainerActivity>(CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT) {
-                            action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_FLIGHT
-                            putExtra(CONSTS.DB.COLUMN_ID, item.id)
-                        }
-                    }
-                }
-
-                override fun onFlightSelect(position: Int, item: Flight) {
+            adapter = FlightsAdapter(
+                onItemClick = { position, item ->
+                    onItemClick(position, item)
+                },
+                onFlightSelect = { position, item ->
                     presenter.onFlightSelect(position, item)
-                }
-
-                override fun onFlightRemove(position: Int, item: Flight) {
-                    alertDialog(
-                        requireContext(),
-                        getString(R.string.remove_item_question),
-                        btnCancelText = getString(R.string.str_cancel),
-                        onConfirm = {
-                            presenter.removeItem(item)
-                        })
-                }
-            })
+                },
+                onFlightRemove = (::showRemoveDialog)
+            )
             rvFlights.addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     when {
@@ -113,7 +96,28 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView, MainFirstFragment
             })
             rvFlights.adapter = adapter
         }
-        presenter.loadFlights()
+        presenter.loadFlights(restoreScroll = true)
+    }
+
+    private fun onItemClick(position: Int, item: Flight) {
+        if (hasSelectedItems) {
+            presenter.onFlightSelect(position, item)
+        } else {
+            launchActivity<FragmentContainerActivity>(CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT) {
+                action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_FLIGHT
+                putExtra(CONSTS.DB.COLUMN_ID, item.id)
+            }
+        }
+    }
+
+    private fun showRemoveDialog(item: Flight) {
+        alertDialog(
+            requireContext(),
+            getString(R.string.remove_item_question),
+            btnCancelText = getString(R.string.str_cancel),
+            onConfirm = {
+                presenter.removeItem(item)
+            })
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -121,7 +125,7 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView, MainFirstFragment
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
                 CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT -> {
-                    presenter.loadFlights(true)
+                    presenter.loadFlights(checkAutoExport = true, restoreScroll = true)
                 }
             }
         }
@@ -157,9 +161,11 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView, MainFirstFragment
         activity?.invalidateOptionsMenu()
     }
 
-    override fun updateAdapter(flights: List<Flight>) {
+    override fun updateAdapter(flights: List<Flight>, restoreScroll: Boolean) {
         adapter?.submitList(flights)
-        restoreListPosition()
+        if (restoreScroll) {
+            restoreListPosition()
+        }
     }
 
     override fun invalidateAdapter(position: Int) {

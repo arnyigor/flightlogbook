@@ -83,29 +83,29 @@ class FlightTypesFragment : BaseMvpFragment(), FlightTypesView {
                 dialogListener = { result -> presenter.addType(result) }
             )
         }
-        typesAdapter =
-            FlightTypesAdapter(typesListener = object : FlightTypesAdapter.FlightTypesListener {
-                override fun onEditType(position: Int, item: FlightType) {
-                    showEditDialog(item)
-                }
-
-                override fun onDeleteType(item: FlightType) {
-                    showConfirmDeleteDialog(item)
-                }
-
-                override fun onItemClick(position: Int, item: FlightType) {
-                    if (isRequestField) {
-                        setFragmentResult(
-                            REQUEST_FLIGHT_TYPE,
-                            bundleOf(CONSTS.EXTRAS.EXTRA_FLIGHT_TYPE to item.id)
-                        )
-                        requireActivity().onBackPressed()
-                    }
-                }
-            })
+        typesAdapter = FlightTypesAdapter(
+            onEditType = (::showEditDialog),
+            onDeleteType = (::showConfirmDeleteDialog),
+            onItemClick = { item ->
+                onItemSelected(isRequestField, item)
+            }
+        )
         binding.rvFlightTypes.layoutManager = LinearLayoutManager(context)
         binding.rvFlightTypes.adapter = typesAdapter
         presenter.loadTypes()
+    }
+
+    private fun onItemSelected(
+        isRequestField: Boolean,
+        item: FlightType
+    ) {
+        if (isRequestField) {
+            setFragmentResult(
+                REQUEST_FLIGHT_TYPE,
+                bundleOf(CONSTS.EXTRAS.EXTRA_FLIGHT_TYPE to item.id)
+            )
+            requireActivity().onBackPressed()
+        }
     }
 
     private fun showConfirmDeleteDialog(item: FlightType) {
@@ -142,6 +142,6 @@ class FlightTypesFragment : BaseMvpFragment(), FlightTypesView {
     }
 
     override fun updateAdapter(list: List<FlightType>) {
-        typesAdapter?.addAll(list)
+        typesAdapter?.submitList(list)
     }
 }
