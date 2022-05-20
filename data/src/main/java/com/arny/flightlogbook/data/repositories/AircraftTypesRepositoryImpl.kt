@@ -1,6 +1,5 @@
 package com.arny.flightlogbook.data.repositories
 
-import com.arny.core.utils.toItem
 import com.arny.flightlogbook.data.db.daos.AircraftTypeDAO
 import com.arny.flightlogbook.data.models.planes.PlaneTypeEntity
 import com.arny.flightlogbook.domain.models.PlaneType
@@ -8,27 +7,24 @@ import com.arny.flightlogbook.domain.planetypes.AircraftType
 import com.arny.flightlogbook.domain.planetypes.AircraftTypesRepository
 import javax.inject.Inject
 
-class AircraftTypesRepositoryImpl @Inject constructor(private val aircraftTypeDAO: AircraftTypeDAO) :
-    AircraftTypesRepository {
-    override fun loadAircraftTypes(): List<PlaneType> {
-        return aircraftTypeDAO.queryAircraftTypes()
-            .map { it.toPlaneType() }
-    }
+class AircraftTypesRepositoryImpl @Inject constructor(
+    private val aircraftTypeDAO: AircraftTypeDAO
+) : AircraftTypesRepository {
+    override fun loadAircraftTypes(): List<PlaneType> =
+        aircraftTypeDAO.queryAircraftTypes().map { it.toPlaneType() }
 
-    override fun loadAircraftType(id: Long?): PlaneType? {
-        return aircraftTypeDAO.queryAircraftType(id)?.toPlaneType()
-    }
+    override fun loadAircraftType(id: Long?): PlaneType? =
+        aircraftTypeDAO.queryAircraftType(id)?.toPlaneType()
 
-    override fun loadPlaneTypeByRegNo(regNo: String?): PlaneType? {
-        return aircraftTypeDAO.queryAircraftByRegNo(regNo)?.toPlaneType()
-    }
+    override fun loadPlaneTypeByRegNo(regNo: String?): PlaneType? =
+        aircraftTypeDAO.queryAircraftByRegNo(regNo)?.toPlaneType()
 
-    private fun PlaneType.toPlaneTypeEntity(): PlaneTypeEntity {
-        if (this.mainType == null) {
-            this.mainType = AircraftType.AIRPLANE
-        }
-        return PlaneTypeEntity(typeId, typeName, regNo, getDBMainType(mainType))
-    }
+    private fun PlaneType.toPlaneTypeEntity(): PlaneTypeEntity = PlaneTypeEntity(
+        typeId = typeId,
+        typeName = typeName,
+        regNo = regNo,
+        mainType = getDBMainType(mainType ?: AircraftType.AIRPLANE)
+    )
 
     private fun PlaneTypeEntity.toPlaneType() =
         PlaneType(typeId, typeName, getType(mainType), regNo)
@@ -56,24 +52,22 @@ class AircraftTypesRepositoryImpl @Inject constructor(private val aircraftTypeDA
     override fun addType(planeType: PlaneType): Long =
         aircraftTypeDAO.insertReplace(planeType.toPlaneTypeEntity())
 
-    override fun removeType(type: PlaneType?): Boolean {
-        return aircraftTypeDAO.delete(type?.typeId) > 0
-    }
+    override fun removeType(type: PlaneType?): Boolean = aircraftTypeDAO.delete(type?.typeId) > 0
 
     override fun removeTypes(): Boolean = aircraftTypeDAO.delete() > 0
 
     override fun updateType(type: PlaneType): Boolean =
-        aircraftTypeDAO.updateReplace(type.toPlaneTypeEntity())>0
+        aircraftTypeDAO.updateReplace(type.toPlaneTypeEntity()) > 0
 
-    override fun updatePlaneTypeTitle(id: Long?, title: String?): Boolean {
-        return aircraftTypeDAO.setTitle(id, title) > 0
-    }
+    override fun updatePlaneTypeTitle(id: Long?, title: String?): Boolean =
+        aircraftTypeDAO.setTitle(id, title) > 0
 
     override fun getAircraftTypesCount(): Int {
-        val cursor = aircraftTypeDAO.queryAirplaneTypesCount()
         var count = 0
-        cursor.toItem {
-            count = cursor.getInt(0)
+        aircraftTypeDAO.queryAirplaneTypesCount().use { cursor ->
+            if (cursor.moveToNext()) {
+                count = cursor.getInt(0)
+            }
         }
         return count
     }

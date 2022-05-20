@@ -44,7 +44,7 @@ class XlsReader @Inject constructor(
         var mDateTime: Long = 0
         var tmpPlane: PlaneType? = null
         updatePlaneTypes()
-        dbFlightTypes = flightTypesRepository.loadDBFlightTypes()
+        updateFlightTypes()
         var id = 1L
         while (rowIter.hasNext()) {
             val myRow = rowIter.next() as HSSFRow
@@ -95,22 +95,38 @@ class XlsReader @Inject constructor(
                         3 -> {
                             val airplaneTypeName = myCell.toString().trim()
                             tmpPlane = getPlaneByName(planeTypes, airplaneTypeName)
+                            if (tmpPlane == null && airplaneTypeName.isNotBlank()) {
+                                tmpPlane = PlaneType().apply {
+                                    this.typeName = airplaneTypeName
+                                }
+                            }
                         }
                         4 -> {
-                            // TODO обновить plane если уже есть RegNo и появился TypeName
                             val regNo: String = myCell.toString().trim()
                             if (tmpPlane != null && isPlaneRegNoEquals(tmpPlane, regNo)) {
                                 flight.planeId = tmpPlane.typeId
                                 flight.regNo = tmpPlane.regNo
                             } else {
                                 val type = getPlaneByRegNo(planeTypes, regNo)
-                                if (type?.typeId != null) {
+                                if (type != null && tmpPlane == null) {
                                     tmpPlane = type
                                 } else {
                                     if (tmpPlane != null) {
-                                        tmpPlane = tmpPlane.copy(regNo = regNo)
-                                        if (aircraftTypesRepository.updateType(tmpPlane)) {
-                                            updatePlaneTypes()
+                                        val dbType = getPlaneByRegNo(planeTypes, regNo)
+                                        if (dbType != null) {
+                                            if (dbType.typeName.isNullOrBlank()) {
+                                                tmpPlane = dbType.copy(typeName = tmpPlane.typeName)
+                                                if (aircraftTypesRepository.updateType(tmpPlane)) {
+                                                    updatePlaneTypes()
+                                                }
+                                            } else {
+                                                tmpPlane = dbType
+                                            }
+                                        } else {
+                                            tmpPlane = tmpPlane.copy(regNo = regNo)
+                                            if (aircraftTypesRepository.updateType(tmpPlane)) {
+                                                updatePlaneTypes()
+                                            }
                                         }
                                     } else {
                                         tmpPlane = PlaneType().apply {
@@ -146,7 +162,7 @@ class XlsReader @Inject constructor(
                                                 flightTypeId, oldTypeName
                                             )
                                         )
-                                        dbFlightTypes = flightTypesRepository.loadDBFlightTypes()
+                                        updateFlightTypes()
                                     }
                                 }
                             }
@@ -237,6 +253,10 @@ class XlsReader @Inject constructor(
         return flights
     }
 
+    private fun updateFlightTypes() {
+        dbFlightTypes = flightTypesRepository.loadDBFlightTypes()
+    }
+
     private fun isValidPlaneType(planeType: PlaneType) =
         planeType.typeId != null && !planeType.regNo.isNullOrBlank()
 
@@ -246,7 +266,11 @@ class XlsReader @Inject constructor(
 
     private fun getPlaneByRegNo(
         planeTypes: List<PlaneType>, regNo: String
-    ) = planeTypes.find { regNo.isNotBlank() && it.regNo.equals(regNo, ignoreCase = true) }
+    ) = planeTypes.find {
+        val regNo1 = it.regNo?.replace(" ","")
+        val other = regNo.replace(" ","")
+        other.isNotBlank() && regNo1.equals(other, ignoreCase = true)
+    }
 
     private fun getPlaneByName(
         planeTypes: List<PlaneType>, airplaneTypeName: String
