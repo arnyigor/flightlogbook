@@ -126,13 +126,13 @@ class AddEditPresenter @Inject constructor(
         viewState.setDescription(flight.description ?: "")
         loadColor(flight)
         loadDateTime(flight)
+        loadDepArrivalTime(flight)
         loadTimes(flight)
         loadIfrVfr(flight)
         loadFlightType(flight.flightTypeId)
         loadPlaneTypes(flight)
         loadCustomFields()
         loadDepArrival(flight)
-        loadDepArrivalTime(flight)
     }
 
     private fun loadDepArrivalTime(flight: Flight) {
@@ -143,6 +143,10 @@ class AddEditPresenter @Inject constructor(
         flight.arrivalUtcTime?.let {
             intArrivalUtcTime = it
             viewState.setEdtArrUtcTime(it)
+        }
+        if (intDepartureUtcTime == 0 && intArrivalUtcTime == 0) {
+            intArrivalUtcTime = flight.flightTime
+            viewState.setEdtArrUtcTime(intArrivalUtcTime)
         }
     }
 

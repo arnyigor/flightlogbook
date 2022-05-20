@@ -35,26 +35,19 @@ class FlightsInteractor @Inject constructor(
 
     fun insertFlightAndGet(flight: Flight): Long = flightsRepository.insertFlightAndGet(flight)
 
-    fun getFlight(id: Long?): Flight? {
-        return flightsRepository.getFlight(id)
-            ?.apply {
-                colorInt = customParams?.get(PARAM_COLOR).toString().toIntColor()
-                planeType = aircraftTypesRepository.loadAircraftType(planeId)
-                flightType = flightTypesRepository.loadDBFlightType(flightTypeId?.toLong())
-            }
-    }
+    fun getFlight(id: Long?): Flight? = flightsRepository.getFlight(id)
+        ?.apply {
+            colorInt = customParams?.get(PARAM_COLOR)?.toString()?.toIntColor()
+            planeType = aircraftTypesRepository.loadAircraftType(planeId)
+            flightType = flightTypesRepository.loadDBFlightType(flightTypeId)
+        }
 
-    fun loadPlaneType(id: Long?): PlaneType? {
-        return aircraftTypesRepository.loadAircraftType(id)
-    }
+    fun loadPlaneType(id: Long?): PlaneType? = aircraftTypesRepository.loadAircraftType(id)
 
-    fun loadPlaneTypeByRegNo(regNo: String?): PlaneType? {
-        return aircraftTypesRepository.loadPlaneTypeByRegNo(regNo)
-    }
+    fun loadPlaneTypeByRegNo(regNo: String?): PlaneType? =
+        aircraftTypesRepository.loadPlaneTypeByRegNo(regNo)
 
-    fun loadFlightType(id: Long?): FlightType? {
-        return flightTypesRepository.loadDBFlightType(id)
-    }
+    fun loadFlightType(id: Long?): FlightType? = flightTypesRepository.loadDBFlightType(id)
 
     fun getAddTimeSum(values: List<CustomFieldValue>): Int {
         return if (values.isNotEmpty()) {
