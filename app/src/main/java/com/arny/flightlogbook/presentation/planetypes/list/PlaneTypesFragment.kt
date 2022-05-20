@@ -23,7 +23,7 @@ import moxy.ktx.moxyPresenter
 import javax.inject.Inject
 import javax.inject.Provider
 
-class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView, View.OnClickListener {
+class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView {
     companion object {
         fun getInstance(bundle: Bundle? = null) = PlaneTypesFragment().apply {
             bundle?.let { arguments = it }
@@ -38,9 +38,7 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView, View.OnClickListen
 
     @Inject
     lateinit var presenterProvider: Provider<PlaneTypesPresenter>
-
     private val presenter by moxyPresenter { presenterProvider.get() }
-
     private var appRouter: AppRouter? = null
 
     override fun onAttach(context: Context) {
@@ -70,41 +68,46 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView, View.OnClickListen
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val isRequestField = arguments?.getBoolean(CONSTS.REQUESTS.REQUEST) == true
-        if(isRequestField){
+        if (isRequestField) {
             title = R.string.choose_airplne_type
             updateTitle()
         }
-        binding.rvPlaneTypes.layoutManager = LinearLayoutManager(context)
-        binding.rvPlaneTypes.itemAnimator = DefaultItemAnimator()
-        adapter = PlaneTypesAdapter(
-            false,
-            typesListener = object : PlaneTypesAdapter.PlaneTypesListener {
-                override fun onEditType(position: Int, item: PlaneType) {
-                    appRouter?.navigateTo(
-                        NavigateItems.PLANE_TYPE_EDIT,
-                        true,
-                        bundleOf(CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID to item.typeId),
-                        requestCode = CONSTS.REQUESTS.REQUEST_EDIT_PLANE_TYPE,
-                        targetFragment = this@PlaneTypesFragment
-                    )
+        with(binding) {
+            rvPlaneTypes.layoutManager = LinearLayoutManager(context)
+            rvPlaneTypes.itemAnimator = DefaultItemAnimator()
+            adapter = PlaneTypesAdapter(
+                isRequestField,
+                onEditType = (::navigateTypeEdit),
+                onDeleteType = (::showRemoveDialog),
+                onItemClick = { item ->
+                    onItemClicked(isRequestField, item)
                 }
+            )
+            rvPlaneTypes.adapter = adapter
+            fabAddPlaneType.setOnClickListener { addPlaneType() }
+        }
+    }
 
-                override fun onDeleteType(position: Int, item: PlaneType) {
-                    showRemoveDialog(item)
-                }
+    private fun addPlaneType() {
+        appRouter?.navigateTo(
+            NavigateItems.PLANE_TYPE_EDIT,
+            true,
+            requestCode = CONSTS.REQUESTS.REQUEST_EDIT_PLANE_TYPE,
+            targetFragment = this@PlaneTypesFragment
+        )
+    }
 
-                override fun onItemClick(position: Int, item: PlaneType) {
-                    if (isRequestField) {
-                        setFragmentResult(
-                            CONSTS.REQUESTS.REQUEST_PLANE_TYPE,
-                            bundleOf(CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID to item.typeId)
-                        )
-                        requireActivity().onBackPressed()
-                    }
-                }
-            })
-        binding.rvPlaneTypes.adapter = adapter
-        binding.fabAddPlaneType.setOnClickListener(this)
+    private fun onItemClicked(
+        isRequestField: Boolean,
+        item: PlaneType
+    ) {
+        if (isRequestField) {
+            setFragmentResult(
+                CONSTS.REQUESTS.REQUEST_PLANE_TYPE,
+                bundleOf(CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID to item.typeId)
+            )
+            requireActivity().onBackPressed()
+        }
     }
 
     override fun onResume() {
@@ -121,21 +124,18 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView, View.OnClickListen
         menu.clear()
     }
 
-    override fun setEmptyViewVisible(vis: Boolean) {
-        binding.tvNoPlaneTypes.isVisible = vis
+    private fun navigateTypeEdit(item: PlaneType) {
+        appRouter?.navigateTo(
+            NavigateItems.PLANE_TYPE_EDIT,
+            true,
+            bundleOf(CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID to item.typeId),
+            requestCode = CONSTS.REQUESTS.REQUEST_EDIT_PLANE_TYPE,
+            targetFragment = this@PlaneTypesFragment
+        )
     }
 
-    override fun onClick(v: View) {
-        when (v.id) {
-            R.id.fab_add_plane_type -> {
-                appRouter?.navigateTo(
-                    NavigateItems.PLANE_TYPE_EDIT,
-                    true,
-                    requestCode = CONSTS.REQUESTS.REQUEST_EDIT_PLANE_TYPE,
-                    targetFragment = this@PlaneTypesFragment
-                )
-            }
-        }
+    override fun setEmptyViewVisible(vis: Boolean) {
+        binding.tvNoPlaneTypes.isVisible = vis
     }
 
     private fun showRemoveDialog(item: PlaneType) {
@@ -157,7 +157,7 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView, View.OnClickListen
     }
 
     override fun updateAdapter(list: List<PlaneType>) {
-        adapter?.addAll(list)
+        adapter?.submitList(list)
     }
 
     override fun toastSuccess(string: String) {

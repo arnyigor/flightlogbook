@@ -26,8 +26,12 @@ class AircraftTypesRepositoryImpl @Inject constructor(
         mainType = getDBMainType(mainType ?: AircraftType.AIRPLANE)
     )
 
-    private fun PlaneTypeEntity.toPlaneType() =
-        PlaneType(typeId, typeName, getType(mainType), regNo)
+    private fun PlaneTypeEntity.toPlaneType() = PlaneType(
+        typeId = typeId,
+        typeName = typeName,
+        mainType = getType(mainType),
+        regNo = regNo
+    )
 
     private fun getDBMainType(type: AircraftType?) = when (type) {
         AircraftType.AIRPLANE -> type.toString()

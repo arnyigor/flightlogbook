@@ -1,9 +1,5 @@
 package com.arny.flightlogbook.domain.models
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
-
-@Parcelize
 data class Airport(
     var id: Long? = null,
     var icao: String? = null,
@@ -17,4 +13,4 @@ data class Airport(
     var latitude: Double? = null,
     var longitude: Double? = null,
     var elevation: Double? = null,
-) : Parcelable
+)
