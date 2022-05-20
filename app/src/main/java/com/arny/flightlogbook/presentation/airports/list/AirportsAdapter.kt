@@ -4,9 +4,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.arny.core.utils.diffUtilCallback
-import com.arny.core.utils.ifNull
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.adapters.diffUtilCallback
 import com.arny.flightlogbook.databinding.IAirportBinding
 import com.arny.flightlogbook.domain.models.Airport
 
@@ -15,9 +14,11 @@ class AirportsAdapter(
     private val onClick: (position: Int, item: Airport) -> Unit
 ) :
     ListAdapter<Airport, AirportsAdapter.AdapterViewholder>(
-        diffUtilCallback<Airport> { firstItem, secondItem -> firstItem == secondItem }
+        diffUtilCallback<Airport>(
+            areItemsTheSame = { old, new -> old.id == new.id },
+            contentsTheSame = { old, new -> old == new }
+        )
     ) {
-
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -28,7 +29,7 @@ class AirportsAdapter(
     )
 
     override fun onBindViewHolder(holder: AdapterViewholder, position: Int) {
-        holder.bind(getItem(holder.adapterPosition))
+        holder.bind(getItem(position))
     }
 
     inner class AdapterViewholder(private val binding: IAirportBinding) :
@@ -36,7 +37,7 @@ class AirportsAdapter(
         fun bind(item: Airport) {
             val root = binding.root
             val context = root.context
-            val position = adapterPosition
+            val position = layoutPosition
             binding.tvAirportCodes.text = context.getString(
                 R.string.string_format_two_strings,
                 item.iata,
@@ -47,10 +48,9 @@ class AirportsAdapter(
                 item.nameEng,
                 if (item.nameRus.isNullOrBlank()) "" else "(${item.nameRus})"
             )
-            val sityName = if (isRus) item.cityRus?.ifNull("") else item.cityEng?.ifNull("")
+            val sityName = if (isRus) item.cityRus.orEmpty() else item.cityEng.orEmpty()
             val countryName =
-                if (isRus) item.countryRus?.ifNull("") else item.countryEng?.ifNull("")
-            binding.tvCity.text =
+                if (isRus) item.countryRus.orEmpty() else item.countryEng.orEmpty()
                 context.getString(R.string.string_format_two_strings, sityName, "(${countryName})")
             root.setOnClickListener { onClick(position, item) }
         }

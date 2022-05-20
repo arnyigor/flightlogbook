@@ -18,7 +18,6 @@ class FlightTypesAdapter(
     areItemsTheSame = { old, new -> old.id == new.id },
     contentsTheSame = { old, new -> old == new }
 )) {
-    private lateinit var binding: TypeListItemLayoutBinding
 
     override fun onCreateViewHolder(parent: ViewGroup, position: Int): FlightTypesViewHolder =
         FlightTypesViewHolder(
@@ -37,7 +36,7 @@ class FlightTypesAdapter(
         private val viewBinding: TypeListItemLayoutBinding
     ) : RecyclerView.ViewHolder(viewBinding.root) {
         fun bind(item: FlightType) {
-            with(binding) {
+            with(viewBinding) {
                 tvTypeTitle.text = item.typeTitle
                 ivTypeEdit.isVisible = !hideEdit
                 ivTypeDelete.isVisible = !hideEdit

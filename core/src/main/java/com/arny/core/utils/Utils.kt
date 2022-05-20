@@ -75,19 +75,6 @@ fun AppCompatActivity.replaceFragment(
     onLoadFunc()
 }
 
-fun <T> diffUtilCallback(predicate: (firstItem: T, secondItem: T) -> Boolean) =
-    object : DiffUtil.ItemCallback<T>() {
-        override fun areItemsTheSame(
-            oldItem: T,
-            newItem: T
-        ): Boolean = predicate.invoke(oldItem, newItem)
-
-        override fun areContentsTheSame(
-            oldItem: T,
-            newItem: T
-        ): Boolean = predicate.invoke(oldItem, newItem)
-    }
-
 fun Context.getSystemLocale(): Locale? {
     val configuration = this.resources.configuration
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) configuration.locales.get(0) else configuration.locale
@@ -746,76 +733,14 @@ fun getIconDrawable(
     color: Int,
     icon: GoogleMaterial.Icon,
     sizeDp: Int
-): Drawable {
-    return IconicsDrawable(context).apply {
-        this.icon = icon
-        this.colorInt = color
-        this.sizeDp = sizeDp
-    }
+): Drawable = IconicsDrawable(context).apply {
+    this.icon = icon
+    this.colorInt = color
+    this.sizeDp = sizeDp
 }
 
-fun getTextDrawable(text: String, color: Int): TextDrawable {
-    return TextDrawable.builder().buildRound(text, color)
-}
-
-fun <T> find(list: List<T>, c: T, comp: Comparator<T>): T? {
-    return list.firstOrNull { comp.compare(c, it) == 0 }
-}
-
-fun <T> findPosition(list: List<T>, item: T): Int {
-    return list.indexOf(item)
-}
-
-fun <T> findPosition(list: Array<T>, item: T): Int {
-    return list.indexOf(item)
-}
-
-fun <T> getExcludeList(
-    list: ArrayList<T>,
-    items: List<T>,
-    comparator: Comparator<T>
-): ArrayList<T> {
-    val res = ArrayList<T>()
-    for (t in list) {
-        val pos = Collections.binarySearch(items, t, comparator)
-        if (pos < 0) {
-            res.add(t)
-        }
-    }
-    return res
-}
-
-fun getSQLType(fieldType: String): String {
-    val res = when {
-        fieldType.equals("int", true) -> "INTEGER"
-        fieldType.equals("integer", true) -> "INTEGER"
-        fieldType.equals("float", true) -> "REAL"
-        fieldType.equals("double", true) -> "REAL"
-        fieldType.equals("string", true) -> "TEXT"
-        fieldType.equals("char", true) -> "TEXT"
-        fieldType.equals("byte", true) -> "TEXT"
-        else -> "TEXT"
-    }
-    return res
-}
-
-/**
- * Универсальная функция окончаний
- * @param [count] число
- * @param [zero_other] слово с окончанием значения  [count] либо ноль,либо все остальные варианты включая от 11 до 19 (слов)
- * @param [one] слово с окончанием значения  [count]=1 (слово)
- * @param [two_four] слово с окончанием значения  [count]=2,3,4 (слова)
- */
-fun getTermination(count: Int, zero_other: String, one: String, two_four: String): String {
-    if (count % 100 in 11..19) {
-        return count.toString() + " " + zero_other
-    }
-    return when (count % 10) {
-        1 -> count.toString() + " " + one
-        2, 3, 4 -> count.toString() + " " + two_four
-        else -> count.toString() + " " + zero_other
-    }
-}
+fun getTextDrawable(text: String, color: Int): TextDrawable =
+    TextDrawable.builder().buildRound(text, color)
 
 /**
  * safety String? to Double
@@ -828,53 +753,8 @@ fun String?.setDouble(): Double {
     return source.toDouble()
 }
 
-fun String?.ifNull(default: String): String {
-    return if (this?.isBlank() != false) default else this
-}
-
-/**
- * return items from second array wich not includes in first by custom diff in predicate
- * @param first ArrayList of  T
- * @param second Collection of  T
- * @param predicate function equals
- */
-fun <T> arraysDiff(
-    first: ArrayList<T>?,
-    second: ArrayList<T>,
-    fillAll: Boolean = false,
-    predicate: (firstItem: T, secondItem: T) -> Boolean
-): ArrayList<T> {
-    if (first.isNullOrEmpty()) return second
-    if (first.isEmpty() && second.isNotEmpty()) return second
-    val result = arrayListOf<T>()
-    val secondTemp = arrayListOf<T>()
-    secondTemp.addAll(second)
-    for (f in first) {
-        var equal = false
-        for (s in second) {
-            if (predicate.invoke(f, s)) {
-                secondTemp.remove(s)
-                equal = true
-                break
-            }
-        }
-        if (!equal) {
-            result.add(f)
-        }
-    }
-    if (fillAll) {
-        result.addAll(secondTemp)
-    }
-    return result
-}
-
-fun <T> Collection<T>.filterList(predicate: (T) -> Boolean): ArrayList<T> {
-    return ArrayList(this.filter(predicate))
-}
-
-fun <T : Any> Collection<T>?.dump(predicate: (cls: T) -> String?): String {
-    return dumpArray(this, predicate)
-}
+fun <T : Any> Collection<T>?.dump(predicate: (cls: T) -> String?): String =
+    dumpArray(this, predicate)
 
 fun <T : Any> dumpArray(collection: Collection<T>?, predicate: (cls: T) -> String?): String {
     var res = ""
@@ -923,10 +803,6 @@ fun getTermination(
         else -> if (concat) "$count $zero_other" else zero_other
     }
 }
-
-fun String?.orBlank() = this ?: ""
-
-fun String?.orBlank(predicate: () -> Boolean) = if (predicate()) this else ""
 
 /**
  * Extended function to check empty
