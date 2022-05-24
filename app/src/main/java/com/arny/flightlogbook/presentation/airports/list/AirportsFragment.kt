@@ -21,6 +21,7 @@ import com.arny.flightlogbook.R
 import com.arny.flightlogbook.databinding.FAirportsBinding
 import com.arny.flightlogbook.domain.models.Airport
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
+import com.arny.flightlogbook.presentation.navigation.OpenDrawerListener
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.Observable
 import moxy.ktx.moxyPresenter
@@ -30,6 +31,7 @@ import javax.inject.Provider
 class AirportsFragment : BaseMvpFragment(), AirportsView {
     private val args: AirportsFragmentArgs by navArgs()
     private lateinit var binding: FAirportsBinding
+    private var openDrawerListener: OpenDrawerListener? = null
 
     @Inject
     lateinit var presenterProvider: Provider<AirportsPresenter>
@@ -39,6 +41,9 @@ class AirportsFragment : BaseMvpFragment(), AirportsView {
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
+        if (context is OpenDrawerListener) {
+            openDrawerListener = context
+        }
     }
 
     override fun onCreateView(
@@ -54,6 +59,7 @@ class AirportsFragment : BaseMvpFragment(), AirportsView {
         super.onViewCreated(view, savedInstanceState)
         title = getString(R.string.airports)
         val isRequest = args.isRequest
+        openDrawerListener?.onChangeHomeButton(isRequest)
         val requestType = args.requestType
         val navController = view.findNavController()
         initAdapter(isRequest, requestType, navController)
@@ -64,7 +70,7 @@ class AirportsFragment : BaseMvpFragment(), AirportsView {
                 }
             }
         })
-
+        binding.fabAddAirport.isVisible = !isRequest
         binding.fabAddAirport.setOnClickListener {
             navController.navigate(
                 AirportsFragmentDirections.actionNavAirportsToAirportEditFragment()

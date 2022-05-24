@@ -20,6 +20,7 @@ import com.arny.flightlogbook.R
 import com.arny.flightlogbook.databinding.PlaneTypesLayoutBinding
 import com.arny.flightlogbook.domain.models.PlaneType
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
+import com.arny.flightlogbook.presentation.navigation.OpenDrawerListener
 import dagger.android.support.AndroidSupportInjection
 import moxy.ktx.moxyPresenter
 import javax.inject.Inject
@@ -29,6 +30,7 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView {
     private val args: PlaneTypesFragmentArgs by navArgs()
     private lateinit var binding: PlaneTypesLayoutBinding
     private var adapter: PlaneTypesAdapter? = null
+    private var openDrawerListener: OpenDrawerListener? = null
 
     @Inject
     lateinit var presenterProvider: Provider<PlaneTypesPresenter>
@@ -37,6 +39,9 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView {
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
+        if (context is OpenDrawerListener) {
+            openDrawerListener = context
+        }
     }
 
     override fun onCreateView(
@@ -51,6 +56,7 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val isRequestField = args.isRequestField
+        openDrawerListener?.onChangeHomeButton(isRequestField)
         title = if (isRequestField) {
             getString(R.string.choose_airplne_type)
         } else {
