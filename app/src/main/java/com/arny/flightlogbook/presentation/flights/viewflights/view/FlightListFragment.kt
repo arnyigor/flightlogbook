@@ -1,11 +1,13 @@
 package com.arny.flightlogbook.presentation.flights.viewflights.view
 
-import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.*
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
+import androidx.fragment.app.setFragmentResultListener
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -15,21 +17,13 @@ import com.arny.flightlogbook.R
 import com.arny.flightlogbook.databinding.FragmentFlightListBinding
 import com.arny.flightlogbook.domain.models.Flight
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
-import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
 import com.arny.flightlogbook.presentation.flights.viewflights.presenter.ViewFlightsPresenter
-import com.arny.flightlogbook.presentation.main.MainFirstFragment
 import dagger.android.support.AndroidSupportInjection
 import moxy.ktx.moxyPresenter
 import javax.inject.Inject
 import javax.inject.Provider
 
-class FlightListFragment : BaseMvpFragment(), ViewFlightsView, MainFirstFragment {
-    companion object {
-        fun getInstance(): FlightListFragment {
-            return FlightListFragment()
-        }
-    }
-
+class FlightListFragment : BaseMvpFragment(), ViewFlightsView {
     private lateinit var binding: FragmentFlightListBinding
     private var adapter: FlightsAdapter? = null
     private var positionIndex: Int = 0
@@ -50,10 +44,13 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView, MainFirstFragment
         ToastMaker.toastError(context, msg)
     }
 
-    override fun getTitle(): String = getString(R.string.fragment_logbook)
-
     override fun showError(message: String?) {
         requireView().showSnackBar(message)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -67,11 +64,18 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView, MainFirstFragment
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        with(binding){
+        title = getString(R.string.fragment_logbook)
+        setFragmentResultListener(CONSTS.EXTRAS.EXTRA_ACTION_EDIT_FLIGHT) { _, _ ->
+            presenter.loadFlights(checkAutoExport = true, restoreScroll = true)
+        }
+        initUI(view)
+        presenter.loadFlights(restoreScroll = true)
+    }
+
+    private fun initUI(view: View) {
+        with(binding) {
             fabAddFlight.setOnClickListener {
-                launchActivity<FragmentContainerActivity>(CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT) {
-                    action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_FLIGHT
-                }
+                view.findNavController().navigate(R.id.addEditFragment)
             }
             mLayoutManager = LinearLayoutManager(context)
             rvFlights.layoutManager = mLayoutManager
@@ -96,16 +100,17 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView, MainFirstFragment
             })
             rvFlights.adapter = adapter
         }
-        presenter.loadFlights(restoreScroll = true)
     }
 
     private fun onItemClick(position: Int, item: Flight) {
         if (hasSelectedItems) {
             presenter.onFlightSelect(position, item)
         } else {
-            launchActivity<FragmentContainerActivity>(CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT) {
-                action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_FLIGHT
-                putExtra(CONSTS.DB.COLUMN_ID, item.id)
+            val id = item.id
+            id?.let {
+                findNavController().navigate(
+                    FlightListFragmentDirections.actionNavFlightsToAddEditFragment(id)
+                )
             }
         }
     }
@@ -120,17 +125,6 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView, MainFirstFragment
             })
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK) {
-            when (requestCode) {
-                CONSTS.REQUESTS.REQUEST_ADD_EDIT_FLIGHT -> {
-                    presenter.loadFlights(checkAutoExport = true, restoreScroll = true)
-                }
-            }
-        }
-    }
-
     override fun viewLoadProgress(vis: Boolean) {
         binding.progressFlights.isVisible = vis
     }
@@ -142,18 +136,13 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView, MainFirstFragment
 
     override fun onResume() {
         super.onResume()
-        binding.fabAddFlight.show()
         restoreListPosition()
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.flights_menu, menu)
         menu.findItem(R.id.action_remove_items)?.isVisible = hasSelectedItems
+        super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun invalidateMenuSelected(hasSelectedItems: Boolean) {
@@ -193,7 +182,7 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView, MainFirstFragment
         topView = if (startView == null) 0 else startView.top - binding.rvFlights.paddingTop
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
         when (item.itemId) {
             R.id.action_filter -> {
                 val filters = resources.getStringArray(R.array.flights_filers)
@@ -210,7 +199,7 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView, MainFirstFragment
                         presenter.changeOrder(index)
                     }
                 )
-                return true
+                true
             }
             R.id.action_remove_items -> {
                 alertDialog(
@@ -220,8 +209,8 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView, MainFirstFragment
                     onConfirm = {
                         presenter.removeSelectedItems()
                     })
+                true
             }
+            else -> super.onOptionsItemSelected(item)
         }
-        return true
-    }
 }

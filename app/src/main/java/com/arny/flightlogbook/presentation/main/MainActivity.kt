@@ -1,37 +1,6 @@
 package com.arny.flightlogbook.presentation.main
 
-import android.content.Intent
-import android.os.Bundle
-import android.view.MenuItem
-import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_UNLOCKED
-import androidx.fragment.app.Fragment
-import com.arny.core.CONSTS
-import com.arny.core.utils.getFragmentByTag
-import com.arny.core.utils.launchActivity
-import com.arny.core.utils.replaceFragment
-import com.arny.core.utils.showSnackBar
-import com.arny.flightlogbook.R
-import com.arny.flightlogbook.databinding.ActivityHomeBinding
-import com.arny.flightlogbook.presentation.airports.list.AirportsFragment
-import com.arny.flightlogbook.presentation.common.FragmentContainer
-import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
-import com.arny.flightlogbook.presentation.customfields.list.CustomFieldsListFragment
-import com.arny.flightlogbook.presentation.flights.viewflights.view.FlightListFragment
-import com.arny.flightlogbook.presentation.flighttypes.list.FlightTypesFragment
-import com.arny.flightlogbook.presentation.planetypes.list.PlaneTypesFragment
-import com.arny.flightlogbook.presentation.settings.SettingsFragment
-import com.arny.flightlogbook.presentation.statistic.view.StatisticFragment
-import dagger.android.AndroidInjection
-import dagger.android.AndroidInjector
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.HasAndroidInjector
-import javax.inject.Inject
-
-class MainActivity : AppCompatActivity(), AppRouter, HasAndroidInjector {
+/*class MainActivity : AppCompatActivity(), HasAndroidInjector {
     private companion object {
         const val DRAWER_SELECTION = "drawer_selection"
         const val TIME_DELAY = 2000
@@ -251,4 +220,4 @@ class MainActivity : AppCompatActivity(), AppRouter, HasAndroidInjector {
             }
         }
     }
-}
+}*/

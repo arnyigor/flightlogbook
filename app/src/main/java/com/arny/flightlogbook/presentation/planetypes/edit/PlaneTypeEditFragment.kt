@@ -4,48 +4,39 @@ import android.content.Context
 import android.os.Bundle
 import android.view.*
 import androidx.annotation.StringRes
+import androidx.core.os.bundleOf
 import androidx.core.widget.doAfterTextChanged
+import androidx.fragment.app.setFragmentResult
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.arny.core.CONSTS
 import com.arny.core.utils.KeyboardHelper
 import com.arny.core.utils.ToastMaker.toastError
-import com.arny.core.utils.getExtra
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.databinding.FPlaneTypeEditBinding
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
-import com.arny.flightlogbook.presentation.main.AppRouter
 import dagger.android.support.AndroidSupportInjection
 import moxy.ktx.moxyPresenter
 import javax.inject.Inject
 import javax.inject.Provider
 
 class PlaneTypeEditFragment : BaseMvpFragment(), PlaneTypeEditView {
-    companion object {
-        fun getInstance(bundle: Bundle? = null) = PlaneTypeEditFragment().apply {
-            bundle?.let { arguments = it }
-        }
-    }
-
+    private val args: PlaneTypeEditFragmentArgs by navArgs()
     private lateinit var binding: FPlaneTypeEditBinding
-    private var appRouter: AppRouter? = null
 
     @Inject
     lateinit var presenterProvider: Provider<PlaneTypeEditPresenter>
     private val presenter by moxyPresenter { presenterProvider.get() }
 
-    override fun getTitle(): String = getString(R.string.edit_plane_type)
-
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
-        if (context is AppRouter) {
-            appRouter = context
-        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        presenter.planeTypeId = arguments?.getExtra<Long>(CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID)
+        presenter.planeTypeId = args.planeTypeId
     }
 
     override fun onCreateView(
@@ -62,21 +53,26 @@ class PlaneTypeEditFragment : BaseMvpFragment(), PlaneTypeEditView {
         super.onCreateOptionsMenu(menu, inflater)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
         when (item.itemId) {
+            android.R.id.home -> {
+                findNavController().popBackStack()
+                true
+            }
             R.id.action_save -> {
                 presenter.onSavePlaneType(
                     binding.tiedtPlaneTitle.text.toString(),
                     binding.tiedtRegNo.text.toString(),
                     binding.spinMainType.selectedItemPosition
                 )
+                true
             }
+            else -> super.onOptionsItemSelected(item)
         }
-        return true
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        title = getString(R.string.edit_plane_type)
         binding.tiedtRegNo.doAfterTextChanged { binding.tiLRegNo.error = null }
         binding.tiedtPlaneTitle.doAfterTextChanged { binding.tilPlaneTitle.error = null }
     }
@@ -115,6 +111,10 @@ class PlaneTypeEditFragment : BaseMvpFragment(), PlaneTypeEditView {
     }
 
     override fun setResultOk() {
-        appRouter?.onReturnResult()
+        setFragmentResult(
+            CONSTS.REQUESTS.REQUEST_PLANE_TYPE_EDIT,
+            bundleOf()
+        )
+        findNavController().popBackStack()
     }
 }

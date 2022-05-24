@@ -23,7 +23,7 @@ class CustomFieldsEditPresenter @Inject constructor() : BaseMvpPresenter<CustomF
 
     var fieldId: Long? = null
         set(value) {
-            field = if (value != 0L) value else null
+            field = if (value != -1L) value else null
         }
 
     override fun onFirstViewAttach() {
@@ -33,7 +33,7 @@ class CustomFieldsEditPresenter @Inject constructor() : BaseMvpPresenter<CustomF
                     val customField = it.value
                     if (customField != null) {
                         name = customField.name
-                        viewState.setTitle(name)
+                        viewState.setName(name)
                         type = customField.type
                         viewState.setType(type)
                         showByDefault = customField.showByDefault

@@ -8,49 +8,45 @@ import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.arny.core.CONSTS
+import com.arny.core.CONSTS.EXTRAS.EXTRA_ACTION_EDIT_CUSTOM_FIELD
 import com.arny.core.CONSTS.EXTRAS.EXTRA_CUSTOM_FIELD_ID
 import com.arny.core.CONSTS.REQUESTS.REQUEST_CUSTOM_FIELD
-import com.arny.core.CONSTS.REQUESTS.REQUEST_EDIT_CUSTOM_FIELD
+import com.arny.core.CONSTS.REQUESTS.REQUEST_CUSTOM_FIELD_EDIT
 import com.arny.core.utils.ToastMaker
+import com.arny.core.utils.getExtra
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.flightlogbook.customfields.models.CustomField
 import com.arny.flightlogbook.databinding.FragmentCustomFieldsListBinding
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
-import com.arny.flightlogbook.presentation.main.AppRouter
-import com.arny.flightlogbook.presentation.main.NavigateItems
+import com.arny.flightlogbook.presentation.navigation.OpenDrawerListener
 import dagger.android.support.AndroidSupportInjection
 import moxy.ktx.moxyPresenter
 import javax.inject.Inject
 import javax.inject.Provider
 
 class CustomFieldsListFragment : BaseMvpFragment(), CustomFieldsListView {
-    companion object {
-        fun getInstance(bundle: Bundle? = null) = CustomFieldsListFragment().apply {
-            bundle?.let { arguments = it }
-        }
-    }
-
     private lateinit var binding: FragmentCustomFieldsListBinding
-    private var title: Int = R.string.custom_fields
     private lateinit var customFieldsAdapter: CustomFieldsAdapter
+    private val args: CustomFieldsListFragmentArgs by navArgs()
+    private var openDrawerListener: OpenDrawerListener? = null
 
     @Inject
     lateinit var presenterProvider: Provider<CustomFieldsListPresenter>
     private val presenter by moxyPresenter { presenterProvider.get() }
-    private var appRouter: AppRouter? = null
 
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
-        if (context is AppRouter) {
-            appRouter = context
+        if (context is OpenDrawerListener) {
+            openDrawerListener = context
         }
     }
 
-    override fun getTitle(): String = getString(title)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -63,9 +59,23 @@ class CustomFieldsListFragment : BaseMvpFragment(), CustomFieldsListView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val isRequestField = arguments?.getBoolean(CONSTS.REQUESTS.REQUEST) == true
-        title = if (isRequestField) R.string.custom_field_select else R.string.custom_fields
-        updateTitle()
+        val isRequestField = args.isRequestField
+        title = if (isRequestField) getString(R.string.custom_field_select) else getString(R.string.custom_fields)
+        initAdapter(isRequestField)
+        openDrawerListener?.onChangeHomeButton(isRequestField)
+        binding.fabAddCustomField.isVisible = !isRequestField
+        binding.fabAddCustomField.setOnClickListener {
+            presenter.onFabClicked()
+        }
+        setFragmentResultListener(REQUEST_CUSTOM_FIELD_EDIT) { _, data ->
+            val isRequested = data.getExtra<Boolean>(EXTRA_ACTION_EDIT_CUSTOM_FIELD) ?: false
+            if (isRequested) {
+                presenter.loadCustomFields()
+            }
+        }
+    }
+
+    private fun initAdapter(isRequestField: Boolean) {
         customFieldsAdapter = CustomFieldsAdapter()
         binding.rvFieldsList.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -79,20 +89,12 @@ class CustomFieldsListFragment : BaseMvpFragment(), CustomFieldsListView {
                         REQUEST_CUSTOM_FIELD,
                         bundleOf(EXTRA_CUSTOM_FIELD_ID to item.id)
                     )
-                    requireActivity().onBackPressed()
+                    findNavController().popBackStack()
                 } else {
                     presenter.onItemClick(item)
                 }
             }
         })
-        binding.fabAddCustomField.setOnClickListener {
-            presenter.onFabClicked()
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        presenter.loadCustomFields()
     }
 
     override fun showProgress(show: Boolean) {
@@ -100,16 +102,14 @@ class CustomFieldsListFragment : BaseMvpFragment(), CustomFieldsListView {
     }
 
     override fun navigateToFieldEdit(id: Long?) {
-        appRouter?.navigateTo(
-            NavigateItems.ITEM_EDIT_FIELD,
-            true,
-            bundleOf(
-                EXTRA_CUSTOM_FIELD_ID to id,
-                CONSTS.REQUESTS.REQUEST to true
-            ),
-            requestCode = REQUEST_EDIT_CUSTOM_FIELD,
-            targetFragment = this@CustomFieldsListFragment
-        )
+        id?.let {
+            findNavController().navigate(
+                CustomFieldsListFragmentDirections.actionFieldsToCustomFieldEditFragment(
+                    fieldId = id,
+                    isRequest = true
+                )
+            )
+        }
     }
 
     override fun showEmptyView(show: Boolean) {

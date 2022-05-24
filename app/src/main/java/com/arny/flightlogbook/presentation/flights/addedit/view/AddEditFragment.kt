@@ -2,7 +2,6 @@ package com.arny.flightlogbook.presentation.flights.addedit.view
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.TimePickerDialog
 import android.content.Context
 import android.graphics.Color
@@ -18,10 +17,15 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.core.widget.NestedScrollView
 import androidx.core.widget.doAfterTextChanged
+import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.color.colorChooser
+import com.arny.core.AirportRequestType
 import com.arny.core.CONSTS
 import com.arny.core.utils.*
 import com.arny.flightlogbook.R
@@ -30,8 +34,6 @@ import com.arny.flightlogbook.databinding.FAddeditBinding
 import com.arny.flightlogbook.domain.models.Airport
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.flights.addedit.presenter.AddEditPresenter
-import com.arny.flightlogbook.presentation.main.AppRouter
-import com.arny.flightlogbook.presentation.main.NavigateItems
 import com.arny.flightlogbook.presentation.uicomponents.InputTimeComponent
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment
 import com.redmadrobot.inputmask.MaskedTextChangedListener
@@ -43,24 +45,15 @@ import javax.inject.Provider
 class AddEditFragment : BaseMvpFragment(), AddEditView,
     CalendarDatePickerDialogFragment.OnDateSetListener,
     View.OnClickListener, TimePickerDialog.OnTimeSetListener {
-    companion object {
-        private const val PERMISSION = Manifest.permission.WRITE_EXTERNAL_STORAGE
-        fun getInstance(bundle: Bundle? = null) = AddEditFragment().apply {
-            bundle?.let { arguments = it }
-        }
-    }
-
+    private val args: AddEditFragmentArgs by navArgs()
     private lateinit var binding: FAddeditBinding
     private var timeInput: InputTimeComponent? = null
     private var customFieldValuesAdapter: CustomFieldValuesAdapter? = null
-    private var currentTitle = R.string.str_add_flight
     private var tvMotoResult: TextView? = null
-    private var appRouter: AppRouter? = null
+
     @Inject
     lateinit var presenterProvider: Provider<AddEditPresenter>
-
     private val presenter by moxyPresenter { presenterProvider.get() }
-
     private val requestPermissionSaveData =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             if (!shouldShowRequestPermissionRationale(PERMISSION)) {
@@ -69,20 +62,15 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
             saveDataFlight()
         }
 
-    override fun getTitle(): String = getString(currentTitle)
-
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
-        if (context is AppRouter) {
-            appRouter = context
-        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        presenter.flightId = getExtra<Long>(CONSTS.DB.COLUMN_ID)
+        presenter.flightId = args.flightId
     }
 
     override fun onCreateView(
@@ -105,9 +93,16 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         super.onCreateOptionsMenu(menu, inflater)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
         when (item.itemId) {
-            R.id.action_save -> presenter.checkAutoExportFile()
+            android.R.id.home -> {
+                findNavController().popBackStack()
+                true
+            }
+            R.id.action_save -> {
+                presenter.checkAutoExportFile()
+                true
+            }
             R.id.action_remove -> {
                 alertDialog(
                     context = requireContext(),
@@ -115,10 +110,10 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
                     btnCancelText = getString(R.string.str_cancel),
                     onConfirm = { presenter.removeFlight() }
                 )
+                true
             }
+            else -> super.onOptionsItemSelected(item)
         }
-        return true
-    }
 
     override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
         timeInput?.setTime((hourOfDay * 60) + minute)
@@ -351,10 +346,10 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         setFragmentResultListener(CONSTS.REQUESTS.REQUEST_CUSTOM_FIELD) { _, data ->
             presenter.addCustomField(data.getExtra(CONSTS.EXTRAS.EXTRA_CUSTOM_FIELD_ID))
         }
-        setFragmentResultListener(CONSTS.REQUESTS.REQUEST_AIRPORT_DEPARTURE) { _, data ->
+        setFragmentResultListener(AirportRequestType.DEPARTURE.toString()) { _, data ->
             presenter.setDeparture(data.getParcelable(CONSTS.EXTRAS.EXTRA_AIRPORT))
         }
-        setFragmentResultListener(CONSTS.REQUESTS.REQUEST_AIRPORT_ARRIVAL) { _, data ->
+        setFragmentResultListener(AirportRequestType.ARRIVAL.toString()) { _, data ->
             presenter.setArrival(data.getParcelable(CONSTS.EXTRAS.EXTRA_AIRPORT))
         }
     }
@@ -362,26 +357,20 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.ivDate -> {
-                val cdp = CalendarDatePickerDialogFragment()
+                CalendarDatePickerDialogFragment()
                     .setOnDateSetListener(this@AddEditFragment)
-                cdp.show(childFragmentManager, "fragment_date_picker_name")
+                    .show(childFragmentManager, null)
             }
             R.id.select_plane_type -> {
-                appRouter?.navigateTo(
-                    NavigateItems.PLANE_TYPE_SELECT,
-                    true,
-                    bundleOf(CONSTS.REQUESTS.REQUEST to true),
-                    requestCode = CONSTS.REQUESTS.REQUEST_SELECT_PLANE_TYPE,
-                    targetFragment = this@AddEditFragment
+                requireView().findNavController().navigate(
+                    AddEditFragmentDirections.actionAddEditFragmentToNavPlaneTypes(
+                        isRequestField = true
+                    )
                 )
             }
             R.id.btnSelectFlightType -> {
-                appRouter?.navigateTo(
-                    NavigateItems.FLIGHT_TYPE_SELECT,
-                    true,
-                    bundleOf(CONSTS.REQUESTS.REQUEST to true),
-                    requestCode = CONSTS.REQUESTS.REQUEST_SELECT_FLIGHT_TYPE,
-                    targetFragment = this@AddEditFragment
+                requireView().findNavController().navigate(
+                    AddEditFragmentDirections.actionAddEditFragmentToNavFlightTypes(isRequestField = true)
                 )
             }
             R.id.btnMoto -> showMotoDialog()
@@ -389,35 +378,24 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
             R.id.tvColor -> presenter.colorClick()
             R.id.ivRemoveColor -> presenter.removeColor()
             R.id.btnAddField -> {
-                appRouter?.navigateTo(
-                    NavigateItems.ITEM_SELECT_FIELD,
-                    true,
-                    bundleOf(CONSTS.REQUESTS.REQUEST to true),
-                    requestCode = CONSTS.REQUESTS.REQUEST_SELECT_CUSTOM_FIELD,
-                    targetFragment = this@AddEditFragment
+                findNavController().navigate(
+                    AddEditFragmentDirections.actionAddEditFragmentToNavFields(isRequestField = true)
                 )
             }
             R.id.tvDeparture -> {
-                appRouter?.navigateTo(
-                    NavigateItems.AIRPORT_SELECT,
-                    true,
-                    bundleOf(
-                        CONSTS.REQUESTS.REQUEST to true,
-                        CONSTS.REQUESTS.REQUEST_AIRPORT to CONSTS.REQUESTS.REQUEST_SELECT_AIRPORT_DEPARTURE
-                    ),
-                    targetFragment = this@AddEditFragment
+                findNavController().navigate(
+                    AddEditFragmentDirections.actionAddEditFragmentToNavAirports(
+                        isRequest = true,
+                        requestType = AirportRequestType.DEPARTURE
+                    )
                 )
             }
             R.id.tvArrival -> {
-                appRouter?.navigateTo(
-                    NavigateItems.AIRPORT_SELECT,
-                    true,
-                    bundleOf(
-                        CONSTS.REQUESTS.REQUEST to true,
-                        CONSTS.REQUESTS.REQUEST_AIRPORT to CONSTS.REQUESTS.REQUEST_SELECT_AIRPORT_ARRIVAL
-                    ),
-                    requestCode = CONSTS.REQUESTS.REQUEST_SELECT_AIRPORT_ARRIVAL,
-                    targetFragment = this@AddEditFragment
+                findNavController().navigate(
+                    AddEditFragmentDirections.actionAddEditFragmentToNavAirports(
+                        isRequest = true,
+                        requestType = AirportRequestType.ARRIVAL
+                    )
                 )
             }
         }
@@ -428,8 +406,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     }
 
     override fun setToolbarTitle(title: Int) {
-        currentTitle = title
-        updateTitle()
+        this.title = getString(title)
     }
 
     override fun setEdtFlightTimeText(strLogTime: String?) {
@@ -499,7 +476,11 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     }
 
     override fun setResultOK() {
-        appRouter?.onReturnResult(null, Activity.RESULT_OK)
+        setFragmentResult(
+            CONSTS.EXTRAS.EXTRA_ACTION_EDIT_FLIGHT,
+            bundleOf()
+        )
+        requireView().findNavController().popBackStack()
     }
 
     override fun setFligtTypeTitle(title: String) {
@@ -567,4 +548,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         binding.edtArrivalTime.setTime(arrTime)
     }
 
+    private companion object {
+        const val PERMISSION = Manifest.permission.WRITE_EXTERNAL_STORAGE
+    }
 }

@@ -4,6 +4,7 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-parcelize'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
+apply plugin: 'androidx.navigation.safeargs.kotlin'
 
 android {
     signingConfigs {
@@ -108,6 +109,10 @@ dependencies {
     implementation libs.kotlinStdlib
     implementation libs.ktxCore
     implementation libs.lifecycleExt
+    implementation libs.navigationFragment
+    implementation libs.navigationFragmentKtx
+    implementation libs.navigationUIKtx
+
     /*tests*/
     implementation libs.junit
     androidTestImplementation libs.assertjCore

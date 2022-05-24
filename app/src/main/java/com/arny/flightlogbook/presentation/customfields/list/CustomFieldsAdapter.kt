@@ -20,7 +20,7 @@ class CustomFieldsAdapter : SimpleAbstractAdapter<CustomField>() {
     }
 
     override fun bindView(item: CustomField, viewHolder: VH) {
-        val position = viewHolder.adapterPosition
+        val position = viewHolder.layoutPosition
         viewHolder.itemView.apply {
             binding.tvFieldName.text = item.name
             val type = item.type
@@ -32,8 +32,8 @@ class CustomFieldsAdapter : SimpleAbstractAdapter<CustomField>() {
         }
     }
 
-    override fun getDiffCallback(): DiffCallback<CustomField> {
-        return object : DiffCallback<CustomField>() {
+    override fun getDiffCallback(): DiffCallback<CustomField> =
+        object : DiffCallback<CustomField>() {
             override fun areItemsTheSame(oldItem: CustomField, newItem: CustomField): Boolean {
                 return oldItem == newItem
             }
@@ -42,5 +42,4 @@ class CustomFieldsAdapter : SimpleAbstractAdapter<CustomField>() {
                 return oldItem == newItem
             }
         }
-    }
 }

@@ -40,26 +40,13 @@ object CONSTS {
     }
 
     object REQUESTS {
-        const val REQUEST = "request"
         const val REQUEST_PLANE_TYPE = "request_plane_type"
+        const val REQUEST_PLANE_TYPE_EDIT = "request_plane_type_edit"
         const val REQUEST_FLIGHT_TYPE = "request_flight_type"
         const val REQUEST_FLIGHT_EDIT = "request_flight_edit"
         const val REQUEST_CUSTOM_FIELD_EDIT = "request_custom_field_edit"
         const val REQUEST_CUSTOM_FIELD = "request_custom_field"
-        const val REQUEST_AIRPORT = "request_airport"
         const val REQUEST_AIRPORT_EDIT = "request_airport_edit"
-        const val REQUEST_AIRPORT_DEPARTURE = "request_airport_departure"
-        const val REQUEST_AIRPORT_ARRIVAL = "request_airport_arrival"
-        const val REQUEST_ADD_EDIT_FLIGHT = 103
-        const val REQUEST_SELECT_PLANE_TYPE = 105
-        const val REQUEST_SELECT_FLIGHT_TYPE = 106
-        const val REQUEST_EDIT_CUSTOM_FIELD = 107
-        const val REQUEST_SELECT_CUSTOM_FIELD = 108
-        const val REQUEST_EDIT_PLANE_TYPE = 109
-        const val REQUEST_SELECT_AIRPORT_DEPARTURE = 110
-        const val REQUEST_SELECT_AIRPORT_ARRIVAL = 111
-        const val REQUEST_EDIT_AIRPORT = 112
-        const val REQUEST_SELECT_FILE_PATH = 113
     }
 
     object EXTRAS {

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@id/nav_home">
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.arny.flightlogbook.presentation.flights.viewflights.view.FlightListFragment"
+        tools:layout="@layout/fragment_flight_list">
+        <action
+            android:id="@+id/action_nav_flights_to_addEditFragment"
+            app:destination="@id/addEditFragment"
+            app:enterAnim="@anim/anim_slide_in_left"
+            app:popExitAnim="@anim/anim_slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/nav_airports"
+        android:name="com.arny.flightlogbook.presentation.airports.list.AirportsFragment"
+        tools:layout="@layout/f_airports">
+        <argument
+            android:name="isRequest"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="requestType"
+            android:defaultValue="NONE"
+            app:argType="com.arny.core.AirportRequestType" />
+        <action
+            android:id="@+id/action_nav_airports_to_airportEditFragment"
+            app:destination="@id/airportEditFragment"
+            app:enterAnim="@anim/anim_slide_in_left"
+            app:popExitAnim="@anim/anim_slide_out_right"  />
+    </fragment>
+    <fragment
+        android:id="@+id/addEditFragment"
+        android:name="com.arny.flightlogbook.presentation.flights.addedit.view.AddEditFragment"
+        tools:layout="@layout/f_addedit">
+        <argument
+            android:name="flightId"
+            android:defaultValue="-1L"
+            app:argType="long" />
+        <action
+            android:id="@+id/action_addEditFragment_to_nav_airports"
+            app:destination="@id/nav_airports"
+            app:enterAnim="@anim/anim_slide_in_left"
+            app:popExitAnim="@anim/anim_slide_out_right" />
+        <action
+            android:id="@+id/action_addEditFragment_to_nav_fields"
+            app:destination="@id/nav_fields"
+            app:enterAnim="@anim/anim_slide_in_left"
+            app:popExitAnim="@anim/anim_slide_out_right"  />
+        <action
+            android:id="@+id/action_addEditFragment_to_nav_flightTypes"
+            app:destination="@id/nav_flightTypes"
+            app:enterAnim="@anim/anim_slide_in_left"
+            app:popExitAnim="@anim/anim_slide_out_right" />
+        <action
+            android:id="@+id/action_addEditFragment_to_nav_planeTypes"
+            app:destination="@id/nav_planeTypes"
+            app:enterAnim="@anim/anim_slide_in_left"
+            app:popExitAnim="@anim/anim_slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/airportEditFragment"
+        android:name="com.arny.flightlogbook.presentation.airports.edit.AirportEditFragment"
+        tools:layout="@layout/f_airport_edit">
+        <argument
+            android:name="airportId"
+            android:defaultValue="-1L"
+            app:argType="long" />
+    </fragment>
+    <fragment
+        android:id="@+id/nav_fields"
+        android:name="com.arny.flightlogbook.presentation.customfields.list.CustomFieldsListFragment"
+        tools:layout="@layout/fragment_custom_fields_list">
+        <action
+            android:id="@+id/action_fields_to_customFieldEditFragment"
+            app:destination="@id/customFieldEditFragment"
+            app:enterAnim="@anim/anim_slide_in_left"
+            app:popExitAnim="@anim/anim_slide_out_right" />
+        <argument
+            android:name="isRequestField"
+            android:defaultValue="false"
+            app:argType="boolean" />
+    </fragment>
+    <fragment
+        android:id="@+id/customFieldEditFragment"
+        android:name="com.arny.flightlogbook.presentation.customfields.edit.CustomFieldEditFragment"
+        tools:layout="@layout/fragment_edit_custom_field_layout">
+        <argument
+            android:name="fieldId"
+            android:defaultValue="-1L"
+            app:argType="long" />
+        <argument
+            android:name="isRequest"
+            android:defaultValue="false"
+            app:argType="boolean" />
+    </fragment>
+    <fragment
+        android:id="@+id/nav_flightTypes"
+        android:name="com.arny.flightlogbook.presentation.flighttypes.list.FlightTypesFragment"
+        tools:layout="@layout/flight_types_list_layout">
+        <argument
+            android:name="isRequestField"
+            android:defaultValue="false"
+            app:argType="boolean" />
+    </fragment>
+    <fragment
+        android:id="@+id/nav_planeTypes"
+        android:name="com.arny.flightlogbook.presentation.planetypes.list.PlaneTypesFragment"
+        tools:layout="@layout/plane_types_layout">
+        <argument
+            android:name="isRequestField"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <action
+            android:id="@+id/action_nav_planeTypes_to_planeTypeEditFragment"
+            app:destination="@id/planeTypeEditFragment"
+            app:enterAnim="@anim/anim_slide_in_left"
+            app:popExitAnim="@anim/anim_slide_out_right"  />
+    </fragment>
+    <fragment
+        android:id="@+id/planeTypeEditFragment"
+        android:name="com.arny.flightlogbook.presentation.planetypes.edit.PlaneTypeEditFragment"
+        tools:layout="@layout/f_plane_type_edit">
+        <argument
+            android:name="planeTypeId"
+            android:defaultValue="-1L"
+            app:argType="long" />
+    </fragment>
+    <fragment
+        android:id="@+id/nav_stats"
+        android:name="com.arny.flightlogbook.presentation.statistic.view.StatisticFragment"
+        tools:layout="@layout/statistic_fragment" />
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.arny.flightlogbook.presentation.settings.SettingsFragment"
+        tools:layout="@layout/settings_fragment" />
+</navigation>

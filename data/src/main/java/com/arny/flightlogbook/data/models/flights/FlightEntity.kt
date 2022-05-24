@@ -43,7 +43,6 @@ data class FlightEntity constructor(
     @ColumnInfo(name = "arrival_utc_time")
     var arrivalUtcTime: String? = null,
 ) {
-
     fun toFlight(): Flight {
         val flight = Flight(id)
         flight.datetime = datetime
@@ -89,8 +88,10 @@ fun String?.toParams(): HashMap<String, Any?>? {
     return array?.let {
         hashMapOf<String, Any?>().apply {
             for (s in array.iterator()) {
-                val (key, value) = s.split("=")
-                set(key, value)
+                if (s.isNotBlank() && s.contains("=")) {
+                    val (key, value) = s.split("=")
+                    set(key, value)
+                }
             }
         }
     }

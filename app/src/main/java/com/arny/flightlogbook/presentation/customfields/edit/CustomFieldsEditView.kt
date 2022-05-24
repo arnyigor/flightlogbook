@@ -8,7 +8,7 @@ import moxy.viewstate.strategy.alias.OneExecution
 
 @AddToEndSingle
 interface CustomFieldsEditView : MvpView {
-    fun setTitle(name: String?)
+    fun setName(name: String?)
     fun setType(type: CustomFieldType?)
     fun setDefaultChecked(showByDefault: Boolean)
     fun showNameError(stringRes: Int?)

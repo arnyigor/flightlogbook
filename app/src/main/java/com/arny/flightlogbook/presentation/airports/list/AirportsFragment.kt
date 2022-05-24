@@ -10,21 +10,17 @@ import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.arny.core.AirportRequestType
 import com.arny.core.CONSTS
-import com.arny.core.CONSTS.EXTRAS.EXTRA_AIRPORT_ID
-import com.arny.core.CONSTS.REQUESTS.REQUEST_AIRPORT
-import com.arny.core.CONSTS.REQUESTS.REQUEST_AIRPORT_ARRIVAL
-import com.arny.core.CONSTS.REQUESTS.REQUEST_AIRPORT_DEPARTURE
-import com.arny.core.CONSTS.REQUESTS.REQUEST_SELECT_AIRPORT_DEPARTURE
 import com.arny.core.utils.*
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.databinding.FAirportsBinding
 import com.arny.flightlogbook.domain.models.Airport
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
-import com.arny.flightlogbook.presentation.common.FragmentContainerActivity
-import com.arny.flightlogbook.presentation.main.AppRouter
-import com.arny.flightlogbook.presentation.main.NavigateItems
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.Observable
 import moxy.ktx.moxyPresenter
@@ -32,14 +28,8 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 class AirportsFragment : BaseMvpFragment(), AirportsView {
-    companion object {
-        fun getInstance(bundle: Bundle? = null) = AirportsFragment().apply {
-            bundle?.let { arguments = it }
-        }
-    }
-
+    private val args: AirportsFragmentArgs by navArgs()
     private lateinit var binding: FAirportsBinding
-    private var appRouter: AppRouter? = null
 
     @Inject
     lateinit var presenterProvider: Provider<AirportsPresenter>
@@ -49,12 +39,7 @@ class AirportsFragment : BaseMvpFragment(), AirportsView {
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
-        if (context is AppRouter) {
-            appRouter = context
-        }
     }
-
-    override fun getTitle(): String = getString(R.string.airports)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -67,8 +52,11 @@ class AirportsFragment : BaseMvpFragment(), AirportsView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val isRequest = arguments?.getBoolean(CONSTS.REQUESTS.REQUEST) == true
-        initAdapter(isRequest)
+        title = getString(R.string.airports)
+        val isRequest = args.isRequest
+        val requestType = args.requestType
+        val navController = view.findNavController()
+        initAdapter(isRequest, requestType, navController)
         presenter.onQueryChange(Observable.create { e ->
             binding.edtAirport.doAfterTextChanged {
                 if (binding.edtAirport.isFocused) {
@@ -78,9 +66,9 @@ class AirportsFragment : BaseMvpFragment(), AirportsView {
         })
 
         binding.fabAddAirport.setOnClickListener {
-            launchActivity<FragmentContainerActivity> {
-                action = CONSTS.EXTRAS.EXTRA_ACTION_EDIT_AIRPORT
-            }
+            navController.navigate(
+                AirportsFragmentDirections.actionNavAirportsToAirportEditFragment()
+            )
         }
         binding.edtAirport.setDrawableRightClick {
             binding.edtAirport.setText("")
@@ -92,32 +80,28 @@ class AirportsFragment : BaseMvpFragment(), AirportsView {
         }
     }
 
-    private fun initAdapter(isRequest: Boolean) {
+    private fun initAdapter(
+        isRequest: Boolean,
+        requestType: AirportRequestType,
+        navController: NavController
+    ) {
         airportsAdapter =
             AirportsAdapter(requireContext().getSystemLocale()?.language == "ru") { _, item ->
                 if (isRequest) {
-                    val requestKey =
-                        if (arguments.getExtra<Int>(REQUEST_AIRPORT) == REQUEST_SELECT_AIRPORT_DEPARTURE) {
-                            REQUEST_AIRPORT_DEPARTURE
-                        } else {
-                            REQUEST_AIRPORT_ARRIVAL
-                        }
                     setFragmentResult(
-                        requestKey,
+                        requestType.toString(),
                         bundleOf(CONSTS.EXTRAS.EXTRA_AIRPORT to item)
                     )
-                    requireActivity().onBackPressed()
+                    navController.popBackStack()
                 } else {
-                    appRouter?.navigateTo(
-                        NavigateItems.EDIT_AIRPORT,
-                        true,
-                        bundleOf(
-                            CONSTS.REQUESTS.REQUEST to true,
-                            EXTRA_AIRPORT_ID to item.id
-                        ),
-                        requestCode = CONSTS.REQUESTS.REQUEST_EDIT_AIRPORT,
-                        targetFragment = this@AirportsFragment
-                    )
+                    val airportId = item.id
+                    airportId?.let {
+                        navController.navigate(
+                            AirportsFragmentDirections.actionNavAirportsToAirportEditFragment(
+                                airportId
+                            )
+                        )
+                    }
                 }
             }
         with(binding.rvAirports) {

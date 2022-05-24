@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_home"
+            android:title="@string/fragment_logbook" />
+        <item
+            android:id="@+id/nav_planeTypes"
+            android:title="@string/fragment_plane_types" />
+        <item
+            android:id="@+id/nav_flightTypes"
+            android:title="@string/fragment_flight_types" />
+        <item
+            android:id="@+id/nav_stats"
+            android:title="@string/fragment_stats" />
+        <item
+            android:id="@+id/nav_fields"
+            android:title="@string/custom_fields" />
+        <item
+            android:id="@+id/nav_airports"
+            android:title="@string/airports" />
+        <item
+            android:id="@+id/nav_settings"
+            android:title="@string/str_settings" />
+    </group>
+</menu>

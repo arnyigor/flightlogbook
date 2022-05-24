@@ -4,16 +4,22 @@ import android.os.Bundle
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import androidx.appcompat.app.AppCompatActivity
 import moxy.MvpAppCompatFragment
 
 abstract class BaseMvpFragment : MvpAppCompatFragment() {
-    protected open fun getTitle(): String? = null
+    protected var title: String? = null
+        set(value) {
+            field = value
+            updateTitle()
+        }
+
     protected open fun isKeyboardHidden(): Boolean = true
     private var wndw: Window? = null
     private var softInputMode: Int = 0
 
-    protected fun updateTitle() {
-        this.activity?.title = getTitle()
+    private fun updateTitle() {
+        (requireActivity() as AppCompatActivity).supportActionBar?.title = title
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,10 +36,6 @@ abstract class BaseMvpFragment : MvpAppCompatFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         updateTitle()
-        val fragmentActivity = activity
-        if (fragmentActivity is FragmentContainerActivity) {
-            fragmentActivity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        }
     }
 
     override fun onDestroy() {

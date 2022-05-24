@@ -24,9 +24,6 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 class StatisticFragment : BaseMvpFragment(), StatisticsView, View.OnClickListener {
-    companion object {
-        fun getInstance(): StatisticFragment = StatisticFragment()
-    }
 
     private lateinit var binding: StatisticFragmentBinding
 
@@ -36,8 +33,6 @@ class StatisticFragment : BaseMvpFragment(), StatisticsView, View.OnClickListene
     private val presenter by moxyPresenter { presenterProvider.get() }
 
     private var statAdapter: StatisticAdapter? = null
-
-    override fun getTitle(): String = getString(R.string.fragment_stats)
 
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
@@ -55,6 +50,7 @@ class StatisticFragment : BaseMvpFragment(), StatisticsView, View.OnClickListene
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        title = getString(R.string.fragment_stats)
         initUI()
     }
 

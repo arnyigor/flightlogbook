@@ -48,10 +48,10 @@ class AirportsAdapter(
                 item.nameEng,
                 if (item.nameRus.isNullOrBlank()) "" else "(${item.nameRus})"
             )
-            val sityName = if (isRus) item.cityRus.orEmpty() else item.cityEng.orEmpty()
+            val cityName = if (isRus) item.cityRus.orEmpty() else item.cityEng.orEmpty()
             val countryName =
                 if (isRus) item.countryRus.orEmpty() else item.countryEng.orEmpty()
-                context.getString(R.string.string_format_two_strings, sityName, "(${countryName})")
+                context.getString(R.string.string_format_two_strings, cityName, "(${countryName})")
             root.setOnClickListener { onClick(position, item) }
         }
     }

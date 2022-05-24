@@ -42,8 +42,6 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
 
     private val presenter by moxyPresenter { presenterProvider.get() }
 
-    override fun getTitle(): String = getString(R.string.str_settings)
-
     private val requestPermissionImport =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) {
@@ -73,6 +71,7 @@ class SettingsFragment : BaseMvpFragment(), SettingsView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        title = getString(R.string.str_settings)
         with(binding) {
             tvLoadFromFile.setOnClickListener {
                 requestPermission(

@@ -38,9 +38,11 @@ class AddEditPresenter @Inject constructor(
     private val prefsInteractor: PreferencesInteractor,
 ) : BaseMvpPresenter<AddEditView>() {
     private var customFieldsValues = mutableListOf<CustomFieldValue>()
-
     private var updateDisposable: Disposable? = null
     internal var flightId: Long? = null
+        set(value) {
+            field = if (value != -1L) value else null
+        }
 
     @Volatile
     var intFlightTime: Int = 0
@@ -208,7 +210,7 @@ class AddEditPresenter @Inject constructor(
         fromNullable { flight.customParams?.get(PARAM_COLOR) }
             .map {
                 val hexColor = it.value.toString()
-                if (hexColor.isNotBlank()) {
+                if (hexColor.isNotBlank() && hexColor.startsWith("#")) {
                     hexColor.toIntColor()
                 } else {
                     -1

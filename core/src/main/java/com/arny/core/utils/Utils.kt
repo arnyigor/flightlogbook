@@ -374,13 +374,10 @@ inline fun <reified T> Activity?.getExtra(extraName: String): T? {
     return null
 }
 
-inline fun <reified T> Fragment?.getExtra(extraName: String): T? {
-    return this?.arguments?.get(extraName) as? T
-}
+inline fun <reified T> Fragment?.getExtra(extraName: String): T? =
+    this?.arguments?.get(extraName) as? T
 
-inline fun <reified T> Bundle?.getExtra(extraName: String): T? {
-    return this?.get(extraName) as? T
-}
+inline fun <reified T> Bundle?.getExtra(extraName: String): T? = this?.get(extraName) as? T
 
 fun animateVisible(v: View, visible: Boolean, duration: Int) {
     val alpha = if (visible) 1.0f else 0.0f

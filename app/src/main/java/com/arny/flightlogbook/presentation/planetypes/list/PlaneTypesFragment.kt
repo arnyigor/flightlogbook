@@ -7,6 +7,10 @@ import androidx.annotation.StringRes
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.arny.core.CONSTS
@@ -16,45 +20,24 @@ import com.arny.flightlogbook.R
 import com.arny.flightlogbook.databinding.PlaneTypesLayoutBinding
 import com.arny.flightlogbook.domain.models.PlaneType
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
-import com.arny.flightlogbook.presentation.main.AppRouter
-import com.arny.flightlogbook.presentation.main.NavigateItems
 import dagger.android.support.AndroidSupportInjection
 import moxy.ktx.moxyPresenter
 import javax.inject.Inject
 import javax.inject.Provider
 
 class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView {
-    companion object {
-        fun getInstance(bundle: Bundle? = null) = PlaneTypesFragment().apply {
-            bundle?.let { arguments = it }
-        }
-    }
-
+    private val args: PlaneTypesFragmentArgs by navArgs()
     private lateinit var binding: PlaneTypesLayoutBinding
     private var adapter: PlaneTypesAdapter? = null
-
-    @StringRes
-    private var title = R.string.str_airplane_types
 
     @Inject
     lateinit var presenterProvider: Provider<PlaneTypesPresenter>
     private val presenter by moxyPresenter { presenterProvider.get() }
-    private var appRouter: AppRouter? = null
 
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
-        if (context is AppRouter) {
-            appRouter = context
-        }
     }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun getTitle(): String = getString(title)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -67,11 +50,19 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val isRequestField = arguments?.getBoolean(CONSTS.REQUESTS.REQUEST) == true
-        if (isRequestField) {
-            title = R.string.choose_airplne_type
-            updateTitle()
+        val isRequestField = args.isRequestField
+        title = if (isRequestField) {
+            getString(R.string.choose_airplne_type)
+        } else {
+            getString(R.string.str_airplane_types)
         }
+        initUi(isRequestField)
+        setFragmentResultListener(CONSTS.REQUESTS.REQUEST_PLANE_TYPE_EDIT) { _, _ ->
+            presenter.loadTypes()
+        }
+    }
+
+    private fun initUi(isRequestField: Boolean) {
         with(binding) {
             rvPlaneTypes.layoutManager = LinearLayoutManager(context)
             rvPlaneTypes.itemAnimator = DefaultItemAnimator()
@@ -89,11 +80,8 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView {
     }
 
     private fun addPlaneType() {
-        appRouter?.navigateTo(
-            NavigateItems.PLANE_TYPE_EDIT,
-            true,
-            requestCode = CONSTS.REQUESTS.REQUEST_EDIT_PLANE_TYPE,
-            targetFragment = this@PlaneTypesFragment
+        requireView().findNavController().navigate(
+            PlaneTypesFragmentDirections.actionNavPlaneTypesToPlaneTypeEditFragment()
         )
     }
 
@@ -106,7 +94,7 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView {
                 CONSTS.REQUESTS.REQUEST_PLANE_TYPE,
                 bundleOf(CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID to item.typeId)
             )
-            requireActivity().onBackPressed()
+            findNavController().popBackStack()
         }
     }
 
@@ -119,19 +107,13 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView {
         ToastMaker.toastError(context, msg)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        menu.clear()
-    }
-
     private fun navigateTypeEdit(item: PlaneType) {
-        appRouter?.navigateTo(
-            NavigateItems.PLANE_TYPE_EDIT,
-            true,
-            bundleOf(CONSTS.EXTRAS.EXTRA_PLANE_TYPE_ID to item.typeId),
-            requestCode = CONSTS.REQUESTS.REQUEST_EDIT_PLANE_TYPE,
-            targetFragment = this@PlaneTypesFragment
-        )
+        val typeId = item.typeId
+        typeId?.let {
+            findNavController().navigate(
+                PlaneTypesFragmentDirections.actionNavPlaneTypesToPlaneTypeEditFragment(typeId)
+            )
+        }
     }
 
     override fun setEmptyViewVisible(vis: Boolean) {

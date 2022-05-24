@@ -12,33 +12,35 @@ import javax.inject.Inject
 class AirportEditPresenter @Inject constructor(
     private val airportsInteractor: IAirportsInteractor
 ) : BaseMvpPresenter<AirportEditView>() {
-
     var airportId: Long? = null
+        set(value) {
+            field = if (value != -1L) value else null
+        }
 
     override fun onFirstViewAttach() {
         airportId?.let {
             fromCallable { airportsInteractor.getAirport(it) }
-                    .subscribeFromPresenter({
-                        val airport = it.value
-                        if (airport != null) {
-                            viewState.setAirport(airport)
-                        }
-                    })
+                .subscribeFromPresenter({
+                    val airport = it.value
+                    if (airport != null) {
+                        viewState.setAirport(airport)
+                    }
+                })
         }
     }
 
     fun saveAirport(
-            icao: String,
-            iata: String,
-            nameRus: String,
-            nameEng: String,
-            cityRus: String,
-            cityEng: String,
-            countryRus: String,
-            countryEng: String,
-            latitudeStr: String,
-            longitudeStr: String,
-            elevationStr: String
+        icao: String,
+        iata: String,
+        nameRus: String,
+        nameEng: String,
+        cityRus: String,
+        cityEng: String,
+        countryRus: String,
+        countryEng: String,
+        latitudeStr: String,
+        longitudeStr: String,
+        elevationStr: String
     ) {
         resetAllErrors()
         val codesError = icao.isBlank() && iata.isBlank()
@@ -64,29 +66,29 @@ class AirportEditPresenter @Inject constructor(
             return
         }
         val airport = Airport(
-                airportId,
-                icao.trimIndent(),
-                iata.trimIndent(),
-                nameRus.trimIndent(),
-                nameEng.trimIndent(),
-                cityRus.trimIndent(),
-                cityEng.trimIndent(),
-                countryRus.trimIndent(),
-                countryEng.trimIndent(),
-                latitudeStr.toDoubleOrNull(),
-                longitudeStr.toDoubleOrNull(),
-                elevationStr.toDoubleOrNull(),
+            id = airportId,
+            icao = icao.trimIndent(),
+            iata = iata.trimIndent(),
+            nameRus = nameRus.trimIndent(),
+            nameEng = nameEng.trimIndent(),
+            cityRus = cityRus.trimIndent(),
+            cityEng = cityEng.trimIndent(),
+            countryRus = countryRus.trimIndent(),
+            countryEng = countryEng.trimIndent(),
+            latitude = latitudeStr.toDoubleOrNull(),
+            longitude = longitudeStr.toDoubleOrNull(),
+            elevation = elevationStr.toDoubleOrNull(),
         )
         fromCallable { airportsInteractor.saveAirport(airport) }
-                .subscribeFromPresenter({ save ->
-                    if (save) {
-                        viewState.setSuccessOk()
-                    } else {
-                        viewState.toastError(R.string.save_error, "")
-                    }
-                }, {
-                    viewState.toastError(R.string.save_error, it.message)
-                })
+            .subscribeFromPresenter({ save ->
+                if (save) {
+                    viewState.setSuccessOk()
+                } else {
+                    viewState.toastError(R.string.save_error, "")
+                }
+            }, {
+                viewState.toastError(R.string.save_error, it.message)
+            })
     }
 
     private fun resetAllErrors() {

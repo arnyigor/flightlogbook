@@ -6,11 +6,11 @@ import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.StringRes
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.setFragmentResult
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.arny.core.CONSTS
 import com.arny.core.CONSTS.REQUESTS.REQUEST_FLIGHT_TYPE
 import com.arny.core.utils.ToastMaker
@@ -20,25 +20,17 @@ import com.arny.flightlogbook.R
 import com.arny.flightlogbook.databinding.FlightTypesListLayoutBinding
 import com.arny.flightlogbook.domain.models.FlightType
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
-import com.arny.flightlogbook.presentation.main.AppRouter
+import com.arny.flightlogbook.presentation.navigation.OpenDrawerListener
 import dagger.android.support.AndroidSupportInjection
 import moxy.ktx.moxyPresenter
 import javax.inject.Inject
 import javax.inject.Provider
 
 class FlightTypesFragment : BaseMvpFragment(), FlightTypesView {
-    companion object {
-        fun getInstance(bundle: Bundle? = null) = FlightTypesFragment().apply {
-            bundle?.let { arguments = it }
-        }
-    }
-
     private lateinit var binding: FlightTypesListLayoutBinding
+    private val args: FlightTypesFragmentArgs by navArgs()
     private var typesAdapter: FlightTypesAdapter? = null
-    private var appRouter: AppRouter? = null
-
-    @StringRes
-    private var title = R.string.str_flight_types
+    private var openDrawerListener: OpenDrawerListener? = null
 
     @Inject
     lateinit var presenterProvider: Provider<FlightTypesPresenter>
@@ -47,16 +39,14 @@ class FlightTypesFragment : BaseMvpFragment(), FlightTypesView {
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
-        if (context is AppRouter) {
-            appRouter = context
+        if (context is OpenDrawerListener) {
+            openDrawerListener = context
         }
     }
 
     override fun toastError(msg: String?) {
         ToastMaker.toastError(context, msg)
     }
-
-    override fun getTitle(): String = getString(title)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -69,11 +59,14 @@ class FlightTypesFragment : BaseMvpFragment(), FlightTypesView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val isRequestField = arguments?.getBoolean(CONSTS.REQUESTS.REQUEST) == true
-        if(isRequestField){
-            title = R.string.choose_flight_types
-            updateTitle()
+        val isRequestField = args.isRequestField
+        title = if (isRequestField) {
+            getString(R.string.choose_flight_types)
+        } else {
+            getString(R.string.str_flight_types)
         }
+        openDrawerListener?.onChangeHomeButton(isRequestField)
+        binding.fabAddFlightType.isVisible = !isRequestField
         binding.fabAddFlightType.setOnClickListener {
             inputDialog(
                 context = requireActivity(),
@@ -84,27 +77,24 @@ class FlightTypesFragment : BaseMvpFragment(), FlightTypesView {
             )
         }
         typesAdapter = FlightTypesAdapter(
+            hideEdit = isRequestField,
             onEditType = (::showEditDialog),
             onDeleteType = (::showConfirmDeleteDialog),
             onItemClick = { item ->
                 onItemSelected(isRequestField, item)
             }
         )
-        binding.rvFlightTypes.layoutManager = LinearLayoutManager(context)
         binding.rvFlightTypes.adapter = typesAdapter
         presenter.loadTypes()
     }
 
-    private fun onItemSelected(
-        isRequestField: Boolean,
-        item: FlightType
-    ) {
+    private fun onItemSelected(isRequestField: Boolean, item: FlightType) {
         if (isRequestField) {
             setFragmentResult(
                 REQUEST_FLIGHT_TYPE,
                 bundleOf(CONSTS.EXTRAS.EXTRA_FLIGHT_TYPE to item.id)
             )
-            requireActivity().onBackPressed()
+            findNavController().popBackStack()
         }
     }
 
