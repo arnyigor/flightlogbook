@@ -181,7 +181,7 @@ class AddEditPresenter @Inject constructor(
                             fieldValue.value = strVal
                         }
                     }
-                    list
+                    list.distinctBy { it.fieldId }
                 }
                 .subscribeFromPresenter({
                     customFieldsValues = it.toMutableList()
@@ -660,11 +660,12 @@ class AddEditPresenter @Inject constructor(
         viewState.setArrival(arrival)
     }
 
-    fun onCustomFieldValueDelete(position: Int) {
-        customFieldsValues.getOrNull(position)?.let {
-            customFieldsValues.removeAt(position)
-            viewState.setFieldsList(customFieldsValues)
-            updateTimes()
+    fun onCustomFieldValueDelete(item: CustomFieldValue) {
+        customFieldsValues.find { it.fieldId == item.fieldId }?.let {
+            if(customFieldsValues.remove(it)){
+                viewState.setFieldsList(customFieldsValues)
+                updateTimes()
+            }
         }
     }
 

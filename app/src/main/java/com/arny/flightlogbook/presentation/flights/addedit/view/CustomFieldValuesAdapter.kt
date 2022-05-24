@@ -16,10 +16,10 @@ import java.util.*
 
 class CustomFieldValuesAdapter(
     private val onValueChange: (item: CustomFieldValue, value: String) -> Unit,
-    private val onValueRemove: (position: Int) -> Unit
+    private val onValueRemove: (item: CustomFieldValue) -> Unit
 ) : ListAdapter<CustomFieldValue, CustomFieldValuesAdapter.AdapterViewHolder>(
     diffUtilCallback<CustomFieldValue>(
-        areItemsTheSame = { old, new -> old.id == new.id },
+        areItemsTheSame = { old, new -> old.fieldId == new.fieldId },
         contentsTheSame = { old, new -> old == new }
     )
 ) {
@@ -42,7 +42,7 @@ class CustomFieldValuesAdapter(
             binding.ivRemoveCustomFieldValue.isVisible = item.field?.showByDefault == false
 
             binding.ivRemoveCustomFieldValue.setOnClickListener {
-                onValueRemove(layoutPosition)
+                onValueRemove(item)
             }
             val type = item.type ?: CustomFieldType.None
             var addTimeName = ""

@@ -232,8 +232,8 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
             onValueChange = { item, value ->
                 presenter.onCustomFieldValueChange(item, value)
             },
-            onValueRemove = { position ->
-                presenter.onCustomFieldValueDelete(position)
+            onValueRemove = { item ->
+                presenter.onCustomFieldValueDelete(item)
             }
         )
         binding.rvCustomFields.apply {
