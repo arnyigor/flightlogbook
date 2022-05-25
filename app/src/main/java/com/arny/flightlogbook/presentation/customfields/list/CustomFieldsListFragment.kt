@@ -47,7 +47,6 @@ class CustomFieldsListFragment : BaseMvpFragment(), CustomFieldsListView {
         }
     }
 
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -60,10 +59,10 @@ class CustomFieldsListFragment : BaseMvpFragment(), CustomFieldsListView {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val isRequestField = args.isRequestField
-        title = if (isRequestField) getString(R.string.custom_field_select) else getString(R.string.custom_fields)
+        title =
+            if (isRequestField) getString(R.string.custom_field_select) else getString(R.string.custom_fields)
         initAdapter(isRequestField)
         openDrawerListener?.onChangeHomeButton(isRequestField)
-        binding.fabAddCustomField.isVisible = !isRequestField
         binding.fabAddCustomField.setOnClickListener {
             presenter.onFabClicked()
         }
@@ -102,10 +101,16 @@ class CustomFieldsListFragment : BaseMvpFragment(), CustomFieldsListView {
     }
 
     override fun navigateToFieldEdit(id: Long?) {
-        id?.let {
+        if (id != null) {
             findNavController().navigate(
                 CustomFieldsListFragmentDirections.actionFieldsToCustomFieldEditFragment(
                     fieldId = id,
+                    isRequest = true
+                )
+            )
+        } else {
+            findNavController().navigate(
+                CustomFieldsListFragmentDirections.actionFieldsToCustomFieldEditFragment(
                     isRequest = true
                 )
             )

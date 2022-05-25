@@ -86,7 +86,6 @@ class CustomFieldEditFragment : BaseMvpFragment(), CustomFieldsEditView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        title = getString(R.string.edit_custom_field)
         types = resources.getStringArray(R.array.custom_fields_types)
         binding.tiedtCustomFieldName.doAfterTextChanged {
             if (binding.tiedtCustomFieldName.isFocused) {
@@ -124,6 +123,10 @@ class CustomFieldEditFragment : BaseMvpFragment(), CustomFieldsEditView {
         binding.chbAddTime.setOnCheckedChangeListener { _, isChecked ->
             presenter.setAddTimeChecked(isChecked)
         }
+    }
+
+    override fun updateTitle(@StringRes titleRes: Int) {
+        title = getString(titleRes)
     }
 
     override fun onResultOk() {

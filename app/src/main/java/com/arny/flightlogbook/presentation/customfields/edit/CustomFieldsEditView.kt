@@ -24,4 +24,5 @@ interface CustomFieldsEditView : MvpView {
     fun showProgress(show: Boolean)
     fun setAddTimeChecked(checked: Boolean)
     fun setChBoxAddTimeVisible(visible: Boolean)
+    fun updateTitle(@StringRes titleRes: Int)
 }

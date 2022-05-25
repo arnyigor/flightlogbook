@@ -1,6 +1,6 @@
 <resources>
     <string name="str_flight_types">Типы полетов</string>
-    <string name="choose_flight_types">Выбрать Тип полета</string>
+    <string name="choose_flight_types">Выбрать тип полета</string>
     <string name="no_flight_types">Нет типов полетов</string>
     <string name="str_select_flight_type">Выбрать тип полета</string>
     <string name="enter_flight_type">Введите название типа полета</string>
@@ -68,7 +68,8 @@
     <string name="remove_selected_items_question">Удалить выделенные записи?</string>
     <string name="enter_type_name">Введите название типа</string>
     <string name="type_name">Название типа</string>
-    <string name="edit_plane_type">Редактирование типа ВС</string>
+    <string name="edit_plane_type">Редактирование ВС</string>
+    <string name="add_plane_type">Добавление ВС</string>
     <string name="error_plane_type_not_saved">ВС не сохранено</string>
     <string name="enter_airport_code">Введите код аэродрома ICAO, IATA, название или город</string>
     <string name="airports">Аэродромы</string>

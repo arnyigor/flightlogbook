@@ -72,9 +72,12 @@ class PlaneTypeEditFragment : BaseMvpFragment(), PlaneTypeEditView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        title = getString(R.string.edit_plane_type)
         binding.tiedtRegNo.doAfterTextChanged { binding.tiLRegNo.error = null }
         binding.tiedtPlaneTitle.doAfterTextChanged { binding.tilPlaneTitle.error = null }
+    }
+
+    override fun updateTitle(@StringRes titleRes: Int) {
+        title = getString(titleRes)
     }
 
     override fun onPause() {

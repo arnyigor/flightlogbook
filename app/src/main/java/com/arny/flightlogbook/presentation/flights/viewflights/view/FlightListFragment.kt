@@ -3,10 +3,8 @@ package com.arny.flightlogbook.presentation.flights.viewflights.view
 import android.content.Context
 import android.os.Bundle
 import android.view.*
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.setFragmentResultListener
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -30,6 +28,7 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView {
     private var mLayoutManager: LinearLayoutManager? = null
     private var topView: Int = 0
     private var hasSelectedItems: Boolean = false
+    private var hasItems: Boolean = false
 
     @Inject
     lateinit var presenterProvider: Provider<ViewFlightsPresenter>
@@ -75,7 +74,7 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView {
     private fun initUI(view: View) {
         with(binding) {
             fabAddFlight.setOnClickListener {
-                view.findNavController().navigate(R.id.addEditFragment)
+                 findNavController().navigate(FlightListFragmentDirections.actionNavFlightsToAddEditFragment())
             }
             mLayoutManager = LinearLayoutManager(context)
             rvFlights.layoutManager = mLayoutManager
@@ -142,11 +141,13 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.flights_menu, menu)
         menu.findItem(R.id.action_remove_items)?.isVisible = hasSelectedItems
+        menu.findItem(R.id.action_filter)?.isVisible = hasItems
         super.onCreateOptionsMenu(menu, inflater)
     }
 
-    override fun invalidateMenuSelected(hasSelectedItems: Boolean) {
+    override fun invalidateMenu(hasSelectedItems: Boolean, hasItems: Boolean) {
         this.hasSelectedItems = hasSelectedItems
+        this.hasItems = hasItems
         activity?.invalidateOptionsMenu()
     }
 

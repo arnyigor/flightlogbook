@@ -8,7 +8,6 @@ import com.arny.flightlogbook.domain.files.FlightFileReadWriter
 import com.arny.flightlogbook.domain.flighttypes.FlightTypesRepository
 import com.arny.flightlogbook.domain.models.Flight
 import com.arny.flightlogbook.domain.models.FlightType
-import com.arny.flightlogbook.domain.models.Params
 import com.arny.flightlogbook.domain.models.PlaneType
 import com.arny.flightlogbook.domain.planetypes.AircraftTypesRepository
 import com.google.gson.Gson

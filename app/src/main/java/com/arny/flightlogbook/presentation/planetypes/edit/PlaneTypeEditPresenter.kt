@@ -19,11 +19,16 @@ class PlaneTypeEditPresenter @Inject constructor(
         }
 
     override fun onFirstViewAttach() {
-        loadPlaneType()
+        planeTypeId?.let { id ->
+            loadPlaneType(id)
+            viewState.updateTitle(R.string.edit_plane_type)
+        } ?: kotlin.run {
+            viewState.updateTitle(R.string.add_plane_type)
+        }
     }
 
-    private fun loadPlaneType() {
-        fromNullable { planeTypesInteractor.loadPlaneType(planeTypeId) }
+    private fun loadPlaneType(id: Long) {
+        fromNullable { planeTypesInteractor.loadPlaneType(id) }
             .subscribeFromPresenter({
                 val planeType = it.value
                 if (planeType != null) {

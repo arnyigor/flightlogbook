@@ -158,7 +158,7 @@ class StatisticInteractor @Inject constructor(
                 .map { list ->
                     list.map { flight ->
                         flight.planeType = aircraftTypesRepository.loadAircraftType(flight.planeId)
-                        flight.flightType = flightTypesRepository.loadDBFlightType(flight.flightTypeId?.toLong())
+                        flight.flightType = flightTypesRepository.loadDBFlightType(flight.flightTypeId)
                         flight
                     }.sortedBy { it.datetime }
                 }

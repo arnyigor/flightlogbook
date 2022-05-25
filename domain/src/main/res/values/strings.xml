@@ -44,7 +44,7 @@
     <string name="str_total_item_flight_time">Летное время:</string>
     <string name="total_records">Всего записей:</string>
     <string name="str_add_flight">Добавить полет</string>
-    <string name="str_edt_flight">Редактировать</string>
+    <string name="str_edt_flight">Редактирование полета</string>
     <string name="str_delete">Удалить</string>
     <string name="str_clearall">Очистить все?</string>
     <string name="str_ok">OK</string>
@@ -70,7 +70,7 @@
     <string name="str_edt_airplane_types">Редактировать тип ВС</string>
     <string name="str_remove_airplane_types">Удалить тип ВС</string>
     <string name="str_airplane_types">Типы ВС</string>
-    <string name="choose_airplne_type">Выбрать Тип ВС</string>
+    <string name="choose_airplne_type">Выбрать ВС</string>
     <string name="str_import_excel">Импорт XLS</string>
     <string name="str_import_from_file">Импорт из файловой системы</string>
     <string name="str_export_excel">Экспорт XLS</string>

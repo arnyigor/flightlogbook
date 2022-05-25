@@ -116,10 +116,10 @@ class AddEditPresenter @Inject constructor(
     }
 
     private fun initState() {
-        if (flightId != null) {
+        flightId?.let {
             viewState.setToolbarTitle(R.string.str_edt_flight)
-            loadFlight(flightId!!)
-        } else {
+            loadFlight(it)
+        } ?: kotlin.run {
             initEmptyUI()
         }
     }

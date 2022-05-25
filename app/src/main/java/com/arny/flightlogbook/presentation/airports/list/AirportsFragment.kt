@@ -70,7 +70,6 @@ class AirportsFragment : BaseMvpFragment(), AirportsView {
                 }
             }
         })
-        binding.fabAddAirport.isVisible = !isRequest
         binding.fabAddAirport.setOnClickListener {
             navController.navigate(
                 AirportsFragmentDirections.actionNavAirportsToAirportEditFragment()

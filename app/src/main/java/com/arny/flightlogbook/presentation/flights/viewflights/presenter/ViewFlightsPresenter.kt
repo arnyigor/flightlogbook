@@ -44,7 +44,7 @@ class ViewFlightsPresenter @Inject constructor(
                         flights = result.data
                         flights.forEach { it.selected = false }
                         viewState.updateAdapter(flights, restoreScroll)
-                        viewState.invalidateMenuSelected(flights.any { it.selected })
+                        viewState.invalidateMenu(flights.any { it.selected }, flights.isNotEmpty())
                         viewState.showEmptyView(flights.isEmpty())
                         getTimeInfo()
                     }
@@ -80,7 +80,7 @@ class ViewFlightsPresenter @Inject constructor(
     fun onFlightSelect(position: Int, item: Flight) {
         item.selected = !item.selected
         viewState.invalidateAdapter(position)
-        viewState.invalidateMenuSelected(flights.any { it.selected })
+        viewState.invalidateMenu(flights.any { it.selected }, flights.isNotEmpty())
     }
 
     fun removeSelectedItems() {

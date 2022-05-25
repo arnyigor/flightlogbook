@@ -8,7 +8,7 @@ import javax.inject.Singleton
 class PlaneTypesInteractor @Inject constructor(private val aircraftTypesRepository: AircraftTypesRepository) {
     fun loadPlaneTypes(): List<PlaneType> = aircraftTypesRepository.loadAircraftTypes()
 
-    fun loadPlaneType(id: Long?): PlaneType? = aircraftTypesRepository.loadAircraftType(id)
+    fun loadPlaneType(id: Long): PlaneType? = aircraftTypesRepository.loadAircraftType(id)
 
     fun addType(planeTypeId: Long? = null, name: String, regNo: String, type: AircraftType): Boolean {
         val planeType = PlaneType(planeTypeId, name, type, regNo)

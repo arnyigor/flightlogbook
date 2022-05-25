@@ -18,7 +18,7 @@ interface ViewFlightsView : MvpView {
     fun showError(message: String?)
 
     @StateStrategyType(value = AddToEndSingleStrategy::class)
-    fun invalidateMenuSelected(hasSelectedItems: Boolean)
+    fun invalidateMenu(hasSelectedItems: Boolean, hasItems: Boolean)
 
     @StateStrategyType(value = OneExecutionStateStrategy::class)
     fun invalidateAdapter(position: Int)

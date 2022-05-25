@@ -10,41 +10,45 @@ import javax.inject.Inject
 
 @InjectViewState
 class CustomFieldsEditPresenter @Inject constructor() : BaseMvpPresenter<CustomFieldsEditView>() {
-
     private var addTime: Boolean = false
     private var name: String? = null
     private var type: CustomFieldType = CustomFieldType.None
     private var showByDefault: Boolean = false
-
     private val uiTypes = CustomFieldType.values()
 
     @Inject
     lateinit var customFieldInteractor: ICustomFieldInteractor
-
     var fieldId: Long? = null
         set(value) {
             field = if (value != -1L) value else null
         }
 
     override fun onFirstViewAttach() {
-        if (fieldId != null && fieldId != 0L) {
-            fromSingle { customFieldInteractor.getCustomField(fieldId!!) }
-                .subscribeFromPresenter({
-                    val customField = it.value
-                    if (customField != null) {
-                        name = customField.name
-                        viewState.setName(name)
-                        type = customField.type
-                        viewState.setType(type)
-                        showByDefault = customField.showByDefault
-                        viewState.setDefaultChecked(showByDefault)
-                        addTime = customField.addTime
-                        viewState.setAddTimeChecked(addTime)
-                    }
-                }, {
-                    it.printStackTrace()
-                })
+        fieldId?.let {
+            loadField(it)
+            viewState.updateTitle(R.string.edit_custom_field)
+        } ?: kotlin.run {
+            viewState.updateTitle(R.string.add_custom_field)
         }
+    }
+
+    private fun loadField(id: Long) {
+        fromSingle { customFieldInteractor.getCustomField(id) }
+            .subscribeFromPresenter({
+                val customField = it.value
+                if (customField != null) {
+                    name = customField.name
+                    viewState.setName(name)
+                    type = customField.type
+                    viewState.setType(type)
+                    showByDefault = customField.showByDefault
+                    viewState.setDefaultChecked(showByDefault)
+                    addTime = customField.addTime
+                    viewState.setAddTimeChecked(addTime)
+                }
+            }, {
+                it.printStackTrace()
+            })
     }
 
     fun onSaveClicked(checkedAddTime: Boolean) {

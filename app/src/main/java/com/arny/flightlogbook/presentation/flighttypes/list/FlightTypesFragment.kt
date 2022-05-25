@@ -66,7 +66,6 @@ class FlightTypesFragment : BaseMvpFragment(), FlightTypesView {
             getString(R.string.str_flight_types)
         }
         openDrawerListener?.onChangeHomeButton(isRequestField)
-        binding.fabAddFlightType.isVisible = !isRequestField
         binding.fabAddFlightType.setOnClickListener {
             inputDialog(
                 context = requireActivity(),

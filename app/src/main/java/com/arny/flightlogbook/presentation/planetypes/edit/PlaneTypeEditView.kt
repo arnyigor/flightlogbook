@@ -20,4 +20,5 @@ interface PlaneTypeEditView : MvpView {
 
     @OneExecution
     fun setResultOk()
+    fun updateTitle(@StringRes titleRes: Int)
 }
