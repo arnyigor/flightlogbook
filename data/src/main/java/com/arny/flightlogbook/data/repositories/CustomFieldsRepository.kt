@@ -37,20 +37,19 @@ class CustomFieldsRepository @Inject constructor(
     override fun saveCustomFieldValues(values: List<CustomFieldValue>): Array<Long> =
         customFieldValuesDAO.insertReplace(values.map { it.toDbValue() })
 
-    private fun valueToString(type: CustomFieldType?, value: Any?): String {
-        return when (type) {
-            is CustomFieldType.Time -> DateTimeUtils.convertStringToTime(value.toString())
-                .toString()
-            else -> value.toString()
+    private fun valueToString(type: CustomFieldType?, value: Any?): String =
+        if (type is CustomFieldType.Time) {
+            DateTimeUtils.convertStringToTime(value.toString()).toString()
+        } else {
+            value.toString()
         }
-    }
 
     private fun CustomFieldValue.toDbValue() = CustomFieldValueEntity(
-        id,
-        fieldId,
-        externalId,
-        type.toString(),
-        valueToString(type, value)
+        id = id,
+        fieldId = fieldId,
+        externalId = externalId,
+        type = type.toString(),
+        value = valueToString(type, value)
     )
 
     override fun getCustomFieldWithValues(externalId: Long?): List<CustomFieldValue> =
@@ -64,7 +63,7 @@ class CustomFieldsRepository @Inject constructor(
 
     override fun removeCustomField(id: Long): Boolean = customFieldDAO.delete(id) != 0
 
-    override fun removeCustomFields(idsToRemove: List<Long>) =
+    override fun removeCustomFieldValues(idsToRemove: List<Long>) =
         customFieldValuesDAO.delete(idsToRemove) > 0
 
     private fun toValuesList(
@@ -74,31 +73,30 @@ class CustomFieldsRepository @Inject constructor(
         flightValues.flatMap { flightValue ->
             val field = toField(flightValue.field!!)
             val values = flightValue.values
-            val map = if (!values.isNullOrEmpty()) {
+            val map = if (!values.isNullOrEmpty() && externalId != null) {
                 values.map { toValue(it, externalId, field, it.fieldId) }
             } else {
                 listOf(
                     CustomFieldValue(
-                        null,
-                        field.id,
-                        field,
-                        externalId,
-                        field.type,
-                        null
+                        id = null,
+                        fieldId = field.id,
+                        field = field,
+                        externalId = externalId,
+                        type = field.type,
+                        value = null
                     )
                 )
             }
-            field.values = map
-            field.values?.toList().orEmpty()
+            map.toList()
         }
 
     private fun filterDefaultOrExternalId(
         externalId: Long?,
         list: List<FieldWithValues>
     ): List<FieldWithValues> = list.filter { field ->
-            field.values?.none { it.externalId == externalId } == false
-                    || field.field?.showByDefault == true
-        }
+        field.values?.none { it.externalId == externalId } == false
+                || (field.field?.showByDefault == true && externalId == null)
+    }
 
     override fun getAllCustomFields(): List<CustomField> = getAllFields()
 
@@ -127,11 +125,11 @@ class CustomFieldsRepository @Inject constructor(
             type.addTime = it.addTime
         }
         return CustomField(
-            it.id ?: 0,
-            it.name ?: "",
-            type,
-            it.showByDefault,
-            it.addTime
+            id = it.id ?: 0,
+            name = it.name.orEmpty(),
+            type = type,
+            showByDefault = it.showByDefault,
+            addTime = type is CustomFieldType.Time && it.addTime
         )
     }
 
@@ -151,11 +149,11 @@ class CustomFieldsRepository @Inject constructor(
         fieldID: Long?
     ): CustomFieldValue {
         val customFieldValue = CustomFieldValue(
-            entity.id ?: 0,
-            fieldID,
-            customField,
-            externalId,
-            customField?.type
+            id = entity.id ?: 0,
+            fieldId = fieldID,
+            field = customField,
+            externalId = externalId,
+            type = customField?.type
         )
         setValueFromType(customFieldValue, entity)
         return customFieldValue

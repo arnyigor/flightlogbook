@@ -2,44 +2,59 @@ package com.arny.flightlogbook.presentation.customfields.list
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
+import com.arny.flightlogbook.adapters.diffUtilCallback
 import com.arny.flightlogbook.customfields.models.CustomField
+import com.arny.flightlogbook.customfields.models.CustomFieldType
 import com.arny.flightlogbook.databinding.CustomFieldListItemBinding
+import java.util.*
 
-class CustomFieldsAdapter : SimpleAbstractAdapter<CustomField>() {
+class CustomFieldsAdapter(
+    val onItemClick: (item: CustomField) -> Unit
+) : ListAdapter<CustomField, CustomFieldsAdapter.CustomFieldsViewHolder>(
+    diffUtilCallback<CustomField>(itemsTheSame = { old, new -> old.id == new.id },)
+) {
 
-    private lateinit var binding: CustomFieldListItemBinding
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomFieldsViewHolder =
+        CustomFieldsViewHolder(
+            CustomFieldListItemBinding.inflate(
+                LayoutInflater.from(parent.context), parent, false
+            )
+        )
 
-    override fun getLayout(viewType: Int) = R.layout.custom_field_list_item
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val inflater = LayoutInflater.from(parent.context)
-        binding = CustomFieldListItemBinding.inflate(inflater, parent, false)
-        return VH(binding.root)
+    override fun onBindViewHolder(holder: CustomFieldsViewHolder, position: Int) {
+        holder.bind(getItem(position))
     }
 
-    override fun bindView(item: CustomField, viewHolder: VH) {
-        val position = viewHolder.layoutPosition
-        viewHolder.itemView.apply {
-            binding.tvFieldName.text = item.name
+    inner class CustomFieldsViewHolder(
+        private val binding: CustomFieldListItemBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(item: CustomField) {
+            val root = binding.root
+            val context = root.context
+            var addTimeName = ""
             val type = item.type
+            if (type is CustomFieldType.Time && item.addTime) {
+                addTimeName = context.getString(R.string.str_time_add_main)
+            }
+            var showDefault = ""
+            if (item.showByDefault) {
+                showDefault = context.getString(R.string.custom_field_name_default)
+            }
+            binding.tvFieldName.text = String.format(
+                Locale.getDefault(),
+                "%s%s%s",
+                item.name,
+                addTimeName,
+                showDefault
+            )
             binding.tvFieldTypeName.text = context.getString(type.nameRes)
             binding.tvFieldDescription.text = context.getString(type.descRes)
-            setOnClickListener {
-                listener?.onItemClick(position, item)
+            root.setOnClickListener {
+                onItemClick(item)
             }
         }
     }
-
-    override fun getDiffCallback(): DiffCallback<CustomField> =
-        object : DiffCallback<CustomField>() {
-            override fun areItemsTheSame(oldItem: CustomField, newItem: CustomField): Boolean {
-                return oldItem == newItem
-            }
-
-            override fun areContentsTheSame(oldItem: CustomField, newItem: CustomField): Boolean {
-                return oldItem == newItem
-            }
-        }
 }

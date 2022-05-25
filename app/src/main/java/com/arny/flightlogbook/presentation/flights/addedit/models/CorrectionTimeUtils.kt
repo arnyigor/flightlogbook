@@ -3,66 +3,6 @@ package com.arny.flightlogbook.presentation.flights.addedit.models
 import com.arny.core.utils.DateTimeUtils
 import com.arny.core.utils.parseInt
 
-fun getCorrectTime(stringTime: String, initTime: Int): CorrectedTimePair {
-    var logMinutes: Int
-    var logHours = 0
-    var logTime = initTime
-    return when {
-        stringTime.isBlank() -> CorrectedTimePair(
-            logTime,
-            if (logTime != 0) DateTimeUtils.strLogTime(logTime) else ""
-        )
-        stringTime.length == 1 -> {
-            logTime = stringTime.parseInt(0)
-            CorrectedTimePair(
-                logTime,
-                if (logTime != 0) String.format("00:0%d", logTime) else ""
-            )
-        }
-        stringTime.length == 2 -> {
-            logMinutes = stringTime.parseInt(0)
-            logTime = stringTime.parseInt(0)
-            if (logMinutes > 59) {
-                logHours = 1
-                logMinutes -= 60
-            }
-            val format = String.format(
-                "%s:%s",
-                DateTimeUtils.pad(logHours),
-                DateTimeUtils.pad(logMinutes)
-            )
-            CorrectedTimePair(
-                logTime,
-                format
-            )
-        }
-        stringTime.length > 2 -> {
-            if (stringTime.contains(":")) {
-                logMinutes =
-                    stringTime.substring(stringTime.length - 2, stringTime.length).parseInt(0)
-                logHours = stringTime.substring(0, stringTime.length - 3).parseInt(0)
-            } else {
-                logMinutes =
-                    stringTime.substring(stringTime.length - 2, stringTime.length).parseInt(0)
-                logHours = stringTime.substring(0, stringTime.length - 2).parseInt(0)
-            }
-            if (logMinutes > 59) {
-                logHours += 1
-                logMinutes -= 60
-            }
-            logTime = DateTimeUtils.logTimeMinutes(logHours, logMinutes)
-            CorrectedTimePair(
-                logTime,
-                DateTimeUtils.strLogTime(logTime)
-            )
-        }
-        else -> CorrectedTimePair(
-            logTime,
-            if (logTime != 0) DateTimeUtils.strLogTime(logTime) else ""
-        )
-    }
-}
-
 private fun correctMinHours(hours: Int, mins: Int): Pair<Int, Int> {
     var logHours = hours
     var logMinutes = mins
@@ -86,7 +26,7 @@ private fun correctMinHours(hours: Int, mins: Int): Pair<Int, Int> {
 
 fun getCorrectDayTime(stringTime: String, initTime: Int): CorrectedTimePair {
     val logMinutes: Int
-    var logHours = 0
+    val logHours: Int
     var logTime = initTime
     return when {
         stringTime.isBlank() -> CorrectedTimePair(

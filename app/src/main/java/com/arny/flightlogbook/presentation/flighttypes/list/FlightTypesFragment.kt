@@ -131,6 +131,6 @@ class FlightTypesFragment : BaseMvpFragment(), FlightTypesView {
     }
 
     override fun updateAdapter(list: List<FlightType>) {
-        typesAdapter?.submitList(list)
+        typesAdapter?.submitList(list.toMutableList())
     }
 }

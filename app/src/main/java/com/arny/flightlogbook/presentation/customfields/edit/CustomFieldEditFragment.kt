@@ -9,7 +9,6 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.setFragmentResult
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.arny.core.CONSTS
@@ -92,15 +91,23 @@ class CustomFieldEditFragment : BaseMvpFragment(), CustomFieldsEditView {
                 presenter.setFieldName(it.toString())
             }
         }
-        val listValues = CustomFieldType.values().map { getString(it.nameRes) }.toTypedArray()
-        val abstractArrayAdapter = object : AbstractArrayAdapter<String>(
+        initAdapter()
+        binding.chbDefault.setOnCheckedChangeListener { _, isChecked ->
+            presenter.setDefaultChecked(isChecked)
+        }
+        binding.chbAddTime.setOnCheckedChangeListener { _, isChecked ->
+            presenter.setAddTimeChecked(isChecked)
+        }
+    }
+
+    private fun initAdapter() {
+        binding.spinFieldType.adapter = object : AbstractArrayAdapter<String>(
             context,
             android.R.layout.simple_list_item_1,
-            listValues
+            CustomFieldType.values().map { getString(it.nameRes) }.toTypedArray()
         ) {
             override fun getItemTitle(item: String?) = item
         }
-        binding.spinFieldType.adapter = abstractArrayAdapter
         binding.spinFieldType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 presenter.setType(binding.spinFieldType.selectedItemPosition)
@@ -114,14 +121,6 @@ class CustomFieldEditFragment : BaseMvpFragment(), CustomFieldsEditView {
             ) {
                 presenter.setType(binding.spinFieldType.selectedItemPosition)
             }
-        }
-
-        binding.chbDefault.setOnCheckedChangeListener { _, isChecked ->
-            presenter.setDefaultChecked(isChecked)
-        }
-
-        binding.chbAddTime.setOnCheckedChangeListener { _, isChecked ->
-            presenter.setAddTimeChecked(isChecked)
         }
     }
 

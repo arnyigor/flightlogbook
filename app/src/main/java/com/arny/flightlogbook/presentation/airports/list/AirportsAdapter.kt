@@ -12,13 +12,9 @@ import com.arny.flightlogbook.domain.models.Airport
 class AirportsAdapter(
     private val isRus: Boolean,
     private val onClick: (position: Int, item: Airport) -> Unit
-) :
-    ListAdapter<Airport, AirportsAdapter.AdapterViewholder>(
-        diffUtilCallback<Airport>(
-            areItemsTheSame = { old, new -> old.id == new.id },
-            contentsTheSame = { old, new -> old == new }
-        )
-    ) {
+) : ListAdapter<Airport, AirportsAdapter.AdapterViewholder>(
+    diffUtilCallback<Airport>(itemsTheSame = { old, new -> old.id == new.id })
+) {
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -51,9 +47,8 @@ class AirportsAdapter(
             val cityName = if (isRus) item.cityRus.orEmpty() else item.cityEng.orEmpty()
             val countryName =
                 if (isRus) item.countryRus.orEmpty() else item.countryEng.orEmpty()
-                context.getString(R.string.string_format_two_strings, cityName, "(${countryName})")
+            context.getString(R.string.string_format_two_strings, cityName, "(${countryName})")
             root.setOnClickListener { onClick(position, item) }
         }
     }
-
 }

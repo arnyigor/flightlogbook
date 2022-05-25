@@ -73,7 +73,7 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView {
             rvPlaneTypes.layoutManager = LinearLayoutManager(context)
             rvPlaneTypes.itemAnimator = DefaultItemAnimator()
             adapter = PlaneTypesAdapter(
-                isRequestField,
+                hideEdit = isRequestField,
                 onEditType = (::navigateTypeEdit),
                 onDeleteType = (::showRemoveDialog),
                 onItemClick = { item ->
@@ -145,7 +145,7 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView {
     }
 
     override fun updateAdapter(list: List<PlaneType>) {
-        adapter?.submitList(list)
+        adapter?.submitList(list.toMutableList())
     }
 
     override fun toastSuccess(string: String) {

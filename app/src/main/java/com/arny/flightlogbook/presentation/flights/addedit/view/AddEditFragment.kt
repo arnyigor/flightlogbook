@@ -100,6 +100,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
                 true
             }
             R.id.action_save -> {
+                binding.root.requestFocus()
                 presenter.checkAutoExportFile()
                 true
             }
@@ -137,6 +138,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     private fun initUI() {
         with(binding) {
             fabSave.setOnClickListener {
+                binding.root.requestFocus()
                 presenter.checkAutoExportFile()
             }
             selectPlaneType.setOnClickListener(this@AddEditFragment)
@@ -229,17 +231,22 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
 
     private fun onCustomViewsInit() {
         customFieldValuesAdapter = CustomFieldValuesAdapter(
-            onValueChange = { item, value ->
-                presenter.onCustomFieldValueChange(item, value)
+            onValueChange = { item, value, position ->
+                presenter.onCustomFieldValueChange(item, value, position)
             },
-            onValueRemove = { item ->
-                presenter.onCustomFieldValueDelete(item)
+            onValueRemove = { item, position ->
+                presenter.onCustomFieldValueDelete(item, position)
+            },
+            onValueTimeInChanges = { hasFocus ->
+                presenter.onCustomFieldTimeInChanges(hasFocus)
             }
         )
         binding.rvCustomFields.apply {
             layoutManager = object : LinearLayoutManager(requireContext()) {
-                override fun canScrollVertically(): Boolean = false
+                override fun isAutoMeasureEnabled(): Boolean = true
             }
+            isNestedScrollingEnabled = false
+            setHasFixedSize(false)
             adapter = customFieldValuesAdapter
         }
     }
@@ -492,8 +499,15 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
     }
 
     override fun setFieldsList(list: List<CustomFieldValue>) {
-        customFieldValuesAdapter?.submitList(list)
-        binding.rvCustomFields.requestLayout()
+        customFieldValuesAdapter?.submitList(list.toMutableList())
+    }
+
+    override fun notifyItemChanged(position: Int) {
+        customFieldValuesAdapter?.notifyItemChanged(position)
+    }
+
+    override fun notifyItemRemoved(position: Int) {
+        customFieldValuesAdapter?.notifyItemRemoved(position)
     }
 
     override fun setViewColor(color: Int) {

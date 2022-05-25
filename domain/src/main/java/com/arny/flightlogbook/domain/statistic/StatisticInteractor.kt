@@ -9,10 +9,7 @@ import com.arny.flightlogbook.domain.R
 import com.arny.flightlogbook.domain.common.IResourceProvider
 import com.arny.flightlogbook.domain.flights.FlightsRepository
 import com.arny.flightlogbook.domain.flighttypes.FlightTypesRepository
-import com.arny.flightlogbook.domain.models.Flight
-import com.arny.flightlogbook.domain.models.FlightType
-import com.arny.flightlogbook.domain.models.PlaneType
-import com.arny.flightlogbook.domain.models.Statistic
+import com.arny.flightlogbook.domain.models.*
 import com.arny.flightlogbook.domain.planetypes.AircraftTypesRepository
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -36,11 +33,11 @@ class StatisticInteractor @Inject constructor(
     }
 
     fun loadFilteredFlightsByAircraftTypes(
-            types: List<String>,
-            startdatetime: Long,
-            enddatetime: Long,
-            extendedStatistic: Boolean,
-            includeEnd: Boolean
+        types: List<String>,
+        startDateTime: Long,
+        endDateTime: Long,
+        extendedStatistic: Boolean,
+        includeEnd: Boolean
     ): Observable<ArrayList<Statistic>> = returnStatistic(
             extendedStatistic,
             fromCallable {
@@ -50,8 +47,8 @@ class StatisticInteractor @Inject constructor(
             }
                     .map {
                         flightsRepository.getStatisticDbFlightsByAircraftTypes(
-                                startdatetime,
-                                enddatetime,
+                                startDateTime,
+                                endDateTime,
                                 it,
                                 includeEnd
                         )
@@ -59,11 +56,11 @@ class StatisticInteractor @Inject constructor(
     )
 
     fun loadFilteredFlightsByAircraftNames(
-            names: List<String>,
-            startdatetime: Long,
-            enddatetime: Long,
-            extendedStatistic: Boolean,
-            includeEnd: Boolean
+        names: List<String>,
+        startDateTime: Long,
+        endDateTime: Long,
+        extendedStatistic: Boolean,
+        includeEnd: Boolean
     ): Observable<ArrayList<Statistic>> {
         return returnStatistic(extendedStatistic, fromCallable {
             aircraftTypesRepository.loadAircraftTypes()
@@ -71,8 +68,8 @@ class StatisticInteractor @Inject constructor(
                     .map { it.typeId }
         }.map {
             flightsRepository.getStatisticDbFlightsByAircraftTypes(
-                    startdatetime,
-                    enddatetime,
+                    startDateTime,
+                    endDateTime,
                     it,
                     includeEnd
             )
@@ -80,25 +77,23 @@ class StatisticInteractor @Inject constructor(
     }
 
     fun loadFilteredFlightsByAircraftRegNo(
-            regNumbers: List<String>,
-            startdatetime: Long,
-            enddatetime: Long,
-            extendedStatistic: Boolean,
-            includeEnd: Boolean
-    ): Observable<ArrayList<Statistic>> {
-        return returnStatistic(extendedStatistic, fromCallable {
-            aircraftTypesRepository.loadAircraftTypes()
-                    .filter { it.regNo in regNumbers }
-                    .map { it.typeId }
-        }.map {
-            flightsRepository.getStatisticDbFlightsByAircraftTypes(
-                    startdatetime,
-                    enddatetime,
-                    it,
-                    includeEnd
-            )
-        })
-    }
+        regNumbers: List<String>,
+        startDateTime: Long,
+        endDateTime: Long,
+        extendedStatistic: Boolean,
+        includeEnd: Boolean
+    ): Observable<ArrayList<Statistic>> = returnStatistic(extendedStatistic, fromCallable {
+        aircraftTypesRepository.loadAircraftTypes()
+                .filter { it.regNo in regNumbers }
+                .map { it.typeId }
+    }.map {
+        flightsRepository.getStatisticDbFlightsByAircraftTypes(
+                startDateTime,
+                endDateTime,
+                it,
+                includeEnd
+        )
+    })
 
     fun loadFilteredFlightsByColor(
             color: Int,
@@ -106,12 +101,10 @@ class StatisticInteractor @Inject constructor(
             enddatetime: Long,
             extendedStatistic: Boolean,
             includeEnd: Boolean
-    ): Observable<ArrayList<Statistic>> {
-        return returnStatistic(extendedStatistic, fromCallable {
-            val query = "%\"$PARAM_COLOR\":\"${color.toHexColor()}\"%"
-            flightsRepository.getStatisticDbFlightsByColor(startdatetime, enddatetime, includeEnd, query)
-        })
-    }
+    ): Observable<ArrayList<Statistic>> = returnStatistic(extendedStatistic, fromCallable {
+        val query = "%\"$PARAM_COLOR\":\"${color.toHexColor()}\"%"
+        flightsRepository.getStatisticDbFlightsByColor(startdatetime, enddatetime, includeEnd, query)
+    })
 
     fun loadFilteredFlightsByFlightTypes(
             startdatetime: Long,
@@ -119,23 +112,19 @@ class StatisticInteractor @Inject constructor(
             extendedStatistic: Boolean,
             types: List<Long?>,
             includeEnd: Boolean
-    ): Observable<ArrayList<Statistic>> {
-        return returnStatistic(
-                extendedStatistic,
-                fromCallable { flightsRepository.getStatisticDbFlightsByFlightTypes(startdatetime, enddatetime, types, includeEnd) }
-        )
-    }
+    ): Observable<ArrayList<Statistic>> = returnStatistic(
+            extendedStatistic,
+            fromCallable { flightsRepository.getStatisticDbFlightsByFlightTypes(startdatetime, enddatetime, types, includeEnd) }
+    )
 
-    private fun returnStatistic(extendedStatistic: Boolean, observable: Observable<List<Flight>>): Observable<ArrayList<Statistic>> {
-        return toStatisticList(extendedStatistic, toFilghtList(observable))
-    }
+    private fun returnStatistic(extendedStatistic: Boolean, observable: Observable<List<Flight>>): Observable<ArrayList<Statistic>> =
+        toStatisticList(extendedStatistic, toFlightList(observable))
 
-    fun getFightsMinMaxDateTimes(): Observable<Pair<Long, Long>> {
-        return fromCallable { flightsRepository.getStatisticDbFlightsMinMax() }
-    }
+    fun getFightsMinMaxDateTimes(): Observable<Pair<Long, Long>> =
+        fromCallable { flightsRepository.getStatisticDbFlightsMinMax() }
 
-    private fun toStatisticList(extendedStatistic: Boolean, observable: Observable<List<Flight>>): Observable<ArrayList<Statistic>> {
-        return observable
+    private fun toStatisticList(extendedStatistic: Boolean, observable: Observable<List<Flight>>): Observable<ArrayList<Statistic>> =
+        observable
                 .map { list ->
                     if (list.isNotEmpty()) {
                         if (extendedStatistic) {
@@ -151,10 +140,9 @@ class StatisticInteractor @Inject constructor(
                         arrayListOf()
                     }
                 }
-    }
 
-    private fun toFilghtList(observable: Observable<List<Flight>>): Observable<List<Flight>> {
-        return observable
+    private fun toFlightList(observable: Observable<List<Flight>>): Observable<List<Flight>> =
+        observable
                 .map { list ->
                     list.map { flight ->
                         flight.planeType = aircraftTypesRepository.loadAircraftType(flight.planeId)
@@ -162,11 +150,10 @@ class StatisticInteractor @Inject constructor(
                         flight
                     }.sortedBy { it.datetime }
                 }
-    }
 
     private fun totalSumTimes(list: List<Flight>): Statistic {
         val builder = StringBuilder()
-        val statistic = Statistic(type = 1)
+        val statistic = Statistic(type = StatisticType.STARTENDTIME)
         statistic.dateTimeStart = list.first().datetimeFormatted
         statistic.dateTimeEnd = list.last().datetimeFormatted
         builder.append("<b>${resourcesProvider.getString(R.string.stat_total_flights)}:</b>")

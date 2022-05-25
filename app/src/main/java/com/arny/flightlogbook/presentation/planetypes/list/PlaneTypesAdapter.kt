@@ -15,10 +15,9 @@ class PlaneTypesAdapter(
     val onEditType: (item: PlaneType) -> Unit,
     val onDeleteType: (item: PlaneType) -> Unit,
     val onItemClick: (item: PlaneType) -> Unit,
-) : ListAdapter<PlaneType, PlaneTypesAdapter.PlaneTypesViewHolder>(diffUtilCallback<PlaneType>(
-    areItemsTheSame = { old, new -> old.typeId == new.typeId },
-    contentsTheSame = { old, new -> old == new }
-)) {
+) : ListAdapter<PlaneType, PlaneTypesAdapter.PlaneTypesViewHolder>(
+    diffUtilCallback<PlaneType>(itemsTheSame = { old, new -> old.typeId == new.typeId })
+) {
     override fun onCreateViewHolder(parent: ViewGroup, position: Int): PlaneTypesViewHolder =
         PlaneTypesViewHolder(
             PlaneTypeListItemLayoutBinding.inflate(
@@ -29,19 +28,18 @@ class PlaneTypesAdapter(
         )
 
     override fun onBindViewHolder(holder: PlaneTypesViewHolder, position: Int) {
-        holder.bind(getItem(position), hideEdit)
+        holder.bind(getItem(position))
     }
 
-  inner class PlaneTypesViewHolder constructor(
-      private val viewBinding: PlaneTypeListItemLayoutBinding
+    inner class PlaneTypesViewHolder constructor(
+        private val viewBinding: PlaneTypeListItemLayoutBinding
     ) : RecyclerView.ViewHolder(viewBinding.root) {
-        fun bind(item: PlaneType, hideEdit: Boolean) {
+        fun bind(item: PlaneType) {
             with(viewBinding) {
                 val context = root.context
                 item.mainType?.let { tvTypeName.text = context.getString(it.nameRes) }
                 tvTypeTitle.text = item.typeName
                 tvRegNo.text = context.getString(R.string.str_regnum_formatted, item.regNo)
-                ivTypeEdit.isVisible = !hideEdit
                 ivTypeDelete.isVisible = !hideEdit
                 ivTypeEdit.setOnClickListener { onEditType(item) }
                 ivTypeDelete.setOnClickListener { onDeleteType(item) }

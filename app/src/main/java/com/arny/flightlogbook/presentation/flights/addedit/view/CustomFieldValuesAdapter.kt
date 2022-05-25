@@ -15,13 +15,11 @@ import com.arny.flightlogbook.databinding.CustomFieldValueListItemBinding
 import java.util.*
 
 class CustomFieldValuesAdapter(
-    private val onValueChange: (item: CustomFieldValue, value: String) -> Unit,
-    private val onValueRemove: (item: CustomFieldValue) -> Unit
+    private val onValueChange: (item: CustomFieldValue, value: String, position: Int) -> Unit,
+    private val onValueRemove: (item: CustomFieldValue, position: Int) -> Unit,
+    private val onValueTimeInChanges: (hasFocus: Boolean) -> Unit
 ) : ListAdapter<CustomFieldValue, CustomFieldValuesAdapter.AdapterViewHolder>(
-    diffUtilCallback<CustomFieldValue>(
-        areItemsTheSame = { old, new -> old.fieldId == new.fieldId },
-        contentsTheSame = { old, new -> old == new }
-    )
+    diffUtilCallback<CustomFieldValue>(itemsTheSame = { old, new -> old.id == new.id })
 ) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AdapterViewHolder =
         AdapterViewHolder(
@@ -39,15 +37,17 @@ class CustomFieldValuesAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: CustomFieldValue) {
             val context = binding.root.context
-            binding.ivRemoveCustomFieldValue.isVisible = item.field?.showByDefault == false
-
             binding.ivRemoveCustomFieldValue.setOnClickListener {
-                onValueRemove(item)
+                onValueRemove(item, layoutPosition)
             }
             val type = item.type ?: CustomFieldType.None
             var addTimeName = ""
             if (type is CustomFieldType.Time && type.addTime) {
                 addTimeName = context.getString(R.string.str_time_add_main)
+            }
+            var showDefault = ""
+            if (item.field?.showByDefault == true) {
+                showDefault = context.getString(R.string.custom_field_name_default)
             }
             val name = item.field?.name.orEmpty()
             binding.tvTitleCustomField.isVisible = type != CustomFieldType.None
@@ -55,9 +55,10 @@ class CustomFieldValuesAdapter(
                     && name.isNotBlank()
             binding.tvTitleCustomField.text = String.format(
                 Locale.getDefault(),
-                "%s%s",
+                "%s%s%s",
                 name,
-                addTimeName
+                addTimeName,
+                showDefault
             )
             binding.cfvView.init(type, name)
             val value = item.value
@@ -66,7 +67,7 @@ class CustomFieldValuesAdapter(
             }
             if (type == CustomFieldType.Bool) {
                 binding.cfvView.switch?.setOnCheckedChangeListener { _, isChecked ->
-                    onValueChange(item, isChecked.toString())
+                    onValueChange(item, isChecked.toString(), layoutPosition)
                 }
             } else {
                 val emptyHint =
@@ -78,13 +79,18 @@ class CustomFieldValuesAdapter(
                 binding.cfvView.editText?.let { editText ->
                     editText.doAfterTextChanged {
                         if (editText.hasFocus()) {
-                            onValueChange(item, editText.text.toString())
+                            if (type !is CustomFieldType.Time) {
+                                onValueChange(item, editText.text.toString(), layoutPosition)
+                            }
                         }
                     }
                     editText.setOnFocusChangeListener { _, hasFocus ->
                         if (!hasFocus) {
                             editText.setSelectAllOnFocus(false)
-                            onValueChange(item, editText.text.toString())
+                            onValueChange(item, editText.text.toString(), layoutPosition)
+                        }
+                        if (type is CustomFieldType.Time && hasFocus) {
+                            onValueTimeInChanges(true)
                         }
                         val flTime = editText.text.toString()
                         if (flTime.isBlank()) {
@@ -103,7 +109,7 @@ class CustomFieldValuesAdapter(
                     editText.setOnEditorActionListener { _, actionId, _ ->
                         when (actionId) {
                             EditorInfo.IME_ACTION_NEXT -> {
-                                onValueChange(item, editText.text.toString())
+                                onValueChange(item, editText.text.toString(), layoutPosition)
                                 true
                             }
                             else -> false

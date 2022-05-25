@@ -50,7 +50,7 @@
     <string name="custom_field_removed">Field removed</string>
     <string name="error_custom_field_not_removed">Field not removed</string>
     <string name="save_custom_field_success">Field saved</string>
-    <string name="show_as_default">Always add for flight</string>
+    <string name="show_as_default">Always add for new flight</string>
     <string name="additional_time">Add this time</string>
     <string name="add_custom_field">Add field</string>
     <string name="remove_item_question">Remove record?</string>

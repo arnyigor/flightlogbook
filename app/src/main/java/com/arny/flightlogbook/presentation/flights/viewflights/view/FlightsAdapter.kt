@@ -17,10 +17,9 @@ class FlightsAdapter(
     val onItemClick: (position: Int, item: Flight) -> Unit,
     val onFlightSelect: (position: Int, item: Flight) -> Unit,
     val onFlightRemove: (item: Flight) -> Unit
-) : ListAdapter<Flight, FlightsAdapter.AdapterViewHolder>(diffUtilCallback<Flight>(
-    areItemsTheSame = { old, new -> old.id == new.id },
-    contentsTheSame = { old, new -> old == new }
-)) {
+) : ListAdapter<Flight, FlightsAdapter.AdapterViewHolder>(
+    diffUtilCallback<Flight>(itemsTheSame = { old, new -> old.id == new.id })
+) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AdapterViewHolder =
         AdapterViewHolder(
             FlightListItemBinding.inflate(

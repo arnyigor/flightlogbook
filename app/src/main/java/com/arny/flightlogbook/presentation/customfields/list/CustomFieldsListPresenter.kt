@@ -17,10 +17,6 @@ class CustomFieldsListPresenter @Inject constructor(
         loadCustomFields()
     }
 
-    fun onItemClick(item: CustomField) {
-        viewState.navigateToFieldEdit(item.id)
-    }
-
     fun onFabClicked() {
         viewState.navigateToFieldEdit()
     }

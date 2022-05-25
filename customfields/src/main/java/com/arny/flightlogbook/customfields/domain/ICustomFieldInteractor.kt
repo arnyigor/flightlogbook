@@ -23,7 +23,7 @@ interface ICustomFieldInteractor {
             name: String,
             type: CustomFieldType,
             showByDefault: Boolean,
-            addTime: Boolean
+            addTimeChecked: Boolean
     ): Boolean
 
     fun getCustomFieldsWithValues(externalId: Long?): List<CustomFieldValue>

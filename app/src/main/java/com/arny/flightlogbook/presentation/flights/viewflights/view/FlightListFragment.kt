@@ -67,11 +67,11 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView {
         setFragmentResultListener(CONSTS.EXTRAS.EXTRA_ACTION_EDIT_FLIGHT) { _, _ ->
             presenter.loadFlights(checkAutoExport = true, restoreScroll = true)
         }
-        initUI(view)
+        initUI()
         presenter.loadFlights(restoreScroll = true)
     }
 
-    private fun initUI(view: View) {
+    private fun initUI() {
         with(binding) {
             fabAddFlight.setOnClickListener {
                  findNavController().navigate(FlightListFragmentDirections.actionNavFlightsToAddEditFragment())
@@ -152,7 +152,7 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView {
     }
 
     override fun updateAdapter(flights: List<Flight>, restoreScroll: Boolean) {
-        adapter?.submitList(flights)
+        adapter?.submitList(flights.toMutableList())
         if (restoreScroll) {
             restoreListPosition()
         }

@@ -116,7 +116,7 @@ class AirportsFragment : BaseMvpFragment(), AirportsView {
     }
 
     override fun setAirports(list: List<Airport>) {
-        airportsAdapter.submitList(list)
+        airportsAdapter.submitList(list.toMutableList())
     }
 
     override fun showProgress() {

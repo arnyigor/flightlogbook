@@ -61,7 +61,7 @@
     </string-array>
     <string name="openNavDrawer" translatable="false">open</string>
     <string name="closeNavDrawer" translatable="false">close</string>
-    <string name="show_as_default">Всегда добавлять для полета</string>
+    <string name="show_as_default">Всегда добавлять для нового полета</string>
     <string name="additional_time">Добавить время к основному</string>
     <string name="add_custom_field">Добавить поле</string>
     <string name="remove_item_question">Удалить запись?</string>

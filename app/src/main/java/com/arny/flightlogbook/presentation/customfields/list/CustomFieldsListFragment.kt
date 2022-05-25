@@ -11,7 +11,6 @@ import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.arny.core.CONSTS.EXTRAS.EXTRA_ACTION_EDIT_CUSTOM_FIELD
 import com.arny.core.CONSTS.EXTRAS.EXTRA_CUSTOM_FIELD_ID
 import com.arny.core.CONSTS.REQUESTS.REQUEST_CUSTOM_FIELD
@@ -19,7 +18,6 @@ import com.arny.core.CONSTS.REQUESTS.REQUEST_CUSTOM_FIELD_EDIT
 import com.arny.core.utils.ToastMaker
 import com.arny.core.utils.getExtra
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.adapters.SimpleAbstractAdapter
 import com.arny.flightlogbook.customfields.models.CustomField
 import com.arny.flightlogbook.databinding.FragmentCustomFieldsListBinding
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
@@ -61,39 +59,35 @@ class CustomFieldsListFragment : BaseMvpFragment(), CustomFieldsListView {
         val isRequestField = args.isRequestField
         title =
             if (isRequestField) getString(R.string.custom_field_select) else getString(R.string.custom_fields)
-        initAdapter(isRequestField)
+        initAdapter()
         openDrawerListener?.onChangeHomeButton(isRequestField)
         binding.fabAddCustomField.setOnClickListener {
             presenter.onFabClicked()
         }
         setFragmentResultListener(REQUEST_CUSTOM_FIELD_EDIT) { _, data ->
-            val isRequested = data.getExtra<Boolean>(EXTRA_ACTION_EDIT_CUSTOM_FIELD) ?: false
-            if (isRequested) {
+            if (data.getExtra<Boolean>(EXTRA_ACTION_EDIT_CUSTOM_FIELD) == true) {
                 presenter.loadCustomFields()
             }
         }
     }
 
-    private fun initAdapter(isRequestField: Boolean) {
-        customFieldsAdapter = CustomFieldsAdapter()
+    private fun initAdapter() {
+        customFieldsAdapter = CustomFieldsAdapter(onItemClick = (::onAdapterItemClick))
         binding.rvFieldsList.apply {
-            layoutManager = LinearLayoutManager(requireContext())
             adapter = customFieldsAdapter
         }
-        customFieldsAdapter.setViewHolderListener(object :
-            SimpleAbstractAdapter.OnViewHolderListener<CustomField> {
-            override fun onItemClick(position: Int, item: CustomField) {
-                if (isRequestField) {
-                    setFragmentResult(
-                        REQUEST_CUSTOM_FIELD,
-                        bundleOf(EXTRA_CUSTOM_FIELD_ID to item.id)
-                    )
-                    findNavController().popBackStack()
-                } else {
-                    presenter.onItemClick(item)
-                }
-            }
-        })
+    }
+
+    private fun onAdapterItemClick(item: CustomField) {
+        if (args.isRequestField) {
+            setFragmentResult(
+                REQUEST_CUSTOM_FIELD,
+                bundleOf(EXTRA_CUSTOM_FIELD_ID to item.id)
+            )
+            findNavController().popBackStack()
+        } else {
+            navigateToFieldEdit(item.id)
+        }
     }
 
     override fun showProgress(show: Boolean) {
@@ -122,7 +116,7 @@ class CustomFieldsListFragment : BaseMvpFragment(), CustomFieldsListView {
     }
 
     override fun showList(list: List<CustomField>) {
-        customFieldsAdapter.addAll(list)
+        customFieldsAdapter.submitList(list.toMutableList())
     }
 
     override fun toastError(message: String?) {

@@ -26,6 +26,7 @@ interface AddEditView : MvpView {
     fun setResultOK()
     fun setEdtNightTimeText(nightTimeText: String)
     fun setEdtGroundTimeText(groundTimeText: String)
+
     @OneExecution
     fun onColorSelect(colors: IntArray)
     fun setViewColor(color: Int)
@@ -34,7 +35,8 @@ interface AddEditView : MvpView {
     fun requestStorageAndSave()
     fun saveFlight()
     fun setFieldsList(list: List<CustomFieldValue>)
-
+    fun notifyItemChanged(position: Int)
+    fun notifyItemRemoved(position: Int)
     fun setCustomFieldsVisible(visible: Boolean)
     fun setDeparture(departure: Airport?)
     fun setArrival(arrival: Airport?)

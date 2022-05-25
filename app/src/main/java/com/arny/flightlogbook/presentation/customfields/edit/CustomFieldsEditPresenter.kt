@@ -10,7 +10,7 @@ import javax.inject.Inject
 
 @InjectViewState
 class CustomFieldsEditPresenter @Inject constructor() : BaseMvpPresenter<CustomFieldsEditView>() {
-    private var addTime: Boolean = false
+    private var addTimeChecked: Boolean = false
     private var name: String? = null
     private var type: CustomFieldType = CustomFieldType.None
     private var showByDefault: Boolean = false
@@ -43,8 +43,8 @@ class CustomFieldsEditPresenter @Inject constructor() : BaseMvpPresenter<CustomF
                     viewState.setType(type)
                     showByDefault = customField.showByDefault
                     viewState.setDefaultChecked(showByDefault)
-                    addTime = customField.addTime
-                    viewState.setAddTimeChecked(addTime)
+                    addTimeChecked = customField.addTime
+                    viewState.setAddTimeChecked(addTimeChecked)
                 }
             }, {
                 it.printStackTrace()
@@ -52,13 +52,13 @@ class CustomFieldsEditPresenter @Inject constructor() : BaseMvpPresenter<CustomF
     }
 
     fun onSaveClicked(checkedAddTime: Boolean) {
-        addTime = checkedAddTime
+        addTimeChecked = checkedAddTime
         if (name.isNullOrBlank()) {
             viewState.showNameError(R.string.error_empty_text_field)
             return
         }
         viewState.showProgress(false)
-        fromSingle { customFieldInteractor.save(fieldId, name!!, type, showByDefault, addTime) }
+        fromSingle { customFieldInteractor.save(fieldId, name!!, type, showByDefault, addTimeChecked) }
             .subscribeFromPresenter({
                 viewState.showProgress(false)
                 viewState.showResult(R.string.save_custom_field_success)
@@ -83,7 +83,7 @@ class CustomFieldsEditPresenter @Inject constructor() : BaseMvpPresenter<CustomF
     }
 
     fun setAddTimeChecked(checked: Boolean) {
-        addTime = checked
+        addTimeChecked = checked
     }
 
     fun onDelete() {

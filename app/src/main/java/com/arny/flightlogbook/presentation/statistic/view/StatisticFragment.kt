@@ -24,14 +24,11 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 class StatisticFragment : BaseMvpFragment(), StatisticsView, View.OnClickListener {
-
     private lateinit var binding: StatisticFragmentBinding
 
     @Inject
     lateinit var presenterProvider: Provider<StatisticsPresenter>
-
     private val presenter by moxyPresenter { presenterProvider.get() }
-
     private var statAdapter: StatisticAdapter? = null
 
     override fun onAttach(context: Context) {
@@ -123,7 +120,6 @@ class StatisticFragment : BaseMvpFragment(), StatisticsView, View.OnClickListene
         }
     }
 
-
     override fun setViewColorVisible(visible: Boolean) {
         binding.vColor.isVisible = visible
     }
@@ -153,11 +149,11 @@ class StatisticFragment : BaseMvpFragment(), StatisticsView, View.OnClickListene
     }
 
     override fun updateAdapter(stats: ArrayList<Statistic>) {
-        statAdapter?.addAll(stats)
+        statAdapter?.submitList(stats.toMutableList())
     }
 
     override fun clearAdapter() {
-        statAdapter?.clear()
+        statAdapter?.submitList(emptyList())
     }
 
     override fun setPeriodTypeVisible(vis: Boolean) {

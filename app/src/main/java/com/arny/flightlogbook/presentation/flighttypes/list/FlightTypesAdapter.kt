@@ -14,11 +14,9 @@ class FlightTypesAdapter(
     val onEditType: (item: FlightType) -> Unit,
     val onDeleteType: (item: FlightType) -> Unit,
     val onItemClick: (item: FlightType) -> Unit,
-) : ListAdapter<FlightType, FlightTypesAdapter.FlightTypesViewHolder>(diffUtilCallback<FlightType>(
-    areItemsTheSame = { old, new -> old.id == new.id },
-    contentsTheSame = { old, new -> old == new }
-)) {
-
+) : ListAdapter<FlightType, FlightTypesAdapter.FlightTypesViewHolder>(
+    diffUtilCallback<FlightType>(itemsTheSame = { old, new -> old.id == new.id })
+) {
     override fun onCreateViewHolder(parent: ViewGroup, position: Int): FlightTypesViewHolder =
         FlightTypesViewHolder(
             TypeListItemLayoutBinding.inflate(
@@ -38,7 +36,6 @@ class FlightTypesAdapter(
         fun bind(item: FlightType) {
             with(viewBinding) {
                 tvTypeTitle.text = item.typeTitle
-                ivTypeEdit.isVisible = !hideEdit
                 ivTypeDelete.isVisible = !hideEdit
                 ivTypeEdit.setOnClickListener {
                     onEditType(item)

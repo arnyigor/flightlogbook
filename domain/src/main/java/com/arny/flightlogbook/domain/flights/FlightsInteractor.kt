@@ -49,17 +49,15 @@ class FlightsInteractor @Inject constructor(
 
     fun loadFlightType(id: Long?): FlightType? = flightTypesRepository.loadDBFlightType(id)
 
-    fun getAddTimeSum(values: List<CustomFieldValue>): Int {
-        return if (values.isNotEmpty()) {
-            values.filter {
-                val type = it.type
-                type is CustomFieldType.Time && type.addTime && it.value != null
-            }.map {
-                DateTimeUtils.convertStringToTime(it.value.toString())
-            }.sum()
-        } else {
-            0
+    fun getAddTimeSum(values: List<CustomFieldValue>): Int = if (values.isNotEmpty()) {
+        values.filter {
+            val type = it.type
+            type is CustomFieldType.Time && type.addTime && it.value != null
+        }.sumOf {
+            DateTimeUtils.convertStringToTime(it.value.toString())
         }
+    } else {
+        0
     }
 
     private fun getFormattedFlightTimes(): Result<String> {
@@ -181,12 +179,10 @@ class FlightsInteractor @Inject constructor(
         flight
     }
 
-    fun removeFlight(id: Long?): Single<Boolean> {
-        return fromSingle { flightsRepository.removeFlight(id) }
-    }
+    fun removeFlight(id: Long?): Single<Boolean> =
+        fromSingle { flightsRepository.removeFlight(id) }
 
-    fun removeFlights(selectedIds: List<Long>): Single<Boolean> {
-        return fromSingle { flightsRepository.removeFlights(selectedIds) }
+    fun removeFlights(selectedIds: List<Long>): Single<Boolean> =
+        fromSingle { flightsRepository.removeFlights(selectedIds) }
             .subscribeOn(Schedulers.io())
-    }
 }

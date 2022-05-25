@@ -23,10 +23,8 @@ import android.view.inputmethod.InputMethodManager.SHOW_FORCED
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.*
-import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.text.HtmlCompat
@@ -34,7 +32,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
-import androidx.recyclerview.widget.DiffUtil
 import com.amulyakhare.textdrawable.TextDrawable
 import com.arny.core.R
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
@@ -393,88 +390,6 @@ fun animateVisible(v: View, visible: Boolean, duration: Int) {
         })
 }
 
-fun AppCompatActivity.resetFragmentsInManager() {
-    val fragments = supportFragmentManager.fragments
-    for (curFrag in fragments) {
-        if (curFrag != null) {
-            supportFragmentManager.beginTransaction().remove(curFrag).commitAllowingStateLoss()
-        }
-    }
-}
-
-fun AppCompatActivity.replaceFragmentInActivity(
-    fragment: Fragment,
-    @IdRes frameId: Int,
-    tag: String? = null
-) {
-    supportFragmentManager.transact {
-        replace(frameId, fragment, tag)
-    }
-}
-
-fun AppCompatActivity.addFragmentToActivity(fragment: Fragment, @IdRes frameId: Int, tag: String?) {
-    supportFragmentManager.transact {
-        add(frameId, fragment, tag)
-    }
-}
-
-fun AppCompatActivity.popBackStack(immadiate: Boolean = true) {
-    if (immadiate) {
-        supportFragmentManager.popBackStackImmediate()
-    } else {
-        supportFragmentManager.popBackStack()
-    }
-}
-
-fun AppCompatActivity.getFragment(position: Int): Fragment? {
-    return supportFragmentManager.fragments.getOrNull(position)
-}
-
-fun AppCompatActivity.fragmentBackStackCnt(): Int {
-    return supportFragmentManager.backStackEntryCount
-}
-
-fun AppCompatActivity.fragmentBackStack() {
-    if (supportFragmentManager.backStackEntryCount > 0) {
-        supportFragmentManager.popBackStack()
-    } else {
-        this.onBackPressed()
-    }
-}
-
-fun AppCompatActivity.fragmentBackStackClear() {
-    return supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-}
-
-fun inflate(inflater: LayoutInflater, container: ViewGroup?, @LayoutRes resource: Int): View? {
-    return inflater.inflate(resource, container, false)
-}
-
-fun AppCompatActivity.getFragmentInContainer(@IdRes containerId: Int): Fragment? {
-    return supportFragmentManager.findFragmentById(containerId)
-}
-
-fun AppCompatActivity.getFragmentByTag(tag: String?): Fragment? {
-    return supportFragmentManager.findFragmentByTag(tag)
-}
-
-fun AppCompatActivity.setupActionBar(
-    @IdRes toolbarId: Int,
-    action: (ActionBar?.() -> Unit)? = null
-) {
-    setSupportActionBar(findViewById(toolbarId))
-    supportActionBar?.run {
-        action?.let { it() }
-    }
-}
-
-fun AppCompatActivity.setupActionBar(toolbar: Toolbar?, action: (ActionBar?.() -> Unit)? = null) {
-    setSupportActionBar(toolbar)
-    supportActionBar?.run {
-        action?.let { it() }
-    }
-}
-
 fun View.showSnackBar(message: String?, duration: Int = Snackbar.LENGTH_SHORT) {
     message?.let {
         Snackbar.make(this, message, duration).show()
@@ -572,13 +487,9 @@ fun View.showSnackBar(
     snackBar.show()
 }
 
-fun Bundle?.dump(): String? {
-    return Utility.dumpBundle(this)
-}
+fun Bundle?.dump(): String? = Utility.dumpBundle(this)
 
-fun Intent?.dump(): String? {
-    return Utility.dumpIntent(this)
-}
+fun Intent?.dump(): String? = Utility.dumpIntent(this)
 
 @JvmOverloads
 fun getGMDIcon(
@@ -599,17 +510,7 @@ fun getGMDIcon(
 
 fun checkContextTheme(context: Context?): Boolean = context is ContextThemeWrapper
 
-fun fromHtml(html: String): Spanned {
-    return HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_MODE_LEGACY)
-}
-
-inline fun <reified T> getIntentExtra(intent: Intent?, extraName: String): T? {
-    return intent?.extras?.get(extraName) as? T
-}
-
-inline fun <reified T> getBundleExtra(extras: Bundle?, extraName: String): T? {
-    return extras?.get(extraName) as? T
-}
+fun fromHtml(html: String): Spanned = HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_MODE_LEGACY)
 
 fun isKeyboardVisible(context: Context): Boolean {
     val imm by lazy { context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager }
@@ -619,9 +520,7 @@ fun isKeyboardVisible(context: Context): Boolean {
     return height > 100
 }
 
-fun Context.getSizeDP(size: Int): Int {
-    return (size * this.resources.displayMetrics.density).roundToInt()
-}
+fun Context.getSizeDP(size: Int): Int = (size * this.resources.displayMetrics.density).roundToInt()
 
 @ColorInt
 fun Context.getIntColor(@ColorRes res: Int): Int = ContextCompat.getColor(this, res)
@@ -638,9 +537,7 @@ fun ImageView?.setSrcTintColor(@DrawableRes src: Int, @ColorInt color: Int) {
     }
 }
 
-fun getHexColor(color: Int): String {
-    return String.format("#%06X", (0xFFFFFF and color))
-}
+fun getHexColor(color: Int): String = String.format("#%06X", (0xFFFFFF and color))
 
 @RequiresApi(Build.VERSION_CODES.O)
 private fun createNotificationChannel(context: Context): String {
@@ -667,23 +564,22 @@ private fun getServiceNotification(
     val notificationIntent = Intent(context, cls)
     notificationIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
     val pendingIntent = PendingIntent.getActivity(context, requestCode, notificationIntent, 0)
-    val notifbuild = getNotifBuilder(context)
-    notifbuild.setSmallIcon(icon)// маленькая иконка
+    val builder = getNotificationBuilder(context)
+    builder.setSmallIcon(icon)// маленькая иконка
         .setAutoCancel(false)
         .setContentTitle(title)// Заголовок уведомления
         .setContentText(content) // Текст уведомления
-    notifbuild.setContentIntent(pendingIntent)
-    notification = notifbuild.build()
+    builder.setContentIntent(pendingIntent)
+    notification = builder.build()
     return notification
 }
 
-private fun getNotifBuilder(context: Context): Notification.Builder {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+private fun getNotificationBuilder(context: Context): Notification.Builder =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         Notification.Builder(context, createNotificationChannel(context))
     } else {
         Notification.Builder(context)
     }
-}
 
 fun createNotification(
     context: Context,
@@ -748,57 +644,6 @@ fun String?.setDouble(): Double {
         return 0.0
     }
     return source.toDouble()
-}
-
-fun <T : Any> Collection<T>?.dump(predicate: (cls: T) -> String?): String =
-    dumpArray(this, predicate)
-
-fun <T : Any> dumpArray(collection: Collection<T>?, predicate: (cls: T) -> String?): String {
-    var res = ""
-    if (collection == null) {
-        res += "Collection is null"
-        return res
-    }
-    if (collection.isEmpty()) {
-        res += "Collection is empty"
-        return res
-    }
-    for (ind in collection.withIndex()) {
-        val index = ind.index
-        val value = ind.value
-        if (index == 0) {
-            res += "${value.javaClass.name}\n"
-            res += predicate.invoke(value)
-        } else {
-            res += "\n"
-            res += predicate.invoke(value)
-        }
-    }
-    return res
-}
-
-/**
- * Универсальная функция окончаний
- * @param [count] число
- * @param [zero_other] слово с окончанием значения  [count] либо ноль,либо все остальные варианты включая от 11 до 19 (слов)
- * @param [one] слово с окончанием значения  [count]=1 (слово)
- * @param [two_four] слово с окончанием значения  [count]=2,3,4 (слова)
- */
-fun getTermination(
-    count: Int,
-    zero_other: String,
-    one: String,
-    two_four: String,
-    concat: Boolean = true
-): String {
-    if (count % 100 in 11..19) {
-        return if (concat) "$count $zero_other" else " $zero_other"
-    }
-    return when (count % 10) {
-        1 -> if (concat) "$count $one" else one
-        2, 3, 4 -> if (concat) "$count $two_four" else two_four
-        else -> if (concat) "$count $zero_other" else zero_other
-    }
 }
 
 /**

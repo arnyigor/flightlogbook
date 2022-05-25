@@ -250,6 +250,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvCustomFields"
                 android:layout_width="match_parent"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

@@ -17,7 +17,7 @@ import com.arny.flightlogbook.domain.models.Airport
 import com.arny.flightlogbook.domain.models.Flight
 import com.arny.flightlogbook.domain.models.PlaneType
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
-import com.arny.flightlogbook.presentation.flights.addedit.models.getCorrectTime
+import com.arny.flightlogbook.presentation.flights.addedit.models.getCorrectDayTime
 import com.arny.flightlogbook.presentation.flights.addedit.view.AddEditView
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -26,8 +26,8 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import moxy.InjectViewState
 import org.joda.time.DateTime
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.properties.Delegates
 
 @InjectViewState
 class AddEditPresenter @Inject constructor(
@@ -37,6 +37,8 @@ class AddEditPresenter @Inject constructor(
     private val resourcesInteractor: ResourcesInteractor,
     private val prefsInteractor: PreferencesInteractor,
 ) : BaseMvpPresenter<AddEditView>() {
+    @get:Synchronized
+    @set:Synchronized
     private var customFieldsValues = mutableListOf<CustomFieldValue>()
     private var updateDisposable: Disposable? = null
     internal var flightId: Long? = null
@@ -68,6 +70,13 @@ class AddEditPresenter @Inject constructor(
     private var mMotoStart: Float = 0.toFloat()
     private var mMotoFinish: Float = 0.toFloat()
     private var mMotoResult: Float = 0.toFloat()
+    private var description: String = ""
+    private var saveInProgress = false
+    private var customFieldTimeHasFocus by Delegates.observable(false) { _, old, hasFocus ->
+        if (old != hasFocus && !hasFocus && saveInProgress) {
+            saveFlight(description)
+        }
+    }
     private val customFieldEnabled = CONSTS.COMMON.ENABLE_CUSTOM_FIELDS
 
     private data class TimesResult(
@@ -172,19 +181,10 @@ class AddEditPresenter @Inject constructor(
         if (customFieldEnabled) {
             fromSingle { customFieldInteractor.getCustomFieldsWithValues(flightId) }
                 .map { list ->
-                    list.forEach { fieldValue ->
-                        if (fieldValue.type is CustomFieldType.Time) {
-                            val (_, strVal) = getCorrectTime(
-                                fieldValue.value.toString(),
-                                DateTimeUtils.convertStringToTime(fieldValue.value.toString())
-                            )
-                            fieldValue.value = strVal
-                        }
-                    }
-                    list.distinctBy { it.fieldId }
+                    sortedByDefault(list.onEach(::correctCustomFieldTime))
                 }
-                .subscribeFromPresenter({
-                    customFieldsValues = it.toMutableList()
+                .subscribeFromPresenter({ values ->
+                    customFieldsValues = values
                     viewState.setFieldsList(customFieldsValues)
                     updateTimes()
                 }, {
@@ -192,6 +192,19 @@ class AddEditPresenter @Inject constructor(
                 })
         }
     }
+
+    private fun correctCustomFieldTime(fieldValue: CustomFieldValue) {
+        if (fieldValue.type is CustomFieldType.Time) {
+            val (_, strVal) = getCorrectDayTime(
+                fieldValue.value.toString(),
+                DateTimeUtils.convertStringToTime(fieldValue.value.toString())
+            )
+            fieldValue.value = strVal
+        }
+    }
+
+    private fun sortedByDefault(list: List<CustomFieldValue>) =
+        list.sortedBy { it.field?.showByDefault == false }.toMutableList()
 
     private fun loadIfrVfr(flight: Flight) {
         viewState.setIfrSelected(flight.ifrvfr == 1)
@@ -273,7 +286,6 @@ class AddEditPresenter @Inject constructor(
                 strLogTime(intTotalTime)
             )
         }
-            .delay(100, TimeUnit.MILLISECONDS)
             .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ (flight, night, ground, total) ->
@@ -354,7 +366,7 @@ class AddEditPresenter @Inject constructor(
         }
 
     private fun correctTimeObs(stringTime: String, initTime: Int) =
-        fromCallable { getCorrectTime(stringTime, initTime) }
+        fromCallable { getCorrectDayTime(stringTime, initTime) }
 
     fun onMotoTimeChange(startTime: String, finishTime: String) {
         if (startTime.isNotBlank() && finishTime.isNotBlank()) {
@@ -456,6 +468,11 @@ class AddEditPresenter @Inject constructor(
     }
 
     fun saveFlight(description: String) {
+        saveInProgress = true
+        this.description = description
+        if (customFieldTimeHasFocus) {
+            return
+        }
         updateTimes()
         Single.fromCallable {
             if (mDateTime == 0L) {
@@ -484,7 +501,9 @@ class AddEditPresenter @Inject constructor(
                 } else {
                     viewState.toastError(getString(R.string.empty_flight))
                 }
+                saveInProgress = false
             }, {
+                saveInProgress = false
                 viewState.toastError(it.message)
             })
     }
@@ -517,6 +536,10 @@ class AddEditPresenter @Inject constructor(
     }
 
     private fun updateFieldsExternalId(id: Long) {
+        customFieldsValues = customFieldsValues.filter {
+            val value = it.value.toString()
+            value != "null" && value.isNotBlank()
+        }.toMutableList()
         customFieldsValues.forEach { it.externalId = id }
     }
 
@@ -537,7 +560,6 @@ class AddEditPresenter @Inject constructor(
                     viewState.toastError(getString(R.string.flight_not_save))
                 }
             }, {
-                it.printStackTrace()
                 viewState.toastError("${getString(R.string.flight_save_error)}:${it.message}")
             })
     }
@@ -603,7 +625,8 @@ class AddEditPresenter @Inject constructor(
 
     fun onCustomFieldValueChange(
         item: CustomFieldValue,
-        value: String
+        value: String,
+        position: Int
     ) {
         if (item.type is CustomFieldType.Time) {
             var timeValue = value
@@ -616,7 +639,10 @@ class AddEditPresenter @Inject constructor(
                     customFieldsValues.find { it.fieldId == item.fieldId }?.let {
                         it.value = item.value
                     }
+                    viewState.setFieldsList(customFieldsValues)
+                    viewState.notifyItemChanged(position)
                     updateTimes()
+                    onCustomFieldTimeInChanges(false)
                 })
         } else {
             item.value = value
@@ -630,10 +656,12 @@ class AddEditPresenter @Inject constructor(
         if (customFieldsValues.find { it.fieldId == customFieldId } == null) {
             customFieldId?.let { id ->
                 fromSingle { customFieldInteractor.getCustomField(id) }
-                    .subscribeFromPresenter({
-                        val field = it.value
+                    .map { optionalNull ->
+                        val field = optionalNull.value
+                        var added = false
+                        var fields = customFieldsValues
                         if (field != null) {
-                            customFieldsValues.add(
+                            added = fields.add(
                                 CustomFieldValue(
                                     field = field,
                                     externalId = this.flightId,
@@ -641,7 +669,15 @@ class AddEditPresenter @Inject constructor(
                                     fieldId = id
                                 )
                             )
+                            fields = sortedByDefault(fields)
+                        }
+                        fields to added
+                    }
+                    .subscribeFromPresenter({ (values, added) ->
+                        if (added) {
+                            customFieldsValues = values
                             viewState.setFieldsList(customFieldsValues)
+                            updateTimes()
                         }
                     }, {
                         viewState.toastError(it.message)
@@ -660,16 +696,31 @@ class AddEditPresenter @Inject constructor(
         viewState.setArrival(arrival)
     }
 
-    fun onCustomFieldValueDelete(item: CustomFieldValue) {
-        customFieldsValues.find { it.fieldId == item.fieldId }?.let {
-            if(customFieldsValues.remove(it)){
-                viewState.setFieldsList(customFieldsValues)
-                updateTimes()
+    fun onCustomFieldValueDelete(item: CustomFieldValue, position: Int) {
+        fromNullable { customFieldsValues.find { it.fieldId == item.fieldId } }
+            .map { fieldNullable ->
+                val fields = customFieldsValues
+                val fieldValue = fieldNullable.value
+                val removed: Boolean = fieldValue != null && fields.remove(fieldValue)
+                sortedByDefault(fields) to removed
             }
-        }
+            .subscribeFromPresenter({ (values, removed) ->
+                if (removed) {
+                    customFieldsValues = values
+                    viewState.setFieldsList(customFieldsValues)
+                    viewState.notifyItemRemoved(position)
+                    updateTimes()
+                }
+            }, {
+                viewState.toastError(it.message)
+            })
     }
 
     fun revokeSafeFile() {
         prefsInteractor.setAutoExportXLS(false)
+    }
+
+    fun onCustomFieldTimeInChanges(hasFocus: Boolean) {
+        this.customFieldTimeHasFocus = hasFocus
     }
 }

@@ -15,12 +15,13 @@ class CustomFieldInteractor @Inject constructor(
     override fun getCustomFieldValues(externalId: Long): List<CustomFieldValue> =
         repository.getCustomFieldValues(externalId)
 
-    override fun addCustomField(name: String, type: CustomFieldType): Boolean = repository.addCustomField(
-        CustomField(
-            name = name,
-            type = type
+    override fun addCustomField(name: String, type: CustomFieldType): Boolean =
+        repository.addCustomField(
+            CustomField(
+                name = name,
+                type = type
+            )
         )
-    )
 
     override fun removeField(id: Long): Boolean = repository.removeCustomField(id)
 
@@ -32,22 +33,24 @@ class CustomFieldInteractor @Inject constructor(
         name: String,
         type: CustomFieldType,
         showByDefault: Boolean,
-        addTime: Boolean
-    ): Boolean = if (id != null) {
-        repository.updateCustomField(CustomField(id, name, type, showByDefault, addTime))
-    } else {
-        repository.addCustomField(CustomField(id, name, type, showByDefault, addTime))
+        addTimeChecked: Boolean
+    ): Boolean {
+        val additionalTime = addTimeChecked && type is CustomFieldType.Time
+        return if (id != null) {
+            repository.updateCustomField(CustomField(id, name, type, showByDefault, additionalTime))
+        } else {
+            repository.addCustomField(CustomField(id, name, type, showByDefault, additionalTime))
+        }
     }
 
     override fun getCustomFieldsWithValues(externalId: Long?): List<CustomFieldValue> =
         repository.getCustomFieldWithValues(externalId)
 
     override fun saveValues(values: List<CustomFieldValue>, flightId: Long?): Boolean {
-        val list = flightId?.let { repository.getCustomFieldValues(flightId) }
-            ?: emptyList()
+        val list = flightId?.let { repository.getCustomFieldValues(flightId) }.orEmpty()
         val idsToRemove = getIdsToRemove(list, values)
         if (idsToRemove.isNotEmpty()) {
-            repository.removeCustomFields(idsToRemove.mapNotNull { it.id })
+            repository.removeCustomFieldValues(idsToRemove.mapNotNull { it.id })
         }
         return repository.saveCustomFieldValues(values.filter { it.value != null })
             .all { it != 0L }

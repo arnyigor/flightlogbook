@@ -6,5 +6,4 @@ data class CustomField(
         val type: CustomFieldType,
         val showByDefault: Boolean = false,
         val addTime: Boolean = false,
-        var values: List<CustomFieldValue>? = null
 )
