@@ -1,5 +1,6 @@
 package com.arny.flightlogbook.presentation.flights.addedit.view
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.arny.flightlogbook.customfields.models.CustomFieldValue
 import com.arny.flightlogbook.domain.models.Airport
@@ -42,4 +43,7 @@ interface AddEditView : MvpView {
     fun setArrival(arrival: Airport?)
     fun setEdtDepUtcTime(depTime: Int)
     fun setEdtArrUtcTime(arrTime: Int)
+    fun setIvLockFlightTimeIcon(@DrawableRes icon: Int)
+    fun setIvLockDepartureTimeIcon(@DrawableRes icon: Int)
+    fun setIvLockArrivalTimeIcon(@DrawableRes icon: Int)
 }

@@ -13,6 +13,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.TimePicker
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.DrawableRes
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.core.widget.NestedScrollView
@@ -560,6 +561,18 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
 
     override fun setEdtArrUtcTime(arrTime: Int) {
         binding.edtArrivalTime.setTime(arrTime)
+    }
+
+    override fun setIvLockFlightTimeIcon(@DrawableRes icon: Int) {
+        binding.ivLockedFlightTime.setImageDrawable(requireContext().getDrawableCompat(icon))
+    }
+
+    override fun setIvLockDepartureTimeIcon(@DrawableRes icon: Int) {
+        binding.ivLockedDepartureTime.setImageDrawable(requireContext().getDrawableCompat(icon))
+    }
+
+    override fun setIvLockArrivalTimeIcon(@DrawableRes icon: Int) {
+        binding.ivLockedArrivalTime.setImageDrawable(requireContext().getDrawableCompat(icon))
     }
 
     private companion object {

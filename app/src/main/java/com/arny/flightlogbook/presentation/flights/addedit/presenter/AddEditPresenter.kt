@@ -1,5 +1,6 @@
 package com.arny.flightlogbook.presentation.flights.addedit.presenter
 
+import androidx.annotation.DrawableRes
 import com.arny.core.CONSTS
 import com.arny.core.CONSTS.STRINGS.PARAM_COLOR
 import com.arny.core.utils.*
@@ -77,6 +78,22 @@ class AddEditPresenter @Inject constructor(
             saveFlight(description)
         }
     }
+    private var lockDepartureTime by Delegates.observable(false) { _, old, lock ->
+        if (old != lock) {
+            viewState.setIvLockDepartureTimeIcon(getLockIcon(lock))
+        }
+    }
+    private var lockArrivalTime by Delegates.observable(false) { _, old, lock ->
+        if (old != lock) {
+            viewState.setIvLockArrivalTimeIcon(getLockIcon(lock))
+        }
+    }
+    private var lockFlightTime by Delegates.observable(false) { _, old, lock ->
+        if (old != lock) {
+            viewState.setIvLockFlightTimeIcon(getLockIcon(lock))
+        }
+    }
+
     private val customFieldEnabled = CONSTS.COMMON.ENABLE_CUSTOM_FIELDS
 
     private data class TimesResult(
@@ -722,5 +739,35 @@ class AddEditPresenter @Inject constructor(
 
     fun onCustomFieldTimeInChanges(hasFocus: Boolean) {
         this.customFieldTimeHasFocus = hasFocus
+    }
+
+    fun onToggleLockDepartureTime() {
+        // TODO добавить функционал
+        // lockDepartureTime = !lockDepartureTime
+        // updateTimeLocks()
+    }
+
+    // TODO добавить функционал
+    fun onToggleLockArrivalTime() {
+        // TODO добавить функционал
+        // lockArrivalTime = !lockArrivalTime
+        // updateTimeLocks()
+    }
+
+    fun onToggleLockFlightTime() {
+        // TODO добавить функционал
+        // lockFlightTime = !lockFlightTime
+        // updateTimeLocks()
+    }
+
+    private fun updateTimeLocks(){
+        // TODO добавить функционал
+    }
+
+    @DrawableRes
+    private fun getLockIcon(lock: Boolean) = if (lock) {
+        R.drawable.ic_lock
+    } else {
+        R.drawable.ic_lock_open
     }
 }

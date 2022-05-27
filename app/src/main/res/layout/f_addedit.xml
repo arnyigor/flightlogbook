@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -15,7 +14,9 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="8dp">
+            android:paddingHorizontal="8dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="16dp">
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilDescription"
@@ -41,6 +42,7 @@
                 android:id="@+id/ivDate"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
+                android:contentDescription="@null"
                 app:layout_constraintBottom_toBottomOf="@+id/tilDate"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/tilDate"
@@ -102,10 +104,23 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/edtDepartureTime" />
 
+            <ImageView
+                android:id="@+id/ivLockedDepartureTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:visibility="gone"
+                android:contentDescription="@null"
+                app:layout_constraintBottom_toBottomOf="@+id/edtDepartureTime"
+                app:layout_constraintEnd_toStartOf="@+id/edtDepartureTime"
+                app:layout_constraintTop_toTopOf="@+id/edtDepartureTime"
+                app:layout_constraintVertical_bias="0.7"
+                app:srcCompat="@drawable/ic_lock_open" />
+
             <com.arny.flightlogbook.presentation.uicomponents.InputTimeComponent
                 android:id="@+id/edtDepartureTime"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/guideline_times"
@@ -124,6 +139,19 @@
                 app:layout_constraintEnd_toStartOf="@+id/guideline_times"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/edtDepartureTime" />
+
+            <ImageView
+                android:id="@+id/ivLockedArrivalTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:visibility="gone"
+                android:contentDescription="@null"
+                app:layout_constraintBottom_toBottomOf="@+id/edtArrivalTime"
+                app:layout_constraintEnd_toStartOf="@+id/edtArrivalTime"
+                app:layout_constraintTop_toTopOf="@+id/edtArrivalTime"
+                app:layout_constraintVertical_bias="0.7"
+                app:srcCompat="@drawable/ic_lock_open" />
 
             <com.arny.flightlogbook.presentation.uicomponents.InputTimeComponent
                 android:id="@+id/edtArrivalTime"
@@ -152,6 +180,18 @@
                 android:orientation="vertical"
                 app:layout_constraintGuide_percent="0.5" />
 
+            <ImageView
+                android:id="@+id/ivLockedFlightTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:visibility="gone"
+                android:contentDescription="@null"
+                app:layout_constraintBottom_toBottomOf="@+id/edtFlightTime"
+                app:layout_constraintEnd_toStartOf="@+id/edtFlightTime"
+                app:layout_constraintTop_toTopOf="@+id/edtFlightTime"
+                app:srcCompat="@drawable/ic_lock_open" />
+
             <com.arny.flightlogbook.presentation.uicomponents.InputTimeComponent
                 android:id="@+id/edtFlightTime"
                 android:layout_width="wrap_content"
@@ -159,7 +199,7 @@
                 android:layout_marginTop="8dp"
                 app:captionVisible="false"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/tvFlightTimeLabel"
+                app:layout_constraintStart_toStartOf="@+id/guideline_times"
                 app:layout_constraintTop_toBottomOf="@+id/edtArrivalTime"
                 tools:text="00:00" />
 
@@ -250,8 +290,8 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvCustomFields"
                 android:layout_width="match_parent"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 android:layout_height="wrap_content"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/btnAddField"
@@ -343,6 +383,7 @@
                 android:id="@+id/tvColor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:padding="4dp"
                 android:text="@string/color"
                 android:textSize="@dimen/font_size_default"
                 app:layout_constraintBottom_toBottomOf="@+id/vColor"
@@ -364,12 +405,12 @@
                 android:layout_width="22dp"
                 android:layout_height="22dp"
                 android:layout_marginStart="8dp"
+                android:contentDescription="@null"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="@+id/vColor"
                 app:layout_constraintStart_toEndOf="@+id/vColor"
                 app:layout_constraintTop_toTopOf="@+id/vColor"
-                app:srcCompat="@android:drawable/ic_delete"
-                android:contentDescription="@null" />
+                app:srcCompat="@android:drawable/ic_delete" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
@@ -381,8 +422,8 @@
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="@dimen/fab_margin"
         android:layout_marginBottom="16dp"
+        android:contentDescription="@null"
         app:backgroundTint="@color/colorAccent"
-        app:srcCompat="@android:drawable/ic_menu_save"
-        android:contentDescription="@null" />
+        app:srcCompat="@android:drawable/ic_menu_save" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
