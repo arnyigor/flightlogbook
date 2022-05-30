@@ -115,7 +115,7 @@ class FlightsInteractor @Inject constructor(
     private fun getDbFlightsObs(checkAutoExport: Boolean = false): Observable<Result<List<Flight>>> {
         return flightsRepository.getDbFlightsOrdered()
             .doOnNext {
-                if (checkAutoExport && prefsInteractor.isAutoImportEnabled()) {
+                if (checkAutoExport) {
                     if (it is Result.Success) {
                         filesRepository.saveDataToFile(it.data)
                     }

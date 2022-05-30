@@ -7,7 +7,7 @@ import moxy.viewstate.strategy.alias.AddToEndSingle
 import moxy.viewstate.strategy.alias.OneExecution
 
 @AddToEndSingle
-interface SettingsView : MvpView {
+interface BackupsView : MvpView {
     fun showProgress(msg: Int)
     fun hideProgress()
 
@@ -19,12 +19,10 @@ interface SettingsView : MvpView {
     fun showResults(intRes: Int, path: String)
     fun showResults(results: String)
     fun hideResults()
-    fun setAutoExportChecked(checked: Boolean)
     fun setShareFileVisible(visible: Boolean)
 
     @OneExecution
     fun shareFile(uri: Uri, fileType: String)
-    fun setSaveLastFlightData(checked: Boolean)
 
     @OneExecution
     fun openWith(pair: Pair<Uri, String?>)

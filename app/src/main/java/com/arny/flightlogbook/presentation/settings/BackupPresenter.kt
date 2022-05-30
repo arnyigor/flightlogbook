@@ -15,18 +15,16 @@ import java.io.File
 import javax.inject.Inject
 
 @InjectViewState
-class SettingsPresenter @Inject constructor(
+class BackupPresenter @Inject constructor(
     private val filesInteractor: FilesInteractor,
     private val prefsInteractor: IPreferencesInteractor,
-) : BaseMvpPresenter<SettingsView>() {
+) : BaseMvpPresenter<BackupsView>() {
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
         initState()
     }
 
     private fun initState() {
-        viewState.setAutoExportChecked(prefsInteractor.isAutoExportXLS())
-        viewState.setSaveLastFlightData(prefsInteractor.isSaveLastData())
         showFileData()
     }
 
@@ -97,10 +95,6 @@ class SettingsPresenter @Inject constructor(
             })
     }
 
-    fun onAutoExportChanged(checked: Boolean) {
-        prefsInteractor.setAutoExportXLS(checked)
-    }
-
     fun loadDefaultFile() {
         viewState.hideResults()
         viewState.showProgress(R.string.import_data)
@@ -152,9 +146,5 @@ class SettingsPresenter @Inject constructor(
         val extension = MimeTypeMap.getFileExtensionFromUrl(fromFile.toString())
         val mimetype = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
         println(mimetype)
-    }
-
-    fun onSaveLastDataChanged(checked: Boolean) {
-        prefsInteractor.setSaveLastData(checked)
     }
 }

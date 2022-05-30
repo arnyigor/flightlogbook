@@ -9,7 +9,7 @@ import com.arny.flightlogbook.presentation.flights.viewflights.view.FlightListFr
 import com.arny.flightlogbook.presentation.flighttypes.list.FlightTypesFragment
 import com.arny.flightlogbook.presentation.planetypes.edit.PlaneTypeEditFragment
 import com.arny.flightlogbook.presentation.planetypes.list.PlaneTypesFragment
-import com.arny.flightlogbook.presentation.settings.SettingsFragment
+import com.arny.flightlogbook.presentation.settings.BackupsFragment
 import com.arny.flightlogbook.presentation.statistic.view.StatisticFragment
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
@@ -26,7 +26,7 @@ abstract class FragmentsModule {
 
     @FragmentScope
     @ContributesAndroidInjector
-    abstract fun contributeSettingsFragmentInjector(): SettingsFragment
+    abstract fun contributeSettingsFragmentInjector(): BackupsFragment
 
     @FragmentScope
     @ContributesAndroidInjector

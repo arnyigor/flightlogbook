@@ -1,30 +1,39 @@
 package com.arny.flightlogbook.domain.common
 
 import com.arny.core.CONSTS
+import com.arny.flightlogbook.domain.R
 import javax.inject.Inject
 
-class PreferencesInteractor @Inject constructor(private val provider: PreferencesProvider) :
-    IPreferencesInteractor {
-    override fun isAutoImportEnabled(): Boolean =
-        provider.getPrefBoolean(CONSTS.PREFS.PREF_DROPBOX_AUTOIMPORT_TO_DB, false)
+class PreferencesInteractor @Inject constructor(
+    private val provider: PreferencesProvider,
+    private val resourcesInteractor: ResourcesInteractor
+) : IPreferencesInteractor {
 
-    override fun getFlightsOrderType(): Int = provider.getPrefInt(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS)
+    override fun getFlightsOrderType(): Int =
+        provider.getPrefInt(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS)
 
     override fun setOrderType(orderType: Int) {
         provider.setPrefInt(CONSTS.PREFS.PREF_USER_FILTER_FLIGHTS, orderType)
     }
 
-    override fun isAutoExportXLS(): Boolean = provider.getPrefBoolean(CONSTS.PREFS.AUTO_EXPORT_XLS, false)
+    override fun isAutoExportXLS(): Boolean =
+        provider.getPrefBoolean(
+            key = resourcesInteractor.getString(R.string.pref_auto_export_xls_key),
+            default = false
+        )
 
     override fun setAutoExportXLS(checked: Boolean) {
-        provider.setPref(CONSTS.PREFS.AUTO_EXPORT_XLS, checked)
+        provider.setPref(
+            key = resourcesInteractor.getString(R.string.pref_auto_export_xls_key),
+            value = checked
+        )
     }
 
-    override fun isSaveLastData(): Boolean = provider.getPrefBoolean(CONSTS.PREFS.PREF_SAVE_LAST_FLIGHT_DATA, false)
-
-    override fun setSaveLastData(checked: Boolean) {
-        provider.setPref(CONSTS.PREFS.PREF_SAVE_LAST_FLIGHT_DATA, checked)
-    }
+    override fun isSaveLastData(): Boolean =
+        provider.getPrefBoolean(
+            key = resourcesInteractor.getString(R.string.pref_save_last_flight_data_key),
+            default = false
+        )
 
     override fun setSavedFlightTypeId(flightTypeId: Long?) {
         if (isSaveLastData()) {

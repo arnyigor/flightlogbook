@@ -134,7 +134,15 @@
         android:name="com.arny.flightlogbook.presentation.statistic.view.StatisticFragment"
         tools:layout="@layout/statistic_fragment" />
     <fragment
+        android:id="@+id/nav_backups"
+        android:name="com.arny.flightlogbook.presentation.settings.BackupsFragment"
+        tools:layout="@layout/backups_fragment" />
+    <fragment
         android:id="@+id/nav_settings"
         android:name="com.arny.flightlogbook.presentation.settings.SettingsFragment"
-        tools:layout="@layout/settings_fragment" />
+        android:label="SettingsFragment" >
+        <action
+            android:id="@+id/action_settingsFragment_to_nav_backups"
+            app:destination="@id/nav_backups" />
+    </fragment>
 </navigation>

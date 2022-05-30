@@ -1,0 +1,23 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/common_settings">
+
+        <SwitchPreferenceCompat
+            app:key="@string/pref_auto_export_xls_key"
+            app:title="@string/auto_export_xls_on_list_changes" />
+
+        <SwitchPreferenceCompat
+            app:key="@string/pref_save_last_flight_data_key"
+            app:title="@string/save_last_flight_data" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/backups_settings">
+
+        <Preference
+            app:key="@string/backups_settings_open_key"
+            app:title="@string/backups_settings_open" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

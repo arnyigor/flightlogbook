@@ -31,10 +31,7 @@ object CONSTS {
     }
 
     object PREFS {
-        const val PREF_DROPBOX_AUTOIMPORT_TO_DB = "dropbox_autoimport_to_db"
         const val PREF_USER_FILTER_FLIGHTS = "config_user_filter_flights"
-        const val AUTO_EXPORT_XLS = "autoExportXLSPref"
-        const val PREF_SAVE_LAST_FLIGHT_DATA = "PREF_SAVE_LAST_FLIGHT_DATA"
         const val PREF_LAST_FLIGHT_DATA_AIRPLANE_ID = "PREF_LAST_FLIGHT_DATA_AIRPLANE_ID"
         const val PREF_LAST_FLIGHT_DATA_FLIGHT_TYPE_ID = "PREF_LAST_FLIGHT_DATA_FLIGHT_TYPE_ID"
     }
@@ -43,7 +40,6 @@ object CONSTS {
         const val REQUEST_PLANE_TYPE = "request_plane_type"
         const val REQUEST_PLANE_TYPE_EDIT = "request_plane_type_edit"
         const val REQUEST_FLIGHT_TYPE = "request_flight_type"
-        const val REQUEST_FLIGHT_EDIT = "request_flight_edit"
         const val REQUEST_CUSTOM_FIELD_EDIT = "request_custom_field_edit"
         const val REQUEST_CUSTOM_FIELD = "request_custom_field"
         const val REQUEST_AIRPORT_EDIT = "request_airport_edit"

@@ -226,5 +226,9 @@
     <string name="file_name">Файл: </string>
     <string name="file_last_modify">Последние изменения: </string>
     <string name="stat_color">Цвету</string>
+    <!-- Preferences -->
+    <string name="pref_auto_export_xls_key" translatable="false">autoExportXLSPref</string>
+    <string name="pref_save_last_flight_data_key" translatable="false">PREF_SAVE_LAST_FLIGHT_DATA</string>
+    <string name="backups_settings_open_key" translatable="false">openBackupSettings</string>
 
 </resources>
