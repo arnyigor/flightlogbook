@@ -90,7 +90,8 @@
     <string name="elevation">Высота</string>
     <string name="edit_airport">Редактирование аэродрома</string>
     <string name="save_error">Ошибка сохранения %s</string>
-    <string name="save_last_flight_data">Сохранять последние данные полета</string>
+    <string name="save_last_flight_data_title">Сохранять последние данные</string>
+    <string name="save_last_flight_data_description">При сохранении полёта будут сохранены тип полёта и ВС для следующей новой записи</string>
     <string name="local_time">Локальное</string>
     <string name="utc">UTC</string>
     <string name="path_prefill">Путь экспорта файла: %s</string>

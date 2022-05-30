@@ -77,5 +77,5 @@
     <string name="elevation">Elevation</string>
     <string name="edit_airport">Airport edit</string>
     <string name="save_error">Save error %s</string>
-    <string name="save_last_flight_data">Сохранять последние данные полета</string>
+    <string name="save_last_flight_data_description">Сохранять последние данные полета</string>
 </resources>

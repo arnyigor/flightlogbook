@@ -177,7 +177,8 @@
     <string name="stat_error_end_less_start">Конечная дата меньше начальной</string>
 
     <string name="press_back_again_to_exit">Нажмите еще раз для выхода</string>
-    <string name="auto_export_xls_on_list_changes">Автоэкспорт XLS при изменении списка</string>
+    <string name="auto_export_xls_title">Автоэкспорт XLS</string>
+    <string name="auto_export_xls_description">При сохранении полета файл XLS будет сохранён автоматически</string>
     <string name="str_date_desc">Дата по убыванию</string>
     <string name="str_date_asc">Дата по возрастанию</string>
     <string name="str_logtime_desc">Налет по убыванию</string>

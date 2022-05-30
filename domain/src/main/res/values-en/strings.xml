@@ -110,7 +110,7 @@
     <string name="no_type">No aircraft type</string>
     <string name="fragment_plane_types">Aircraft types</string>
     <string name="press_back_again_to_exit">Click again to exit</string>
-    <string name="auto_export_xls_on_list_changes">Export XLS file on changes</string>
+    <string name="auto_export_xls_description">Export XLS file on changes</string>
     <string name="str_date_desc">Date descending</string>
     <string name="str_date_asc">Date Ascending</string>
     <string name="str_logtime_desc">Flight time descending</string>

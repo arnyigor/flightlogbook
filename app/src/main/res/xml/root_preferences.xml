@@ -1,20 +1,30 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    app:iconSpaceReserved="false">
 
     <PreferenceCategory app:title="@string/common_settings">
 
         <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
             app:key="@string/pref_auto_export_xls_key"
-            app:title="@string/auto_export_xls_on_list_changes" />
+            android:defaultValue="false"
+            app:summary="@string/auto_export_xls_description"
+            app:title="@string/auto_export_xls_title" />
 
         <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
+            android:defaultValue="false"
+            app:summary="@string/save_last_flight_data_description"
             app:key="@string/pref_save_last_flight_data_key"
-            app:title="@string/save_last_flight_data" />
+            app:title="@string/save_last_flight_data_title" />
 
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/backups_settings">
 
         <Preference
+            app:iconSpaceReserved="false"
             app:key="@string/backups_settings_open_key"
             app:title="@string/backups_settings_open" />
 
