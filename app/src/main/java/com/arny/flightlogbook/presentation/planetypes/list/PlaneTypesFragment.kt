@@ -19,6 +19,7 @@ import com.arny.flightlogbook.R
 import com.arny.flightlogbook.databinding.PlaneTypesLayoutBinding
 import com.arny.flightlogbook.domain.models.PlaneType
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
+import com.arny.flightlogbook.presentation.common.getName
 import com.arny.flightlogbook.presentation.navigation.OpenDrawerListener
 import dagger.android.support.AndroidSupportInjection
 import moxy.ktx.moxyPresenter
@@ -129,7 +130,7 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView {
     private fun showRemoveDialog(item: PlaneType) {
         alertDialog(
             context = requireActivity(),
-            title = "${getString(R.string.str_delete)}${getPlaneName(item)}?",
+            title = "${getString(R.string.str_delete)} ${item.getName(requireContext(), "")}?",
             content = null,
             btnOkText = getString(R.string.str_ok),
             btnCancelText = getString(R.string.str_cancel),
@@ -138,33 +139,6 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView {
                 presenter.removeType(item)
             }
         )
-    }
-
-    private fun getPlaneName(item: PlaneType): String {
-        val hasName = !item.typeName.isNullOrBlank()
-        val hasRegNo = !item.regNo.isNullOrBlank()
-        val mainType = item.mainType?.nameRes?.let { "${getString(it)}\u00A0" }.orEmpty()
-        val regNo = getString(R.string.str_regnum_formatted, item.regNo)
-        return when {
-            hasName && hasRegNo -> {
-                String.format(
-                    Locale.getDefault(),
-                    " %s%s\u00A0%s",
-                    mainType,
-                    item.typeName,
-                    regNo,
-                )
-            }
-            !hasName && hasRegNo -> {
-                String.format(
-                    Locale.getDefault(),
-                    " %s%s",
-                    mainType,
-                    regNo,
-                )
-            }
-            else -> mainType
-        }
     }
 
     override fun notifyItemChanged(position: Int) {

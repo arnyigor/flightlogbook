@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.arny.flightlogbook.customfields.models.CustomFieldValue
 import com.arny.flightlogbook.domain.models.Airport
+import com.arny.flightlogbook.domain.models.PlaneType
 import moxy.MvpView
 import moxy.viewstate.strategy.alias.AddToEndSingle
 import moxy.viewstate.strategy.alias.OneExecution
@@ -18,7 +19,7 @@ interface AddEditView : MvpView {
 
     @OneExecution
     fun toastError(msg: String?)
-    fun setPlaneTypeTitle(title: String?)
+    fun setPlaneTypeTitle(planeType: PlaneType? = null)
     fun setTotalTime(total: String)
     fun setFligtTypeTitle(title: String)
     fun toastSuccess(msg: String?)

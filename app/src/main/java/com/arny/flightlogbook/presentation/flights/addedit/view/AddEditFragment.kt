@@ -33,15 +33,19 @@ import com.arny.flightlogbook.R
 import com.arny.flightlogbook.customfields.models.CustomFieldValue
 import com.arny.flightlogbook.databinding.FAddeditBinding
 import com.arny.flightlogbook.domain.models.Airport
+import com.arny.flightlogbook.domain.models.PlaneType
 import com.arny.flightlogbook.presentation.common.BaseMvpFragment
+import com.arny.flightlogbook.presentation.common.getName
 import com.arny.flightlogbook.presentation.flights.addedit.presenter.AddEditPresenter
 import com.arny.flightlogbook.presentation.uicomponents.InputTimeComponent
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment
 import com.redmadrobot.inputmask.MaskedTextChangedListener
 import dagger.android.support.AndroidSupportInjection
 import moxy.ktx.moxyPresenter
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Provider
+import kotlin.collections.ArrayList
 
 class AddEditFragment : BaseMvpFragment(), AddEditView,
     CalendarDatePickerDialogFragment.OnDateSetListener,
@@ -409,8 +413,13 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         }
     }
 
-    override fun setPlaneTypeTitle(title: String?) {
-        binding.tvAirplaneType.text = title
+    override fun setPlaneTypeTitle(planeType: PlaneType?) {
+        binding.tvAirplaneType.text = String.format(
+            Locale.getDefault(),
+            "%s\n%s",
+            getString(R.string.str_type),
+            planeType?.getName(requireContext())
+        )
     }
 
     override fun setToolbarTitle(title: Int) {

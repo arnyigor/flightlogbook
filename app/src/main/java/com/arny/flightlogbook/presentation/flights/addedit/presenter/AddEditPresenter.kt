@@ -462,12 +462,9 @@ class AddEditPresenter @Inject constructor(
                 flight?.planeId = planeType.typeId
                 flight?.planeType = planeType
                 flight?.regNo = planeType.regNo
-                val title =
-                    "${getString(R.string.str_type)}\n${getString(planeType.mainType?.nameRes)} " +
-                            "${planeType.typeName} ${getString(R.string.str_regnum)}:${planeType.regNo}"
-                viewState.setPlaneTypeTitle(title)
+                viewState.setPlaneTypeTitle(planeType)
             } ?: run {
-                viewState.setPlaneTypeTitle("${getString(R.string.str_type)}:${getString(R.string.no_type)}")
+                viewState.setPlaneTypeTitle()
             }
         }, {
             viewState.toastError(getString(R.string.err_plane_type_not_found))
