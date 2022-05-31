@@ -133,10 +133,10 @@ class FlightsInteractor @Inject constructor(
                     val allAdditionalTime = customFieldsRepository.getAllAdditionalTime()
                     when (flightsResult) {
                         is Result.Success -> getFlight(
-                            flightsResult.data,
-                            planeTypes,
-                            flightTypes,
-                            allAdditionalTime
+                            list = flightsResult.data,
+                            planeTypes = planeTypes,
+                            flightTypes = flightTypes,
+                            allAdditionalTime = allAdditionalTime
                         )
                         is Result.Error -> throw BusinessException(flightsResult.exception)
                     }
@@ -168,7 +168,8 @@ class FlightsInteractor @Inject constructor(
                     planeTypes.find { it.regNo?.trimIndent() == regNo.trimIndent() }
                 }
         }
-        flight.flightType = flightTypes.find { it.id == flight.flightTypeId?.toLong() }
+        flight.regNo = flight.planeType?.regNo
+        flight.flightType = flightTypes.find { it.id == flight.flightTypeId }
         val flightAddTime = allAdditionalTime.firstOrNull { it.externalId == flight.id }
             ?.value?.toString()
             ?.toInt() ?: 0

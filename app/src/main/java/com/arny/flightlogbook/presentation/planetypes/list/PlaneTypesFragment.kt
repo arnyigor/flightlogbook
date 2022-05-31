@@ -3,7 +3,6 @@ package com.arny.flightlogbook.presentation.planetypes.list
 import android.content.Context
 import android.os.Bundle
 import android.view.*
-import androidx.annotation.StringRes
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.setFragmentResult
@@ -23,6 +22,7 @@ import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.navigation.OpenDrawerListener
 import dagger.android.support.AndroidSupportInjection
 import moxy.ktx.moxyPresenter
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -129,7 +129,7 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView {
     private fun showRemoveDialog(item: PlaneType) {
         alertDialog(
             context = requireActivity(),
-            title = "${getString(R.string.str_delete)} ${item.typeName}?",
+            title = "${getString(R.string.str_delete)}${getPlaneName(item)}?",
             content = null,
             btnOkText = getString(R.string.str_ok),
             btnCancelText = getString(R.string.str_cancel),
@@ -138,6 +138,33 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView {
                 presenter.removeType(item)
             }
         )
+    }
+
+    private fun getPlaneName(item: PlaneType): String {
+        val hasName = !item.typeName.isNullOrBlank()
+        val hasRegNo = !item.regNo.isNullOrBlank()
+        val mainType = item.mainType?.nameRes?.let { "${getString(it)}\u00A0" }.orEmpty()
+        val regNo = getString(R.string.str_regnum_formatted, item.regNo)
+        return when {
+            hasName && hasRegNo -> {
+                String.format(
+                    Locale.getDefault(),
+                    " %s%s\u00A0%s",
+                    mainType,
+                    item.typeName,
+                    regNo,
+                )
+            }
+            !hasName && hasRegNo -> {
+                String.format(
+                    Locale.getDefault(),
+                    " %s%s",
+                    mainType,
+                    regNo,
+                )
+            }
+            else -> mainType
+        }
     }
 
     override fun notifyItemChanged(position: Int) {

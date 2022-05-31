@@ -461,6 +461,7 @@ class AddEditPresenter @Inject constructor(
             it.value?.let { planeType ->
                 flight?.planeId = planeType.typeId
                 flight?.planeType = planeType
+                flight?.regNo = planeType.regNo
                 val title =
                     "${getString(R.string.str_type)}\n${getString(planeType.mainType?.nameRes)} " +
                             "${planeType.typeName} ${getString(R.string.str_regnum)}:${planeType.regNo}"

@@ -5,7 +5,6 @@ import android.webkit.MimeTypeMap
 import com.arny.core.utils.fromNullable
 import com.arny.core.utils.fromSingle
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.domain.common.IPreferencesInteractor
 import com.arny.flightlogbook.domain.files.FilesInteractor
 import com.arny.flightlogbook.domain.models.ExportFileType
 import com.arny.flightlogbook.domain.models.Result
@@ -17,7 +16,6 @@ import javax.inject.Inject
 @InjectViewState
 class BackupPresenter @Inject constructor(
     private val filesInteractor: FilesInteractor,
-    private val prefsInteractor: IPreferencesInteractor,
 ) : BaseMvpPresenter<BackupsView>() {
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
