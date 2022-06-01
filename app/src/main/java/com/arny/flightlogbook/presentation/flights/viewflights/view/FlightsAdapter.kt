@@ -1,5 +1,6 @@
 package com.arny.flightlogbook.presentation.flights.viewflights.view
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
@@ -36,6 +37,7 @@ class FlightsAdapter(
         fun bind(item: Flight) {
             val view = binding.root
             val context = view.context
+            val planeType = item.planeType
             with(binding) {
                 val datetime = item.datetime ?: 0
                 if (datetime > 0) {
@@ -45,26 +47,19 @@ class FlightsAdapter(
                 tvLogTimeFlightTotal.text = DateTimeUtils.strLogTime(item.totalTime)
                 tvFlightType.text = item.flightType?.typeTitle
                 tvPlaneRegNo.text = item.regNo
-                tvPlaneType.text = item.planeType?.typeName
+                with(tvPlaneType) {
+                    planeType?.let {
+                        text = planeType.typeName
+                    }
+                    isVisible = planeType != null
+                }
                 tvDescr.isVisible = !item.description.isNullOrBlank()
                 tvDescr.text = item.description
                 var colorText = item.colorText ?: context.getIntColor(R.color.colorTextPrimary)
                 if (item.selected) {
                     colorText = ContextCompat.getColor(context, R.color.colorTextPrimary)
-                    clFlightsItemContainer.setBackgroundColor(context.getIntColor(R.color.colorTextGrayBg))
-                } else {
-                    val colorInt = item.colorInt
-                    if (colorInt == 0 || colorInt == -1 || colorInt == null) {
-                        clFlightsItemContainer.setBackgroundColor(
-                            ContextCompat.getColor(
-                                context,
-                                R.color.colorTransparent
-                            )
-                        )
-                    } else {
-                        clFlightsItemContainer.setBackgroundColor(colorInt)
-                    }
                 }
+                clFlightsItemContainer.setBackgroundColor(getBgColor(item, context))
                 colorText.let {
                     tvLogTimeFlightTotal.setTextColor(it)
                     tvLogTimeFlight.setTextColor(it)
@@ -85,6 +80,20 @@ class FlightsAdapter(
                     true
                 }
             }
+        }
+    }
+
+    private fun getBgColor(
+        item: Flight,
+        context: Context
+    ): Int = if (item.selected) {
+        context.getIntColor(R.color.colorTextGrayBg)
+    } else {
+        val colorInt = item.colorInt
+        if (colorInt == 0 || colorInt == -1 || colorInt == null) {
+            context.getIntColor(R.color.colorTransparent)
+        } else {
+            colorInt
         }
     }
 }
