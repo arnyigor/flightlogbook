@@ -294,7 +294,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
 
     private fun onDateTimeChanges() = with(binding) {
         tiedtDate.setOnFocusChangeListener { _, hasFocus ->
-            val empty = Utility.empty(tiedtDate.text.toString())
+            val empty = tiedtDate.text.toString().empty()
             if (empty) {
                 if (hasFocus) {
                     tilDate.hint = getString(R.string.str_date)
@@ -328,7 +328,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
                 tiedtDate,
                 object : _TextWatcher {
                     override fun afterTextChanged(s: Editable) {
-                        if (Utility.empty(tiedtDate.text.toString())) {
+                        if (tiedtDate.text.toString().empty()) {
                             tilDate.hint = getString(R.string.str_date)
                             tiedtDate.hint = null
                         }

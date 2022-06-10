@@ -50,7 +50,7 @@ class BackupPresenter @Inject constructor(
         viewState.hideResults()
         viewState.showProgress(R.string.import_data)
         fromNullable {
-            filesInteractor.readFile(uri, false)
+            filesInteractor.readFile(uri, false, null)
         }.subscribeFromPresenter({
             viewState.hideProgress()
             val path = it.value
@@ -58,11 +58,12 @@ class BackupPresenter @Inject constructor(
                 viewState.showSuccess(R.string.import_file_success, path)
                 viewState.showFileData()
             } else {
-                viewState.showError(R.string.error_import_file)
+                viewState.toastError(R.string.error_import_file)
             }
         }, {
+            it.printStackTrace()
             viewState.hideProgress()
-            viewState.showError(R.string.error_import_file, it.message)
+            viewState.toastError(R.string.error_import_file, it.message)
         })
     }
 
@@ -93,11 +94,11 @@ class BackupPresenter @Inject constructor(
             })
     }
 
-    fun loadDefaultFile() {
+    fun loadDefaultFile(fileName: String? = null) {
         viewState.hideResults()
         viewState.showProgress(R.string.import_data)
         fromNullable {
-            filesInteractor.readFile(null, true)
+            filesInteractor.readFile(null, true, fileName)
         }.subscribeFromPresenter({
             viewState.hideProgress()
             val path = it.value
@@ -111,6 +112,19 @@ class BackupPresenter @Inject constructor(
             viewState.showError(R.string.error_import_file, it.message)
             viewState.hideProgress()
         })
+    }
+
+    fun chooseDefaultFile() {
+        fromSingle { filesInteractor.getAllBackupFileNames() }
+            .subscribeFromPresenter({ filenames ->
+                if (filenames.isNotEmpty() && filenames.size > 1) {
+                    viewState.showAlertChooseDefault(filenames)
+                } else {
+                    loadDefaultFile()
+                }
+            }, {
+                loadDefaultFile()
+            })
     }
 
     fun onShareFileClick() {

@@ -1,5 +1,7 @@
 package com.arny.flightlogbook.domain.models
 
+import com.arny.flightlogbook.customfields.models.CustomFieldValue
+
 data class Flight(
     var id: Long? = null,
     var datetime: Long? = null,
@@ -28,4 +30,5 @@ data class Flight(
     var arrivalUtcTime: Int? = null,
     var departure: Airport? = null,
     var arrival: Airport? = null,
+    var customFieldsValues: List<CustomFieldValue>? = null,
 )

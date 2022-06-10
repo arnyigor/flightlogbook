@@ -37,6 +37,7 @@ class FlightsInteractor @Inject constructor(
 
     fun getFlight(id: Long?): Flight? = flightsRepository.getFlight(id)
         ?.apply {
+            this.customParams = customParams ?: hashMapOf()
             colorInt = customParams?.get(PARAM_COLOR)?.toString()?.toIntColor()
             planeType = aircraftTypesRepository.loadAircraftType(planeId)
             flightType = flightTypesRepository.loadDBFlightType(flightTypeId)

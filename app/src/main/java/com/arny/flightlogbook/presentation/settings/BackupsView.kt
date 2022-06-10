@@ -15,6 +15,9 @@ interface BackupsView : MvpView {
     fun showError(@StringRes msgRes: Int, error: String? = null)
 
     @OneExecution
+    fun toastError(@StringRes msgRes: Int, error: String? = null)
+
+    @OneExecution
     fun showSuccess(@StringRes msgRes: Int, msg: String? = null)
     fun showResults(intRes: Int, path: String)
     fun showResults(results: String)
@@ -28,4 +31,6 @@ interface BackupsView : MvpView {
     fun openWith(pair: Pair<Uri, String?>)
     fun showFileData()
     fun showFilesToShare(filenames: List<String>)
+    @OneExecution
+    fun showAlertChooseDefault(filenames: List<String>)
 }

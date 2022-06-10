@@ -1,8 +1,11 @@
 package com.arny.flightlogbook.data.filereaders
 
+import android.util.Log
 import com.arny.core.utils.DateTimeUtils
 import com.arny.core.utils.fromJson
 import com.arny.core.utils.toJson
+import com.arny.flightlogbook.customfields.models.CustomField
+import com.arny.flightlogbook.customfields.models.CustomFieldValue
 import com.arny.flightlogbook.data.repositories.CustomFieldsRepository
 import com.arny.flightlogbook.domain.files.FlightFileReadWriter
 import com.arny.flightlogbook.domain.flighttypes.FlightTypesRepository
@@ -21,17 +24,18 @@ class JsonReader @Inject constructor(
     private val aircraftTypesRepository: AircraftTypesRepository,
     private val customFieldsRepository: CustomFieldsRepository,
 ) : FlightFileReadWriter {
+    private var dbCustomFields: List<CustomField> = emptyList()
     private var dbFlightTypes: List<FlightType> = emptyList()
     private var dbPlaneTypes: List<PlaneType> = emptyList()
     private val gson: Gson = GsonBuilder().setLenient().create()
     override fun readFile(file: File): List<Flight> {
         updateDbFlights()
         updateDbPlanes()
+        updateCustomFielsValues()
         return arrayListOf<Flight>().apply {
             for (line in file.readLines()) {
                 if (line.isNotBlank()) {
                     val flightObject = JSONObject(line)
-                    println(flightObject)
                     val flight = Flight().apply {
                         arrivalUtcTime = flightObject.getValue("arrivalUtcTime")
                         datetime = flightObject.getValue("datetime")
@@ -47,93 +51,29 @@ class JsonReader @Inject constructor(
                         flightTimeFormatted = DateTimeUtils.strLogTime(flightTime)
                         colorInt = flightObject.getValue("colorInt") ?: 0
                         ifrvfr = flightObject.getValue("ifrvfr") ?: 0
-                        customParams = flightObject.getValue("params")
+                        customParams = flightObject.getValue("customParams")
                         setPlaneType(flightObject)
                         regNo = planeType?.regNo
                         selected = flightObject.getValue("selected") ?: false
-
                     }
                     add(flight)
-/*                    {
-                        "totalTime": 310,
-                        "id": 1,
-                        "colorText": -1,
-                        "flightTypeId": 1,
-                        "arrivalUtcTime": 225,
-                        "description": "",
-                        "datetimeFormatted": "18 \u043c\u0430\u044f 2022",
-                        "planeType": {
-                        "typeId": 2,
-                        "mainType": "AIRPLANE",
-                        "typeName": "\u0411737",
-                        "regNo": "gngfx357"
-                    },
-                        "colorInt": -16737281,
-                        "datetime": 1652852008667,
-                        "selected": false,
-                        "logtimeFormatted": "02:00",
-                        "ifrvfr": 0,
-                        "departureUtcTime": 105,
-                        "flightType": {
-                        "typeTitle": "\u0420\u0435\u0439\u0441",
-                        "id": 1
-                    },
-                        "flightTime": 145,
-                        "params": {
-                        "params": {
-                        "nameValuePairs": {
-                        "params": {
-                        "nameValuePairs": {
-                        "nameValuePairs": {
-                        "nameValuePairs": {
-                        "params": {
-                        "nameValuePairs": {
-                        "nameValuePairs": {
-                        "nameValuePairs": {
-                        "nameValuePairs": {
-                        "nameValuePairs": {
-                        "nameValuePairs": {
-                        "nameValuePairs": {}
-                    }
-                    }
-                    }
-                    }
-                    }
-                    }
-                    },
-                        "color": "#FFDB66"
-                    }
-                    }
-                    }
-                    },
-                        "nodeString": "#FFDB66",
-                        "color": "#009BFF"
-                    }
-                    },
-                        "nodeString": "#009BFF"
-                    },
-                        "groundTime": 165,
-                        "nightTime": 0,
-                        "planeId": 2,
-                        "ifrTime": 0
-                    }*/
                 }
             }
         }
     }
 
     private fun Flight.setPlaneType(flightObject: JSONObject) {
-        if(flightObject.has("planeType")){
-                val planeTypeTmp = (flightObject.getString("planeType"))
-                    .fromJson(gson, PlaneType::class.java)
-                dbPlaneTypes.find {
-                    it.typeName.equals(other = planeTypeTmp?.typeName, ignoreCase = true)
-                }?.let { type ->
-                    planeType = type
-                    planeId = type.typeId
-                } ?: kotlin.run {
-                    addPlaneTypeToDb(planeTypeTmp)
-                }
+        if (flightObject.has("planeType")) {
+            val planeTypeTmp = (flightObject.getString("planeType"))
+                .fromJson(gson, PlaneType::class.java)
+            dbPlaneTypes.find {
+                it.typeName.equals(other = planeTypeTmp?.typeName, ignoreCase = true)
+            }?.let { type ->
+                planeType = type
+                planeId = type.typeId
+            } ?: kotlin.run {
+                addPlaneTypeToDb(planeTypeTmp)
+            }
         }
     }
 
@@ -143,6 +83,10 @@ class JsonReader @Inject constructor(
 
     private fun updateDbPlanes() {
         dbPlaneTypes = aircraftTypesRepository.loadAircraftTypes()
+    }
+
+    private fun updateCustomFielsValues() {
+        dbCustomFields = customFieldsRepository.getAllCustomFields()
     }
 
     private fun Flight.setFlightType(flightObject: JSONObject) {
@@ -187,20 +131,32 @@ class JsonReader @Inject constructor(
     }
 
     override fun writeFile(flights: List<Flight>, file: File): Boolean {
+        val customFields by lazy { customFieldsRepository.getAllCustomFields() }
         val exportData = flights
             .map { flight ->
-                flight.planeType = aircraftTypesRepository.loadAircraftType(flight.planeId)
-                flight.flightType =
-                    flightTypesRepository.loadDBFlightType(flight.flightTypeId)
-                flight
+                flight.apply {
+                    planeType = aircraftTypesRepository.loadAircraftType(flight.planeId)
+                    flightType = flightTypesRepository.loadDBFlightType(flight.flightTypeId)
+                    customFieldsValues = flight.id?.let {
+                        customFieldsRepository.getCustomFieldValues(it)
+                    }
+                        .orEmpty()
+                        .map { fieldValue ->
+                            fieldValue.apply {
+                                field = customFields.find { customField ->
+                                    customField.id == fieldId
+                                }
+                            }
+                        }
+                }
             }
-
         return try {
             file.bufferedWriter().use { out ->
                 val lastIndex = exportData.lastIndex
                 for ((index, data) in exportData.withIndex()) {
+                    // TODO customfields to string fix
                     val jsonData = data.toJson()
-                    println(jsonData)
+                    Log.d(JsonReader::class.java.simpleName, "jsonData: $jsonData");
                     out.write(jsonData + (if (index != lastIndex) ",\n" else ""))
                 }
             }
@@ -210,7 +166,13 @@ class JsonReader @Inject constructor(
         }
     }
 
-    inline fun <reified T> JSONObject?.getValue(extraName: String): T? = this?.get(extraName) as? T
+    inline fun <reified T> JSONObject?.getValue(extraName: String): T? =
+        if (this?.has(extraName) == true) {
+            this.get(extraName) as? T
+        } else {
+            null
+        }
+
     private fun Long?.toFullDateFormat(): String? =
         this?.let { DateTimeUtils.getDateTime(it, "dd MMM yyyy") }
 

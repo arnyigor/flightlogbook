@@ -50,181 +50,13 @@ import java.lang.reflect.Type
 import java.util.*
 import kotlin.math.roundToInt
 
-fun AppCompatActivity.replaceFragment(
-    fragment: Fragment, @IdRes frameId: Int,
-    addToback: Boolean = false,
-    tag: String? = null,
-    onLoadFunc: () -> Unit? = {}
-) {
-    val tg = tag ?: fragment.javaClass.simpleName
-    supportFragmentManager.transact {
-        setCustomAnimations(
-            R.anim.anim_slide_in_left,
-            R.anim.anim_slide_out_left,
-            R.anim.anim_slide_in_right,
-            R.anim.anim_slide_out_right
-        )
-        replace(frameId, fragment, tg)
-        if (addToback) {
-            addToBackStack(tag)
-        }
-    }
-    onLoadFunc()
-}
-
 fun Context.getSystemLocale(): Locale? {
     val configuration = this.resources.configuration
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) configuration.locales.get(0) else configuration.locale
 }
 
-/**
- * Runs a FragmentTransaction, then calls commit().
- */
-inline fun FragmentManager.transact(action: FragmentTransaction.() -> Unit) {
-    beginTransaction().apply {
-        action()
-    }.commitAllowingStateLoss()
-}
-
-inline fun <reified T : Any> Activity.launchActivity(
-    requestCode: Int = -1,
-    options: Bundle? = null,
-    noinline init: Intent.() -> Unit = {}
-) {
-    val intent = newIntent<T>(this)
-    intent.init()
-    startActivityForResult(intent, requestCode, options)
-    overridePendingTransition(R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
-}
-
-fun Activity.launchIntent(
-    requestCode: Int = -1,
-    options: Bundle? = null,
-    init: Intent.() -> Unit = {}
-) {
-    val intent = newIntent()
-    intent.init()
-    startActivityForResult(intent, requestCode, options)
-}
-
-fun Activity.launchIntent(
-    options: Bundle? = null,
-    init: Intent.() -> Unit = {}
-) {
-    val intent = newIntent()
-    intent.init()
-    startActivity(intent, options)
-}
-
-inline fun <reified T : Any> Fragment.launchActivity(
-    requestCode: Int = -1,
-    options: Bundle? = null,
-    noinline init: Intent.() -> Unit = {}
-) {
-    val context = this.context
-    if (context != null) {
-        val intent = newIntent<T>(context)
-        intent.init()
-        startActivityForResult(intent, requestCode, options)
-        this.activity?.overridePendingTransition(
-            R.anim.anim_slide_in_left,
-            R.anim.anim_slide_out_left
-        )
-    }
-}
-
-inline fun <reified T : Any> Fragment.launchActivity(
-    options: Bundle? = null,
-    animResourses: Pair<Int, Int>? = null,
-    useStandartTransition: Boolean = true,
-    noinline init: Intent.() -> Unit = {}
-) {
-    val context = this.context
-    if (context != null) {
-        val intent = newIntent<T>(context)
-        intent.init()
-        startActivity(intent, options)
-        if (animResourses != null) {
-            this.activity?.overridePendingTransition(animResourses.first, animResourses.second)
-        } else if (useStandartTransition) {
-            this.activity?.overridePendingTransition(
-                R.anim.anim_slide_in_left,
-                R.anim.anim_slide_out_left
-            )
-        }
-    }
-}
-
-fun Fragment.launchIntent(
-    requestCode: Int = -1,
-    options: Bundle? = null,
-    init: Intent.() -> Unit = {}
-) {
-    val context = this.context
-    if (context != null) {
-        val intent = newIntent()
-        intent.init()
-        startActivityForResult(intent, requestCode, options)
-    }
-}
-
-fun Fragment.launchIntent(
-    options: Bundle? = null,
-    init: Intent.() -> Unit = {}
-) {
-    val context = this.context
-    if (context != null) {
-        val intent = newIntent()
-        intent.init()
-        startActivity(intent, options)
-    }
-}
-
-inline fun <reified T : Any> Context.launchActivity(
-    options: Bundle? = null,
-    noinline init: Intent.() -> Unit = {}
-) {
-    val intent = newIntent<T>(this)
-    intent.init()
-    startActivity(intent, options)
-}
-
-inline fun <reified T : Any> newIntent(context: Context): Intent = Intent(context, T::class.java)
-fun newIntent(): Intent = Intent()
-
-fun Fragment.putExtras(init: Bundle.() -> Unit = {}) {
-    val args = Bundle()
-    args.init()
-    this.arguments = args
-}
-
-fun Fragment.putExtras(args: Bundle?) {
-    this.arguments = args
-}
-
 fun Fragment.toastError(message: String?) {
     ToastMaker.toastError(this.requireContext(), message)
-}
-
-fun Activity.toastError(message: String?) {
-    ToastMaker.toastError(this, message)
-}
-
-fun Activity.putExtras(
-    resultCode: Int? = null,
-    clear: Boolean = true,
-    init: Intent.() -> Unit = {}
-) {
-    val i = if (clear) {
-        Intent()
-    } else {
-        this.intent ?: Intent()
-    }
-    i.init()
-    this.intent = i
-    if (resultCode != null) {
-        setResult(resultCode, this.intent)
-    }
 }
 
 fun Activity.shareText(text: String) {
@@ -242,33 +74,6 @@ fun Activity.sendEmail(email: String, subject: String, body: String, shareTitle:
     emailIntent.putExtra(Intent.EXTRA_TEXT, body)
 //emailIntent.putExtra(Intent.EXTRA_HTML_TEXT, body); //If you are using HTML in your body text
     startActivity(Intent.createChooser(emailIntent, shareTitle))
-}
-/*fun Activity.share(type: String, subject: String, body: String, shareTitle: String) {
-    ShareCompat.IntentBuilder.from(this)
-            .setType("message/rfc822")
-            .addEmailTo(getString(R.string.support_email))
-            .setSubject(getString(R.string.app_name))
-            .setText("")
-            .setChooserTitle(getString(R.string.send_email))
-            .startChooser()
-}*/
-
-fun Activity.shareLocation(lat: Double, long: Double, label: String) {
-    this.startActivity(
-        Intent(
-            Intent.ACTION_VIEW,
-            Uri.parse("geo:<$lat>,<$long>?q=<$lat>,<$long>($label)")
-        )
-    );
-}
-
-fun Activity.shareImage(uri: Uri) {
-    val shareIntent: Intent = Intent().apply {
-        action = Intent.ACTION_SEND
-        putExtra(Intent.EXTRA_STREAM, uri)
-        type = "image/jpeg"
-    }
-    this.startActivity(Intent.createChooser(shareIntent, "Share with"));
 }
 
 fun Activity.shareFileWithType(uri: Uri, fileType: String) {
@@ -393,16 +198,6 @@ fun animateVisible(v: View, visible: Boolean, duration: Int) {
 fun View.showSnackBar(message: String?, duration: Int = Snackbar.LENGTH_SHORT) {
     message?.let {
         Snackbar.make(this, message, duration).show()
-    }
-}
-
-fun Context?.showSoftKeyboard(textView: TextView, show: Boolean) {
-    (this?.getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager)?.let { im ->
-        if (show) {
-            im.showSoftInput(textView, SHOW_FORCED)
-        } else {
-            im.hideSoftInputFromWindow(textView.windowToken, 0)
-        }
     }
 }
 
@@ -596,31 +391,6 @@ fun createNotification(
     mNotificationManager?.notify(notifyId, notification)
 }
 
-@SuppressLint("RestrictedApi")
-fun BottomNavigationView?.disableShiftMode() {
-    val menuView = this?.getChildAt(0) as? BottomNavigationMenuView
-    if (menuView != null) {
-        try {
-            val fld = "isShifting"//"mShiftingMode"
-            val shiftingMode = menuView.javaClass.getDeclaredField(fld)
-            shiftingMode.isAccessible = true
-            shiftingMode.setBoolean(menuView, false)
-            shiftingMode.isAccessible = false
-            for (i in 0 until menuView.childCount) {
-                val item = menuView.getChildAt(i) as BottomNavigationItemView
-
-                item.setShifting(false)
-                // set once again checked value, so view will be updated
-                item.setChecked(item.itemData?.isChecked == true)
-            }
-        } catch (e: NoSuchFieldException) {
-            e.printStackTrace()
-        } catch (e: IllegalAccessException) {
-            e.printStackTrace()
-        }
-    }
-}
-
 fun getIconDrawable(
     context: Context,
     color: Int,
@@ -636,34 +406,15 @@ fun getTextDrawable(text: String, color: Int): TextDrawable =
     TextDrawable.builder().buildRound(text, color)
 
 /**
- * safety String? to Double
- */
-fun String?.setDouble(): Double {
-    val source = this ?: ""
-    if (source.isBlank() || source == ".") {
-        return 0.0
-    }
-    return source.toDouble()
-}
-
-/**
  * Extended function to check empty
  */
-fun Any?.empty(): Boolean {
-    return when {
-        this == null -> true
-        this is String && this == "null" -> true
-        this is String -> this.isBlank()
-        this is Iterable<*> -> this.asIterable().none()
-        this is Collection<*> -> this.isEmpty()
-        else -> false
-    }
-}
-
-fun <T> Collection<T>.copy(): ArrayList<T> {
-    val newList = ArrayList<T>()
-    newList.addAll(this)
-    return newList
+fun Any?.empty(): Boolean = when {
+    this == null -> true
+    this is String && this == "null" -> true
+    this is String -> this.isBlank()
+    this is Iterable<*> -> this.asIterable().none()
+    this is Collection<*> -> this.isEmpty()
+    else -> false
 }
 
 fun Any?.toJson(): String? = if (this != null) Gson().toJson(this) else null
@@ -691,58 +442,10 @@ fun <T> Any?.fromJson(type: Type?): T? {
     return Gson().fromJson(this.toString(), type)
 }
 
-fun String?.parseLong(): Long? {
-    return when {
-        this == null -> null
-        this.isBlank() -> null
-        else -> {
-            try {
-                this.toLong()
-            } catch (e: Exception) {
-                null
-            }
-        }
-    }
-}
+fun String?.parseLong(): Long? = this?.toLongOrNull()
 
-fun String?.parseDouble(): Double? {
-    return when {
-        this == null -> null
-        this.isBlank() -> null
-        else -> {
-            try {
-                this.toDouble()
-            } catch (e: Exception) {
-                null
-            }
-        }
-    }
-}
+fun String?.parseDouble(): Double? = this?.toDoubleOrNull()
 
-fun String?.parseInt(): Int? {
-    return when {
-        this == null -> null
-        this.isBlank() -> null
-        else -> {
-            try {
-                this.toInt()
-            } catch (e: Exception) {
-                null
-            }
-        }
-    }
-}
+fun String?.parseInt(): Int? = this?.toIntOrNull()
 
-fun String?.parseInt(default: Int = 0): Int {
-    return when {
-        this == null -> default
-        this.isBlank() -> default
-        else -> {
-            try {
-                this.toInt()
-            } catch (e: Exception) {
-                default
-            }
-        }
-    }
-}
+fun String?.parseInt(default: Int = 0): Int = this?.toIntOrNull() ?: default

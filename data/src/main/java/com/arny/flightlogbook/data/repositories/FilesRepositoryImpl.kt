@@ -20,7 +20,6 @@ class FilesRepositoryImpl @Inject constructor(
     @XlsRead private val xlsReader: FlightFileReadWriter,
     @JsonRead private val jsonReader: FlightFileReadWriter,
 ) : FilesRepository {
-
     override fun getBackupsPath(): String = FileUtils.getWorkDir(resourcesProvider.provideContext())
 
     override fun getDefaultFileName(fileName: String): String =
@@ -31,14 +30,20 @@ class FilesRepositoryImpl @Inject constructor(
         File(getDefaultFileName(fileName ?: CONSTS.FILES.FILE_NAME_XLS))
     )
 
-    override fun getFileName(fromSystem: Boolean, uri: Uri?): String =
+    override fun getFileName(fromSystem: Boolean, uri: Uri?, fileName: String?): String =
         if (fromSystem) {
-            var fileName = getDefaultFileName(CONSTS.FILES.FILE_NAME_XLS)
-            val file = File(fileName)
-            if (!file.isFile || !file.exists()) {
-                fileName = getDefaultFileName(CONSTS.FILES.FILE_NAME_JSON)
+            when (fileName) {
+                CONSTS.FILES.FILE_NAME_XLS -> getDefaultFileName(CONSTS.FILES.FILE_NAME_XLS)
+                CONSTS.FILES.FILE_NAME_JSON -> getDefaultFileName(CONSTS.FILES.FILE_NAME_JSON)
+                else -> {
+                    var filePath = getDefaultFileName(CONSTS.FILES.FILE_NAME_XLS)
+                    val file = File(filePath)
+                    if (!file.isFile || !file.exists()) {
+                        filePath = getDefaultFileName(CONSTS.FILES.FILE_NAME_JSON)
+                    }
+                    filePath
+                }
             }
-            fileName
         } else {
             FilePathUtils.getPath(uri, resourcesProvider.provideContext().applicationContext)
                 .toString()

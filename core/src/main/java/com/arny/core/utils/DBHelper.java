@@ -121,7 +121,7 @@ class DBHelper extends SQLiteOpenHelper {
                 if (cursor != null && cursor.getCount()>0){
                     cursor.moveToFirst();
                     String dbName = "";//DBProvider.getCursorString(cursor, "filename");
-                    if (!Utility.empty(dbName)){
+                    if (!UtilsKt.empty(dbName)){
                         toDel.add(dbName+".sql");
                     }
                 }
@@ -150,7 +150,7 @@ class DBHelper extends SQLiteOpenHelper {
         if (!filenames.isEmpty()){
             for (String fn:filenames) {
                 String sql = Utility.readAssetFile(context,"migrations",fn);
-                if (!Utility.empty(sql)) {
+                if (!UtilsKt.empty(sql)) {
                     db.beginTransaction();
                     try {
                         String[] splittedSqls = sql.split("\\;");

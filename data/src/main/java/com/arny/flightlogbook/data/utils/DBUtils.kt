@@ -22,7 +22,7 @@ class DBUtils {
             val list = ArrayList<String>()
             for (filename in filenames) {
                 val match = getRoomMigrationMatch(filename)
-                if (!Utility.empty(match)) {
+                if (!match.empty()) {
                     var start = 0
                     var end = 0
                     try {
@@ -44,7 +44,7 @@ class DBUtils {
                 try {
                     val match1 = getRoomMigrationMatch(o1)
                     val match2 = getRoomMigrationMatch(o2)
-                    if (!Utility.empty(match1) && !Utility.empty(match2)) {
+                    if (!match1.empty() && !match2.empty()) {
                         start1 = getRoomMigrationVersion(o1, 0)
                         end1 = getRoomMigrationVersion(o1, 1)
                         start2 = getRoomMigrationVersion(o2, 0)
@@ -140,7 +140,7 @@ class DBUtils {
                 database.beginTransaction()
                 try {
                     for (s in sqls) {
-                        if (!Utility.empty(s)) {
+                        if (!s.empty()) {
                             database.execSQL(s)
                         }
                     }

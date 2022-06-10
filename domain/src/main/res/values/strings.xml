@@ -79,6 +79,7 @@
     <string name="str_import_attention">Предупреждение!</string>
     <string name="str_import_massage">При импорте данных из файла база данных будет заменена.</string>
     <string name="str_import_local_file_or_disk">Хотите импортировать стандартный файл или выбрать другой?</string>
+    <string name="str_choose_default_file">Выберите какой файл хотите импортировать</string>
     <string name="str_import_local_file">Стандартный файл</string>
     <string name="str_import_file_from_disk">Выбрать</string>
     <string name="str_export_attention">Экспорт в файл?</string>

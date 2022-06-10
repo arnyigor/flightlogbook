@@ -139,28 +139,56 @@ class FilePathUtils {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 copyFileToInternalStorage(uri, "userfiles", context)
             } else {
-                getDataColumn(uri, context)
+//                getDataColumn(uri, context)
+                getFilePathFromUri(context,uri)
             }
         }
 
-        private fun handlePaths(uri: Uri, context: Context): String? {
-            return when {
-                // ExternalStorageProvider
-                isExternalStorageDocument(uri) -> handleExternalStorage(uri)
-                // DownloadsProvider
-                isDownloadsDocument(uri) -> handleDownloads(uri, context)
-                // MediaProvider
-                isMediaDocument(uri) -> handleMedia(uri, context) ?: handleDownloads(uri, context)
-                //GoogleDriveProvider
-                isGoogleDriveUri(uri) -> getDriveFilePath(uri, context)
-                //WhatsAppProvider
-                isWhatsAppFile(uri) -> getFilePathForWhatsApp(uri, context)
-                //ContentScheme
-                "content".equals(uri.scheme, ignoreCase = true) -> handleContentScheme(uri, context)
-                //FileScheme
-                "file".equals(uri.scheme, ignoreCase = true) -> uri.path
-                else -> null
+        private fun handlePaths(uri: Uri, context: Context): String? = when {
+            // ExternalStorageProvider
+            isExternalStorageDocument(uri) -> handleExternalStorage(uri)
+            // DownloadsProvider
+            isDownloadsDocument(uri) -> handleDownloads(uri, context)
+            // MediaProvider
+            isMediaDocument(uri) -> handleMedia(uri, context) ?: handleDownloads(uri, context)
+            //GoogleDriveProvider
+            isGoogleDriveUri(uri) -> getDriveFilePath(uri, context)
+            //WhatsAppProvider
+            isWhatsAppFile(uri) -> getFilePathForWhatsApp(uri, context)
+            //ContentScheme
+            "content".equals(uri.scheme, ignoreCase = true) -> handleContentScheme(uri, context)
+            //FileScheme
+            "file".equals(uri.scheme, ignoreCase = true) -> uri.path
+            else -> null
+        }
+
+        private fun getFilePathFromUri(context: Context, _uri: Uri?): String? {
+            var filePath: String? = ""
+            if (_uri != null && "content" == _uri.scheme) {
+                //Cursor cursor = context.getContentResolver().query(contentURI, null, null, null, null);
+                //context.revokeUriPermission(_uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                var cursor: Cursor? = null
+                try {
+                    cursor = context.contentResolver.query(
+                        _uri, arrayOf(
+                            MediaStore.Files.FileColumns.DATA,
+                        ), null, null, null
+                    )
+                    cursor!!.moveToFirst()
+                    filePath = cursor.getString(0)
+                } catch (e: SecurityException) {
+                    //if file open with third party application
+                    if (_uri.toString().contains("/storage/emulated/0")) {
+                        filePath = "/storage/emulated/0" + _uri.toString()
+                            .split("/storage/emulated/0".toRegex()).toTypedArray()[1]
+                    }
+                } finally {
+                    cursor?.close()
+                }
+            } else {
+                filePath = _uri!!.path
             }
+            return filePath
         }
 
         private fun fileExists(filePath: String): Boolean = File(filePath).exists()

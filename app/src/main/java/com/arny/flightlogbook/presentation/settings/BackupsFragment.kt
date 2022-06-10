@@ -153,8 +153,20 @@ class BackupsFragment : BaseMvpFragment(), BackupsView {
             btnOkText = getString(R.string.str_import_local_file),
             btnCancelText = getString(R.string.str_import_file_from_disk),
             cancelable = true, onConfirm = {
-                presenter.loadDefaultFile()
+                presenter.chooseDefaultFile()
             }, onCancel = (::requestFile)
+        )
+    }
+
+    override fun showAlertChooseDefault(filenames: List<String>) {
+        listDialog(
+            context = requireContext(),
+            title = getString(R.string.str_choose_default_file),
+            items = filenames,
+            cancelable = true,
+            onSelect = { _, text ->
+                presenter.loadDefaultFile(text)
+            }
         )
     }
 
@@ -177,7 +189,7 @@ class BackupsFragment : BaseMvpFragment(), BackupsView {
     }
 
     private fun requestOpenFile() {
-        val intent = newIntent().apply {
+        val intent = Intent().apply {
             action = Intent.ACTION_GET_CONTENT
             addCategory(Intent.CATEGORY_OPENABLE)
             if (SDK_INT >= Build.VERSION_CODES.Q) {
@@ -200,7 +212,7 @@ class BackupsFragment : BaseMvpFragment(), BackupsView {
 
     @RequiresApi(Build.VERSION_CODES.R)
     private class AccessFilesPermissionR : ActivityResultContract<String, Boolean?>() {
-        override fun createIntent(context: Context, input: String?): Intent = newIntent().apply {
+        override fun createIntent(context: Context, input: String?): Intent = Intent().apply {
             action = Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
             addCategory(Intent.CATEGORY_DEFAULT)
             data = Uri.parse(String.format("package:%s", context.applicationContext.packageName))
@@ -232,6 +244,15 @@ class BackupsFragment : BaseMvpFragment(), BackupsView {
         } else {
             binding.tvResultInfo.text = getString(msgRes, error)
         }
+    }
+
+    override fun toastError(@StringRes msgRes: Int, error: String?) {
+        ToastMaker.toastError(requireContext(),
+            if (error.isNullOrBlank()) {
+                getString(msgRes)
+            } else {
+                getString(msgRes, error)
+            })
     }
 
     override fun showSuccess(@StringRes msgRes: Int, msg: String?) {

@@ -23,8 +23,8 @@ class FilesInteractorImpl @Inject constructor(
     private val flightsRepository: FlightsRepository,
     private val filesRepository: FilesRepository,
 ) : FilesInteractor {
-    override fun readFile(uri: Uri?, fromSystem: Boolean): String? {
-        val filename: String = filesRepository.getFileName(fromSystem, uri)
+    override fun readFile(uri: Uri?, fromSystem: Boolean, fileName: String?): String? {
+        val filename: String = filesRepository.getFileName(fromSystem, uri, fileName)
         val file = File(filename)
         if (!file.isFile || !file.exists()) {
             throw BusinessException(

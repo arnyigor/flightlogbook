@@ -28,9 +28,7 @@ private val COLORS_LIST = listOf(
         "#009BFF"
 )
 
-fun getColorsIntArray(): IntArray {
-    return COLORS_LIST.toIntColorsArray()
-}
+fun getColorsIntArray(): IntArray = COLORS_LIST.toIntColorsArray()
 
 fun List<String>.toIntColorsArray(): IntArray {
     return this
