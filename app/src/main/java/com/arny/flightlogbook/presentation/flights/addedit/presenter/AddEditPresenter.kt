@@ -211,7 +211,7 @@ class AddEditPresenter @Inject constructor(
     }
 
     private fun correctCustomFieldTime(fieldValue: CustomFieldValue) {
-        if (fieldValue.type is CustomFieldType.Time) {
+        if (fieldValue.field?.type is CustomFieldType.Time) {
             val (_, strVal) = getCorrectDayTime(
                 fieldValue.value.toString(),
                 DateTimeUtils.convertStringToTime(fieldValue.value.toString())
@@ -643,7 +643,7 @@ class AddEditPresenter @Inject constructor(
         value: String,
         position: Int
     ) {
-        if (item.type is CustomFieldType.Time) {
+        if (item.field?.type is CustomFieldType.Time) {
             var timeValue = value
             if (timeValue.isBlank()) {
                 timeValue = "0"
@@ -680,7 +680,6 @@ class AddEditPresenter @Inject constructor(
                                 CustomFieldValue(
                                     field = field,
                                     externalId = this.flightId,
-                                    type = field.type,
                                     fieldId = id
                                 )
                             )

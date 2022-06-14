@@ -8,19 +8,25 @@ import com.arny.flightlogbook.customfields.models.CustomFieldType
 import com.arny.flightlogbook.customfields.models.CustomFieldValue
 import com.arny.flightlogbook.customfields.models.toCustomFieldType
 import com.arny.flightlogbook.customfields.repository.ICustomFieldsRepository
+import com.arny.flightlogbook.data.db.MainDB
 import com.arny.flightlogbook.data.db.daos.CustomFieldDAO
 import com.arny.flightlogbook.data.db.daos.CustomFieldValuesDAO
 import com.arny.flightlogbook.data.models.customfields.CustomFieldEntity
 import com.arny.flightlogbook.data.models.customfields.CustomFieldValueEntity
 import com.arny.flightlogbook.data.models.customfields.FieldWithValues
+import com.arny.flightlogbook.data.utils.DBUtils
 import javax.inject.Inject
 
 class CustomFieldsRepository @Inject constructor(
     private val customFieldDAO: CustomFieldDAO,
-    private val customFieldValuesDAO: CustomFieldValuesDAO
+    private val customFieldValuesDAO: CustomFieldValuesDAO,
+    private val mainDB: MainDB,
 ) : ICustomFieldsRepository {
     override fun addCustomField(customField: CustomField): Boolean =
         customFieldDAO.insertReplace(customField.toDBValue()) != 0L
+
+    override fun addCustomFieldAndGet(customField: CustomField): Long =
+        customFieldDAO.insertReplace(customField.toDBValue())
 
     override fun updateCustomField(customField: CustomField): Boolean =
         customFieldDAO.updateReplace(customField.toDBValue()) != 0
@@ -48,8 +54,8 @@ class CustomFieldsRepository @Inject constructor(
         id = id,
         fieldId = fieldId,
         externalId = externalId,
-        type = type.toString(),
-        value = valueToString(type, value)
+        type = field?.type.toString(),
+        value = valueToString(field?.type, value)
     )
 
     override fun getCustomFieldWithValues(externalId: Long?): List<CustomFieldValue> =
@@ -63,8 +69,24 @@ class CustomFieldsRepository @Inject constructor(
 
     override fun removeCustomField(id: Long): Boolean = customFieldDAO.delete(id) != 0
 
+    override fun resetTableCustomFieldValues(): Boolean = DBUtils.runSQl(
+        db = mainDB,
+        sql = "UPDATE sqlite_sequence SET seq = (SELECT count(*) FROM custom_field_values) WHERE name='custom_field_values'",
+        closeDb = false
+    )
+
+    override fun resetTableCustomFields(): Boolean = DBUtils.runSQl(
+        db = mainDB,
+        sql = "UPDATE sqlite_sequence SET seq = (SELECT count(*) FROM custom_fields) WHERE name='custom_fields'",
+        closeDb = false
+    )
+
     override fun removeCustomFieldValues(idsToRemove: List<Long>) =
         customFieldValuesDAO.delete(idsToRemove) > 0
+
+    override fun removeCustomFieldValues(): Boolean = customFieldValuesDAO.delete() > 0
+
+    override fun removeCustomFields(): Boolean = customFieldDAO.delete() > 0
 
     private fun toValuesList(
         flightValues: List<FieldWithValues>,
@@ -82,7 +104,6 @@ class CustomFieldsRepository @Inject constructor(
                         fieldId = field.id,
                         field = field,
                         externalId = externalId,
-                        type = field.type,
                         value = null
                     )
                 )
@@ -153,28 +174,8 @@ class CustomFieldsRepository @Inject constructor(
             fieldId = fieldID,
             field = customField,
             externalId = externalId,
-            type = customField?.type
         )
-        setValueFromType(customFieldValue, entity)
+        customFieldValue.setValueByType(entity.value.toString())
         return customFieldValue
-    }
-
-    private fun setValueFromType(field: CustomFieldValue, entity: CustomFieldValueEntity) {
-        val value = entity.value.toString()
-        when (field.type) {
-            is CustomFieldType.Text -> {
-                field.value = value
-            }
-            is CustomFieldType.Number -> {
-                field.value = value.toIntOrNull()
-            }
-            is CustomFieldType.Time -> {
-                field.value = value.toIntOrNull()
-            }
-            is CustomFieldType.Bool -> {
-                field.value = value.toBoolean() || value == "1"
-            }
-            else -> field.value = null
-        }
     }
 }

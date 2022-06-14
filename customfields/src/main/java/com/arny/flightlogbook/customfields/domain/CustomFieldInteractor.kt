@@ -62,20 +62,4 @@ class CustomFieldInteractor @Inject constructor(
     ): List<CustomFieldValue> = origin.filter { listValue ->
         newList.find { it.id == listValue.id } == null
     }
-
-    override fun addCustomFieldValue(
-        id: Long?,
-        fieldId: Long?,
-        externalId: Long,
-        type: CustomFieldType,
-        value: Any?
-    ): Boolean = repository.addCustomFieldValue(
-        CustomFieldValue(
-            id = id,
-            fieldId = fieldId,
-            externalId = externalId,
-            type = type,
-            value = value
-        )
-    )
 }

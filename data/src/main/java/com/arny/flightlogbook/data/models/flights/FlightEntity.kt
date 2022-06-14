@@ -4,10 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.arny.core.utils.DateTimeUtils
-import com.arny.core.utils.fromJson
 import com.arny.flightlogbook.domain.models.Flight
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 
 @Entity(tableName = "main_table")
 data class FlightEntity constructor(

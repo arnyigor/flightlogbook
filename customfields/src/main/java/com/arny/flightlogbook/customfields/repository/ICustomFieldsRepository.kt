@@ -16,4 +16,9 @@ interface ICustomFieldsRepository {
     fun saveCustomFieldValues(values: List<CustomFieldValue>): Array<Long>
     fun removeCustomField(id: Long): Boolean
     fun removeCustomFieldValues(idsToRemove: List<Long>): Boolean
+    fun removeCustomFieldValues(): Boolean
+    fun removeCustomFields(): Boolean
+    fun resetTableCustomFieldValues(): Boolean
+    fun addCustomFieldAndGet(customField: CustomField): Long
+    fun resetTableCustomFields(): Boolean
 }

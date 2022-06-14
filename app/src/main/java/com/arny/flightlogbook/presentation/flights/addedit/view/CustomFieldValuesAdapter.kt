@@ -40,7 +40,7 @@ class CustomFieldValuesAdapter(
             binding.ivRemoveCustomFieldValue.setOnClickListener {
                 onValueRemove(item, layoutPosition)
             }
-            val type = item.type ?: CustomFieldType.None
+            val type = item.field?.type ?: CustomFieldType.None
             var addTimeName = ""
             if (type is CustomFieldType.Time && type.addTime) {
                 addTimeName = context.getString(R.string.str_time_add_main)

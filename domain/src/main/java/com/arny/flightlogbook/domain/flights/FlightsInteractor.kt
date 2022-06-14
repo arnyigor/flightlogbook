@@ -52,7 +52,7 @@ class FlightsInteractor @Inject constructor(
 
     fun getAddTimeSum(values: List<CustomFieldValue>): Int = if (values.isNotEmpty()) {
         values.filter {
-            val type = it.type
+            val type = it.field?.type
             type is CustomFieldType.Time && type.addTime && it.value != null
         }.sumOf {
             DateTimeUtils.convertStringToTime(it.value.toString())

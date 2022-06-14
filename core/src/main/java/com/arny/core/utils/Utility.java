@@ -36,17 +36,17 @@ import java.util.regex.Pattern;
 public class Utility {
 
     // TODO попробовать использовать в качестве кастомных параметров
-    public static Map<String, String> jsonToMap(JSONObject json) throws JSONException {
-        Map<String, String> retMap = new HashMap<String, String>();
+    public static Map<String, Object> jsonToMap(@Nullable JSONObject json) throws JSONException {
+        Map<String, Object> retMap = new HashMap<>();
 
-        if (json != JSONObject.NULL) {
+        if (json != JSONObject.NULL && json != null) {
             retMap = toMap(json);
         }
         return retMap;
     }
 
-    public static HashMap<String, String> toMap(JSONObject object) throws JSONException {
-        HashMap<String, String> map = new HashMap<String, String>();
+    public static HashMap<String, Object> toMap(JSONObject object) throws JSONException {
+        HashMap<String, Object> map = new HashMap<>();
 
         Iterator<String> keysItr = object.keys();
         while (keysItr.hasNext()) {
@@ -58,7 +58,7 @@ public class Utility {
             } else if (value instanceof JSONObject) {
                 value = toMap((JSONObject) value);
             }
-            map.put(key, String.valueOf(value));
+            map.put(key, value);
         }
         return map;
     }

@@ -17,35 +17,31 @@ import android.os.Build.VERSION_CODES.Q
 import android.os.Bundle
 import android.os.StrictMode
 import android.text.Spanned
-import android.view.*
+import android.view.ContextThemeWrapper
+import android.view.MotionEvent
+import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.view.inputmethod.InputMethodManager.SHOW_FORCED
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.annotation.*
-import androidx.appcompat.app.AppCompatActivity
+import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
+import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.text.HtmlCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction
 import com.amulyakhare.textdrawable.TextDrawable
 import com.arny.core.R
-import com.google.android.material.bottomnavigation.BottomNavigationItemView
-import com.google.android.material.bottomnavigation.BottomNavigationMenuView
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
+import com.google.gson.*
 import com.mikepenz.google_material_typeface_library.GoogleMaterial
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.utils.colorInt
 import com.mikepenz.iconics.utils.sizeDp
+import org.json.JSONObject
 import java.lang.reflect.Type
 import java.util.*
 import kotlin.math.roundToInt
@@ -437,6 +433,25 @@ fun <T> String?.fromJson(clazz: Class<*>, deserialize: (JsonElement) -> T): T {
         )
         .create().fromJson<T>(this, clazz)
 }
+
+inline fun <reified T> JSONObject?.getValue(extraName: String): T? =
+    if (this?.has(extraName) == true) {
+        this.get(extraName) as? T
+    } else {
+        null
+    }
+
+fun <T> T.toJson(clazz: Class<*>, serialize: (src: T) -> JsonElement): String =
+    GsonBuilder()
+        .setLenient()
+        .registerTypeAdapter(
+            clazz,
+            JsonSerializer { src: T, _, _ ->
+                serialize(src)
+            }
+        )
+        .create()
+        .toJson(this)
 
 fun <T> Any?.fromJson(type: Type?): T? {
     return Gson().fromJson(this.toString(), type)

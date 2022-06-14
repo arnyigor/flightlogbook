@@ -4,6 +4,7 @@ import android.net.Uri
 import com.arny.core.CONSTS
 import com.arny.core.utils.DateTimeUtils
 import com.arny.core.utils.FileUtils
+import com.arny.flightlogbook.customfields.repository.ICustomFieldsRepository
 import com.arny.flightlogbook.domain.R
 import com.arny.flightlogbook.domain.common.IResourceProvider
 import com.arny.flightlogbook.domain.flights.FlightsInteractor
@@ -22,6 +23,7 @@ class FilesInteractorImpl @Inject constructor(
     private val flightsInteractor: FlightsInteractor,
     private val flightsRepository: FlightsRepository,
     private val filesRepository: FilesRepository,
+    private val customFieldsRepository: ICustomFieldsRepository
 ) : FilesInteractor {
     override fun readFile(uri: Uri?, fromSystem: Boolean, fileName: String?): String? {
         val filename: String = filesRepository.getFileName(fromSystem, uri, fileName)
@@ -40,7 +42,25 @@ class FilesInteractorImpl @Inject constructor(
         if (flights.isNotEmpty()) {
             flightsRepository.removeAllFlights()
             flightsRepository.resetTableFlights()
-            result = flightsRepository.insertFlights(flights)
+            customFieldsRepository.removeCustomFieldValues()
+            customFieldsRepository.removeCustomFields()
+            customFieldsRepository.resetTableCustomFieldValues()
+            customFieldsRepository.resetTableCustomFields()
+            for (flight in flights) {
+                val flightId = flightsRepository.insertFlightAndGet(flight)
+                result = flightId > 0
+                for (fieldValue in flight.customFieldsValues.orEmpty()) {
+                    fieldValue.externalId = flightId
+                    fieldValue.fieldId = fieldValue.field?.let {
+                        customFieldsRepository.addCustomFieldAndGet(it)
+                    }
+                    val addValue = customFieldsRepository.addCustomFieldValue(fieldValue)
+                    if (!addValue) {
+                        result = false
+                        break
+                    }
+                }
+            }
         }
         return if (result) filename else null
     }

@@ -20,7 +20,7 @@ data class Flight(
     var description: String? = null,
     var datetimeFormatted: String? = null,
     var flightTimeFormatted: String? = null,
-    var customParams: HashMap<String, Any?>? = null,
+    var customParams: MutableMap<String, Any?>? = null,
     var colorInt: Int? = null,
     var colorText: Int? = null,
     var selected: Boolean = false,

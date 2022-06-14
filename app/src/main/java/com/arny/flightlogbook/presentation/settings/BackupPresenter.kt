@@ -109,7 +109,8 @@ class BackupPresenter @Inject constructor(
                 viewState.showError(R.string.error_import_file)
             }
         }, {
-            viewState.showError(R.string.error_import_file, it.message)
+            it.printStackTrace()
+            viewState.toastError(R.string.error_import_file, it.message)
             viewState.hideProgress()
         })
     }
