@@ -109,6 +109,9 @@
     <string name="plane_main_type_aerostat">Воздушный шар</string>
     <string name="plane_main_type_airship">Дирижабль</string>
 
+    <string name="payment_permission_denied_title">Внимание</string>
+    <string name="payment_permission_denied_read_external_storage">Для этой операции вам необходимо предоставить разрешение на чтение хранилища данных телефона.</string>
+
     <string-array name="daynight">
         <item>день</item>
         <item>ночь</item>

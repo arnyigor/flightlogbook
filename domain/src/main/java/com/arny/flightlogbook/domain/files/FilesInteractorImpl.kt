@@ -26,19 +26,14 @@ class FilesInteractorImpl @Inject constructor(
     private val customFieldsRepository: ICustomFieldsRepository
 ) : FilesInteractor {
     override fun readFile(uri: Uri?, fromSystem: Boolean, fileName: String?): String? {
-        var newUri: Uri? = null
-        if (!fromSystem) {
-            val localFile = filesRepository.copyFileToLocal(uri)
-            newUri = Uri.parse(localFile?.canonicalPath)
-        }
-        val filename: String = filesRepository.getFileName(fromSystem, uri, fileName)
-        val file = File(filename)
+        val resultName: String = filesRepository.getFileName(fromSystem, uri, fileName)
+        val file = File(resultName)
         if (!file.isFile || !file.exists()) {
             throw BusinessException(
                 String.format(
                     Locale.getDefault(),
                     resourcesProvider.getString(R.string.error_file_not_found),
-                    filename
+                    fileName
                 )
             )
         }
@@ -67,7 +62,7 @@ class FilesInteractorImpl @Inject constructor(
                 }
             }
         }
-        return if (result) filename else null
+        return if (result) resultName else null
     }
 
     override fun exportFile(type: ExportFileType): Observable<Result<String>> {

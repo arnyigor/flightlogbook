@@ -2,33 +2,48 @@ package com.arny.core.utils
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.util.DisplayMetrics
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import kotlin.math.roundToInt
+import android.provider.Settings
 
-fun <T> Fragment.requestPermission(
-    resultLauncher: ActivityResultLauncher<T>,
+fun Fragment.requestPermission(
+    resultLauncher: ActivityResultLauncher<String>,
     permission: String,
-    input: T,
-    checkPermissionOk: (input: T) -> Unit = {}
+    permissionOk: (permission: String) -> Unit = {},
+    onNeverAskAgain: (permission: String) -> Unit = {}
 ) {
     when {
         ContextCompat.checkSelfPermission(
             requireContext(),
             permission
         ) == PackageManager.PERMISSION_GRANTED -> {
-            checkPermissionOk(input)
+            permissionOk(permission)
         }
-        shouldShowRequestPermissionRationale(permission) -> {
-            resultLauncher.launch(input)
+        !shouldShowRequestPermissionRationale(permission) -> {
+            onNeverAskAgain(permission)
         }
         else -> {
-            resultLauncher.launch(input)
+            resultLauncher.launch(permission)
         }
     }
+}
+
+fun Fragment.permissionRationale(permission: String) = !shouldShowRequestPermissionRationale(permission)
+
+fun Context.goToAppInfo() {
+    val intent = Intent()
+    intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+    val uri: Uri = Uri.fromParts("package", this.packageName, null)
+    intent.data = uri
+    intent.flags = FLAG_ACTIVITY_NEW_TASK
+    this.startActivity(intent)
 }
 
 fun Int.toPx(context: Context): Int =

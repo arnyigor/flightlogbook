@@ -7,11 +7,10 @@ import android.content.Intent
 import android.net.Uri
 import android.os.*
 import android.os.Build.VERSION.SDK_INT
-import android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
@@ -29,25 +28,44 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 class BackupsFragment : BaseMvpFragment(), BackupsView {
+    companion object {
+        const val REQUEST_DEFAULT_FILE = 100
+        const val REQUEST_EXTERNAL_FILE = 101
+    }
+
+    private var requestCode: Int = -1
     private lateinit var binding: BackupsFragmentBinding
     private val handler = Handler(Looper.getMainLooper())
-    private var requestFilesApi30Success: Boolean = false
 
     @Inject
     lateinit var presenterProvider: Provider<BackupPresenter>
-
     private val presenter by moxyPresenter { presenterProvider.get() }
 
-    private val requestPermissionImport =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (granted) {
-                showAlertImport()
+    @RequiresApi(Build.VERSION_CODES.R)
+    private val requestPermissionAndroidR =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                requestOpenFile()
+            } else {
+                onPermissionDenied()
             }
         }
-    private val requestPermissionExport =
+    private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) {
-                chooseExportFile()
+                when (requestCode) {
+                    REQUEST_DEFAULT_FILE -> presenter.chooseDefaultFile()
+                    REQUEST_EXTERNAL_FILE -> requestPermission()
+                    else -> {}
+                }
+            } else {
+                onPermissionDenied()
+            }
+        }
+    private val launchOpenFile =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                presenter.onFileImport(result.data?.data)
             }
         }
 
@@ -69,35 +87,9 @@ class BackupsFragment : BaseMvpFragment(), BackupsView {
         super.onViewCreated(view, savedInstanceState)
         title = getString(R.string.import_export_settings)
         with(binding) {
-            tvLoadFromFile.setOnClickListener {
-                requestPermission(
-                    requestPermissionImport,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-                ) {
-                    showAlertImport()
-                }
-            }
-            tvExportToFile.setOnClickListener {
-                requestPermission(
-                    requestPermissionExport,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-                ) {
-                    chooseExportFile()
-                }
-            }
-            tvResultInfo.setOnClickListener {
-                presenter.onShareFileClick()
-            }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (requestFilesApi30Success) {
-            requestFilesApi30Success = false
-            requestFile()
+            tvLoadFromFile.setOnClickListener { showAlertImport() }
+            tvExportToFile.setOnClickListener { showAlertExportFile() }
+            tvResultInfo.setOnClickListener { presenter.onShareFileClick() }
         }
     }
 
@@ -105,10 +97,10 @@ class BackupsFragment : BaseMvpFragment(), BackupsView {
         handler.removeCallbacksAndMessages(null)
         handler.postDelayed({
             presenter.showFileData()
-        }, 1500)
+        }, 1000)
     }
 
-    private fun chooseExportFile() {
+    private fun showAlertExportFile() {
         alertDialog(
             context = context,
             title = getString(R.string.str_export_attention),
@@ -129,7 +121,7 @@ class BackupsFragment : BaseMvpFragment(), BackupsView {
             btnOkText = getString(R.string.str_ok),
             btnCancelText = getString(R.string.str_cancel),
             cancelable = true,
-            onConfirm = (::chooseFile)
+            onConfirm = (::showAlertChooseFile)
         )
     }
 
@@ -145,27 +137,29 @@ class BackupsFragment : BaseMvpFragment(), BackupsView {
         )
     }
 
-    private fun chooseFile() {
+    private fun showAlertChooseFile() {
         alertDialog(
             context = context,
             title = getString(R.string.str_import_attention),
             content = getString(R.string.str_import_local_file_or_disk),
             btnOkText = getString(R.string.str_import_local_file),
             btnCancelText = getString(R.string.str_import_file_from_disk),
-            cancelable = true, onConfirm = {
-                presenter.chooseDefaultFile()
-            }, onCancel = (::requestFile)
-        )
-    }
-
-    override fun showAlertChooseDefault(filenames: List<String>) {
-        listDialog(
-            context = requireContext(),
-            title = getString(R.string.str_choose_default_file),
-            items = filenames,
             cancelable = true,
-            onSelect = { _, text ->
-                presenter.loadDefaultFile(text)
+            onConfirm = {
+                this.requestCode = REQUEST_DEFAULT_FILE
+                requestPermission(
+                    resultLauncher = permissionLauncher,
+                    permission = Manifest.permission.READ_EXTERNAL_STORAGE,
+                    permissionOk = { presenter.chooseDefaultFile() },
+                )
+            },
+            onCancel = {
+                this.requestCode = REQUEST_EXTERNAL_FILE
+                requestPermission(
+                    resultLauncher = permissionLauncher,
+                    permission = Manifest.permission.READ_EXTERNAL_STORAGE,
+                    permissionOk = { requestPermission() },
+                )
             }
         )
     }
@@ -180,59 +174,55 @@ class BackupsFragment : BaseMvpFragment(), BackupsView {
 
     @RequiresApi(Build.VERSION_CODES.R)
     private fun requestAccessAndroidR() {
-        requestFilesApi30Success = true
-        requestPermissionAndroidR.launch("")
+        val intent = Intent().apply {
+            action = Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
+            addCategory(Intent.CATEGORY_DEFAULT)
+            data = Uri.parse(
+                String.format(
+                    "package:%s",
+                    requireContext().applicationContext.packageName
+                )
+            )
+        }
+        requestPermissionAndroidR.launch(intent)
     }
 
-    private fun requestFile() {
-        requestPermission()
+    override fun showAlertChooseDefault(filenames: List<String>) {
+        listDialog(
+            context = requireContext(),
+            title = getString(R.string.str_choose_default_file),
+            items = filenames,
+            cancelable = true,
+            onSelect = { _, text ->
+                presenter.loadDefaultFile(text)
+            }
+        )
+    }
+
+    private fun onPermissionDenied() {
+        alertDialog(
+            context = context,
+            title = getString(R.string.payment_permission_denied_title),
+            content = getString(R.string.payment_permission_denied_read_external_storage),
+            btnOkText = getString(R.string.str_settings),
+            btnCancelText = getString(android.R.string.cancel),
+            cancelable = true,
+            onConfirm = {
+                requireContext().goToAppInfo()
+            },
+        )
     }
 
     private fun requestOpenFile() {
         val intent = Intent().apply {
             action = Intent.ACTION_GET_CONTENT
             addCategory(Intent.CATEGORY_OPENABLE)
-            if (SDK_INT >= Build.VERSION_CODES.Q) {
-                addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
-            }
             val extraMimeTypes = arrayOf("application/vnd.ms-excel", "application/json")
             putExtra(Intent.EXTRA_MIME_TYPES, extraMimeTypes)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             type = "*/*"
         }
-        requestPermissionOpenFile.launch(intent)
+        launchOpenFile.launch(intent)
     }
-
-    private val requestPermissionOpenFile =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                presenter.onFileImport(result.data?.data)
-            }
-        }
-
-    @RequiresApi(Build.VERSION_CODES.R)
-    private class AccessFilesPermissionR : ActivityResultContract<String, Boolean?>() {
-        override fun createIntent(context: Context, input: String?): Intent = Intent().apply {
-            action = ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
-            addCategory(Intent.CATEGORY_DEFAULT)
-            data = Uri.parse(String.format("package:%s", context.applicationContext.packageName))
-        }
-
-        override fun parseResult(resultCode: Int, intent: Intent?): Boolean {
-            // FIXME не возвращается результат, проверяем отдельно
-            return Environment.isExternalStorageManager()
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.R)
-    private val requestPermissionAndroidR =
-        registerForActivityResult(AccessFilesPermissionR()) { granted ->
-            if (granted == true) {
-                requestOpenFile()
-            } else {
-                requestFilesApi30Success = false
-            }
-        }
 
     override fun shareFile(uri: Uri, fileType: String) {
         requireActivity().shareFileWithType(uri, fileType)
@@ -247,12 +237,14 @@ class BackupsFragment : BaseMvpFragment(), BackupsView {
     }
 
     override fun toastError(@StringRes msgRes: Int, error: String?) {
-        ToastMaker.toastError(requireContext(),
+        ToastMaker.toastError(
+            requireContext(),
             if (error.isNullOrBlank()) {
                 getString(msgRes)
             } else {
                 getString(msgRes, error)
-            })
+            }
+        )
     }
 
     override fun showSuccess(@StringRes msgRes: Int, msg: String?) {
