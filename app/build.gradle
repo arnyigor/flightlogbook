@@ -5,6 +5,7 @@ apply plugin: 'kotlin-parcelize'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'androidx.navigation.safeargs.kotlin'
+apply plugin: 'com.google.gms.google-services'
 
 android {
     signingConfigs {
@@ -115,6 +116,7 @@ dependencies {
 
     /*tests*/
     implementation libs.junit
+    implementation 'com.google.firebase:firebase-storage:20.0.1'
     androidTestImplementation libs.assertjCore
     androidTestImplementation libs.assertjAndroid
     androidTestImplementation libs.extJunit

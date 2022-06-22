@@ -9,6 +9,7 @@ import com.arny.flightlogbook.domain.files.FilesInteractor
 import com.arny.flightlogbook.domain.models.ExportFileType
 import com.arny.flightlogbook.domain.models.Result
 import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
+import com.google.firebase.storage.FirebaseStorage
 import moxy.InjectViewState
 import java.io.File
 import javax.inject.Inject
@@ -55,6 +56,7 @@ class BackupPresenter @Inject constructor(
             viewState.hideProgress()
             val path = it.value
             if (path != null) {
+                uploadFile(path)
                 viewState.showSuccess(R.string.import_file_success, path)
                 viewState.showFileData()
             } else {
@@ -103,6 +105,7 @@ class BackupPresenter @Inject constructor(
             viewState.hideProgress()
             val path = it.value
             if (path != null) {
+                uploadFile(path)
                 viewState.showSuccess(R.string.import_file_success, path)
                 viewState.showFileData()
             } else {
@@ -113,6 +116,23 @@ class BackupPresenter @Inject constructor(
             viewState.toastError(R.string.error_import_file, it.message)
             viewState.hideProgress()
         })
+    }
+
+    private fun uploadFile(fileName: String?) {
+        val storage = FirebaseStorage.getInstance()
+        val storageRef = storage.reference
+        val file = Uri.fromFile(File(fileName))
+        val riversRef = storageRef.child("backups/" + file.lastPathSegment)
+        val uploadTask = riversRef.putFile(file)
+        // Register observers to listen for when the download is done or if it fails
+        uploadTask.addOnFailureListener {
+            it.printStackTrace()
+            // Handle unsuccessful uploads
+        }.addOnSuccessListener {
+            println("upload complete:${it.metadata}")
+            // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+            // ...
+        }
     }
 
     fun chooseDefaultFile() {
