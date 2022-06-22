@@ -44,10 +44,8 @@ class BackupsFragment : BaseMvpFragment(), BackupsView {
     @RequiresApi(Build.VERSION_CODES.R)
     private val requestPermissionAndroidR =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
+            if (Environment.isExternalStorageManager()) {
                 requestOpenFile()
-            } else {
-                onPermissionDenied()
             }
         }
     private val permissionLauncher =
@@ -150,16 +148,14 @@ class BackupsFragment : BaseMvpFragment(), BackupsView {
                 requestPermission(
                     resultLauncher = permissionLauncher,
                     permission = Manifest.permission.READ_EXTERNAL_STORAGE,
-                    permissionOk = { presenter.chooseDefaultFile() },
-                )
+                ) { presenter.chooseDefaultFile() }
             },
             onCancel = {
                 this.requestCode = REQUEST_EXTERNAL_FILE
                 requestPermission(
                     resultLauncher = permissionLauncher,
                     permission = Manifest.permission.READ_EXTERNAL_STORAGE,
-                    permissionOk = { requestPermission() },
-                )
+                ) { requestPermission() }
             }
         )
     }

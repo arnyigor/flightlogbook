@@ -16,26 +16,21 @@ import android.provider.Settings
 fun Fragment.requestPermission(
     resultLauncher: ActivityResultLauncher<String>,
     permission: String,
-    permissionOk: (permission: String) -> Unit = {},
-    onNeverAskAgain: (permission: String) -> Unit = {}
+    permissionOk: (permission: String) -> Unit = {}
 ) {
-    when {
-        ContextCompat.checkSelfPermission(
+    if (ContextCompat.checkSelfPermission(
             requireContext(),
             permission
-        ) == PackageManager.PERMISSION_GRANTED -> {
-            permissionOk(permission)
-        }
-        !shouldShowRequestPermissionRationale(permission) -> {
-            onNeverAskAgain(permission)
-        }
-        else -> {
-            resultLauncher.launch(permission)
-        }
+        ) == PackageManager.PERMISSION_GRANTED
+    ) {
+        permissionOk(permission)
+    } else {
+        resultLauncher.launch(permission)
     }
 }
 
-fun Fragment.permissionRationale(permission: String) = !shouldShowRequestPermissionRationale(permission)
+fun Fragment.permissionRationale(permission: String) =
+    !shouldShowRequestPermissionRationale(permission)
 
 fun Context.goToAppInfo() {
     val intent = Intent()
