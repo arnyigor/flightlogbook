@@ -10,6 +10,7 @@ import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.provider.OpenableColumns
+import android.webkit.MimeTypeMap
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -20,12 +21,49 @@ class FilePathUtils {
         private var selectionArgs: Array<String>? = null
         private const val BUFFER_SIZE = 1024
         private const val MAX_BUFFER_SIZE = 1024 * 1024
+        private const val DEFAULT_SCHEME = "file"
         private const val GOOGLE_DRIVE_CONTENT = "com.google.android.apps.docs.storage"
         private const val WHATS_APP_CONTENT = "com.whatsapp.provider.media"
         private const val GOOGLE_PHOTOS_CONTENT = "com.google.android.apps.photos.content"
         private const val MEDIA_DOCUMENT_CONTENT = "com.android.providers.media.documents"
         private const val DOWNLOAD_DOCUMENT_CONTENT = "com.android.providers.downloads.documents"
         private const val EXTERNAL_STORAGE_CONTENT = "com.android.externalstorage.documents"
+
+        fun getFileName(uri: Uri, context: Context): String? {
+            if (uri.scheme == "content") {
+                val fileNameFromContentUri = tryGetFileNameFromContentUri(uri, context)
+                if (!fileNameFromContentUri.isNullOrBlank()) return fileNameFromContentUri
+            }
+            var name = uri.lastPathSegment
+            val fileSeparator = File.separator
+            if (!name.isNullOrBlank()) {
+                if (name.contains(fileSeparator)) {
+                    val nameStartIndex = name.lastIndexOf(fileSeparator)
+                    name = name.substring(nameStartIndex + 1)
+                }
+                name = name.replace(":".toRegex(), "")
+                if (DEFAULT_SCHEME != uri.scheme) {
+                    val ext = "." + MimeTypeMap.getSingleton()
+                        .getExtensionFromMimeType(context.contentResolver.getType(uri))
+                    if (!name.contains(ext)) name += ext
+                }
+            }
+            return name
+        }
+
+        private fun tryGetFileNameFromContentUri(uri: Uri, context: Context): String? {
+            try {
+                context.contentResolver.query(uri, null, null, null, null).use { cursor ->
+                    if (cursor != null && cursor.moveToFirst()) {
+                        val columnIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                        return cursor.getString(columnIndex)
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            return null
+        }
 
         fun getPath(uri: Uri?, context: Context): String? {
             if (uri == null) return null
@@ -140,7 +178,7 @@ class FilePathUtils {
                 copyFileToInternalStorage(uri, "userfiles", context)
             } else {
 //                getDataColumn(uri, context)
-                getFilePathFromUri(context,uri)
+                getFilePathFromUri(context, uri)
             }
         }
 

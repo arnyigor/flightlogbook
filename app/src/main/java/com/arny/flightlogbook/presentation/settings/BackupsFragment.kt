@@ -7,7 +7,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.*
 import android.os.Build.VERSION.SDK_INT
-import android.provider.Settings
+import android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -213,7 +213,7 @@ class BackupsFragment : BaseMvpFragment(), BackupsView {
     @RequiresApi(Build.VERSION_CODES.R)
     private class AccessFilesPermissionR : ActivityResultContract<String, Boolean?>() {
         override fun createIntent(context: Context, input: String?): Intent = Intent().apply {
-            action = Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
+            action = ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
             addCategory(Intent.CATEGORY_DEFAULT)
             data = Uri.parse(String.format("package:%s", context.applicationContext.packageName))
         }

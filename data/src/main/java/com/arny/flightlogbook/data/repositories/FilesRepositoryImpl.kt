@@ -2,8 +2,10 @@ package com.arny.flightlogbook.data.repositories
 
 import android.content.Context
 import android.net.Uri
+import android.os.ParcelFileDescriptor
 import com.arny.core.CONSTS
 import com.arny.core.utils.FilePathUtils
+import com.arny.core.utils.FilePathUtils.Companion.getFileName
 import com.arny.core.utils.FileUtils
 import com.arny.flightlogbook.data.di.JsonRead
 import com.arny.flightlogbook.data.di.XlsRead
@@ -12,7 +14,7 @@ import com.arny.flightlogbook.domain.files.FilesRepository
 import com.arny.flightlogbook.domain.files.FlightFileReadWriter
 import com.arny.flightlogbook.domain.models.ExportFileType
 import com.arny.flightlogbook.domain.models.Flight
-import java.io.File
+import java.io.*
 import javax.inject.Inject
 
 class FilesRepositoryImpl @Inject constructor(
@@ -20,6 +22,10 @@ class FilesRepositoryImpl @Inject constructor(
     @XlsRead private val xlsReader: FlightFileReadWriter,
     @JsonRead private val jsonReader: FlightFileReadWriter,
 ) : FilesRepository {
+    companion object {
+        const val TEMP_DIRECTORY = "temp/"
+    }
+
     override fun getBackupsPath(): String = FileUtils.getWorkDir(resourcesProvider.provideContext())
 
     override fun getDefaultFileName(fileName: String): String =
@@ -61,6 +67,76 @@ class FilesRepositoryImpl @Inject constructor(
             return file.path
         }
         return null
+    }
+
+    private fun createTempDirectory() {
+        createDirectory(TEMP_DIRECTORY)
+    }
+
+    private fun createNewFileForUri(uri: Uri): File {
+        createTempDirectory()
+        val name = getFileName(uri, resourcesProvider.provideContext())
+        val fileName: String = TEMP_DIRECTORY + name
+        return File(getFilesDir(), fileName)
+    }
+
+    private fun createNewFileForUri(newFileName: String): File {
+        createTempDirectory()
+        val fileName: String = TEMP_DIRECTORY + newFileName
+        return File(getFilesDir(), fileName)
+    }
+
+    private fun createDirectory(dirName: String) {
+        val dir = File(getFilesDir(), dirName)
+        if (!dir.exists()) {
+            dir.mkdir()
+        }
+    }
+
+    private fun getFilesDir(): File? = resourcesProvider.provideContext().filesDir
+
+    override fun copyFileToLocal(fileUri: Uri?, newFileName: String?): File? {
+        fileUri?.let {
+            val copyFile: File = if (newFileName == null || newFileName.isEmpty()) {
+                createNewFileForUri(fileUri)
+            } else {
+                createNewFileForUri(newFileName)
+            }
+            try {
+                val parcelFileDescriptor: ParcelFileDescriptor? =
+                    resourcesProvider.provideContext().contentResolver.openFileDescriptor(
+                        fileUri,
+                        "r",
+                        null
+                    )
+                try {
+                    ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor)
+                        .use { inputStream ->
+                            FileOutputStream(copyFile).use { outputStream ->
+                                copyAllBytes(inputStream, outputStream)
+                                return copyFile
+                            }
+                        }
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            } catch (e: FileNotFoundException) {
+                e.printStackTrace()
+            }
+        }
+        return null
+    }
+
+    @Throws(IOException::class)
+    private fun copyAllBytes(`in`: InputStream, out: OutputStream) {
+        val buffer = ByteArray(1024)
+        while (true) {
+            val read: Int = `in`.read(buffer)
+            if (read == -1) {
+                break
+            }
+            out.write(buffer, 0, read)
+        }
     }
 
     override fun readFile(file: File): List<Flight> = when {

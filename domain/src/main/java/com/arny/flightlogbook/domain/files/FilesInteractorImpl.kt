@@ -26,6 +26,11 @@ class FilesInteractorImpl @Inject constructor(
     private val customFieldsRepository: ICustomFieldsRepository
 ) : FilesInteractor {
     override fun readFile(uri: Uri?, fromSystem: Boolean, fileName: String?): String? {
+        var newUri: Uri? = null
+        if (!fromSystem) {
+            val localFile = filesRepository.copyFileToLocal(uri)
+            newUri = Uri.parse(localFile?.canonicalPath)
+        }
         val filename: String = filesRepository.getFileName(fromSystem, uri, fileName)
         val file = File(filename)
         if (!file.isFile || !file.exists()) {
