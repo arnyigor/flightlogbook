@@ -5,9 +5,10 @@ import com.arny.flightlogbook.customfields.models.CustomField
 import com.arny.flightlogbook.customfields.models.CustomFieldValue
 import com.arny.flightlogbook.customfields.models.toCustomFieldType
 import com.arny.flightlogbook.customfields.repository.ICustomFieldsRepository
-import com.arny.flightlogbook.data.repositories.CustomFieldsRepository
+import com.arny.flightlogbook.domain.airports.IAirportsRepository
 import com.arny.flightlogbook.domain.files.FlightFileReadWriter
 import com.arny.flightlogbook.domain.flighttypes.FlightTypesRepository
+import com.arny.flightlogbook.domain.models.Airport
 import com.arny.flightlogbook.domain.models.Flight
 import com.arny.flightlogbook.domain.models.FlightType
 import com.arny.flightlogbook.domain.models.PlaneType
@@ -22,46 +23,65 @@ class JsonReader @Inject constructor(
     private val flightTypesRepository: FlightTypesRepository,
     private val aircraftTypesRepository: AircraftTypesRepository,
     private val customFieldsRepository: ICustomFieldsRepository,
+    private val airportsRepository: IAirportsRepository,
 ) : FlightFileReadWriter {
-    private var dbCustomFields: List<CustomField> = emptyList()
     private var dbFlightTypes: List<FlightType> = emptyList()
     private var dbPlaneTypes: List<PlaneType> = emptyList()
     private val gson: Gson = GsonBuilder().setLenient().create()
     override fun readFile(file: File): List<Flight> {
         updateDbFlights()
         updateDbPlanes()
-        updateCustomFielsValues()
         return arrayListOf<Flight>().apply {
             for (line in file.readLines()) {
                 if (line.isNotBlank()) {
-                    val flightObject = JSONObject(line)
-                    val flight = Flight().apply {
-                        arrivalUtcTime = flightObject.getValue("arrivalUtcTime")
-                        datetime = flightObject.getValue("datetime")
-                        datetimeFormatted = this.datetime?.toFullDateFormat()
-                        departureUtcTime = flightObject.getValue("departureUtcTime")
-                        description = flightObject.getValue("description")
-                        flightTime = flightObject.getValue("flightTime") ?: 0
-                        setFlightType(flightObject)
-                        groundTime = flightObject.getValue("flightTime") ?: 0
-                        ifrTime = flightObject.getValue("ifrTime") ?: 0
-                        nightTime = flightObject.getValue("nightTime") ?: 0
-                        totalTime = flightObject.getValue("totalTime") ?: 0
-                        flightTimeFormatted = DateTimeUtils.strLogTime(flightTime)
-                        colorInt = flightObject.getValue("colorInt") ?: 0
-                        ifrvfr = flightObject.getValue("ifrvfr") ?: 0
-                        customParams =
-                            Utility.jsonToMap(flightObject.getValue<JSONObject>("customParams"))
-                        setPlaneType(flightObject)
-                        regNo = planeType?.regNo
-                        selected = flightObject.getValue("selected") ?: false
-                        customFieldsValues = getCustomFieldsValues(flightObject)
+                    val flightObject = try {
+                        JSONObject(line)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        null
                     }
-                    add(flight)
+                    flightObject?.let {
+                        val flight = Flight().apply {
+                            arrivalUtcTime = flightObject.getValue("arrivalUtcTime")
+                            datetime = flightObject.getValue("datetime")
+                            datetimeFormatted = this.datetime?.toFullDateFormat()
+                            departureUtcTime = flightObject.getValue("departureUtcTime")
+                            val airportDeparture = getJsonAirport(flightObject, "departure")
+                            departureId = getDbAirport(airportDeparture)?.id
+                            departure = airportDeparture
+                            val airportArrival = getJsonAirport(flightObject, "arrival")
+                            arrivalId = getDbAirport(airportArrival)?.id
+                            arrival = airportArrival
+                            description = flightObject.getValue("description")
+                            flightTime = flightObject.getValue("flightTime") ?: 0
+                            setFlightType(flightObject)
+                            groundTime = flightObject.getValue("flightTime") ?: 0
+                            ifrTime = flightObject.getValue("ifrTime") ?: 0
+                            nightTime = flightObject.getValue("nightTime") ?: 0
+                            totalTime = flightObject.getValue("totalTime") ?: 0
+                            flightTimeFormatted = DateTimeUtils.strLogTime(flightTime)
+                            colorInt = flightObject.getValue("colorInt") ?: 0
+                            ifrvfr = flightObject.getValue("ifrvfr") ?: 0
+                            customParams =
+                                Utility.jsonToMap(flightObject.getValue<JSONObject>("customParams"))
+                            setPlaneType(flightObject)
+                            regNo = planeType?.regNo
+                            selected = flightObject.getValue("selected") ?: false
+                            customFieldsValues = getCustomFieldsValues(flightObject)
+                        }
+                        add(flight)
+                    }
                 }
             }
         }
     }
+
+    private fun getDbAirport(airportDeparture: Airport?) =
+        airportsRepository.getAirport(airportDeparture?.iata, airportDeparture?.icao)
+
+    private fun getJsonAirport(flightObject: JSONObject, departureArrival: String) =
+        (flightObject.getValue<JSONObject>(departureArrival))
+            .fromJson(gson, Airport::class.java)
 
     private fun getCustomFieldsValues(
         flightObject: JSONObject,
@@ -83,16 +103,15 @@ class JsonReader @Inject constructor(
     private fun getCustomFieldValue(element: JsonElement): CustomFieldValue {
         val valueObj = element.asJsonObject
         val fieldObj = valueObj.get("field").asJsonObject
-        val customField = CustomField(
-            id = fieldObj.get("id").asLong,
-            type = fieldObj?.get("type")?.asString.toCustomFieldType(),
-            name = fieldObj.get("name").asString,
-            showByDefault = fieldObj.get("showByDefault").asBoolean,
-            addTime = fieldObj.get("addTime").asBoolean
-        )
         return CustomFieldValue(
             id = valueObj.get("id").asLong,
-            field = customField,
+            field = CustomField(
+                id = fieldObj.get("id").asLong,
+                type = fieldObj?.get("type")?.asString.toCustomFieldType(),
+                name = fieldObj.get("name").asString,
+                showByDefault = fieldObj.get("showByDefault").asBoolean,
+                addTime = fieldObj.get("addTime").asBoolean
+            ),
         ).apply {
             setValueByType(valueObj.get("value").asString)
         }
@@ -119,10 +138,6 @@ class JsonReader @Inject constructor(
 
     private fun updateDbPlanes() {
         dbPlaneTypes = aircraftTypesRepository.loadAircraftTypes()
-    }
-
-    private fun updateCustomFielsValues() {
-        dbCustomFields = customFieldsRepository.getAllCustomFields()
     }
 
     private fun Flight.setFlightType(flightObject: JSONObject) {

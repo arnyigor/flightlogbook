@@ -1,8 +1,10 @@
 package com.arny.flightlogbook.data.di
 
+import com.arny.flightlogbook.customfields.repository.ICustomFieldsRepository
 import com.arny.flightlogbook.data.filereaders.JsonReader
 import com.arny.flightlogbook.data.filereaders.XlsReader
 import com.arny.flightlogbook.data.repositories.CustomFieldsRepository
+import com.arny.flightlogbook.domain.airports.IAirportsRepository
 import com.arny.flightlogbook.domain.common.IResourceProvider
 import com.arny.flightlogbook.domain.files.FlightFileReadWriter
 import com.arny.flightlogbook.domain.flighttypes.FlightTypesRepository
@@ -18,9 +20,15 @@ object FileReaderModule {
     fun providesJsonReader(
         flightTypesRepository: FlightTypesRepository,
         aircraftTypesRepository: AircraftTypesRepository,
-        customFieldsRepository: CustomFieldsRepository
+        customFieldsRepository: ICustomFieldsRepository,
+        airportsRepository: IAirportsRepository,
     ): FlightFileReadWriter =
-        JsonReader(flightTypesRepository, aircraftTypesRepository, customFieldsRepository)
+        JsonReader(
+            flightTypesRepository,
+            aircraftTypesRepository,
+            customFieldsRepository,
+            airportsRepository
+        )
 
     @XlsRead
     @Provides

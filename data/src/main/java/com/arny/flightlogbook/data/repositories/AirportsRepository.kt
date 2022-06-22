@@ -20,13 +20,21 @@ class AirportsRepository @Inject constructor(
             country = "$query%"
         ).map { it.toAirport() }
 
-    override fun getAirport(airportId: Long?): Airport? = airportsDAO.getDbAirport(airportId)?.toAirport()
+    override fun getAirport(airportId: Long?): Airport? =
+        airportsDAO.getDbAirport(airportId)?.toAirport()
 
-    override fun getAirportByIcao(icao: String?): Airport? = airportsDAO.getDbAirportByIcao(icao)?.toAirport()
+    override fun getAirportByIcao(icao: String?): Airport? =
+        airportsDAO.getDbAirportByIcao(icao)?.toAirport()
 
-    override fun getAirportByIata(iata: String?): Airport? = airportsDAO.getDbAirportByIata(iata)?.toAirport()
+    override fun getAirport(iata: String?, icao: String?): Airport? =
+        airportsDAO.getDbAirportBy(iata, icao)?.toAirport()
 
-    override fun addAirport(airport: Airport): Long = airportsDAO.insertReplace(airport.toAirportEntity())
+    override fun getAirportByIata(iata: String?): Airport? =
+        airportsDAO.getDbAirportByIata(iata)?.toAirport()
 
-    override fun updateAirport(airport: Airport): Int = airportsDAO.updateReplace(airport.toAirportEntity())
+    override fun addAirport(airport: Airport): Long =
+        airportsDAO.insertReplace(airport.toAirportEntity())
+
+    override fun updateAirport(airport: Airport): Int =
+        airportsDAO.updateReplace(airport.toAirportEntity())
 }
