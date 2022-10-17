@@ -46,6 +46,7 @@
                 app:layout_constraintBottom_toBottomOf="@+id/tilDate"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/tilDate"
+                app:tint="@color/light_blue_400"
                 app:srcCompat="@drawable/ic_date" />
 
             <com.google.android.material.textfield.TextInputLayout
