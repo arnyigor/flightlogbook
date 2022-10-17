@@ -3,6 +3,7 @@ package com.arny.flightlogbook.data.repositories
 import android.content.Context
 import android.net.Uri
 import android.os.ParcelFileDescriptor
+import android.webkit.MimeTypeMap
 import com.arny.core.CONSTS
 import com.arny.core.utils.FilePathUtils
 import com.arny.core.utils.FilePathUtils.Companion.getFileName
@@ -26,37 +27,38 @@ class FilesRepositoryImpl @Inject constructor(
         const val TEMP_DIRECTORY = "temp/"
     }
 
+    private val context = resourcesProvider.provideContext()
+
     override fun getBackupsPath(): String = FileUtils.getWorkDir(resourcesProvider.provideContext())
 
     override fun getDefaultFileName(fileName: String): String =
-        FileUtils.getWorkDir(resourcesProvider.provideContext()) + File.separator + fileName
+        FileUtils.getWorkDir(context) + File.separator + fileName
 
     override fun getFileUri(fileName: String?): Uri? = FileUtils.getFileUri(
-        resourcesProvider.provideContext(),
+        context,
         File(getDefaultFileName(fileName ?: CONSTS.FILES.FILE_NAME_XLS))
     )
 
-    override fun getFileName(fromSystem: Boolean, uri: Uri?, fileName: String?): String =
+    override fun getFile(fromSystem: Boolean, uri: Uri?, fileName: String?): File =
         if (fromSystem) {
             when (fileName) {
-                CONSTS.FILES.FILE_NAME_XLS -> getDefaultFileName(CONSTS.FILES.FILE_NAME_XLS)
-                CONSTS.FILES.FILE_NAME_JSON -> getDefaultFileName(CONSTS.FILES.FILE_NAME_JSON)
+                CONSTS.FILES.FILE_NAME_XLS -> File(getDefaultFileName(CONSTS.FILES.FILE_NAME_XLS))
+                CONSTS.FILES.FILE_NAME_JSON -> File(getDefaultFileName(CONSTS.FILES.FILE_NAME_JSON))
                 else -> {
                     var filePath = getDefaultFileName(CONSTS.FILES.FILE_NAME_XLS)
                     val file = File(filePath)
                     if (!file.isFile || !file.exists()) {
                         filePath = getDefaultFileName(CONSTS.FILES.FILE_NAME_JSON)
                     }
-                    filePath
+                    File(filePath)
                 }
             }
         } else {
-            FilePathUtils.getPath(uri, resourcesProvider.provideContext().applicationContext)
-                .toString()
+             requireNotNull(copyFileToLocal(uri))
         }
 
     override fun saveDataToFile(dbFlights: List<Flight>, type: ExportFileType): String? {
-        val file = File(getDefaultFilePath(resourcesProvider.provideContext(), type.fileName))
+        val file = File(getDefaultFilePath(context, type.fileName))
         val success: Boolean =
             if (type == ExportFileType.XLS) {
                 xlsReader.writeFile(dbFlights, file)
@@ -75,7 +77,7 @@ class FilesRepositoryImpl @Inject constructor(
 
     private fun createNewFileForUri(uri: Uri): File {
         createTempDirectory()
-        val name = getFileName(uri, resourcesProvider.provideContext())
+        val name = getFileName(uri, context)
         val fileName: String = TEMP_DIRECTORY + name
         return File(getFilesDir(), fileName)
     }
@@ -93,22 +95,18 @@ class FilesRepositoryImpl @Inject constructor(
         }
     }
 
-    private fun getFilesDir(): File? = resourcesProvider.provideContext().filesDir
+    private fun getFilesDir(): File? = context.filesDir
 
     override fun copyFileToLocal(fileUri: Uri?, newFileName: String?): File? {
         fileUri?.let {
-            val copyFile: File = if (newFileName == null || newFileName.isEmpty()) {
+            val copyFile: File = if (newFileName.isNullOrEmpty()) {
                 createNewFileForUri(fileUri)
             } else {
                 createNewFileForUri(newFileName)
             }
             try {
                 val parcelFileDescriptor: ParcelFileDescriptor? =
-                    resourcesProvider.provideContext().contentResolver.openFileDescriptor(
-                        fileUri,
-                        "r",
-                        null
-                    )
+                    context.contentResolver.openFileDescriptor(fileUri, "r", null)
                 try {
                     ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor)
                         .use { inputStream ->

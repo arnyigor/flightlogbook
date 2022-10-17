@@ -5,17 +5,21 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.*
-import android.os.Build.VERSION.SDK_INT
-import android.provider.Settings
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.core.view.isVisible
-import com.arny.core.utils.*
+import com.arny.core.utils.ToastMaker
+import com.arny.core.utils.alertDialog
+import com.arny.core.utils.goToAppInfo
+import com.arny.core.utils.listDialog
+import com.arny.core.utils.requestPermission
+import com.arny.core.utils.shareFileWithType
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.databinding.BackupsFragmentBinding
 import com.arny.flightlogbook.domain.models.ExportFileType
@@ -40,20 +44,12 @@ class BackupsFragment : BaseMvpFragment(), BackupsView {
     @Inject
     lateinit var presenterProvider: Provider<BackupPresenter>
     private val presenter by moxyPresenter { presenterProvider.get() }
-
-    @RequiresApi(Build.VERSION_CODES.R)
-    private val requestPermissionAndroidR =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (Environment.isExternalStorageManager()) {
-                requestOpenFile()
-            }
-        }
     private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) {
                 when (requestCode) {
                     REQUEST_DEFAULT_FILE -> presenter.chooseDefaultFile()
-                    REQUEST_EXTERNAL_FILE -> requestPermission()
+                    REQUEST_EXTERNAL_FILE -> requestOpenFile()
                     else -> {}
                 }
             } else {
@@ -155,32 +151,9 @@ class BackupsFragment : BaseMvpFragment(), BackupsView {
                 requestPermission(
                     resultLauncher = permissionLauncher,
                     permission = Manifest.permission.READ_EXTERNAL_STORAGE,
-                ) { requestPermission() }
+                ) { requestOpenFile() }
             }
         )
-    }
-
-    private fun requestPermission() {
-        if (SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
-            requestAccessAndroidR()
-        } else {
-            requestOpenFile()
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.R)
-    private fun requestAccessAndroidR() {
-        val intent = Intent().apply {
-            action = Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
-            addCategory(Intent.CATEGORY_DEFAULT)
-            data = Uri.parse(
-                String.format(
-                    "package:%s",
-                    requireContext().applicationContext.packageName
-                )
-            )
-        }
-        requestPermissionAndroidR.launch(intent)
     }
 
     override fun showAlertChooseDefault(filenames: List<String>) {

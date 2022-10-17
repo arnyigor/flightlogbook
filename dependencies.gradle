@@ -1,7 +1,7 @@
 ext.versions = [
         'minSdk'               : 21,
-        'targetSdk'            : 32,
-        'compileSdk'           : 32,
+        'targetSdk'            : 31,
+        'compileSdk'           : 31,
         'buildTools'           : '30.0.2',
         'supportLibrary'       : '28.0.0',
         'supportv4'            : '1.0.0',
@@ -24,7 +24,7 @@ ext.versions = [
         'roomx'                : '2.4.1',
         'roomTest'             : '2.0.0',
         'room'                 : '1.1.1',
-        'lifecycle'            : '2.2.0',
+        'lifecycle'            : '2.1.0',
         'navigationKtx'        : '2.4.2',
         'realm'                : '5.8.0',
         'gson'                 : '2.8.5',

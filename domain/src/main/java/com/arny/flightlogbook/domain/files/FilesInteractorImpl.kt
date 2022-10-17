@@ -26,8 +26,7 @@ class FilesInteractorImpl @Inject constructor(
     private val customFieldsRepository: ICustomFieldsRepository
 ) : FilesInteractor {
     override fun readFile(uri: Uri?, fromSystem: Boolean, fileName: String?): String? {
-        val resultName: String = filesRepository.getFileName(fromSystem, uri, fileName)
-        val file = File(resultName)
+        val file = filesRepository.getFile(fromSystem, uri, fileName)
         if (!file.isFile || !file.exists()) {
             throw BusinessException(
                 String.format(
@@ -62,7 +61,7 @@ class FilesInteractorImpl @Inject constructor(
                 }
             }
         }
-        return if (result) resultName else null
+        return if (result) "${file.nameWithoutExtension}.${file.extension}" else null
     }
 
     override fun exportFile(type: ExportFileType): Observable<Result<String>> {

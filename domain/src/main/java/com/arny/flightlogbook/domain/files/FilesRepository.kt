@@ -9,7 +9,7 @@ interface FilesRepository {
     fun saveDataToFile(dbFlights: List<Flight>, type: ExportFileType = ExportFileType.XLS): String?
     fun getDefaultFileName(fileName: String): String
     fun getFileUri(fileName: String? = null): Uri?
-    fun getFileName(fromSystem: Boolean, uri: Uri?, fileName: String?): String
+    fun getFile(fromSystem: Boolean, uri: Uri?, fileName: String?): File
     fun getBackupsPath(): String
     fun copyFileToLocal(fileUri: Uri?,newFileName: String? = null): File?
     fun readFile(file: File): List<Flight>

@@ -7,6 +7,7 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.os.ParcelFileDescriptor
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.provider.OpenableColumns
@@ -60,6 +61,20 @@ class FilePathUtils {
                     }
                 }
             } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            return null
+        }
+
+        private fun tryGetFileNameFromContentUri(context: Context,uri: Uri): String? {
+            try {
+                context.contentResolver.query(uri, null, null, null, null).use { cursor ->
+                    if (cursor != null && cursor.moveToFirst()) {
+                        val columnIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                        return cursor.getString(columnIndex)
+                    }
+                }
+            } catch (e: java.lang.Exception) {
                 e.printStackTrace()
             }
             return null
