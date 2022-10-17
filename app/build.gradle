@@ -15,7 +15,7 @@ android {
 
     def vMajor = 6
     def vMinor = 4
-    def vBuild = 0
+    def vBuild = 1
     defaultConfig {
         minSdkVersion versions.minSdk
         targetSdkVersion versions.targetSdk
