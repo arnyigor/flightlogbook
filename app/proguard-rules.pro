@@ -57,3 +57,10 @@
 -keep class org.apache.xmlbeans.** { *; }
 -keep class com.microsoft.** { *; }
 -keep class com.apache.poi.** { *; }
+
+#androidx Fragments
+-keepnames class androidx.navigation.fragment.NavHostFragment
+-keep class * extends androidx.fragment.app.Fragment{}
+
+#Custom app files
+-keep class com.arny.core.AirportRequestType
