@@ -16,6 +16,7 @@ import androidx.core.view.setPadding
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import com.arny.core.utils.toPx
+import com.arny.flightlogbook.uicore.R
 
 fun FragmentManager.showProgressDialog(progressText: String? = null) {
     var fragment: ProgressDialogFragment? =

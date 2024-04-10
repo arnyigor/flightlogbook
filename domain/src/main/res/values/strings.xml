@@ -26,20 +26,6 @@
     <string name="str_desc">Описание</string>
     <string name="cell_night_time">Ночное время</string>
     <string name="cell_ground_time">Время на земле</string>
-    <string name="dropbox_login">Войти в Dropbox</string>
-    <string name="dropbox_app_key" translatable="false">rzzuhol6y1aibdx</string>
-    <string name="dropbox_sync_files">Синхронизация:</string>
-    <string name="dropbox_sync_files_no_data">нет данных</string>
-    <string name="dropbox_sync_files_local">Локальный файл:</string>
-    <string name="dropbox_sync_files_remote">Удаленный файл:</string>
-    <string name="dropbox_sync_upload">Выгрузить</string>
-    <string name="dropbox_sync_download">Загрузить</string>
-    <string name="dropbox_sync_uploading">Выгрузка файла</string>
-    <string name="dropbox_sync_downloading">Загрузка файла</string>
-    <string name="dropbox_email">Email:%s</string>
-    <string name="dropbox_name">Имя:%s</string>
-    <string name="dropbox_sync_complete">Синхронизация завершена</string>
-    <string name="dropbox_auth_error">Ошибка авторизации</string>
     <string name="str_total_time">Общее время:</string>
     <string name="str_total_item_flight_time">Летное время:</string>
     <string name="total_records">Всего записей:</string>
@@ -169,7 +155,6 @@
     <string name="fragment_plane_types">Типы ВС</string>
     <string name="fragment_flight_types">Типы полетов</string>
     <string name="fragment_stats">Статистика</string>
-    <string name="fragment_dropbox_sync">Dropbox синхронизация</string>
     <string name="str_sort_by">Сортировка по</string>
     <!--statistic-->
     <string name="stat_column_month">Месяц</string>
@@ -188,8 +173,6 @@
     <string name="str_logtime_desc">Налет по убыванию</string>
     <string name="str_logtime_asc">Налет по возрастанию</string>
     <string name="warning">Предупреждение</string>
-    <string name="dropbox_sync_warning_content">Включена настройка сохранения базы данных при загрузке файла Dropbox.Загрузить?
-	</string>
     <string name="item_updated">Запись обновлена</string>
     <string name="loading_totals">Обновление данных…</string>
     <string name="record_not_found">Запись не найдена</string>

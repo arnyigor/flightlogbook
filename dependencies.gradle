@@ -8,11 +8,11 @@ ext.versions = [
         'constraint'           : '2.0.2',
         'vectordrawable'       : '1.1.0',
         'drawerlayout'         : '1.1.1',
-        'dagger'               : '2.41',
+        'dagger'               : '2.49',
         'recyclerview'         : '1.2.1',
         'cardview'             : '1.0.0',
         'constraintlayout'     : '2.1.3',
-        'kotlin'               : '1.6.10',
+        'kotlin'               : '1.9.20',
         'coroutines'           : '1.3.2',
         'fragmentKtx'          : '1.4.1',
         'activityktx'          : '1.4.0',
@@ -21,7 +21,7 @@ ext.versions = [
         'gms'                  : '4.3.3',
         'appcompatx'           : '1.4.1',
         'material'             : '1.5.0',
-        'roomx'                : '2.4.1',
+        'roomx'                : '2.4.0',
         'roomTest'             : '2.0.0',
         'room'                 : '1.1.1',
         'lifecycle'            : '2.1.0',
@@ -64,7 +64,6 @@ ext.versions = [
         'inputmask'            : '5.0.0',
         'leakcanary'           : '1.6.3',
         'poi'                  : '4.0.1',
-        'dropboxsdk'           : '5.1.1',
         'debugdb'              : '1.0.6',
         'assertjandroid'       : '1.2.0',
         'assertj'              : '3.22.0',
@@ -86,9 +85,11 @@ ext.libs = [
         'localBrodcast'         : "androidx.localbroadcastmanager:localbroadcastmanager:${versions.localbroadcastmanager}",
         'multidex'              : "androidx.multidex:multidex:${versions.multidex}",
         'ktxCore'               : "androidx.core:core-ktx:${versions.kotlinktx}",
-        'fragmentKtx'           : "androidx.fragment:fragment-ktx:${versions.fagmentktx}",
+        'fragmentKtx'           : "androidx.fragment:fragment-ktx:${versions.fragmentKtx}",
         'activityKtx'           : "androidx.activity:activity-ktx:${versions.activityktx}",
         'lifecycleExt'          : "androidx.lifecycle:lifecycle-extensions:${versions.lifecycle}",
+        'lifecycleViewmodel'    : "androidx.lifecycle:lifecycle-viewmodel:2.4.0",
+        'lifecycleViewmodelKtx' : "androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0",
         'lifecycleCommon'       : "androidx.lifecycle:lifecycle-common-java8:${versions.lifecycle}",
         //room
         'roomRuntime'           : "androidx.room:room-runtime:${versions.roomx}",
@@ -113,7 +114,7 @@ ext.libs = [
         'coroutinesAndroid'     : "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.coroutines}",
 
         //android
-        'navigationFragment' : "androidx.navigation:navigation-fragment:${versions.navigationKtx}",
+        'navigationFragment'    : "androidx.navigation:navigation-fragment:${versions.navigationKtx}",
         'navigationFragmentKtx' : "androidx.navigation:navigation-fragment-ktx:${versions.navigationKtx}",
         'navigationUIKtx'       : "androidx.navigation:navigation-ui-ktx:${versions.navigationKtx}",
 
@@ -193,6 +194,5 @@ ext.libs = [
         'dbDebug'               : "com.amitshekhar.android:debug-db:${versions.debugdb}",
 
         'poi'                   : "org.apache.poi:poi:${versions.poi}",
-        'dropboxCoreSdk'        : "com.dropbox.core:dropbox-core-sdk:${versions.dropboxsdk}",
         'filechooser'           : "com.github.hedzr:android-file-chooser:${versions.filechooser}",
 ]

@@ -34,7 +34,6 @@ import androidx.core.text.HtmlCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.amulyakhare.textdrawable.TextDrawable
-import com.arny.core.R
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.*
 import com.mikepenz.google_material_typeface_library.GoogleMaterial
@@ -354,7 +353,7 @@ private fun getServiceNotification(
     val notification: Notification
     val notificationIntent = Intent(context, cls)
     notificationIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
-    val pendingIntent = PendingIntent.getActivity(context, requestCode, notificationIntent, 0)
+    val pendingIntent = PendingIntent.getActivity(context, requestCode, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
     val builder = getNotificationBuilder(context)
     builder.setSmallIcon(icon)// маленькая иконка
         .setAutoCancel(false)

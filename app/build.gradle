@@ -2,17 +2,14 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-parcelize'
-apply plugin: 'com.google.gms.google-services'
-apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'androidx.navigation.safeargs.kotlin'
-apply plugin: 'com.google.gms.google-services'
 
 android {
     signingConfigs {
         release
     }
     compileSdkVersion versions.compileSdk
-
+    namespace 'com.arny.flightlogbook'
     def vMajor = 6
     def vMinor = 4
     def vBuild = 2
@@ -77,10 +74,12 @@ android {
             excludes += ['META-INF/ASL2.0', 'META-INF/LICENSE', 'META-INF/NOTICE', 'META-INF/NOTICE.txt', 'META-INF/LICENSE.txt', 'META-INF/MANIFEST.MF']
         }
     }
+
     compileOptions {
-        targetCompatibility JavaVersion.VERSION_1_8
-        sourceCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
+
     testOptions {
         unitTests {
             includeAndroidResources = true
@@ -88,7 +87,7 @@ android {
         }
     }
     kotlinOptions {
-    jvmTarget = '1.8'
+        jvmTarget = JavaVersion.VERSION_17
     }
 
     buildFeatures {
@@ -109,7 +108,8 @@ dependencies {
     implementation libs.multidex
     implementation libs.kotlinStdlib
     implementation libs.ktxCore
-    implementation libs.lifecycleExt
+    implementation libs.lifecycleViewmodel
+    implementation libs.lifecycleViewmodelKtx
     implementation libs.navigationFragment
     implementation libs.navigationFragmentKtx
     implementation libs.navigationUIKtx
@@ -154,7 +154,6 @@ dependencies {
     //custom
     implementation libs.betterpickers
     implementation libs.toasty
-    implementation libs.dropboxCoreSdk
     implementation libs.jodaTime
     implementation libs.materialTypeface
     implementation libs.materialDialogsCore

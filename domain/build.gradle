@@ -4,6 +4,7 @@ apply plugin: 'kotlin-parcelize'
 apply plugin: 'kotlin-kapt'
 
 android {
+    namespace 'com.arny.flightlogbook.domain'
     compileSdkVersion versions.compileSdk
     defaultConfig {
         minSdkVersion versions.minSdk
@@ -20,8 +21,8 @@ android {
     }
 
     compileOptions {
-        targetCompatibility JavaVersion.VERSION_1_8
-        sourceCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     testOptions {
@@ -33,7 +34,6 @@ android {
 
     kotlinOptions {
     }
-
 }
 
 dependencies {
@@ -52,6 +52,5 @@ dependencies {
 
     implementation libs.gson
     implementation libs.okhttp
-    implementation libs.dropboxCoreSdk
     implementation libs.localBrodcast
 }
