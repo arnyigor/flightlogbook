@@ -7,11 +7,11 @@ import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
-import com.arny.core.utils.DateTimeUtils
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.data.utils.DateTimeUtils
 import com.arny.flightlogbook.databinding.InputTimeComponentBinding
-import com.arny.flightlogbook.presentation.flights.addedit.models.CorrectedTimePair
-import com.arny.flightlogbook.presentation.flights.addedit.models.getCorrectDayTime
+import com.arny.flightlogbook.domain.models.CorrectedTimePair
+import com.arny.flightlogbook.domain.models.getCorrectDayTime
 
 class InputTimeComponent @JvmOverloads constructor(
     context: Context,

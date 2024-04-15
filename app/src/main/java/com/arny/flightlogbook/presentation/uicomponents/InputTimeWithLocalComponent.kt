@@ -8,12 +8,12 @@ import android.widget.EditText
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
-import com.arny.core.utils.DateTimeUtils
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.data.utils.DateTimeUtils
 import com.arny.flightlogbook.databinding.InputTimeWithLocalComponentBinding
-import com.arny.flightlogbook.presentation.flights.addedit.models.CorrectedTimePair
-import com.arny.flightlogbook.presentation.flights.addedit.models.getCorrectDayTime
-import com.arny.flightlogbook.presentation.flights.addedit.models.getCorrectLocalDiffDayTime
+import com.arny.flightlogbook.domain.models.CorrectedTimePair
+import com.arny.flightlogbook.domain.models.getCorrectDayTime
+import com.arny.flightlogbook.domain.models.getCorrectLocalDiffDayTime
 import kotlin.math.abs
 
 class InputTimeWithLocalComponent @JvmOverloads constructor(
@@ -162,7 +162,7 @@ class InputTimeWithLocalComponent @JvmOverloads constructor(
         } else {
             val sign = correctedUtcDiff?.sign ?: 1
             val utcDiffSigned = utcDiff * sign
-            utcTime = utcTime - utcDiffSigned
+            utcTime -= utcDiffSigned
         }
         updateTime()
         setText(DateTimeUtils.strLogTime(utcTime))

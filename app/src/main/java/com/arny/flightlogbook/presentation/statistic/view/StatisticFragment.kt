@@ -10,13 +10,13 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.color.colorChooser
-import com.arny.core.utils.ToastMaker
 import com.arny.flightlogbook.R
 import com.arny.flightlogbook.adapters.MultiSelectionSpinner
 import com.arny.flightlogbook.databinding.StatisticFragmentBinding
 import com.arny.flightlogbook.domain.models.Statistic
-import com.arny.flightlogbook.presentation.common.BaseMvpFragment
+import com.arny.flightlogbook.presentation.mvp.BaseMvpFragment
 import com.arny.flightlogbook.presentation.statistic.presenter.StatisticsPresenter
+import com.arny.flightlogbook.presentation.utils.ToastMaker
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment
 import dagger.android.support.AndroidSupportInjection
 import moxy.ktx.moxyPresenter

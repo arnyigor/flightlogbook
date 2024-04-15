@@ -7,12 +7,12 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.arny.core.utils.DateTimeUtils
 import com.arny.core.utils.getIntColor
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.adapters.diffUtilCallback
+import com.arny.flightlogbook.data.models.Flight
+import com.arny.flightlogbook.data.utils.DateTimeUtils
 import com.arny.flightlogbook.databinding.FlightListItemBinding
-import com.arny.flightlogbook.domain.models.Flight
+import com.arny.flightlogbook.presentation.utils.diffUtilCallback
 
 class FlightsAdapter(
     val onItemClick: (position: Int, item: Flight) -> Unit,

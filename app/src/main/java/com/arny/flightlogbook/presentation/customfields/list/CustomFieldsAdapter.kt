@@ -5,18 +5,17 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.adapters.diffUtilCallback
-import com.arny.flightlogbook.customfields.models.CustomField
-import com.arny.flightlogbook.customfields.models.CustomFieldType
+import com.arny.flightlogbook.data.models.CustomField
+import com.arny.flightlogbook.data.models.CustomFieldType
 import com.arny.flightlogbook.databinding.CustomFieldListItemBinding
-import java.util.*
+import com.arny.flightlogbook.presentation.utils.diffUtilCallback
+import java.util.Locale
 
 class CustomFieldsAdapter(
     val onItemClick: (item: CustomField) -> Unit
 ) : ListAdapter<CustomField, CustomFieldsAdapter.CustomFieldsViewHolder>(
-    diffUtilCallback<CustomField>(itemsTheSame = { old, new -> old.id == new.id },)
+    diffUtilCallback<CustomField>(itemsTheSame = { old, new -> old.id == new.id })
 ) {
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomFieldsViewHolder =
         CustomFieldsViewHolder(
             CustomFieldListItemBinding.inflate(

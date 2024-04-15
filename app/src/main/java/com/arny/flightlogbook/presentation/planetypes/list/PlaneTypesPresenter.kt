@@ -1,11 +1,11 @@
 package com.arny.flightlogbook.presentation.planetypes.list
 
-import com.arny.core.utils.fromSingle
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.data.models.PlaneType
 import com.arny.flightlogbook.domain.common.ResourcesInteractor
-import com.arny.flightlogbook.domain.models.PlaneType
 import com.arny.flightlogbook.domain.planetypes.PlaneTypesInteractor
-import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
+import com.arny.flightlogbook.presentation.mvp.BaseMvpPresenter
+import io.reactivex.Single
 import moxy.InjectViewState
 import javax.inject.Inject
 
@@ -16,7 +16,7 @@ class PlaneTypesPresenter @Inject constructor(
 ) : BaseMvpPresenter<PlaneTypesView>() {
     fun loadTypes() {
         viewState?.setEmptyViewVisible(false)
-        fromSingle { planeTypesInteractor.loadPlaneTypes() }
+        Single.fromCallable { planeTypesInteractor.loadPlaneTypes() }
             .subscribeFromPresenter({
                 viewState?.updateAdapter(it)
                 viewState?.setEmptyViewVisible(it.isEmpty())
@@ -27,7 +27,7 @@ class PlaneTypesPresenter @Inject constructor(
     }
 
     fun removeType(item: PlaneType) {
-        fromSingle { planeTypesInteractor.removeType(item) }
+        Single.fromCallable { planeTypesInteractor.removeType(item) }
             .subscribeFromPresenter({
                 if (it) {
                     loadTypes()

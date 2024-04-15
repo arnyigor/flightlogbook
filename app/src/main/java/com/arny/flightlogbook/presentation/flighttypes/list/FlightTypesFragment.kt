@@ -11,18 +11,20 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.setFragmentResult
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.arny.core.CONSTS
-import com.arny.core.CONSTS.REQUESTS.REQUEST_FLIGHT_TYPE
-import com.arny.core.utils.ToastMaker
-import com.arny.core.utils.alertDialog
-import com.arny.core.utils.inputDialog
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.data.CONSTS
+import com.arny.flightlogbook.data.CONSTS.REQUESTS.REQUEST_FLIGHT_TYPE
+import com.arny.flightlogbook.data.models.FlightType
 import com.arny.flightlogbook.databinding.FlightTypesListLayoutBinding
-import com.arny.flightlogbook.domain.models.FlightType
-import com.arny.flightlogbook.presentation.common.BaseMvpFragment
+import com.arny.flightlogbook.presentation.mvp.BaseMvpFragment
 import com.arny.flightlogbook.presentation.navigation.OpenDrawerListener
+import com.arny.flightlogbook.presentation.utils.ToastMaker
+import com.arny.flightlogbook.presentation.utils.alertDialog
+import com.arny.flightlogbook.presentation.utils.dump
+import com.arny.flightlogbook.presentation.utils.inputDialog
 import dagger.android.support.AndroidSupportInjection
 import moxy.ktx.moxyPresenter
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Provider
 

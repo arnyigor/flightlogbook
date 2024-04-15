@@ -1,26 +1,31 @@
 package com.arny.flightlogbook.presentation.flights.addedit.presenter
 
 import androidx.annotation.DrawableRes
-import com.arny.core.CONSTS
-import com.arny.core.CONSTS.STRINGS.PARAM_COLOR
-import com.arny.core.utils.*
-import com.arny.core.utils.DateTimeUtils.strLogTime
-import com.arny.core.utils.DateTimeUtils.strLogTimeZero
+import com.arny.core.utils.OptionalNull
+import com.arny.core.utils.toOptionalNull
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.customfields.domain.CustomFieldInteractor
-import com.arny.flightlogbook.customfields.models.CustomFieldType
-import com.arny.flightlogbook.customfields.models.CustomFieldValue
+import com.arny.flightlogbook.data.CONSTS
+import com.arny.flightlogbook.data.CONSTS.STRINGS.PARAM_COLOR
+import com.arny.flightlogbook.data.models.Airport
+import com.arny.flightlogbook.data.models.CustomFieldType
+import com.arny.flightlogbook.data.models.CustomFieldValue
+import com.arny.flightlogbook.data.models.Flight
+import com.arny.flightlogbook.data.models.PlaneType
+import com.arny.flightlogbook.data.utils.DateTimeUtils
+import com.arny.flightlogbook.data.utils.DateTimeUtils.strLogTime
+import com.arny.flightlogbook.data.utils.DateTimeUtils.strLogTimeZero
+import com.arny.flightlogbook.data.utils.MathUtils
+import com.arny.flightlogbook.data.utils.getColorsIntArray
+import com.arny.flightlogbook.data.utils.toHexColor
+import com.arny.flightlogbook.data.utils.toIntColor
 import com.arny.flightlogbook.domain.airports.IAirportsInteractor
 import com.arny.flightlogbook.domain.common.PreferencesInteractor
 import com.arny.flightlogbook.domain.common.ResourcesInteractor
+import com.arny.flightlogbook.domain.customfields.CustomFieldInteractor
 import com.arny.flightlogbook.domain.flights.FlightsInteractor
-import com.arny.flightlogbook.domain.models.Airport
-import com.arny.flightlogbook.domain.models.Flight
-import com.arny.flightlogbook.domain.models.PlaneType
-import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
-import com.arny.flightlogbook.presentation.flights.addedit.models.getCorrectDayTime
+import com.arny.flightlogbook.domain.models.getCorrectDayTime
 import com.arny.flightlogbook.presentation.flights.addedit.view.AddEditView
-import io.reactivex.Observable
+import com.arny.flightlogbook.presentation.mvp.BaseMvpPresenter
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -93,7 +98,6 @@ class AddEditPresenter @Inject constructor(
             viewState.setIvLockFlightTimeIcon(getLockIcon(lock))
         }
     }
-
     private val customFieldEnabled = CONSTS.COMMON.ENABLE_CUSTOM_FIELDS
 
     private data class TimesResult(
@@ -108,7 +112,7 @@ class AddEditPresenter @Inject constructor(
     }
 
     private fun loadFlight(id: Long) {
-        fromNullable { flightsInteractor.getFlight(id) }
+        Single.fromCallable { flightsInteractor.getFlight(id).toOptionalNull() }
             .subscribeFromPresenter({ optionalNull ->
                 val value = optionalNull.value
                 if (value != null) {
@@ -179,13 +183,13 @@ class AddEditPresenter @Inject constructor(
     }
 
     private fun loadDepArrival(flight: Flight) {
-        fromSingle { airportsInteractor.getAirport(flight.departureId) }
+        Single.fromCallable { airportsInteractor.getAirport(flight.departureId) }
             .subscribeFromPresenter({ optionalNull ->
                 optionalNull.value?.let {
                     viewState.setDeparture(it)
                 }
             })
-        fromSingle { airportsInteractor.getAirport(flight.arrivalId) }
+        Single.fromCallable { airportsInteractor.getAirport(flight.arrivalId) }
             .subscribeFromPresenter({ optionalNull ->
                 optionalNull.value?.let {
                     viewState.setArrival(it)
@@ -196,7 +200,7 @@ class AddEditPresenter @Inject constructor(
     private fun loadCustomFields() {
         viewState.setCustomFieldsVisible(customFieldEnabled)
         if (customFieldEnabled) {
-            fromSingle { customFieldInteractor.getCustomFieldsWithValues(flightId) }
+            Single.fromCallable { customFieldInteractor.getCustomFieldsWithValues(flightId) }
                 .map { list ->
                     sortedByDefault(list.onEach(::correctCustomFieldTime))
                 }
@@ -237,7 +241,7 @@ class AddEditPresenter @Inject constructor(
     }
 
     private fun loadColorParam(flight: Flight) {
-        fromNullable { flight.customParams?.get(PARAM_COLOR) }
+        Single.fromCallable { flight.customParams?.get(PARAM_COLOR).toOptionalNull() }
             .map {
                 val hexColor = it.value.toString()
                 if (hexColor.isNotBlank() && hexColor.startsWith("#")) {
@@ -259,14 +263,16 @@ class AddEditPresenter @Inject constructor(
         when {
             flight.planeId != null -> setFlightPlaneType(flight.planeId)
             !flight.regNo.isNullOrBlank() -> loadPlaneType(
-                fromNullable { flightsInteractor.loadPlaneTypeByRegNo(flight.regNo) }
+                Single.fromCallable {
+                    flightsInteractor.loadPlaneTypeByRegNo(flight.regNo).toOptionalNull()
+                }
             )
         }
     }
 
     private fun loadFlightType(typeId: Long?) {
         typeId?.let {
-            fromNullable { flightsInteractor.loadFlightType(it) }
+            Single.fromCallable { flightsInteractor.loadFlightType(it).toOptionalNull() }
                 .subscribeFromPresenter({
                     val title =
                         "${getString(R.string.str_flight_type_title)}:${it.value?.typeTitle ?: "-"}"
@@ -277,7 +283,7 @@ class AddEditPresenter @Inject constructor(
 
     private fun loadDateTime(flight: Flight) {
         mDateTime = flight.datetime ?: 0
-        fromCallable { DateTimeUtils.getDateTime(flight.datetime ?: 0, "dd.MM.yyyy") }
+        Single.fromCallable { DateTimeUtils.getDateTime(flight.datetime ?: 0, "dd.MM.yyyy") }
             .subscribeFromPresenter({ s ->
                 viewState.setDate(s)
             })
@@ -383,7 +389,7 @@ class AddEditPresenter @Inject constructor(
         }
 
     private fun correctTimeObs(stringTime: String, initTime: Int) =
-        fromCallable { getCorrectDayTime(stringTime, initTime) }
+        Single.fromCallable { getCorrectDayTime(stringTime, initTime) }
 
     fun onMotoTimeChange(startTime: String, finishTime: String) {
         if (startTime.isNotBlank() && finishTime.isNotBlank()) {
@@ -413,22 +419,23 @@ class AddEditPresenter @Inject constructor(
     }
 
     fun onDateSet(dayOfMonth: Int, monthOfYear: Int, year: Int) {
-        fromCallable {
+        Single.fromCallable {
             mDateTime = DateTimeUtils.getJodaDateTime(
                 "$dayOfMonth.${(monthOfYear + 1)}.$year",
                 "dd.MM.yyyy",
                 true
             ).withTimeAtStartOfDay().millis
             convertDateTime()
-        }.subscribeFromPresenter({
-            viewState.setDate(it)
-        }, {
-            viewState.toastError(getString(R.string.error_enter_date))
-        })
+        }
+            .subscribeFromPresenter({
+                viewState.setDate(it)
+            }, {
+                viewState.toastError(getString(R.string.error_enter_date))
+            })
     }
 
     private fun setDayToday() {
-        fromCallable {
+        Single.fromCallable {
             mDateTime = DateTime.now().withTimeAtStartOfDay().millis
             convertDateTime()
         }.subscribeFromPresenter({
@@ -439,7 +446,7 @@ class AddEditPresenter @Inject constructor(
     private fun convertDateTime() = DateTimeUtils.getDateTime(mDateTime, "dd.MM.yyyy")
 
     fun initDateFromMask(extractedValue: String) {
-        fromCallable {
+        Single.fromCallable {
             val dateTime = DateTimeUtils.getJodaDateTime(extractedValue, "ddMMyyyy", true)
             mDateTime = dateTime.withTimeAtStartOfDay().millis
             convertDateTime()
@@ -452,11 +459,14 @@ class AddEditPresenter @Inject constructor(
 
     }
 
-    fun setFlightPlaneType(planeTypeId: Long?) {
-        loadPlaneType(fromNullable { flightsInteractor.loadPlaneType(planeTypeId) })
+      fun setFlightPlaneType(planeTypeId: Long?) {
+        val planeTypeNullable = Single.fromCallable {
+            flightsInteractor.loadPlaneType(planeTypeId).toOptionalNull()
+        }
+        loadPlaneType(planeTypeNullable)
     }
 
-    private fun loadPlaneType(planeTypeNullable: Observable<OptionalNull<PlaneType?>>) {
+    private fun loadPlaneType(planeTypeNullable: Single<OptionalNull<PlaneType?>>) {
         planeTypeNullable.subscribeFromPresenter({
             it.value?.let { planeType ->
                 flight?.planeId = planeType.typeId
@@ -472,7 +482,7 @@ class AddEditPresenter @Inject constructor(
     }
 
     fun setFlightType(fightTypeId: Long?) {
-        fromNullable { flightsInteractor.loadFlightType(fightTypeId) }
+        Single.fromCallable { flightsInteractor.loadFlightType(fightTypeId).toOptionalNull() }
             .subscribeFromPresenter({
                 val flightType = it.value
                 this.flight?.flightTypeId = flightType?.id
@@ -524,7 +534,7 @@ class AddEditPresenter @Inject constructor(
     }
 
     private fun addNewFlight(flt: Flight) {
-        fromSingle { flightsInteractor.insertFlightAndGet(flt) }
+        Single.fromCallable { flightsInteractor.insertFlightAndGet(flt) }
             .map { saveId ->
                 val success = saveId != 0L
                 if (success) {
@@ -559,7 +569,7 @@ class AddEditPresenter @Inject constructor(
     }
 
     private fun updateFlight(flt: Flight) {
-        fromSingle { flightsInteractor.updateFlight(flt) }
+        Single.fromCallable { flightsInteractor.updateFlight(flt) }
             .map(::saveCustomFieldsValues)
             .doOnSuccess {
                 if (it) {
@@ -607,7 +617,7 @@ class AddEditPresenter @Inject constructor(
     private fun getString(res: Int?) = resourcesInteractor.getString(res)
 
     fun colorClick() {
-        fromCallable { getColorsIntArray() }
+        Single.fromCallable { getColorsIntArray() }
             .subscribeFromPresenter({ colors ->
                 viewState.onColorSelect(colors)
             })
@@ -670,7 +680,7 @@ class AddEditPresenter @Inject constructor(
     fun addCustomField(customFieldId: Long?) {
         if (customFieldsValues.find { it.fieldId == customFieldId } == null) {
             customFieldId?.let { id ->
-                fromSingle { customFieldInteractor.getCustomField(id) }
+                Single.fromCallable { customFieldInteractor.getCustomField(id) }
                     .map { optionalNull ->
                         val field = optionalNull.value
                         var added = false
@@ -711,7 +721,9 @@ class AddEditPresenter @Inject constructor(
     }
 
     fun onCustomFieldValueDelete(item: CustomFieldValue, position: Int) {
-        fromNullable { customFieldsValues.find { it.fieldId == item.fieldId } }
+        Single.fromCallable {
+            customFieldsValues.find { it.fieldId == item.fieldId }.toOptionalNull()
+        }
             .map { fieldNullable ->
                 val fields = customFieldsValues
                 val fieldValue = fieldNullable.value
@@ -757,7 +769,7 @@ class AddEditPresenter @Inject constructor(
         // updateTimeLocks()
     }
 
-    private fun updateTimeLocks(){
+    private fun updateTimeLocks() {
         // TODO добавить функционал
     }
 

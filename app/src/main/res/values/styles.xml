@@ -21,4 +21,10 @@
         <item name="android:foreground">?android:attr/selectableItemBackgroundBorderless</item>
     </style>
 
+    <style name="medium_bold">
+        <item name="android:textSize">@dimen/font_size_medium</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
 </resources>

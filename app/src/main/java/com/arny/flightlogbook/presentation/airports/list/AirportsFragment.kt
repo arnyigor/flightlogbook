@@ -14,13 +14,16 @@ import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.arny.core.AirportRequestType
-import com.arny.core.CONSTS
-import com.arny.core.utils.*
+import com.arny.core.utils.getExtra
+import com.arny.core.utils.getSystemLocale
+import com.arny.core.utils.setDrawableRightClick
+import com.arny.core.utils.toastError
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.data.CONSTS
+import com.arny.flightlogbook.data.models.Airport
+import com.arny.flightlogbook.data.models.AirportRequestType
 import com.arny.flightlogbook.databinding.FAirportsBinding
-import com.arny.flightlogbook.domain.models.Airport
-import com.arny.flightlogbook.presentation.common.BaseMvpFragment
+import com.arny.flightlogbook.presentation.mvp.BaseMvpFragment
 import com.arny.flightlogbook.presentation.navigation.OpenDrawerListener
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.Observable
@@ -72,7 +75,7 @@ class AirportsFragment : BaseMvpFragment(), AirportsView {
         })
         binding.fabAddAirport.setOnClickListener {
             navController.navigate(
-                AirportsFragmentDirections.actionNavAirportsToAirportEditFragment()
+                AirportsFragmentDirections.actionNavAirportsToAirportEditFragment(-1)
             )
         }
         binding.edtAirport.setDrawableRightClick {
@@ -99,12 +102,9 @@ class AirportsFragment : BaseMvpFragment(), AirportsView {
                     )
                     navController.popBackStack()
                 } else {
-                    val airportId = item.id
-                    airportId?.let {
+                    item.id?.let {
                         navController.navigate(
-                            AirportsFragmentDirections.actionNavAirportsToAirportEditFragment(
-                                airportId
-                            )
+                            AirportsFragmentDirections.actionNavAirportsToAirportEditFragment(it)
                         )
                     }
                 }

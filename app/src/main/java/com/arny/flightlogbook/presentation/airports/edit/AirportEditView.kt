@@ -1,7 +1,7 @@
 package com.arny.flightlogbook.presentation.airports.edit
 
 import androidx.annotation.StringRes
-import com.arny.flightlogbook.domain.models.Airport
+import com.arny.flightlogbook.data.models.Airport
 import moxy.MvpView
 import moxy.viewstate.strategy.alias.AddToEndSingle
 import moxy.viewstate.strategy.alias.OneExecution

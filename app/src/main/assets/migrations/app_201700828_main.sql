@@ -1,1 +1,0 @@
-CREATE TABLE `main_table` ( `_id`  INTEGER PRIMARY KEY, `date`  TEXT, `datetime`  TIMESTAMP, `log_time`  INTEGER, `str_time`  TEXT, `reg_no`  TEXT, `airplane_type`  INTEGER, `day_night`  INTEGER, `ifr_vfr`  INTEGER, `flight_type`  INTEGER, `description`  TEXT )

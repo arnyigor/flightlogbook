@@ -11,17 +11,17 @@ import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.arny.core.CONSTS.EXTRAS.EXTRA_ACTION_EDIT_CUSTOM_FIELD
-import com.arny.core.CONSTS.EXTRAS.EXTRA_CUSTOM_FIELD_ID
-import com.arny.core.CONSTS.REQUESTS.REQUEST_CUSTOM_FIELD
-import com.arny.core.CONSTS.REQUESTS.REQUEST_CUSTOM_FIELD_EDIT
-import com.arny.core.utils.ToastMaker
 import com.arny.core.utils.getExtra
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.customfields.models.CustomField
+import com.arny.flightlogbook.data.CONSTS.EXTRAS.EXTRA_ACTION_EDIT_CUSTOM_FIELD
+import com.arny.flightlogbook.data.CONSTS.EXTRAS.EXTRA_CUSTOM_FIELD_ID
+import com.arny.flightlogbook.data.CONSTS.REQUESTS.REQUEST_CUSTOM_FIELD
+import com.arny.flightlogbook.data.CONSTS.REQUESTS.REQUEST_CUSTOM_FIELD_EDIT
+import com.arny.flightlogbook.data.models.CustomField
 import com.arny.flightlogbook.databinding.FragmentCustomFieldsListBinding
-import com.arny.flightlogbook.presentation.common.BaseMvpFragment
+import com.arny.flightlogbook.presentation.mvp.BaseMvpFragment
 import com.arny.flightlogbook.presentation.navigation.OpenDrawerListener
+import com.arny.flightlogbook.presentation.utils.ToastMaker
 import dagger.android.support.AndroidSupportInjection
 import moxy.ktx.moxyPresenter
 import javax.inject.Inject
@@ -97,16 +97,11 @@ class CustomFieldsListFragment : BaseMvpFragment(), CustomFieldsListView {
     override fun navigateToFieldEdit(id: Long?) {
         if (id != null) {
             findNavController().navigate(
-                CustomFieldsListFragmentDirections.actionFieldsToCustomFieldEditFragment(
-                    fieldId = id,
-                    isRequest = true
-                )
+                CustomFieldsListFragmentDirections.actionFieldsToCustomFieldEditFragment(id,true)
             )
         } else {
             findNavController().navigate(
-                CustomFieldsListFragmentDirections.actionFieldsToCustomFieldEditFragment(
-                    isRequest = true
-                )
+                CustomFieldsListFragmentDirections.actionFieldsToCustomFieldEditFragment(-1L,true)
             )
         }
     }

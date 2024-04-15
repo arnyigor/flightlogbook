@@ -7,7 +7,13 @@ import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
-import android.view.*
+import android.text.TextWatcher
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.TextView
@@ -26,26 +32,31 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.color.colorChooser
-import com.arny.core.AirportRequestType
-import com.arny.core.CONSTS
-import com.arny.core.utils.*
+import com.arny.core.utils.empty
+import com.arny.core.utils.getDrawableCompat
+import com.arny.core.utils.getExtra
+import com.arny.core.utils.hideSoftKeyboard
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.customfields.models.CustomFieldValue
+import com.arny.flightlogbook.data.CONSTS
+import com.arny.flightlogbook.data.models.Airport
+import com.arny.flightlogbook.data.models.AirportRequestType
+import com.arny.flightlogbook.data.models.CustomFieldValue
+import com.arny.flightlogbook.data.models.PlaneType
+import com.arny.flightlogbook.data.models.getName
 import com.arny.flightlogbook.databinding.FAddeditBinding
-import com.arny.flightlogbook.domain.models.Airport
-import com.arny.flightlogbook.domain.models.PlaneType
-import com.arny.flightlogbook.presentation.common.BaseMvpFragment
-import com.arny.flightlogbook.presentation.common.getName
 import com.arny.flightlogbook.presentation.flights.addedit.presenter.AddEditPresenter
+import com.arny.flightlogbook.presentation.mvp.BaseMvpFragment
 import com.arny.flightlogbook.presentation.uicomponents.InputTimeComponent
+import com.arny.flightlogbook.presentation.utils.ToastMaker
+import com.arny.flightlogbook.presentation.utils.alertDialog
+import com.arny.flightlogbook.presentation.utils.createCustomLayoutDialog
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment
 import com.redmadrobot.inputmask.MaskedTextChangedListener
 import dagger.android.support.AndroidSupportInjection
 import moxy.ktx.moxyPresenter
-import java.util.*
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Provider
-import kotlin.collections.ArrayList
 
 class AddEditFragment : BaseMvpFragment(), AddEditView,
     CalendarDatePickerDialogFragment.OnDateSetListener,
@@ -104,11 +115,13 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
                 findNavController().popBackStack()
                 true
             }
+
             R.id.action_save -> {
                 binding.root.requestFocus()
                 presenter.checkAutoExportFile()
                 true
             }
+
             R.id.action_remove -> {
                 alertDialog(
                     context = requireContext(),
@@ -118,6 +131,7 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
                 )
                 true
             }
+
             else -> super.onOptionsItemSelected(item)
         }
 
@@ -323,10 +337,16 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
         tiedtDate.addTextChangedListener(
             MaskedTextChangedListener(
                 "[00].[00].[0000]",
-                ArrayList(),
-                false,
                 tiedtDate,
-                object : _TextWatcher {
+                object : TextWatcher {
+                    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+                    }
+
+                    override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+                    }
+
                     override fun afterTextChanged(s: Editable) {
                         if (tiedtDate.text.toString().empty()) {
                             tilDate.hint = getString(R.string.str_date)
@@ -344,7 +364,8 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
                             presenter.initDateFromMask(extractedValue)
                         }
                     }
-                })
+                }
+            )
         )
     }
 
@@ -373,40 +394,44 @@ class AddEditFragment : BaseMvpFragment(), AddEditView,
                     .setOnDateSetListener(this@AddEditFragment)
                     .show(childFragmentManager, null)
             }
+
             R.id.select_plane_type -> {
-                requireView().findNavController().navigate(
-                    AddEditFragmentDirections.actionAddEditFragmentToNavPlaneTypes(
-                        isRequestField = true
-                    )
+                findNavController().navigate(
+                    AddEditFragmentDirections.actionAddEditFragmentToNavPlaneTypes(true)
                 )
             }
+
             R.id.btnSelectFlightType -> {
-                requireView().findNavController().navigate(
-                    AddEditFragmentDirections.actionAddEditFragmentToNavFlightTypes(isRequestField = true)
+                findNavController().navigate(
+                    AddEditFragmentDirections.actionAddEditFragmentToNavFlightTypes(true)
                 )
             }
+
             R.id.btnMoto -> showMotoDialog()
             R.id.vColor,
             R.id.tvColor -> presenter.colorClick()
+
             R.id.ivRemoveColor -> presenter.removeColor()
             R.id.btnAddField -> {
                 findNavController().navigate(
-                    AddEditFragmentDirections.actionAddEditFragmentToNavFields(isRequestField = true)
+                    AddEditFragmentDirections.actionAddEditFragmentToNavFields(true)
                 )
             }
+
             R.id.tvDeparture -> {
                 findNavController().navigate(
                     AddEditFragmentDirections.actionAddEditFragmentToNavAirports(
-                        isRequest = true,
-                        requestType = AirportRequestType.DEPARTURE
+                        true,
+                        AirportRequestType.DEPARTURE
                     )
                 )
             }
+
             R.id.tvArrival -> {
                 findNavController().navigate(
                     AddEditFragmentDirections.actionAddEditFragmentToNavAirports(
-                        isRequest = true,
-                        requestType = AirportRequestType.ARRIVAL
+                        true,
+                        AirportRequestType.ARRIVAL
                     )
                 )
             }

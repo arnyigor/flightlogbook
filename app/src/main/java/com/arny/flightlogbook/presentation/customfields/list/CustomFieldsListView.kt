@@ -1,6 +1,6 @@
 package com.arny.flightlogbook.presentation.customfields.list
 
-import com.arny.flightlogbook.customfields.models.CustomField
+import com.arny.flightlogbook.data.models.CustomField
 import moxy.MvpView
 import moxy.viewstate.strategy.AddToEndSingleStrategy
 import moxy.viewstate.strategy.OneExecutionStateStrategy

@@ -1,7 +1,7 @@
 package com.arny.flightlogbook.presentation.airports.list
 
 import com.arny.flightlogbook.domain.airports.IAirportsInteractor
-import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
+import com.arny.flightlogbook.presentation.mvp.BaseMvpPresenter
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers

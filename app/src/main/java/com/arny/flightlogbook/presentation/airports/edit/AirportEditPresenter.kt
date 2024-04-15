@@ -1,10 +1,10 @@
 package com.arny.flightlogbook.presentation.airports.edit
 
-import com.arny.core.utils.fromCallable
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.data.models.Airport
 import com.arny.flightlogbook.domain.airports.IAirportsInteractor
-import com.arny.flightlogbook.domain.models.Airport
-import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
+import com.arny.flightlogbook.presentation.mvp.BaseMvpPresenter
+import io.reactivex.Single
 import moxy.InjectViewState
 import javax.inject.Inject
 
@@ -19,7 +19,7 @@ class AirportEditPresenter @Inject constructor(
 
     override fun onFirstViewAttach() {
         airportId?.let {
-            fromCallable { airportsInteractor.getAirport(it) }
+            Single.fromCallable { airportsInteractor.getAirport(it) }
                 .subscribeFromPresenter({
                     val airport = it.value
                     if (airport != null) {
@@ -51,10 +51,12 @@ class AirportEditPresenter @Inject constructor(
                     viewState.setIataError(R.string.error_empty_text_field)
                     return
                 }
+
                 icao.isBlank() -> {
                     viewState.setIcaoError(R.string.error_empty_text_field)
                     return
                 }
+
                 iata.isBlank() -> {
                     viewState.setIataError(R.string.error_empty_text_field)
                     return
@@ -79,7 +81,7 @@ class AirportEditPresenter @Inject constructor(
             longitude = longitudeStr.toDoubleOrNull(),
             elevation = elevationStr.toDoubleOrNull(),
         )
-        fromCallable { airportsInteractor.saveAirport(airport) }
+        Single.fromCallable { airportsInteractor.saveAirport(airport) }
             .subscribeFromPresenter({ save ->
                 if (save) {
                     viewState.setSuccessOk()

@@ -2,13 +2,13 @@ package com.arny.flightlogbook.presentation.settings
 
 import android.net.Uri
 import android.webkit.MimeTypeMap
-import com.arny.core.utils.fromNullable
-import com.arny.core.utils.fromSingle
+import com.arny.core.utils.toOptionalNull
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.data.models.AppResult
+import com.arny.flightlogbook.data.models.ExportFileType
 import com.arny.flightlogbook.domain.files.FilesInteractor
-import com.arny.flightlogbook.domain.models.ExportFileType
-import com.arny.flightlogbook.domain.models.Result
-import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
+import com.arny.flightlogbook.presentation.mvp.BaseMvpPresenter
+import io.reactivex.Single
 import moxy.InjectViewState
 import java.io.File
 import javax.inject.Inject
@@ -28,7 +28,7 @@ class BackupPresenter @Inject constructor(
 
     fun showFileData() {
         viewState.setShareFileVisible(false)
-        fromNullable { filesInteractor.getAllBackups() }
+        Single.fromCallable { filesInteractor.getAllBackups().toOptionalNull() }
             .subscribeFromPresenter({
                 val value = it.value
                 viewState.setShareFileVisible(!value.isNullOrBlank())
@@ -49,22 +49,21 @@ class BackupPresenter @Inject constructor(
     private fun importFile(uri: Uri) {
         viewState.hideResults()
         viewState.showProgress(R.string.import_data)
-        fromNullable {
-            filesInteractor.readFile(uri, false, null)
-        }.subscribeFromPresenter({
-            viewState.hideProgress()
-            val path = it.value
-            if (path != null) {
-                viewState.showSuccess(R.string.import_file_success, path)
-                viewState.showFileData()
-            } else {
-                viewState.toastError(R.string.error_import_file)
-            }
-        }, {
-            it.printStackTrace()
-            viewState.hideProgress()
-            viewState.toastError(R.string.error_import_file, it.message)
-        })
+        Single.fromCallable { filesInteractor.readFile(uri, false, null).toOptionalNull() }
+            .subscribeFromPresenter({
+                viewState.hideProgress()
+                val path = it.value
+                if (path != null) {
+                    viewState.showSuccess(R.string.import_file_success, path)
+                    viewState.showFileData()
+                } else {
+                    viewState.toastError(R.string.error_import_file)
+                }
+            }, {
+                it.printStackTrace()
+                viewState.hideProgress()
+                viewState.toastError(R.string.error_import_file, it.message)
+            })
     }
 
     fun exportToFile(type: ExportFileType = ExportFileType.XLS) {
@@ -75,7 +74,7 @@ class BackupPresenter @Inject constructor(
             .subscribeFromPresenter({
                 viewState.hideProgress()
                 when (it) {
-                    is Result.Success -> {
+                    is AppResult.Success -> {
                         val path = it.data
                         if (path.isNotBlank()) {
                             viewState.showResults(R.string.export_file_success, path)
@@ -84,7 +83,8 @@ class BackupPresenter @Inject constructor(
                             viewState.showError(R.string.error_export_file, null)
                         }
                     }
-                    is Result.Error -> {
+
+                    is AppResult.Error -> {
                         viewState.showError(R.string.error_export_file, it.exception?.message)
                     }
                 }
@@ -97,26 +97,25 @@ class BackupPresenter @Inject constructor(
     fun loadDefaultFile(fileName: String? = null) {
         viewState.hideResults()
         viewState.showProgress(R.string.import_data)
-        fromNullable {
-            filesInteractor.readFile(null, true, fileName)
-        }.subscribeFromPresenter({
-            viewState.hideProgress()
-            val path = it.value
-            if (path != null) {
-                viewState.showSuccess(R.string.import_file_success, path)
-                viewState.showFileData()
-            } else {
-                viewState.showError(R.string.error_import_file)
-            }
-        }, {
-            it.printStackTrace()
-            viewState.toastError(R.string.error_import_file, it.message)
-            viewState.hideProgress()
-        })
+        Single.fromCallable { filesInteractor.readFile(null, true, fileName).toOptionalNull() }
+            .subscribeFromPresenter({
+                viewState.hideProgress()
+                val path = it.value
+                if (path != null) {
+                    viewState.showSuccess(R.string.import_file_success, path)
+                    viewState.showFileData()
+                } else {
+                    viewState.showError(R.string.error_import_file)
+                }
+            }, {
+                it.printStackTrace()
+                viewState.toastError(R.string.error_import_file, it.message)
+                viewState.hideProgress()
+            })
     }
 
     fun chooseDefaultFile() {
-        fromSingle { filesInteractor.getAllBackupFileNames() }
+        Single.fromCallable { filesInteractor.getAllBackupFileNames() }
             .subscribeFromPresenter({ filenames ->
                 if (filenames.isNotEmpty() && filenames.size > 1) {
                     viewState.showAlertChooseDefault(filenames)
@@ -129,7 +128,7 @@ class BackupPresenter @Inject constructor(
     }
 
     fun onShareFileClick() {
-        fromSingle { filesInteractor.getAllBackupFileNames() }
+        Single.fromCallable { filesInteractor.getAllBackupFileNames() }
             .subscribeFromPresenter({ filenames ->
                 viewState.showFilesToShare(filenames)
             }, {
@@ -139,7 +138,7 @@ class BackupPresenter @Inject constructor(
     }
 
     fun shareSelectedFile(selectedName: String) {
-        fromNullable { filesInteractor.getFileUri(selectedName) }
+        Single.fromCallable { filesInteractor.getFileUri(selectedName).toOptionalNull() }
             .subscribeFromPresenter({
                 val value = it.value
                 if (value != null) {

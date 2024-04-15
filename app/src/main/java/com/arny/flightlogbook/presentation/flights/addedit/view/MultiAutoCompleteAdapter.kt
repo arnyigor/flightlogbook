@@ -1,7 +1,7 @@
 package com.arny.flightlogbook.presentation.flights.addedit.view
 
 import android.content.Context
-import com.arny.flightlogbook.adapters.AbstractArrayAdapter
+import com.arny.flightlogbook.presentation.utils.AbstractArrayAdapter
 
 class MultiAutoCompleteAdapter(
         context: Context

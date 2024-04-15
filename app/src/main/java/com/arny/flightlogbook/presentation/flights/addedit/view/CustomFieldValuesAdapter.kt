@@ -8,11 +8,11 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.adapters.diffUtilCallback
-import com.arny.flightlogbook.customfields.models.CustomFieldType
-import com.arny.flightlogbook.customfields.models.CustomFieldValue
+import com.arny.flightlogbook.data.models.CustomFieldType
+import com.arny.flightlogbook.data.models.CustomFieldValue
 import com.arny.flightlogbook.databinding.CustomFieldValueListItemBinding
-import java.util.*
+import com.arny.flightlogbook.presentation.utils.diffUtilCallback
+import java.util.Locale
 
 class CustomFieldValuesAdapter(
     private val onValueChange: (item: CustomFieldValue, value: String, position: Int) -> Unit,
@@ -112,6 +112,7 @@ class CustomFieldValuesAdapter(
                                 onValueChange(item, editText.text.toString(), layoutPosition)
                                 true
                             }
+
                             else -> false
                         }
                     }

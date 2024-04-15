@@ -5,30 +5,30 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.adapters.diffUtilCallback
+import com.arny.flightlogbook.data.models.Airport
+import com.arny.flightlogbook.presentation.utils.diffUtilCallback
 import com.arny.flightlogbook.databinding.IAirportBinding
-import com.arny.flightlogbook.domain.models.Airport
 
 class AirportsAdapter(
     private val isRus: Boolean,
     private val onClick: (position: Int, item: Airport) -> Unit
-) : ListAdapter<Airport, AirportsAdapter.AdapterViewholder>(
+) : ListAdapter<Airport, AirportsAdapter.AdapterViewHolder>(
     diffUtilCallback<Airport>(itemsTheSame = { old, new -> old.id == new.id })
 ) {
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): AdapterViewholder = AdapterViewholder(
+    ): AdapterViewHolder = AdapterViewHolder(
         IAirportBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         )
     )
 
-    override fun onBindViewHolder(holder: AdapterViewholder, position: Int) {
+    override fun onBindViewHolder(holder: AdapterViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
 
-    inner class AdapterViewholder(private val binding: IAirportBinding) :
+    inner class AdapterViewHolder(private val binding: IAirportBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(item: Airport) {
             val root = binding.root

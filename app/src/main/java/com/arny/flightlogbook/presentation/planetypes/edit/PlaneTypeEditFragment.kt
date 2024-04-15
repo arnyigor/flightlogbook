@@ -9,12 +9,12 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.setFragmentResult
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.arny.core.CONSTS
-import com.arny.core.utils.KeyboardHelper
-import com.arny.core.utils.ToastMaker.toastError
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.data.CONSTS
 import com.arny.flightlogbook.databinding.FPlaneTypeEditBinding
-import com.arny.flightlogbook.presentation.common.BaseMvpFragment
+import com.arny.flightlogbook.presentation.mvp.BaseMvpFragment
+import com.arny.flightlogbook.presentation.utils.KeyboardHelper
+import com.arny.flightlogbook.presentation.utils.ToastMaker.toastError
 import dagger.android.support.AndroidSupportInjection
 import moxy.ktx.moxyPresenter
 import javax.inject.Inject

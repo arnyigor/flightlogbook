@@ -1,11 +1,11 @@
 package com.arny.flightlogbook.presentation.planetypes.edit
 
-import com.arny.core.utils.fromNullable
-import com.arny.core.utils.fromSingle
+import com.arny.core.utils.toOptionalNull
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.domain.planetypes.AircraftType
+import com.arny.flightlogbook.data.models.AircraftType
 import com.arny.flightlogbook.domain.planetypes.PlaneTypesInteractor
-import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
+import com.arny.flightlogbook.presentation.mvp.BaseMvpPresenter
+import io.reactivex.Single
 import moxy.InjectViewState
 import javax.inject.Inject
 
@@ -28,7 +28,7 @@ class PlaneTypeEditPresenter @Inject constructor(
     }
 
     private fun loadPlaneType(id: Long) {
-        fromNullable { planeTypesInteractor.loadPlaneType(id) }
+        Single.fromCallable { planeTypesInteractor.loadPlaneType(id).toOptionalNull() }
             .subscribeFromPresenter({
                 val planeType = it.value
                 if (planeType != null) {
@@ -50,7 +50,7 @@ class PlaneTypeEditPresenter @Inject constructor(
             viewState.showRegNoError(R.string.error_empty_text_field)
             return
         }
-        fromSingle {
+        Single.fromCallable {
             planeTypesInteractor.addType(
                 planeTypeId,
                 title,

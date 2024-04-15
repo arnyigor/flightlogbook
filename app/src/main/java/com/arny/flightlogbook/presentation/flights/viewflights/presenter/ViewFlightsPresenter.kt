@@ -1,13 +1,13 @@
 package com.arny.flightlogbook.presentation.flights.viewflights.presenter
 
-import com.arny.core.utils.fromSingle
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.data.models.AppResult
+import com.arny.flightlogbook.data.models.Flight
 import com.arny.flightlogbook.domain.common.ResourcesInteractor
 import com.arny.flightlogbook.domain.flights.FlightsInteractor
-import com.arny.flightlogbook.domain.models.Flight
-import com.arny.flightlogbook.domain.models.Result
-import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
 import com.arny.flightlogbook.presentation.flights.viewflights.view.ViewFlightsView
+import com.arny.flightlogbook.presentation.mvp.BaseMvpPresenter
+import io.reactivex.Single
 import moxy.InjectViewState
 import javax.inject.Inject
 
@@ -24,9 +24,9 @@ class ViewFlightsPresenter @Inject constructor(
     }
 
     private fun getTimeInfo() {
-        fromSingle { flightsInteractor.getTotalFlightsTimeInfo() }
+        Single.fromCallable { flightsInteractor.getTotalFlightsTimeInfo() }
             .subscribeFromPresenter({
-                if (it is Result.Success) {
+                if (it is AppResult.Success) {
                     viewState.showTotalsInfo(it.data)
                 } else {
                     viewState.showTotalsInfo(null)
@@ -40,7 +40,7 @@ class ViewFlightsPresenter @Inject constructor(
             .subscribeFromPresenter({ result ->
                 viewState.viewLoadProgress(false)
                 when (result) {
-                    is Result.Success -> {
+                    is AppResult.Success -> {
                         flights = result.data
                         flights.forEach { it.selected = false }
                         viewState.updateAdapter(flights, restoreScroll)
@@ -48,7 +48,8 @@ class ViewFlightsPresenter @Inject constructor(
                         viewState.showEmptyView(flights.isEmpty())
                         getTimeInfo()
                     }
-                    is Result.Error -> {
+
+                    is AppResult.Error -> {
                         viewState.showError(result.exception?.message)
                     }
                 }

@@ -9,13 +9,17 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.arny.core.CONSTS
 import com.arny.core.utils.*
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.data.CONSTS
+import com.arny.flightlogbook.data.models.Flight
+import com.arny.flightlogbook.data.prefs.Prefs
 import com.arny.flightlogbook.databinding.FragmentFlightListBinding
-import com.arny.flightlogbook.domain.models.Flight
-import com.arny.flightlogbook.presentation.common.BaseMvpFragment
 import com.arny.flightlogbook.presentation.flights.viewflights.presenter.ViewFlightsPresenter
+import com.arny.flightlogbook.presentation.mvp.BaseMvpFragment
+import com.arny.flightlogbook.presentation.utils.ToastMaker
+import com.arny.flightlogbook.presentation.utils.alertDialog
+import com.arny.flightlogbook.presentation.utils.listDialog
 import dagger.android.support.AndroidSupportInjection
 import moxy.ktx.moxyPresenter
 import javax.inject.Inject
@@ -74,7 +78,7 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView {
     private fun initUI() {
         with(binding) {
             fabAddFlight.setOnClickListener {
-                 findNavController().navigate(FlightListFragmentDirections.actionNavFlightsToAddEditFragment())
+                 findNavController().navigate(FlightListFragmentDirections.actionNavFlightsToAddEditFragment(-1))
             }
             mLayoutManager = LinearLayoutManager(context)
             rvFlights.layoutManager = mLayoutManager
@@ -107,8 +111,8 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView {
         } else {
             val id = item.id
             id?.let {
-                findNavController().navigate(
-                    FlightListFragmentDirections.actionNavFlightsToAddEditFragment(id)
+                 findNavController().navigate(
+                    FlightListFragmentDirections.actionNavFlightsToAddEditFragment(it)
                 )
             }
         }
@@ -202,6 +206,7 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView {
                 )
                 true
             }
+
             R.id.action_remove_items -> {
                 alertDialog(
                     context = requireContext(),
@@ -212,6 +217,7 @@ class FlightListFragment : BaseMvpFragment(), ViewFlightsView {
                     })
                 true
             }
+
             else -> super.onOptionsItemSelected(item)
         }
 }

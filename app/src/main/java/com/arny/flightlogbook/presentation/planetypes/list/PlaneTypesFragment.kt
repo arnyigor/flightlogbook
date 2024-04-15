@@ -2,7 +2,9 @@ package com.arny.flightlogbook.presentation.planetypes.list
 
 import android.content.Context
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.setFragmentResult
@@ -12,18 +14,17 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.arny.core.CONSTS
-import com.arny.core.utils.ToastMaker
-import com.arny.core.utils.alertDialog
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.data.CONSTS
+import com.arny.flightlogbook.data.models.PlaneType
+import com.arny.flightlogbook.data.models.getName
 import com.arny.flightlogbook.databinding.PlaneTypesLayoutBinding
-import com.arny.flightlogbook.domain.models.PlaneType
-import com.arny.flightlogbook.presentation.common.BaseMvpFragment
-import com.arny.flightlogbook.presentation.common.getName
+import com.arny.flightlogbook.presentation.mvp.BaseMvpFragment
 import com.arny.flightlogbook.presentation.navigation.OpenDrawerListener
+import com.arny.flightlogbook.presentation.utils.ToastMaker
+import com.arny.flightlogbook.presentation.utils.alertDialog
 import dagger.android.support.AndroidSupportInjection
 import moxy.ktx.moxyPresenter
-import java.util.*
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -88,7 +89,7 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView {
 
     private fun addPlaneType() {
         requireView().findNavController().navigate(
-            PlaneTypesFragmentDirections.actionNavPlaneTypesToPlaneTypeEditFragment()
+            PlaneTypesFragmentDirections.actionNavPlaneTypesToPlaneTypeEditFragment(-1)
         )
     }
 
@@ -117,8 +118,8 @@ class PlaneTypesFragment : BaseMvpFragment(), PlaneTypesView {
     private fun navigateTypeEdit(item: PlaneType) {
         val typeId = item.typeId
         typeId?.let {
-            findNavController().navigate(
-                PlaneTypesFragmentDirections.actionNavPlaneTypesToPlaneTypeEditFragment(typeId)
+             findNavController().navigate(
+                PlaneTypesFragmentDirections.actionNavPlaneTypesToPlaneTypeEditFragment(it)
             )
         }
     }

@@ -1,6 +1,6 @@
 package com.arny.flightlogbook.presentation.airports.list
 
-import com.arny.flightlogbook.domain.models.Airport
+import com.arny.flightlogbook.data.models.Airport
 import moxy.MvpView
 import moxy.viewstate.strategy.alias.AddToEndSingle
 import moxy.viewstate.strategy.alias.OneExecution

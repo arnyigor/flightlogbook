@@ -3,6 +3,6 @@
                 android:id="@+id/widget"
                 android:layout_width="150dp"
                 android:layout_height="150dp"
-                android:background="@drawable/ic_launcher"
+                android:background="@mipmap/ic_launcher"
 >
 </RelativeLayout>

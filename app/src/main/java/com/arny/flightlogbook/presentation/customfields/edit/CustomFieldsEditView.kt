@@ -1,7 +1,7 @@
 package com.arny.flightlogbook.presentation.customfields.edit
 
 import androidx.annotation.StringRes
-import com.arny.flightlogbook.customfields.models.CustomFieldType
+import com.arny.flightlogbook.data.models.CustomFieldType
 import moxy.MvpView
 import moxy.viewstate.strategy.alias.AddToEndSingle
 import moxy.viewstate.strategy.alias.OneExecution

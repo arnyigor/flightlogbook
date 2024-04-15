@@ -2,9 +2,9 @@ package com.arny.flightlogbook.presentation.flights.addedit.view
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import com.arny.flightlogbook.customfields.models.CustomFieldValue
-import com.arny.flightlogbook.domain.models.Airport
-import com.arny.flightlogbook.domain.models.PlaneType
+import com.arny.flightlogbook.data.models.Airport
+import com.arny.flightlogbook.data.models.CustomFieldValue
+import com.arny.flightlogbook.data.models.PlaneType
 import moxy.MvpView
 import moxy.viewstate.strategy.alias.AddToEndSingle
 import moxy.viewstate.strategy.alias.OneExecution

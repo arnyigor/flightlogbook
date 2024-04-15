@@ -6,9 +6,9 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.adapters.diffUtilCallback
+import com.arny.flightlogbook.data.models.PlaneType
 import com.arny.flightlogbook.databinding.PlaneTypeListItemLayoutBinding
-import com.arny.flightlogbook.domain.models.PlaneType
+import com.arny.flightlogbook.presentation.utils.diffUtilCallback
 
 class PlaneTypesAdapter(
     private val hideEdit: Boolean = false,
@@ -31,7 +31,7 @@ class PlaneTypesAdapter(
         holder.bind(getItem(position))
     }
 
-    inner class PlaneTypesViewHolder constructor(
+    inner class PlaneTypesViewHolder(
         private val viewBinding: PlaneTypeListItemLayoutBinding
     ) : RecyclerView.ViewHolder(viewBinding.root) {
         fun bind(item: PlaneType) {

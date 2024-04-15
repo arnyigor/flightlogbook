@@ -1,20 +1,26 @@
 package com.arny.flightlogbook.presentation.statistic.presenter
 
 import android.graphics.Color
-import com.arny.core.utils.*
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.data.models.FilterType
+import com.arny.flightlogbook.data.utils.DateTimeUtils
+import com.arny.flightlogbook.data.utils.getColorsIntArray
+import com.arny.flightlogbook.data.utils.toHexColor
 import com.arny.flightlogbook.domain.common.ResourcesInteractor
-import com.arny.flightlogbook.domain.models.FilterType
 import com.arny.flightlogbook.domain.models.Statistic
 import com.arny.flightlogbook.domain.models.StatisticFilter
 import com.arny.flightlogbook.domain.statistic.StatisticInteractor
-import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
+import com.arny.flightlogbook.presentation.mvp.BaseMvpPresenter
 import com.arny.flightlogbook.presentation.statistic.view.StatisticsView
+import io.reactivex.Completable
 import io.reactivex.Observable
+import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
 import moxy.InjectViewState
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
-import java.util.*
+import java.util.Calendar
+import java.util.GregorianCalendar
 import javax.inject.Inject
 
 @InjectViewState
@@ -67,7 +73,7 @@ class StatisticsPresenter @Inject constructor(
     private fun correctTimes() {
         viewState.setPeriodTypeVisible(currentPeriodType.canShowDialog)
         viewState.setCustomPeriodVisible(currentPeriodType.showCustomRange)
-        fromCompletable { correctDateTime() }
+        Completable.fromCallable { correctDateTime() }
             .subscribeFromPresenter({
                 when (currentPeriodType) {
                     PeriodType.DAY -> setPeriod("dd.MM.yyyy")
@@ -97,7 +103,7 @@ class StatisticsPresenter @Inject constructor(
     }
 
     private fun setPeriodStartEnd(format: String) {
-        fromCallable {
+        Observable.fromCallable {
             Pair(
                 DateTimeUtils.getDateTime(startDateTime, format),
                 DateTimeUtils.getDateTime(endDateTime, format)
@@ -110,7 +116,7 @@ class StatisticsPresenter @Inject constructor(
     }
 
     private fun setPeriod(format: String) {
-        fromCallable {
+        Observable.fromCallable {
             DateTimeUtils.getDateTime(startDateTime, format)
         }.subscribeFromPresenter({
             viewState.setPeriodItemText(it)
@@ -122,7 +128,7 @@ class StatisticsPresenter @Inject constructor(
     }
 
     fun onDateStartSet(year: Int, monthOfYear: Int, dayOfMonth: Int) {
-        fromCallable {
+        Observable.fromCallable {
             startDateChange(year, monthOfYear, dayOfMonth)
         }.subscribeFromPresenter({ ranged ->
             if (ranged) {
@@ -152,18 +158,22 @@ class StatisticsPresenter @Inject constructor(
                         && filterType == FilterType.AIRCRAFT_NAME -> filterBySelectedAircraftNames(
                     stringsSelection
                 )
+
                 stringsSelection.isNotEmpty()
                         && filterType == FilterType.AIRCRAFT_REG_NO -> filterBySelectedAircraftRegNo(
                     stringsSelection
                 )
+
                 stringsSelection.isNotEmpty()
                         && filterType == FilterType.AIRCRAFT_TYPE -> filterBySelectedAircraftTypes(
                     stringsSelection
                 )
+
                 longsSelection.isNotEmpty()
                         && filterType == FilterType.FLIGHT_TYPE -> filterBySelectedFlightTypes(
                     longsSelection
                 )
+
                 filterType == FilterType.COLOR -> filterBySelectedColor()
             }
         } else {
@@ -236,7 +246,7 @@ class StatisticsPresenter @Inject constructor(
     }
 
     fun initDateStart() {
-        fromCallable {
+        Observable.fromCallable {
             dateAndTimeStart.timeInMillis = startDateTime
             val y = dateAndTimeStart.get(Calendar.YEAR)
             val m = dateAndTimeStart.get(Calendar.MONTH)
@@ -249,7 +259,7 @@ class StatisticsPresenter @Inject constructor(
     }
 
     fun initDateEnd() {
-        fromCallable {
+        Observable.fromCallable {
             dateAndTimeEnd.timeInMillis = endDateTime
             val y = dateAndTimeEnd.get(Calendar.YEAR)
             val m = dateAndTimeEnd.get(Calendar.MONTH)
@@ -261,7 +271,7 @@ class StatisticsPresenter @Inject constructor(
     }
 
     fun onDateEndSet(year: Int, monthOfYear: Int, dayOfMonth: Int) {
-        fromCallable {
+        Observable.fromCallable {
             endDateTimeChange(year, monthOfYear, dayOfMonth)
         }.subscribeFromPresenter({ ranged ->
             if (ranged) {
@@ -285,7 +295,7 @@ class StatisticsPresenter @Inject constructor(
     }
 
     fun decreasePeriod() {
-        fromCallable {
+        Observable.fromCallable {
             onAddPeriod(-1)
         }.subscribeFromPresenter({
             setPeriod(it)
@@ -295,7 +305,7 @@ class StatisticsPresenter @Inject constructor(
     }
 
     fun increasePeriod() {
-        fromCallable {
+        Observable.fromCallable {
             onAddPeriod(1)
         }.subscribeFromPresenter({
             setPeriod(it)
@@ -313,6 +323,7 @@ class StatisticsPresenter @Inject constructor(
                 correctDayToFirst(plusDays)
                 "dd.MM.yyyy"
             }
+
             PeriodType.MONTH -> {
                 val jodaDateTime = DateTimeUtils.getJodaDateTime(dateAndTimeStart)
                 val plusMonths =
@@ -322,6 +333,7 @@ class StatisticsPresenter @Inject constructor(
                 correctMonthFirst(plusMonths)
                 "MMMM yyyy"
             }
+
             PeriodType.YEAR -> {
                 val jodaDateTime = DateTimeUtils.getJodaDateTime(dateAndTimeStart)
                 jodaDateTime.withZone(DateTimeZone.UTC)
@@ -330,6 +342,7 @@ class StatisticsPresenter @Inject constructor(
                 correctYearFirst(plusYears)
                 "yyyy"
             }
+
             else -> "dd.MM.yyyy"
         }
     }
@@ -378,12 +391,14 @@ class StatisticsPresenter @Inject constructor(
                 longsSelection.addAll(getFilterSelection(mSelection)
                     .mapNotNull { it.value.id })
             }
+
             FilterType.AIRCRAFT_NAME,
             FilterType.AIRCRAFT_TYPE,
             FilterType.AIRCRAFT_REG_NO -> {
                 stringsSelection.addAll(getFilterSelection(mSelection)
                     .mapNotNull { it.value.title })
             }
+
             FilterType.COLOR -> {
             }
         }
@@ -453,7 +468,8 @@ class StatisticsPresenter @Inject constructor(
     }
 
     private fun updateStatistic(statList: Observable<ArrayList<Statistic>>) {
-        statList.observeOnMain()
+        statList
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribeFromPresenter({
                 viewState.clearAdapter()
                 viewState.updateAdapter(it)
@@ -480,7 +496,7 @@ class StatisticsPresenter @Inject constructor(
     }
 
     private fun loadFilterFlightTypes() {
-        fromSingle { statisticInteractor.loadFlightTypes() }
+        Single.fromCallable { statisticInteractor.loadFlightTypes() }
             .map { flTypes ->
                 flTypes.map {
                     StatisticFilter(FilterType.FLIGHT_TYPE, it.id, it.typeTitle ?: "")
@@ -501,7 +517,7 @@ class StatisticsPresenter @Inject constructor(
     }
 
     private fun loadFilterPlaneTypes() {
-        fromSingle { statisticInteractor.loadAircraftsTypes() }
+        Single.fromCallable { statisticInteractor.loadAircraftsTypes() }
             .map { types ->
                 types.map {
                     StatisticFilter(FilterType.AIRCRAFT_TYPE, null, it)
@@ -516,7 +532,7 @@ class StatisticsPresenter @Inject constructor(
     }
 
     private fun loadFilterPlaneNames() {
-        fromSingle { statisticInteractor.loadAircrafts() }
+        Single.fromCallable { statisticInteractor.loadAircrafts() }
             .map { types ->
                 types.distinctBy { it.typeName }
                     .map {
@@ -532,7 +548,7 @@ class StatisticsPresenter @Inject constructor(
     }
 
     private fun loadFilterPlaneRegNumbers() {
-        fromSingle { statisticInteractor.loadAircrafts() }
+        Single.fromCallable { statisticInteractor.loadAircrafts() }
             .map { types ->
                 types.distinctBy { it.regNo }
                     .map {
@@ -548,7 +564,7 @@ class StatisticsPresenter @Inject constructor(
     }
 
     private fun initFilter() {
-        fromCallable { filterList }
+        Observable.fromCallable { filterList }
             .map { list -> list.map { it.title ?: "" } }
             .subscribeFromPresenter({
                 if (it.isNotEmpty()) {
@@ -560,7 +576,7 @@ class StatisticsPresenter @Inject constructor(
     }
 
     fun colorClick() {
-        fromCallable { colors ?: getColorsIntArray() }
+        Observable.fromCallable { colors ?: getColorsIntArray() }
             .subscribeFromPresenter({ colors ->
                 viewState.onColorSelect(colors)
             })

@@ -1,10 +1,10 @@
 package com.arny.flightlogbook.presentation.customfields.edit
 
-import com.arny.core.utils.fromSingle
 import com.arny.flightlogbook.R
-import com.arny.flightlogbook.customfields.domain.ICustomFieldInteractor
-import com.arny.flightlogbook.customfields.models.CustomFieldType
-import com.arny.flightlogbook.presentation.common.BaseMvpPresenter
+import com.arny.flightlogbook.data.models.CustomFieldType
+import com.arny.flightlogbook.domain.customfields.ICustomFieldInteractor
+import com.arny.flightlogbook.presentation.mvp.BaseMvpPresenter
+import io.reactivex.Single
 import moxy.InjectViewState
 import javax.inject.Inject
 
@@ -33,22 +33,21 @@ class CustomFieldsEditPresenter @Inject constructor() : BaseMvpPresenter<CustomF
     }
 
     private fun loadField(id: Long) {
-        fromSingle { customFieldInteractor.getCustomField(id) }
-            .subscribeFromPresenter({
-                val customField = it.value
-                if (customField != null) {
-                    name = customField.name
-                    viewState.setName(name)
-                    type = customField.type
-                    viewState.setType(type)
-                    showByDefault = customField.showByDefault
-                    viewState.setDefaultChecked(showByDefault)
-                    addTimeChecked = customField.addTime
-                    viewState.setAddTimeChecked(addTimeChecked)
-                }
-            }, {
-                it.printStackTrace()
-            })
+        Single.fromCallable {
+            customFieldInteractor.getCustomField(id)
+        }.subscribeFromPresenter({
+            val customField = it.value
+            if (customField != null) {
+                name = customField.name
+                viewState.setName(name)
+                type = customField.type
+                viewState.setType(type)
+                showByDefault = customField.showByDefault
+                viewState.setDefaultChecked(showByDefault)
+                addTimeChecked = customField.addTime
+                viewState.setAddTimeChecked(addTimeChecked)
+            }
+        })
     }
 
     fun onSaveClicked(checkedAddTime: Boolean) {
@@ -58,7 +57,15 @@ class CustomFieldsEditPresenter @Inject constructor() : BaseMvpPresenter<CustomF
             return
         }
         viewState.showProgress(false)
-        fromSingle { customFieldInteractor.save(fieldId, name!!, type, showByDefault, addTimeChecked) }
+        Single.fromCallable {
+            customFieldInteractor.save(
+                fieldId,
+                name!!,
+                type,
+                showByDefault,
+                addTimeChecked
+            )
+        }
             .subscribeFromPresenter({
                 viewState.showProgress(false)
                 viewState.showResult(R.string.save_custom_field_success)
@@ -88,7 +95,7 @@ class CustomFieldsEditPresenter @Inject constructor() : BaseMvpPresenter<CustomF
 
     fun onDelete() {
         fieldId?.let {
-            fromSingle { customFieldInteractor.removeField(it) }
+            Single.fromCallable { customFieldInteractor.removeField(it) }
                 .subscribeFromPresenter({
                     if (it) {
                         viewState.showResult(R.string.custom_field_removed)

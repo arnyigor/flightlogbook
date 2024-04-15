@@ -27,7 +27,7 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.4" />
 
-    <com.arny.flightlogbook.customfields.view.CustomFieldView
+    <com.arny.flightlogbook.presentation.customfields.customview.CustomFieldView
         android:id="@+id/cfvView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

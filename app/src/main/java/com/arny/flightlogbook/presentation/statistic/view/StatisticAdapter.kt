@@ -5,10 +5,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.arny.core.utils.fromHtml
-import com.arny.flightlogbook.adapters.diffUtilCallback
 import com.arny.flightlogbook.databinding.StatisticItemLayoutBinding
 import com.arny.flightlogbook.domain.models.Statistic
 import com.arny.flightlogbook.domain.models.StatisticType
+import com.arny.flightlogbook.presentation.utils.diffUtilCallback
 
 class StatisticAdapter : ListAdapter<Statistic, StatisticAdapter.StatisticViewHolder>(
     diffUtilCallback<Statistic>()

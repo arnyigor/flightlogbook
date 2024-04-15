@@ -9,12 +9,12 @@ import androidx.fragment.app.setFragmentResult
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.arny.core.CONSTS
 import com.arny.core.utils.toastError
 import com.arny.flightlogbook.R
+import com.arny.flightlogbook.data.CONSTS
+import com.arny.flightlogbook.data.models.Airport
 import com.arny.flightlogbook.databinding.FAirportEditBinding
-import com.arny.flightlogbook.domain.models.Airport
-import com.arny.flightlogbook.presentation.common.BaseMvpFragment
+import com.arny.flightlogbook.presentation.mvp.BaseMvpFragment
 import dagger.android.support.AndroidSupportInjection
 import moxy.ktx.moxyPresenter
 import javax.inject.Inject
@@ -58,11 +58,13 @@ class AirportEditFragment : BaseMvpFragment(), AirportEditView {
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.add_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
         when (item.itemId) {
             android.R.id.home -> {
