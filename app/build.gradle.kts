@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -9,27 +11,52 @@ plugins {
 android {
     namespace = "com.arny.flightlogbook"
     compileSdk = 34
-    val vMajor = 6
-    val vMinor = 4
-    val vBuild = 2
+    val vMajor = 1
+    val vMinor = 0
+    val vBuild = 0
 
     defaultConfig {
         applicationId = "com.arny.flightlogbook"
         minSdk = 21
         targetSdk = 34
-        versionCode = vMajor * 100 + vMinor * 10 + vBuild
+        versionCode = vMajor * 1000 + vMinor * 100 + vBuild
         versionName = "$vMajor" + ".${vMinor}" + ".${vBuild}"
-
+        setProperty("archivesBaseName", "$applicationId-v($versionName)-c($versionCode)")
+        vectorDrawables.useSupportLibrary = true
+        kapt {
+            arguments {
+                arg("room.schemaLocation", "$projectDir/schemas")
+            }
+        }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            val properties = Properties().apply {
+                load(File("signing.properties").reader())
+            }
+            storeFile = File(properties.getProperty("STORE_FILE"))
+            storePassword = properties.getProperty("STORE_PASSWORD")
+            keyPassword = properties.getProperty("KEY_PASSWORD")
+            keyAlias = properties.getProperty("KEY_ALIAS")
+        }
+    }
+
     buildTypes {
+        debug {
+            isDebuggable = true
+            isMinifyEnabled = false
+        }
         release {
+            isDebuggable = false
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     buildFeatures {

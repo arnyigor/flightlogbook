@@ -1,4 +1,5 @@
 <resources>
+    <string name="app_name">Pilot Logbook</string>
     <string name="service_file_download_success">Загрузка файла завершена</string>
     <string name="service_file_upload_success">Выгрузка файла завершена</string>
     <string name="service_operation_success">Операция завершена</string>
